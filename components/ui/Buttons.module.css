@@ -1,0 +1,38 @@
+.buttonsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.serviceButton,
+.contactButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: background-color 0.3s, opacity 0.3s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.contactButton {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: black;
+}
+
+.contactButton:hover {
+  background-color: white;
+  opacity: 1;
+}
+
+.serviceButton {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
+.serviceButton:hover {
+  background-color: black;
+  opacity: 1;
+}
