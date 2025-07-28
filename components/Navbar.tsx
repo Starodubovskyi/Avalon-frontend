@@ -1,50 +1,33 @@
-/** @format */
-
-import Image from "next/image";
-import Link from "next/link";
-
-import logo from "../img/logo-1.png";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import ThemeToggler from "./ThemeToggler";
+"use client";
+import { useEffect, useState } from "react";
+import Logo from "./nav/Logo";
+import NavLinks from "./nav/NavLinks";
+import UserMenu from "./nav/UserMenu";
 
 const Navbar = () => {
-	return (
-		<div className='bg-primary dark:bg-slate-700 text-white py-2 px-5 flex justify-between'>
-			<Link href='/'>
-				<Image src={logo} alt='Dashboard' width={40} />
-			</Link>
-			<div className='flex items-center'>
-				<ThemeToggler />
-				<DropdownMenu>
-					<DropdownMenuTrigger className='focus:outline-none'>
-						<Avatar>
-							<AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
-							<AvatarFallback className='text-black'>BT</AvatarFallback>
-						</Avatar>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent>
-						<DropdownMenuLabel>My Account</DropdownMenuLabel>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>
-							<Link href='/profile'>Profile</Link>
-						</DropdownMenuItem>
-						<DropdownMenuItem>
-							<Link href='/auth'>Logout</Link>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
-		</div>
-	);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white/60 dark:bg-black/40 backdrop-blur-xl"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="w-full flex items-center justify-between px-6 py-4">
+        <Logo />
+        <NavLinks />
+        <UserMenu />
+      </div>
+    </div>
+  );
 };
 
 export default Navbar;
