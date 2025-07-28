@@ -1,9 +1,13 @@
-'use client';
+// components/LoginForm.tsx
+"use client";
 
-import BackButton from '@/components/BackButton';
-import * as z from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+// УДАЛИТЬ ЭТИ ИМПОРТЫ, если они были:
+// import BackButton from '@/components/BackButton';
+// import AuthLayout from '@/components/AuthLayout';
+
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -11,29 +15,30 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   email: z
     .string()
     .min(1, {
-      message: 'Email is required',
+      message: "Email is required",
     })
     .email({
-      message: 'Please enter a valid email',
+      message: "Please enter a valid email",
     }),
   password: z.string().min(1, {
-    message: 'Password is required',
+    message: "Password is required",
   }),
 });
 
@@ -43,41 +48,63 @@ const LoginForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
   const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    router.push('/');
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const user = users.find(
+      (u: any) => u.email === data.email && u.password === data.password
+    );
+
+    if (user) {
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${user.name}!`,
+      });
+      router.push("/dashboard");
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Invalid email or password.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>
+    // <AuthLayout showBackButton={false}> // <-- УДАЛЕНА ОБЕРТКА AUTHLAYOUT
+    <Card className="w-full shadow-lg transform transition-transform duration-300 hover:scale-[1.01]">
+      {" "}
+      {/* max-w-md убран, т.к. Tabs его уже задает */}
+      <CardHeader className="text-center">
+        <CardTitle className="text-3xl font-bold">Login</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Log into your account with your credentials
         </CardDescription>
       </CardHeader>
-      <CardContent className='space-y-2'>
+      <CardContent className="space-y-6">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className='space-y-6'
+            className="space-y-6"
           >
             <FormField
               control={form.control}
-              name='email'
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>
+                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
                     Email
                   </FormLabel>
                   <FormControl>
                     <Input
-                      className='bg-slate-100 dark:bg-slate-500 border-0 focus-visible:ring-0 text-black dark:text-white focus-visible: ring-offset-0'
-                      placeholder='Enter Email'
+                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
+                      placeholder="Enter Email"
                       {...field}
                     />
                   </FormControl>
@@ -88,17 +115,17 @@ const LoginForm = () => {
 
             <FormField
               control={form.control}
-              name='password'
+              name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>
+                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
                     Password
                   </FormLabel>
                   <FormControl>
                     <Input
-                      type='password'
-                      className='bg-slate-100 dark:bg-slate-500 border-0 focus-visible:ring-0 text-black dark:text-white focus-visible: ring-offset-0'
-                      placeholder='Enter Password'
+                      type="password"
+                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
+                      placeholder="Enter Password"
                       {...field}
                     />
                   </FormControl>
@@ -107,11 +134,14 @@ const LoginForm = () => {
               )}
             />
 
-            <Button className='w-full'>Sign In</Button>
+            <Button className="w-full" type="submit">
+              Sign In
+            </Button>
           </form>
         </Form>
       </CardContent>
     </Card>
+    // </AuthLayout> // <-- УДАЛЕНА ОБЕРТКА AUTHLAYOUT
   );
 };
 
