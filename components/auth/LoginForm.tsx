@@ -36,7 +36,13 @@ const formSchema = z.object({
   password: z.string().min(1, { message: "Password is required" }),
 });
 
-const LoginForm = () => {
+interface LoginFormProps {
+  onSwitchTab: () => void;
+  onCloseModal: () => void; // <-- Добавляем новый пропс
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ onSwitchTab, onCloseModal }) => {
+  // <-- Принимаем пропс
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -63,6 +69,7 @@ const LoginForm = () => {
         title: "Login Successful",
         description: `Welcome back, ${user.name}!`,
       });
+      onCloseModal(); // <-- Закрываем модальное окно после успешного входа
       router.push("/dashboard");
     } else {
       toast({
@@ -76,16 +83,13 @@ const LoginForm = () => {
   return (
     <Card className={styles.card}>
       <CardHeader className={styles.header}>
-        <CardTitle className={styles.title}>
-          Welcome Back to Realnest!
-        </CardTitle>
+        <CardTitle className={styles.title}>Welcome Back!</CardTitle>
         <CardDescription className={styles.description}>
           Sign in your account
         </CardDescription>
       </CardHeader>
 
       <CardContent className={styles.content}>
-        {/* Оберните все содержимое CardContent в один корневой div */}
         <div>
           <Form {...form}>
             <form
@@ -160,9 +164,11 @@ const LoginForm = () => {
 
           <div className={styles.bottomText}>
             Don't have an account?
-            <Link href="/register" passHref legacyBehavior>
-              <a className={styles.link}>Sign Up</a>
-            </Link>
+            {/* <-- Используем onClick для переключения вкладки */}
+            <a className={styles.link} onClick={onSwitchTab}>
+              {" "}
+              Sign Up
+            </a>
           </div>
         </div>{" "}
         {/* Закрытие корневого div */}

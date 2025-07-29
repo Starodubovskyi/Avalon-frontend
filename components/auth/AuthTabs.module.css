@@ -1,38 +1,3 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  min-height: 100vh;
-  padding-top: 6rem; /* pt-24 */
-  position: relative;
-
-  background-image: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
-}
-
-@media (min-width: 640px) {
-  .container {
-    padding: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    padding: 2rem;
-  }
-}
-
-.container.dark {
-  background-image: linear-gradient(to bottom right, #111827, #000000);
-}
-
-.backButtonWrapper {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 10;
-}
-
 .tabWrapper {
   width: 100%;
   max-width: 28rem; /* max-w-md */
@@ -67,4 +32,39 @@
 .tabTrigger[data-state="active"] {
   background-color: #111827;
   color: #e5e7eb;
+}
+
+.tabWrapper {
+  /* Возможно, вам не нужно здесь много стилей, так как позиционирование
+     теперь управляется родительским div в AuthTabs.tsx */
+  width: 100%; /* Убедимся, что Tabs занимает всю ширину */
+  display: flex; /* Добавим flex для Tabs, чтобы управлять его внутренними элементами */
+  flex-direction: column; /* Позволяет TabsList быть сверху, а TabsContent под ним */
+  align-items: center; /* Центрирует TabsList */
+}
+
+.tabList {
+  display: inline-flex; /* Используем inline-flex, чтобы список кнопок был компактным */
+  /* margin-bottom: 1rem; */
+  border-radius: 30rem; /* Если вы хотите закругленные края */
+  background-color: #f3f4f6; /* Светлый фон для списка вкладок */
+  padding: 0.25rem;
+}
+
+.tabTrigger {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+
+  background-color: transparent;
+  border-radius: 15rem; /* Немного закругленные углы для отдельных кнопок */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tabTrigger[data-state="active"] {
+  background-color: white;
+  color: #1f2937;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Легкая тень для активной кнопки */
 }

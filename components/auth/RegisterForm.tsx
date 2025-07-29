@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
 import SocialAuthButtons from "./SocialAuthButtons";
-import Link from "next/link";
+// import Link from "next/link"; // <-- Link не нужен для переключения табов
 
 import styles from "./authForm.module.css";
 
@@ -47,7 +47,16 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-const RegisterForm = () => {
+interface RegisterFormProps {
+  onSwitchTab: () => void;
+  onCloseModal: () => void; // <-- Добавляем новый пропс
+}
+
+const RegisterForm: React.FC<RegisterFormProps> = ({
+  onSwitchTab,
+  onCloseModal,
+}) => {
+  // <-- Принимаем пропс
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -87,7 +96,8 @@ const RegisterForm = () => {
       description: "Your account has been created. Please log in.",
     });
 
-    router.push("/login");
+    onSwitchTab(); // Переключаем на вкладку логина после регистрации
+    // onCloseModal(); // Если вы хотите закрыть модальное окно сразу после успешной регистрации, раскомментируйте это
   };
 
   return (
@@ -95,12 +105,11 @@ const RegisterForm = () => {
       <CardHeader className={styles.header}>
         <CardTitle className={styles.title}>Create Your Account</CardTitle>
         <CardDescription className={styles.description}>
-          Register to start.
+          Register to start
         </CardDescription>
       </CardHeader>
 
       <CardContent className={styles.content}>
-        {/* Оберните все содержимое CardContent в один корневой div */}
         <div>
           <Form {...form}>
             <form
@@ -199,9 +208,10 @@ const RegisterForm = () => {
 
           <div className={styles.bottomText}>
             Already have an account?{" "}
-            <Link href="/login" passHref legacyBehavior>
-              <a className={styles.link}>Log In</a>
-            </Link>
+            {/* <-- Используем onClick для переключения вкладки */}
+            <a className={styles.link} onClick={onSwitchTab}>
+              Log In
+            </a>
           </div>
         </div>{" "}
         {/* Закрытие корневого div */}

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+// ... (остальные импорты, которые у вас уже есть)
 import AnalyticsCharts from "@/components/dashboard/AnalyticsCharts";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import PostsTable from "@/components/posts/PostsTable";
@@ -8,13 +12,23 @@ import DashboardPage from "@/components/InformationMainPage";
 import InspectorFeatures from "@/components/ui/inspectorFeatures";
 import InspectorBenefits from "@/components/ui/inspectorBenefits";
 import BannerIntro from "@/components/ui/bannerIntro";
-
-// import ForInspectorsButton from "@/components/nav/ForInspectorsButton";
-// import HomeButton from "@/components/nav/HomeButton";
+import Navbar from "@/components/Navbar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import AuthModalContent from "@/components/auth/AuthModalContent";
 
 export default function Home() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   return (
-    <div className="pageBackground">
+    <div className={`pageBackground ${isAuthModalOpen ? "modal-open" : ""}`}>
+      <Navbar onLoginClick={() => setIsAuthModalOpen(true)} />
+
       <div className="mainContent">
         <BannerIntro />
         <DashboardPage />
@@ -44,6 +58,22 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {/* Модальное окно для входа/регистрации */}
+      <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+        <DialogContent
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-0 rounded-lg shadow-lg bg-white dark:bg-gray-800 z-50 overflow-hidden
+                     w-[95vw] h-[95vh] max-w-5xl max-h-[90vh] flex" // <-- Изменение здесь: max-h-[90vh]
+        >
+          <DialogHeader className="hidden">
+            <DialogTitle className="sr-only">Authentication</DialogTitle>
+            <DialogDescription className="sr-only">
+              Login or Register to access your account.
+            </DialogDescription>
+          </DialogHeader>
+          <AuthModalContent onCloseModal={() => setIsAuthModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
