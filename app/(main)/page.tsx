@@ -34,13 +34,10 @@ export default function Home() {
         </section>
 
         <section id="for-inspectors" className="py-20">
-          <h2 className="text-3xl font-bold text-center mb-6">FOR INSPECTORS</h2>
+          <h2 className="text-3xl font-bold text-center mb-6"></h2>
           <InspectorFeatures />
           <InspectorBenefits />
-          {/* <ForInspectorsButton /> */}
         </section>
-
-        {/* <PostsTable title="Latest Posts" limit={5} /> */}
       </div>
     </div>
   );

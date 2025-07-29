@@ -107,7 +107,7 @@ const Navbar = () => {
           </button>
           <button
             className={styles.navButton}
-            onClick={() => scrollTo("inspectors")}
+            onClick={() => scrollTo("for-inspectors")}
           >
             For Inspectors
           </button>
