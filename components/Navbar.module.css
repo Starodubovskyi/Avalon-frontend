@@ -1,0 +1,55 @@
+.navButton {
+  padding: 15px 25px;
+  border: unset;
+  border-radius: 30px; /* было 15px */
+  color: #212121;
+  z-index: 1;
+  background: #e8e8e8;
+  position: relative;
+  font-weight: 600;
+  font-size: 17px;
+  -webkit-box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  transition: all 250ms;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.navButton:hover {
+  color: #e8e8e8;
+  transform: scale(1.05);
+}
+
+.navButton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  border-radius: 30px; /* тоже обновлено */
+  background-color: #212121;
+  z-index: -1;
+  -webkit-box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  transition: all 250ms;
+}
+
+.navButton:hover::before {
+  width: 100%;
+}
+
+.getStartedBtn {
+  background-color: black;
+  color: white;
+  font-weight: 600;
+  padding: 15px 25px;
+  border-radius: 30px; /* округляем как у других */
+  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  transition: background 250ms, transform 200ms ease-in-out;
+  cursor: pointer;
+}
+
+.getStartedBtn:hover {
+  transform: scale(1.05); /* увеличиваем на 5% при наведении */
+}

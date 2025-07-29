@@ -3,8 +3,8 @@ import Image from "next/image";
 import logo from "@/img/logo-1.png";
 
 const Logo = () => (
-  <Link href="#home" className="flex items-center gap-3">
-    <Image src={logo} alt="Logo" width={70} height={70} />
+  <Link href="/" className="flex items-center gap-3">
+    <Image src={logo} alt="Logo" width={50} height={50} />
     <span className="text-lg font-semibold text-black dark:text-white">
       Avalon Shipping SRL
     </span>

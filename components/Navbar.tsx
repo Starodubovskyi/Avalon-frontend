@@ -1,18 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-import logo from "../img/logo-1.png";
-
-import HomeButton from "./nav/HomeButton";
-import HowItWorksButton from "./nav/HowItWorksButton";
-import ForOwnersButton from "./nav/ForOwnersButton";
-import ForInspectorsButton from "./nav/ForInspectorsButton";
+import Link from "next/link";
+import styles from "./Navbar.module.css";
+import Logo from "./nav/Logo";
 import ThemeToggler from "./ThemeToggler";
-
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -23,6 +16,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
+
+const scrollTo = (id: string) => {
+  if (typeof window !== "undefined") {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+};
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,9 +40,7 @@ const Navbar = () => {
     setIsLoggedIn(loggedInStatus);
 
     const userData = localStorage.getItem("currentUser");
-    if (userData) {
-      setCurrentUser(JSON.parse(userData));
-    }
+    if (userData) setCurrentUser(JSON.parse(userData));
 
     const handleStorageChange = () => {
       const newLoggedInStatus =
@@ -51,7 +51,6 @@ const Navbar = () => {
     };
 
     window.addEventListener("storage", handleStorageChange);
-
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("storage", handleStorageChange);
@@ -79,40 +78,55 @@ const Navbar = () => {
       }`}
     >
       <div className="w-full flex items-center justify-between px-6 py-4">
-        {/* Лого */}
-        <Link href="/">
-          <Image src={logo} alt="Dashboard Logo" width={40} />
-        </Link>
+        <div
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="cursor-pointer"
+        >
+          <Logo />
+        </div>
 
-        {/* Навигация */}
-        <nav className="hidden md:flex gap-5">
-          <HomeButton />
-          <HowItWorksButton />
-          <ForOwnersButton />
-          <ForInspectorsButton />
+        <nav className="hidden md:flex gap-3">
+          <button
+            className={styles.navButton}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            Home
+          </button>
+
+          <button
+            className={styles.navButton}
+            onClick={() => scrollTo("how-it-works")}
+          >
+            How It Works
+          </button>
+          <button
+            className={styles.navButton}
+            onClick={() => scrollTo("for-ship-owners")}
+          >
+            For Ship Owners
+          </button>
+          <button
+            className={styles.navButton}
+            onClick={() => scrollTo("inspectors")}
+          >
+            For Inspectors
+          </button>
         </nav>
 
         {/* Правая часть */}
         <div className="flex items-center gap-4">
           {!isLoggedIn ? (
             <>
-              <Link
-                href="/login"
-                className="text-sm px-4 py-1 border border-foreground rounded-full hover:bg-muted transition"
-              >
+              <Link href="/login" className={styles.navButton}>
                 Log in
               </Link>
-              <Link
-                href="/dashboard"
-                className="text-sm px-4 py-1 bg-primary text-white rounded-full hover:bg-primary/90 transition"
-              >
+              <Link href="/dashboard" className={styles.getStartedBtn}>
                 Get Started
               </Link>
             </>
           ) : (
             <>
               <ThemeToggler />
-
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none">
                   <Avatar>
