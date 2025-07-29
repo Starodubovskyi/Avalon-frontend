@@ -1,24 +1,29 @@
-// components/AuthTabs.tsx
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LoginForm from "./LoginForm"; // Убедитесь, что путь к LoginForm правильный
-import RegisterForm from "./RegisterForm"; // Убедитесь, что путь к RegisterForm правильный
-import BackButton from "@/components/BackButton"; // Путь должен быть правильным
+import LoginForm from "./LoginForm";
+import RegisterForm from "./RegisterForm";
+import BackButton from "@/components/BackButton";
+import styles from "./AuthTabs.module.css";
 
 const AuthTabs = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-black p-4 sm:p-6 lg:p-8 relative">
-      <div className="absolute top-4 left-4 z-10">
-        {/* Передаем обязательные свойства text и link */}
-        <BackButton text="Back to Home" link="/" />{" "}
-        {/* Или link="/dashboard", в зависимости от вашей логики */}
+    <div className={styles.container}>
+      <div className={styles.backButtonWrapper}>
+        <BackButton
+          text="Back to Home"
+          link="/"
+          className={styles.tabTrigger} // Reusing same style for button
+        />
       </div>
-
-      <Tabs defaultValue="login" className="w-full max-w-md">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="login">Login</TabsTrigger>
-          <TabsTrigger value="register">Register</TabsTrigger>
+      <Tabs defaultValue="login" className={styles.tabWrapper}>
+        <TabsList className={styles.tabList}>
+          <TabsTrigger value="login" className={styles.tabTrigger}>
+            Login
+          </TabsTrigger>
+          <TabsTrigger value="register" className={styles.tabTrigger}>
+            Register
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="login">
           <LoginForm />

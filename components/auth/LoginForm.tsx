@@ -1,13 +1,10 @@
-// components/LoginForm.tsx
+// components/auth/LoginForm.tsx
 "use client";
-
-// УДАЛИТЬ ЭТИ ИМПОРТЫ, если они были:
-// import BackButton from '@/components/BackButton';
-// import AuthLayout from '@/components/AuthLayout';
 
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -27,23 +24,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
+import SocialAuthButtons from "./SocialAuthButtons";
+import Link from "next/link";
+import styles from "./authForm.module.css";
 
 const formSchema = z.object({
   email: z
     .string()
-    .min(1, {
-      message: "Email is required",
-    })
-    .email({
-      message: "Please enter a valid email",
-    }),
-  password: z.string().min(1, {
-    message: "Password is required",
-  }),
+    .min(1, { message: "Email is required" })
+    .email({ message: "Please enter a valid email" }),
+  password: z.string().min(1, { message: "Password is required" }),
 });
 
 const LoginForm = () => {
   const router = useRouter();
+  const [rememberMe, setRememberMe] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,6 +57,8 @@ const LoginForm = () => {
     if (user) {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("currentUser", JSON.stringify(user));
+      localStorage.setItem("rememberMe", String(rememberMe));
+
       toast({
         title: "Login Successful",
         description: `Welcome back, ${user.name}!`,
@@ -77,71 +74,100 @@ const LoginForm = () => {
   };
 
   return (
-    // <AuthLayout showBackButton={false}> // <-- УДАЛЕНА ОБЕРТКА AUTHLAYOUT
-    <Card className="w-full shadow-lg transform transition-transform duration-300 hover:scale-[1.01]">
-      {" "}
-      {/* max-w-md убран, т.к. Tabs его уже задает */}
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold">Login</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Log into your account with your credentials
+    <Card className={styles.card}>
+      <CardHeader className={styles.header}>
+        <CardTitle className={styles.title}>
+          Welcome Back to Realnest!
+        </CardTitle>
+        <CardDescription className={styles.description}>
+          Sign in your account
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6"
-          >
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
-                    Email
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
-                      placeholder="Enter Email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
-                    Password
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
-                      placeholder="Enter Password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <CardContent className={styles.content}>
+        {/* Оберните все содержимое CardContent в один корневой div */}
+        <div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className={styles.form}
+            >
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={styles.label}>Your Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        className={styles.input}
+                        placeholder="info.your@email.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className={styles.error} />
+                  </FormItem>
+                )}
+              />
 
-            <Button className="w-full" type="submit">
-              Sign In
-            </Button>
-          </form>
-        </Form>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={styles.label}>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className={styles.input}
+                        placeholder="••••••••"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className={styles.error} />
+                  </FormItem>
+                )}
+              />
+
+              <div className={styles.options}>
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    className={styles.checkboxInput}
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  Remember Me
+                </label>
+                <Link href="/forgot-password" passHref legacyBehavior>
+                  <a className={styles.forgot}>Forgot Password?</a>
+                </Link>
+              </div>
+
+              <Button className={styles.submitButton} type="submit">
+                Login
+              </Button>
+            </form>
+          </Form>
+
+          <div className={styles.divider}>
+            <div className={styles.dividerLine} />
+            <span className={styles.dividerText}>or</span>
+            <div className={styles.dividerLine} />
+          </div>
+
+          <SocialAuthButtons />
+
+          <div className={styles.bottomText}>
+            Don't have an account?
+            <Link href="/register" passHref legacyBehavior>
+              <a className={styles.link}>Sign Up</a>
+            </Link>
+          </div>
+        </div>{" "}
+        {/* Закрытие корневого div */}
       </CardContent>
     </Card>
-    // </AuthLayout> // <-- УДАЛЕНА ОБЕРТКА AUTHLAYOUT
   );
 };
 
