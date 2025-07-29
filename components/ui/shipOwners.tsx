@@ -1,3 +1,5 @@
+"use client";
+import styles from "./ForShipOwners.module.css";
 import {
   Calendar,
   CreditCard,
@@ -7,115 +9,100 @@ import {
   Check,
 } from "lucide-react";
 
-const featuresTop = [
+const featuresWithImage = [
   {
+    image: "/photo/hz.webp",
+    icon: <Gauge size={28} />,
     title: "Smart Fleet Dashboard",
-    description: [
+    items: [
       "Real-time vessel tracking",
       "Compliance status monitoring",
       "Inspection schedule overview",
     ],
-    icon: <Gauge className="text-teal-500" />,
-    image: "/photo/hz.webp",
   },
   {
+    image: "/photo/calendar.jpeg",
+    icon: <Calendar size={28} />,
     title: "Intelligent Scheduling",
-    description: [
+    items: [
       "Automated booking system",
       "Inspector matching",
       "Calendar synchronization",
     ],
-    icon: <Calendar className="text-teal-500" />,
-    image: "/photo/calendar.jpeg",
   },
 ];
 
-const featuresBottom = [
+const featuresWithoutImage = [
   {
+    icon: <Bell size={28} />,
     title: "Smart Alerts",
-    description:
-      "Automated notifications for compliance deadlines and inspection requirements",
-    icon: <Bell className="text-teal-500" />,
+    items: [
+      "Automated notifications for compliance deadlines",
+      "Inspection requirements",
+    ],
   },
   {
+    icon: <ChartNoAxesCombined size={28} />,
     title: "Digital Reports",
-    description:
-      "Comprehensive digital reports with photos and actionable insights",
-    icon: <ChartNoAxesCombined className="text-teal-500" />,
+    items: ["Comprehensive digital reports with photos", "Actionable insights"],
   },
   {
+    icon: <CreditCard size={28} />,
     title: "Secure Payments",
-    description:
-      "Streamlined payment processing with complete transaction history",
-    icon: <CreditCard className="text-teal-500" />,
+    items: ["Streamlined payment processing", "Complete transaction history"],
   },
 ];
 
-export default function ForShipOwners() {
+export default function ShipOwners() {
   return (
-    <section className="mt-8 px-4 bg-white text-gray-800">
-      <div className="w-full max-w-screen-xl mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-4">For Ship Owners</h2>
-        <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
-          Experience a new era of maritime compliance with our comprehensive
-          digital solutions
-        </p>
+    <section className={styles.container}>
+      <h2 className={styles.title}>For Ship Owners</h2>
+      <p className={styles.subtitle}>
+        Experience a new era of maritime compliance with our comprehensive
+        digital solutions
+      </p>
 
-        <div className="grid grid-cols-1 gap-y-6">
-          {/* Top Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuresTop.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row h-full"
-              >
-                <div
-                  className={`md:w-1/2 h-48 md:h-auto ${
-                    index === 0 ? "md:rounded-l-xl" : "md:rounded-r-xl"
-                  } overflow-hidden`}
-                >
-                  <img
-                    src={feature.image}
-                    alt={feature.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="p-6 flex-1 flex flex-col justify-center">
-                  <div className="flex items-center gap-3 mb-4">
-                    {feature.icon}
-                    <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  </div>
-                  <ul className="space-y-2">
-                    {feature.description.map((point, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center text-gray-700 whitespace-nowrap"
-                      >
-                        <Check className="w-4 h-4 text-teal-500 mr-2 flex-shrink-0" />
-                        <span className="truncate">{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
+      {/* Верхний ряд: карточки с фото */}
+      <div className={styles.gridTwo}>
+        {featuresWithImage.map((feature, index) => (
+          <div key={index} className={styles.card}>
+            <div className={styles.imageWrapper}>
+              <img src={feature.image} alt={feature.title} />
+            </div>
+            <div className={styles.content}>
+              <div className={styles.iconCircle}>{feature.icon}</div>
+              <h3 className={styles.cardTitle}>{feature.title}</h3>
+              <ul className={styles.featureList}>
+                {feature.items.map((item, i) => (
+                  <li key={i} className={styles.featureItem}>
+                    <Check size={16} className={styles.checkIcon} />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
+        ))}
+      </div>
 
-          {/* Bottom Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuresBottom.map((item, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-md p-6 flex flex-col items-start text-left"
-              >
-                <div className="mb-4">{item.icon}</div>
-                <h4 className="text-lg font-semibold">{item.title}</h4>
-                <p className="mt-2 text-gray-750">{item.description}</p>
-              </div>
-            ))}
+      {/* Нижний ряд: 3 карточки без фото */}
+      <div className={styles.gridThree}>
+        {featuresWithoutImage.map((feature, index) => (
+          <div key={`noimg-${index}`} className={styles.card}>
+            <div className={styles.content}>
+              <div className={styles.iconCircle}>{feature.icon}</div>
+              <h3 className={styles.cardTitle}>{feature.title}</h3>
+              <ul className={styles.featureList}>
+                {feature.items.map((item, i) => (
+                  <li key={i} className={styles.featureItem}>
+                    <Check size={16} className={styles.checkIcon} />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
     </section>
   );

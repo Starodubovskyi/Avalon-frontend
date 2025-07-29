@@ -1,65 +1,59 @@
-import React from "react";
+import styles from "./HowItWorks.module.css";
+import { Ship, ChartSpline, ClipboardMinus } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: "/icons/ship.png",
     title: "Register Your Vessel",
     description:
-      "Ship owners register their vessels and provide all necessary documentation and information.",
+      "Ship owners register their vessels and provide all necessary documentation and requirements for inspection.",
+    icon: <Ship style={{ width: "40px", height: "40px", color: "#14b8a6" }} />,
   },
   {
     number: "02",
-    icon: "/icons/doc.png",
     title: "Schedule Inspection",
     description:
-      "Choose from our network of certified inspectors and schedule a convenient time for inspection.",
+      "Choose from our network of certified inspectors and schedule a convenient time for your vessel inspection.",
+    icon: (
+      <ChartSpline
+        style={{ width: "40px", height: "40px", color: "#14b8a6" }}
+      />
+    ),
   },
   {
     number: "03",
-    icon: "/icons/chart.png",
     title: "Receive Reports",
     description:
-      "Get detailed inspection reports with actionable insights and compliance recommendations.",
+      "Get detailed inspection reports with actionable insights and compliance certifications through our platform.",
+    icon: (
+      <ClipboardMinus
+        style={{ width: "40px", height: "40px", color: "#14b8a6" }}
+      />
+    ),
   },
 ];
 
-const HowItWorks = () => {
+export default function HowItWorks() {
   return (
-    <section className="mt-32 pb-2 px-4 bg-white">
-      <div className="w-full px-4 flex flex-col items-center text-center">
-        <h2 className="text-3xl font-bold mb-4">How It Works</h2>
+    <section className={styles.container}>
+      <h2 className={styles.title}>How It Works</h2>
+      <p className={styles.subtitle}>
+        Our platform simplifies the ship inspection process with just three easy
+        steps.
+      </p>
 
-        <p className="text-gray-600 mb-12 max-w-2xl">
-          Our platform simplifies the ship inspection process with just three
-          easy steps.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-screen-xl">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className="relative bg-white border rounded-2xl p-6 text-left overflow-hidden"
-            >
-              <div className="absolute right-4 top-4 text-gray-200 text-6xl font-bold z-0">
-                {step.number}
-              </div>
-
-              <div className="relative z-10 flex flex-col items-start space-y-3">
-                <img
-                  src={step.icon}
-                  alt="Step Icon"
-                  className="w-12 h-12 mb-1"
-                />
-                <h3 className="text-md font-bold">{step.title}</h3>
-                <p className="text-gray-750 text-sm">{step.description}</p>
-              </div>
+      <div className={styles.steps}>
+        {steps.map((step, index) => (
+          <div className={styles.card} key={index}>
+            <div className={styles.stepNumber}>{step.number}</div>
+            <div className={styles.cardContent}>
+              <div className={styles.icon}>{step.icon}</div>
+              <h3 className={styles.cardTitle}>{step.title}</h3>
+              <p className={styles.cardText}>{step.description}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );
-};
-
-export default HowItWorks;
+}
