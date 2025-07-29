@@ -26,7 +26,12 @@ const scrollTo = (id: string) => {
   }
 };
 
-const Navbar = () => {
+interface NavbarProps {
+  onLoginClick: () => void; // <-- Добавляем новый пропс
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
+  // <-- Принимаем пропс
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -66,7 +71,7 @@ const Navbar = () => {
       title: "Logged Out",
       description: "You have been successfully logged out.",
     });
-    router.push("/login");
+    router.push("/"); // Перенаправляем на главную страницу после выхода
   };
 
   return (
@@ -84,7 +89,6 @@ const Navbar = () => {
         >
           <Logo />
         </div>
-
         <nav className="hidden md:flex gap-3">
           <button
             className={styles.navButton}
@@ -117,9 +121,16 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           {!isLoggedIn ? (
             <>
-              <Link href="/login" className={styles.navButton}>
+              {/* <-- Изменения здесь --> */}
+              <button
+                onClick={onLoginClick} // <-- Используем пропс для открытия модального окна
+                className={styles.navButton}
+              >
                 Log in
-              </Link>
+              </button>
+              {/* Get Started можно оставить, если он ведет на какую-то другую страницу,
+                  или также сделать его открывающим модальное окно, если это удобно.
+                  Сейчас он ведет на /dashboard. */}
               <Link href="/dashboard" className={styles.getStartedBtn}>
                 Get Started
               </Link>
