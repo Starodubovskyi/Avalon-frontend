@@ -1,7 +1,7 @@
 .container {
-  display: flex;
-  justify-content: center;
-  padding: 0.1rem 0.5rem;
+  padding: 0rem 1rem;
+  max-width: 1280px; /* или 100% если хочешь на всю ширину */
+  margin: 2rem auto 0 auto; /* сверху можно добавить отступ если надо */
 }
 
 .cards {
