@@ -14,8 +14,6 @@ import Link from "next/link";
 export default function ForgotPasswordPage() {
   return (
     <AuthLayout showSignInButton={true} isLoginPage={false}>
-      {" "}
-      {/* isLoginPage: false, чтобы кнопка сверху была "Sign In" */}
       <Card className="w-[350px] h-[400px] bg-white shadow-[rgba(0,0,0,0.35)_0px_5px_15px] rounded-lg box-border p-5 md:p-[30px] flex flex-col justify-between">
         <CardHeader className="text-center p-0 pb-6">
           <CardTitle className="font-sans text-3xl font-extrabold my-2 md:my-5 text-gray-900">
