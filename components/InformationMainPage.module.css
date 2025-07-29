@@ -8,11 +8,12 @@
   border-radius: 5rem;
   margin-bottom: 0rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  width: 200%; /* стало уже */
-  max-width: 1600px; /*ограничиваем максимальную ширину */
+  width: 200%;
+  max-width: 1600px;
   margin-left: -320px;
   margin-right: 60px;
   margin-top: 0.5rem;
+  background-color: #fff;
 }
 
 .image {
