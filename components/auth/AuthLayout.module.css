@@ -1,0 +1,98 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.imageSection {
+  position: relative;
+  display: none;
+  width: 50%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .imageSection {
+    display: flex;
+  }
+}
+
+.mobileLogo {
+  position: absolute;
+  top: 1.5rem; /* top-6 */
+  left: 1.5rem; /* left-6 */
+  display: block;
+  font-weight: 700;
+  font-size: 1.125rem; /* text-lg */
+  color: #111827; /* text-gray-900 */
+
+  /* dark mode support */
+  /* for frameworks with dark mode class, override with JS or Tailwind config */
+}
+
+.mobileLogo.dark {
+  color: #f9fafb; /* text-gray-100 */
+}
+
+.formSection {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #ffffff;
+  position: relative;
+  z-index: 20;
+  overflow: auto;
+}
+
+@media (min-width: 1024px) {
+  .formSection {
+    width: 50%;
+    align-items: flex-start;
+    padding-top: 5rem; /* pt-20 */
+  }
+}
+
+@media (min-width: 1280px) {
+  .formSection {
+    padding-top: 6rem; /* pt-24 */
+  }
+}
+
+.formSection.dark {
+  background-color: #111827; /* bg-gray-900 */
+}
+
+.toggleButton {
+  position: absolute;
+  top: 1.5rem; /* top-6 */
+  right: 1.5rem; /* right-6 */
+}
+
+.navButton {
+  padding: 0.875rem 1.5rem; /* py-3.5 px-6 */
+  border: none;
+  border-radius: 9999px; /* rounded-full */
+  color: #1f2937; /* text-gray-900 */
+  background-color: #e5e7eb; /* bg-gray-200 */
+  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  transition: all 250ms ease-in-out;
+  cursor: pointer;
+}
+
+.navButton:hover {
+  color: #e5e7eb; /* hover:text-gray-200 */
+  background-color: #111827; /* hover:bg-gray-900 */
+  transform: scale(1.05);
+}
+
+.contentWrapper {
+  width: 100%;
+  max-width: 24rem; /* max-w-sm */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
