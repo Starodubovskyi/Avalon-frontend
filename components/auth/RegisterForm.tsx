@@ -1,9 +1,5 @@
-// components/RegisterForm.tsx
+// components/auth/RegisterForm.tsx
 "use client";
-
-// УДАЛИТЬ ЭТИ ИМПОРТЫ, если они были:
-// import BackButton from '@/components/BackButton';
-// import AuthLayout from '@/components/AuthLayout';
 
 import * as z from "zod";
 import { useForm } from "react-hook-form";
@@ -27,29 +23,27 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
+import SocialAuthButtons from "./SocialAuthButtons";
+import Link from "next/link";
+
+import styles from "./authForm.module.css";
 
 const formSchema = z
   .object({
-    name: z.string().min(1, {
-      message: "Name is required",
-    }),
+    name: z.string().min(1, { message: "Name is required" }),
     email: z
       .string()
-      .min(1, {
-        message: "Email is required",
-      })
-      .email({
-        message: "Please enter a valid email",
-      }),
-    password: z.string().min(6, {
-      message: "Password must be at least 6 characters",
-    }),
-    confirmPassword: z.string().min(1, {
-      message: "Confirm Password is required",
-    }),
+      .min(1, { message: "Email is required" })
+      .email({ message: "Please enter a valid email" }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Confirm password is required" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
@@ -72,7 +66,7 @@ const RegisterForm = () => {
 
     if (emailExists) {
       toast({
-        title: "Registration Failed",
+        title: "Registration Error",
         description: "An account with this email already exists.",
         variant: "destructive",
       });
@@ -97,111 +91,122 @@ const RegisterForm = () => {
   };
 
   return (
-    // <AuthLayout showBackButton={true}> // <-- УДАЛЕНА ОБЕРТКА AUTHLAYOUT
-    <Card className="w-full shadow-lg transform transition-transform duration-300 hover:scale-[1.01]">
-      {" "}
-      {/* max-w-md убран, т.к. Tabs его уже задает */}
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold">Register</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Sign up by adding the info below
+    <Card className={styles.card}>
+      <CardHeader className={styles.header}>
+        <CardTitle className={styles.title}>Create Your Account</CardTitle>
+        <CardDescription className={styles.description}>
+          Register to start.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6"
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
-                    Name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
-                      placeholder="Enter Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
-                    Email
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
-                      placeholder="Enter Email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <CardContent className={styles.content}>
+        {/* Оберните все содержимое CardContent в один корневой div */}
+        <div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className={styles.form}
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={styles.label}>Your Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        className={styles.input}
+                        placeholder="Enter your name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className={styles.error} />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
-                    Password
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
-                      placeholder="Enter Password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={styles.label}>Your Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        className={styles.input}
+                        placeholder="info@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className={styles.error} />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
-                    Confirm Password
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      className="bg-input dark:bg-input border-border focus-visible:ring-ring text-foreground focus-visible:ring-offset-background"
-                      placeholder="Confirm Password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button className="w-full" type="submit">
-              Sign Up
-            </Button>
-          </form>
-        </Form>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={styles.label}>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className={styles.input}
+                        placeholder="••••••••"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className={styles.error} />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={styles.label}>
+                      Confirm Password
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className={styles.input}
+                        placeholder="••••••••"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className={styles.error} />
+                  </FormItem>
+                )}
+              />
+
+              <Button className={styles.submitButton} type="submit">
+                Register
+              </Button>
+            </form>
+          </Form>
+
+          <div className={styles.divider}>
+            <div className={styles.dividerLine}></div>
+            <span className={styles.dividerText}>or</span>
+            <div className={styles.dividerLine}></div>
+          </div>
+
+          <SocialAuthButtons />
+
+          <div className={styles.bottomText}>
+            Already have an account?{" "}
+            <Link href="/login" passHref legacyBehavior>
+              <a className={styles.link}>Log In</a>
+            </Link>
+          </div>
+        </div>{" "}
+        {/* Закрытие корневого div */}
       </CardContent>
     </Card>
-    // </AuthLayout> // <-- УДАЛЕНА ОБЕРТКА AUTHLAYOUT
   );
 };
 
