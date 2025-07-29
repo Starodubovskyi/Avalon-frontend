@@ -1,4 +1,6 @@
 .buttonsContainer {
+  z-index: 10;
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -9,30 +11,46 @@
 .contactButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1.5rem;
+  padding: 15px 25px;
   border-radius: 9999px;
-  font-weight: 500;
-  transition: background-color 0.3s, opacity 0.3s;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  text-align: center;
 }
 
-.contactButton {
-  background-color: rgba(255, 255, 255, 0.6);
-  color: black;
-}
-
-.contactButton:hover {
-  background-color: white;
-  opacity: 1;
-}
-
+/* Чёрная кнопка */
 .serviceButton {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: black;
   color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .serviceButton:hover {
-  background-color: black;
-  opacity: 1;
+  transform: scale(1.05);
+  background-color: #111;
+}
+
+/* Белая кнопка с чёрной рамкой */
+.contactButton {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  opacity: 0.5;
+}
+
+.contactButton:hover {
+  transform: scale(1.05);
+  background-color: #f4f4f4;
+}
+
+/* Иконки */
+.buttonIcon {
+  width: 20px;
+  height: 20px;
 }

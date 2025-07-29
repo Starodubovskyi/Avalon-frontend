@@ -85,7 +85,7 @@ const Navbar = () => {
           <Logo />
         </div>
 
-        <nav className="hidden md:flex gap-3">
+        <nav className={`${styles.navButtonGroup} hidden md:flex`}>
           <button
             className={styles.navButton}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
