@@ -53,10 +53,10 @@ const featuresBottom = [
 
 export default function ForShipOwners() {
   return (
-    <section className="px-6 py-16 bg-white text-gray-800">
+    <section className="mt-8 px-4 bg-white text-gray-800">
       <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl font-semibold">For Ship Owners</h2>
-        <p className="mt-2 text-gray-600">
+        <h2 className="text-3xl font-bold mb-4">For Ship Owners</h2>
+        <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
           Experience a new era of maritime compliance with our comprehensive
           digital solutions
         </p>

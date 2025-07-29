@@ -5,6 +5,8 @@ import HowItWorks from "@/components/ui/information";
 import ForShipOwners from "@/components/ui/shipOwners";
 import { User, Newspaper, Folder, MessageCircle } from "lucide-react";
 import DashboardPage from "@/components/InformationMainPage";
+import InspectorFeatures from "@/components/ui/inspectorFeatures";
+import InspectorBenefits from "@/components/ui/inspectorBenefits";
 
 export default function Home() {
   return (
@@ -21,13 +23,13 @@ export default function Home() {
       <AnalyticsCharts />
 
       <section id="how-it-works" className="py-20 bg-gray-50">
-        <h2 className="text-3xl font-bold text-center mb-6">How It Works</h2>
         <HowItWorks />
       </section>
 
       <section id="for-ship-owners" className="py-20">
-        <h2 className="text-3xl font-bold text-center mb-6">For Ship Owners</h2>
         <ForShipOwners />
+        <InspectorFeatures />
+        <InspectorBenefits />
       </section>
 
       <PostsTable title="Latest Posts" limit={5} />
