@@ -22,7 +22,6 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* --accent: 210 40% 96.1%; */
     --accent: 210 40% 86.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
@@ -65,50 +64,22 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @layer components {
-  .nav-button {
-    @apply px-5 py-2 rounded-full text-sm font-medium text-black bg-white transition-colors border border-gray-300 hover:bg-gray-100;
-  }
-
-  .dark .nav-button {
-    @apply bg-gray-800 text-white border-gray-600 hover:bg-gray-700;
-  }
-
   .navbar-container {
     @apply bg-white dark:bg-gray-900 text-black dark:text-white shadow-md border-b border-gray-200 dark:border-gray-700;
-  }
-}
-html {
-  scroll-behavior: smooth;
-}
-
-@layer components {
-  .nav-button {
-    @apply px-4 py-2 rounded-full text-white transition-colors duration-300;
-  }
-
-  .nav-button:hover {
-    @apply bg-black text-white;
-  }
-}
-
-@layer components {
-  .nav-button {
-    @apply px-4 py-2 rounded-full text-white transition-colors duration-300;
-  }
-
-  .nav-button:hover {
-    @apply bg-black text-white;
   }
 }

@@ -5,16 +5,21 @@
 .banner {
   position: relative;
   overflow: hidden;
-  border-radius: 1rem;
-  margin-bottom: 2rem;
+  border-radius: 5rem;
+  margin-bottom: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 190%; /* стало уже */
+  max-width: 1600px; /* ограничиваем максимальную ширину */
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 3rem;
 }
 
 .image {
   width: 100%;
-  height: 40rem;
+  height: 50rem;
   object-fit: cover;
-  border-radius: 1rem;
+  display: block;
 }
 
 .overlay {
@@ -30,9 +35,10 @@
 
 .buttonWrap {
   position: absolute;
-  top: 1rem;
+  top: 1.5rem;
   display: flex;
   gap: 1rem;
+  z-index: 10;
 }
 
 .textContent {
@@ -42,13 +48,13 @@
 }
 
 .textContent h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
 
 .textContent p {
-  font-size: 1rem;
+  font-size: 1.125rem;
 }
 
 .highlight {
