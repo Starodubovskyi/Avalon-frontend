@@ -35,60 +35,61 @@ export default function FaqSection() {
   }
 
   return (
-   <div className="w-full flex justify-center px-4 py-16">
-  <div className="w-full max-w-3xl ml-auto">
+    <div className="px-4 py-16 flex justify-center">
+      <div className="w-full max-w-[90rem] rounded-[2rem] shadow-lg bg-white mx-auto mt-2 p-8">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-2">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-center text-gray-500 mb-10">
+            We compiled a list of answers to address your most pressing questions regarding our Services.
+          </p>
 
-        <h2 className="text-3xl font-bold text-center mb-2">
-          Frequently Asked Questions
-        </h2>
-        <p className="text-center text-gray-500 mb-10">
-          We compiled a list of answers to address your most pressing questions regarding our Services.
-        </p>
-
-        <div className="space-y-4">
-          {faqs.map((faq, index) => {
-            const isOpen = index === openIndex
-            return (
-              <div
-                key={index}
-                className={`rounded-xl overflow-hidden transition-all duration-300 ${
-                  isOpen ? 'bg-teal-700 text-white' : 'bg-gray-100 text-gray-900'
-                }`}
-              >
-                <button
-                  onClick={() => toggleFAQ(index)}
-                  className="flex w-full items-center justify-between p-6 text-left text-base font-semibold focus:outline-none"
+          <div className="space-y-4">
+            {faqs.map((faq, index) => {
+              const isOpen = index === openIndex
+              return (
+                <div
+                  key={index}
+                  className={`rounded-xl overflow-hidden transition-all duration-300 ${
+                    isOpen ? 'bg-teal-700 text-white' : 'bg-gray-100 text-gray-900'
+                  }`}
                 >
-                  <div className="flex items-start gap-2">
-                    <span className="font-bold text-lg">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span>{faq.question}</span>
-                  </div>
-                  {isOpen ? (
-                    <X className="h-5 w-5 shrink-0" />
-                  ) : (
-                    <Plus className="h-5 w-5 shrink-0" />
-                  )}
-                </button>
+                  <button
+                    onClick={() => toggleFAQ(index)}
+                    className="flex w-full items-center justify-between p-6 text-left text-base font-semibold focus:outline-none"
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-lg">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span>{faq.question}</span>
+                    </div>
+                    {isOpen ? (
+                      <X className="h-5 w-5 shrink-0" />
+                    ) : (
+                      <Plus className="h-5 w-5 shrink-0" />
+                    )}
+                  </button>
 
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    >
-                      <div className="px-6 pb-6 text-sm leading-relaxed text-white">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )
-          })}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      >
+                        <div className="px-6 pb-6 text-sm leading-relaxed text-white">
+                          {faq.answer}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>
