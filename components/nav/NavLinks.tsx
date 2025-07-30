@@ -30,14 +30,13 @@ const NavLinks = () => {
         }
       }
 
-      // Если совсем наверху — Home
       if (!found) {
         setActiveSection("#home");
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // сразу при загрузке
+    handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);

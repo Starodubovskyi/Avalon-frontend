@@ -39,12 +39,10 @@ export default function HowItWorks() {
             key={index}
             className="relative bg-white border border-gray-200 rounded-xl p-6 text-left shadow-sm"
           >
-            {/* Step number (background decorative) */}
             <div className="absolute top-4 right-6 text-gray-200 text-6xl font-bold z-0">
               {step.number}
             </div>
 
-            {/* Content on top */}
             <div className="relative z-10">
               <div className="mb-4">
                 <div className="w-12 h-12 flex items-center justify-center rounded-md border border-gray-400 bg-gray-100">

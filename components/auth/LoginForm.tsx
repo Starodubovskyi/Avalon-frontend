@@ -1,4 +1,3 @@
-// components/auth/LoginForm.tsx
 "use client";
 
 import * as z from "zod";
@@ -26,7 +25,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
 import SocialAuthButtons from "./SocialAuthButtons";
 import Link from "next/link";
-// import styles from "./authForm.module.css"; // Удален импорт CSS
 
 const formSchema = z.object({
   email: z
@@ -80,7 +78,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchTab, onCloseModal }) => {
   };
 
   return (
-    // Убрал min-h-auto и добавил mb-8 для отступа снизу
     <Card className="w-full max-w-[360px] bg-white rounded-lg p-4 shadow-[rgba(0,0,0,0.35)_0px_5px_15px] flex flex-col justify-between mx-auto md:p-[15px] mb-8">
       <CardHeader className="text-center pb-3">
         <CardTitle className="font-sans text-2xl font-extrabold mt-1.5 mb-2.5 text-gray-900">
@@ -179,7 +176,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchTab, onCloseModal }) => {
               className="text-blue-600 font-bold no-underline hover:underline"
               onClick={onSwitchTab}
             >
-              {" "}
               Sign Up
             </a>
           </div>

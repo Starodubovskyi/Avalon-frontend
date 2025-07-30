@@ -1,5 +1,5 @@
 // app/forgot-password/page.tsx
-import AuthLayout from "@/components/auth/AuthLayout";
+import AuthLayout from "@/components/auth/AuthLoyout";
 import {
   Card,
   CardContent,
