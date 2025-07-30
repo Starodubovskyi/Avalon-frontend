@@ -1,48 +1,46 @@
 import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import logo from "@/img/3.webp";
 import styles from "./AuthLayout.module.css";
+import Link from "next/link";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
-  showSignInButton?: boolean;
   isLoginPage: boolean;
+  showSignInButton?: boolean;
+  onClose?: () => void;
 }
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({
   children,
-  showSignInButton = true,
   isLoginPage,
+  showSignInButton = false,
 }) => {
   return (
-    <div className={styles.container}>
-      {/* Left part — with image */}
-      <div className={styles.imageSection}>
-        <Image
-          src={logo}
-          alt="Ship"
-          layout="fill"
-          objectFit="cover"
-          quality={100}
-          className="z-0"
-        />
-      </div>
-
-      {/* Right part — form */}
-      <div className={styles.formSection}>
-        {/* Sign In/Sign Up toggle button */}
-        {showSignInButton && (
-          <div className={styles.toggleButton}>
-            <Button variant="outline" className={styles.navButton} asChild>
-              <Link href={isLoginPage ? "/register" : "/login"}>
-                {isLoginPage ? "Sign Up" : "Sign In"}
+    <div className={styles.modalOverlay}>
+      <div className={styles.container}>
+        <div className={styles.imageSection}>
+          <Image
+            src={logo}
+            alt="Ship"
+            layout="fill"
+            objectFit="cover"
+            quality={100}
+            className="z-0"
+          />
+        </div>
+        <div className={styles.formSection}>
+          {showSignInButton && !isLoginPage && (
+            <div className={styles.signInButtonWrapper}>
+              <Link
+                href="/login"
+                className="text-sm text-blue-600 hover:underline font-semibold"
+              >
+                Sign In
               </Link>
-            </Button>
-          </div>
-        )}
-
-        <div className={styles.contentWrapper}>{children}</div>
+            </div>
+          )}
+          <div className={styles.contentWrapper}>{children}</div>
+        </div>
       </div>
     </div>
   );

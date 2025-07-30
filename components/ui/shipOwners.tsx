@@ -1,3 +1,4 @@
+"use client";
 import {
   Calendar,
   CreditCard,
@@ -7,115 +8,114 @@ import {
   Check,
 } from "lucide-react";
 
-const featuresTop = [
+const featuresWithImage = [
   {
+    image: "/photo/hz.webp",
+    icon: <Gauge className="text-teal-500 w-7 h-7" />,
     title: "Smart Fleet Dashboard",
-    description: [
+    items: [
       "Real-time vessel tracking",
       "Compliance status monitoring",
       "Inspection schedule overview",
     ],
-    icon: <Gauge className="text-teal-500" />,
-    image: "/photo/hz.webp",
   },
   {
+    image: "/photo/calendar.jpeg",
+    icon: <Calendar className="text-teal-500 w-7 h-7" />,
     title: "Intelligent Scheduling",
-    description: [
+    items: [
       "Automated booking system",
       "Inspector matching",
       "Calendar synchronization",
     ],
-    icon: <Calendar className="text-teal-500" />,
-    image: "/photo/calendar.jpeg",
   },
 ];
 
-const featuresBottom = [
+const featuresWithoutImage = [
   {
+    icon: <Bell className="text-teal-500 w-7 h-7" />,
     title: "Smart Alerts",
-    description:
-      "Automated notifications for compliance deadlines and inspection requirements",
-    icon: <Bell className="text-teal-500" />,
+    items: [
+      "Automated notifications for compliance deadlines",
+      "Inspection requirements",
+    ],
   },
   {
+    icon: <ChartNoAxesCombined className="text-teal-500 w-7 h-7" />,
     title: "Digital Reports",
-    description:
-      "Comprehensive digital reports with photos and actionable insights",
-    icon: <ChartNoAxesCombined className="text-teal-500" />,
+    items: ["Comprehensive digital reports with photos", "Actionable insights"],
   },
   {
+    icon: <CreditCard className="text-teal-500 w-7 h-7" />,
     title: "Secure Payments",
-    description:
-      "Streamlined payment processing with complete transaction history",
-    icon: <CreditCard className="text-teal-500" />,
+    items: ["Streamlined payment processing", "Complete transaction history"],
   },
 ];
 
-export default function ForShipOwners() {
+export default function ShipOwners() {
   return (
-    <section className="mt-8 px-4 bg-white text-gray-800">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-4">For Ship Owners</h2>
-        <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
+    <section className="py-16 px-6 bg-white text-gray-800">
+      <div className="text-center max-w-3xl mx-auto mb-12">
+        <h2 className="text-4xl font-extrabold mb-2">For Ship Owners</h2>
+        <p className="text-gray-600 text-base">
           Experience a new era of maritime compliance with our comprehensive
           digital solutions
         </p>
+      </div>
 
-        {/* Top Row */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {featuresTop.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row h-full"
-            >
-              {/* Картинка */}
-              <div
-                className={`md:w-1/2 h-48 md:h-auto ${
-                  index === 0 ? "md:rounded-l-xl" : "md:rounded-r-xl"
-                } overflow-hidden`}
-              >
-                <img
-                  src={feature.image}
-                  alt={feature.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Текст */}
-              <div className="p-6 flex-1 flex flex-col justify-center">
-                <div className="flex items-center gap-3 mb-4">
-                  {feature.icon}
-                  <h3 className="text-xl font-semibold">{feature.title}</h3>
-                </div>
-                <ul className="space-y-2">
-                  {feature.description.map((point, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center text-gray-700 whitespace-nowrap"
-                    >
-                      <Check className="w-4 h-4 text-teal-500 mr-2 flex-shrink-0" />
-                      <span className="truncate">{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+      {/* Верхний ряд: карточки с изображением */}
+      <div className="grid md:grid-cols-2 gap-8 mb-10 justify-center">
+        {featuresWithImage.map((feature, index) => (
+          <div
+            key={index}
+            className="flex flex-row bg-white rounded-2xl shadow-md overflow-hidden max-w-3xl"
+          >
+            <div className="w-1/2 max-w-sm">
+              <img
+                src={feature.image}
+                alt={feature.title}
+                className="w-full h-full object-cover"
+              />
             </div>
-          ))}
-        </div>
-
-        {/* Bottom Row */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {featuresBottom.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-md p-6 flex flex-col items-start text-left"
-            >
-              <div className="mb-4">{item.icon}</div>
-              <h4 className="text-lg font-semibold">{item.title}</h4>
-              <p className="mt-2 text-gray-750">{item.description}</p>
+            <div className="p-6 border border-gray-200 flex flex-col justify-center flex-1">
+              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                {feature.icon}
+              </div>
+              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <ul className="space-y-2">
+                {feature.items.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 mt-1 text-teal-500 shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Нижний ряд: карточки без изображений */}
+      <div className="grid md:grid-cols-3 gap-8">
+        {featuresWithoutImage.map((feature, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 text-left flex flex-col justify-between"
+          >
+            <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+              {feature.icon}
+            </div>
+            <h3 className="text-lg font-semibold mb-3">{feature.title}</h3>
+            <ul className="space-y-2">
+              {feature.items.map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 mt-1 text-teal-500 shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </section>
   );
