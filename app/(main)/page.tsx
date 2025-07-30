@@ -11,6 +11,7 @@ import { User, Newspaper, Folder, MessageCircle } from "lucide-react";
 import DashboardPage from "@/components/InformationMainPage";
 import InspectorFeatures from "@/components/ui/inspectorFeatures";
 import InspectorBenefits from "@/components/ui/inspectorBenefits";
+
 import BannerIntro from "@/components/ui/bannerIntro";
 import Navbar from "@/components/Navbar";
 import {
@@ -21,6 +22,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import AuthModalContent from "@/components/auth/AuthModalContent";
+import TrustedByBusinesses from "@/components/ui/trustedByBusinesses";
+import ClientsSpeak from "@/components/ui/clientsSpeak";
 
 export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -55,6 +58,8 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4">
             <InspectorFeatures />
             <InspectorBenefits />
+            <TrustedByBusinesses />
+            <ClientsSpeak />
           </div>
         </section>
       </div>
