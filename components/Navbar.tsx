@@ -1,4 +1,3 @@
-// components/Navbar.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -19,6 +18,10 @@ import { toast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import AuthModalContent from "./auth/AuthModalContent";
 
+type NavbarProps = {
+  onLoginClick?: () => void; // <--- добавлено
+};
+
 const scrollTo = (id: string) => {
   if (typeof window !== "undefined") {
     const element = document.getElementById(id);
@@ -28,7 +31,7 @@ const scrollTo = (id: string) => {
   }
 };
 
-const Navbar = () => {
+const Navbar = ({ onLoginClick }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -130,7 +133,14 @@ const Navbar = () => {
             <>
               <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
                 <DialogTrigger asChild>
-                  <button className={navButton}>Log in</button>
+                  <button
+                    className={navButton}
+                    onClick={() => {
+                      onLoginClick?.(); // вызываем, если передан
+                    }}
+                  >
+                    Log in
+                  </button>
                 </DialogTrigger>
                 <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-lg">
                   <AuthModalContent onCloseModal={handleCloseModal} />
