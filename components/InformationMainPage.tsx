@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ButonContackt from "./ui/ButonForMainPage";
-import styles from "./InformationMainPage.module.css";
 
 export default function DashboardPage() {
   const [activeBlock, setActiveBlock] = useState<"contact" | "services" | null>(null);
@@ -12,7 +11,6 @@ export default function DashboardPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSuccessVisible(true);
-
     setTimeout(() => {
       setIsSuccessVisible(false);
       setActiveBlock(null);
@@ -28,7 +26,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <div className="p-6">
       <AnimatePresence>
         {!activeBlock && (
           <motion.div
@@ -36,25 +34,27 @@ export default function DashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={styles.banner}
+            className="relative overflow-hidden rounded-[5rem] shadow-lg mt-12 mb-4 max-w-[1600px] w-[95vw] mx-auto"
           >
-            <img src="/ship-inspection.jpg" alt="Ship" className={styles.image} />
-            <div className={styles.overlay}>
-              <div className={styles.buttonWrap}>
-                <ButonContackt
-                  onContactClick={() => setActiveBlock("contact")}
-                  onServicesClick={() => setActiveBlock("services")}
-                />
-              </div>
-              <div className={styles.textContent}>
-                <h2>
-                  One Platform to Manage All{" "}
-                  <span className={styles.highlight}>Your Ships & Cargoes</span>
-                </h2>
-                <p>
-                  Connect ship owners with qualified inspectors to simplify
-                  compliance and maintenance processes.
-                </p>
+            <img src="/ship-inspection.jpg" alt="Ship" className="w-full h-[50rem] object-cover block" />
+
+            <div className="absolute inset-0 bg-black/45 flex items-center justify-center p-6">
+              <div className="text-center flex flex-col items-center max-w-3xl">
+                <div className="mb-6">
+                  <ButonContackt
+                    onContactClick={() => setActiveBlock("contact")}
+                    onServicesClick={() => setActiveBlock("services")}
+                  />
+                </div>
+                <div className="text-white">
+                  <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                    One Platform to Manage All{" "}
+                    <span className="italic text-teal-300">Your Ships & Cargoes</span>
+                  </h2>
+                  <p className="text-lg md:text-xl">
+                    Connect ship owners with qualified inspectors to simplify compliance and maintenance processes.
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -68,12 +68,13 @@ export default function DashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={styles.contactForm}
+className="w-[500px] bg-white p-8 rounded-2xl shadow-lg relative mt-12 ml-auto mr-20"
+
           >
-            <button className={styles.closeButton} onClick={() => setActiveBlock(null)}>
+            <button className="absolute top-4 right-4 text-xl text-gray-600" onClick={() => setActiveBlock(null)}>
               ✕
             </button>
-            <h3 className={styles.formTitle}>Get in Touch</h3>
+            <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">Get in Touch</h3>
 
             <AnimatePresence>
               {isSuccessVisible && (
@@ -83,27 +84,30 @@ export default function DashboardPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.6 }}
-                  className={styles.successMessage}
+                  className="bg-green-500 text-white px-5 py-3 rounded-lg text-center mb-4"
                 >
                   Message sent successfully!
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.inputGroup}>
-                <label className={styles.inputLabel}>Your Name</label>
-                <input type="text" className={styles.inputField} required />
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium text-gray-700">Your Name</label>
+                <input type="text" required className="w-full px-4 py-2 border rounded-md" />
               </div>
-              <div className={styles.inputGroup}>
-                <label className={styles.inputLabel}>Email</label>
-                <input type="email" className={styles.inputField} required />
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium text-gray-700">Email</label>
+                <input type="email" required className="w-full px-4 py-2 border rounded-md" />
               </div>
-              <div className={styles.inputGroup}>
-                <label className={styles.inputLabel}>Message</label>
-                <textarea className={styles.textareaField} required />
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium text-gray-700">Message</label>
+                <textarea required className="w-full px-4 py-2 border rounded-md" />
               </div>
-              <button type="submit" className={styles.submitButton}>
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-2 rounded-md w-full hover:bg-blue-700 transition"
+              >
                 Send Message
               </button>
             </form>
@@ -118,13 +122,14 @@ export default function DashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={styles.contactForm}
+            className="w-[500px] bg-white p-8 rounded-2xl shadow-lg relative mt-12 ml-auto mr-20"
+
           >
-            <button className={styles.closeButton} onClick={() => setActiveBlock(null)}>
+            <button className="absolute top-4 right-4 text-xl text-gray-600" onClick={() => setActiveBlock(null)}>
               ✕
             </button>
-            <h3 className={styles.formTitle}>Our Services</h3>
-            <ul className={styles.serviceList}>
+            <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">Our Services</h3>
+            <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>We track X% of ships worldwide.</li>
               <li>We provide information about what is on the ship and how much it is.</li>
             </ul>

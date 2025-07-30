@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-// ... (остальные импорты, которые у вас уже есть)
+
 import AnalyticsCharts from "@/components/dashboard/AnalyticsCharts";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import PostsTable from "@/components/posts/PostsTable";
@@ -11,6 +11,7 @@ import { User, Newspaper, Folder, MessageCircle } from "lucide-react";
 import DashboardPage from "@/components/InformationMainPage";
 import InspectorFeatures from "@/components/ui/inspectorFeatures";
 import InspectorBenefits from "@/components/ui/inspectorBenefits";
+import FAQ from "@/components/MostAskedQuestion"; // <-- твой компонент
 
 import BannerIntro from "@/components/ui/bannerIntro";
 import Navbar from "@/components/Navbar";
@@ -62,13 +63,15 @@ export default function Home() {
             <ClientsSpeak />
           </div>
         </section>
+
+        <FAQ />
       </div>
 
       {/* Модальное окно для входа/регистрации */}
       <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
         <DialogContent
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-0 rounded-lg shadow-lg bg-white dark:bg-gray-800 z-50 overflow-hidden
-                     w-[95vw] h-[95vh] max-w-5xl max-h-[90vh] flex" // <-- Изменение здесь: max-h-[90vh]
+                     w-[95vw] h-[95vh] max-w-5xl max-h-[90vh] flex"
         >
           <DialogHeader className="hidden">
             <DialogTitle className="sr-only">Authentication</DialogTitle>
