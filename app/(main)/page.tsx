@@ -11,9 +11,8 @@ import { User, Newspaper, Folder, MessageCircle } from "lucide-react";
 import DashboardPage from "@/components/InformationMainPage";
 import InspectorFeatures from "@/components/ui/inspectorFeatures";
 import InspectorBenefits from "@/components/ui/inspectorBenefits";
-import FAQ from "@/components/MostAskedQuestion"; // <-- твой компонент
+import FAQ from "@/components/MostAskedQuestion";
 
-import BannerIntro from "@/components/ui/bannerIntro";
 import Navbar from "@/components/Navbar";
 import {
   Dialog,
@@ -31,10 +30,10 @@ export default function Home() {
 
   return (
     <div className={`pageBackground ${isAuthModalOpen ? "modal-open" : ""}`}>
-      <Navbar onLoginClick={() => setIsAuthModalOpen(true)} />
+      <Navbar />
 
       <div className="mainContent">
-        <BannerIntro />
+        {/* <BannerIntro /> */}
         <DashboardPage />
 
         <section id="home" className="py-20 bg-gray-50">
@@ -67,7 +66,6 @@ export default function Home() {
         <FAQ />
       </div>
 
-      {/* Модальное окно для входа/регистрации */}
       <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
         <DialogContent
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-0 rounded-lg shadow-lg bg-white dark:bg-gray-800 z-50 overflow-hidden

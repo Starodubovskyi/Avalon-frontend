@@ -63,7 +63,6 @@ export default function ShipOwners() {
         </p>
       </div>
 
-      {/* Верхний ряд: карточки с изображением */}
       <div className="grid md:grid-cols-2 gap-8 mb-10 justify-center">
         {featuresWithImage.map((feature, index) => (
           <div
@@ -95,7 +94,6 @@ export default function ShipOwners() {
         ))}
       </div>
 
-      {/* Нижний ряд: карточки без изображений */}
       <div className="grid md:grid-cols-3 gap-8">
         {featuresWithoutImage.map((feature, index) => (
           <div

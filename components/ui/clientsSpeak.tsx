@@ -34,7 +34,7 @@ const clients = [
 ];
 
 export default function ClientsSpeak() {
-  const [activeIndex, setActiveIndex] = useState(1); // центр по умолчанию
+  const [activeIndex, setActiveIndex] = useState(1);
 
   const prev = () => {
     setActiveIndex((prev) => (prev === 0 ? clients.length - 1 : prev - 1));
