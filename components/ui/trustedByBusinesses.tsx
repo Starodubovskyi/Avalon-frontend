@@ -33,9 +33,7 @@ export default function TrustedByBusinesses() {
 
   return (
     <section className="flex flex-col lg:flex-row gap-8 px-6 py-16 items-start justify-between">
-      {/* Левая часть — текст + список */}
       <div className="w-full lg:w-1/2">
-        {/* Заголовок + описание */}
         <h2 className="text-4xl font-bold mb-4">Trusted by Businesses</h2>
         <p className="text-gray-600 text-sm mb-8 max-w-xl">
           We deliver reliability with cutting-edge technology, real-time
@@ -43,7 +41,6 @@ export default function TrustedByBusinesses() {
           logistics solutions.
         </p>
 
-        {/* Аккордеоны или блоки с плюсиком */}
         {text.map((item, index) => (
           <div
             key={index}
@@ -80,9 +77,7 @@ export default function TrustedByBusinesses() {
         ))}
       </div>
 
-      {/* Правая часть — Цифры над картинкой */}
       <div className="w-full lg:w-1/2 flex flex-col items-center">
-        {/* Цифры */}
         <div className="flex justify-between w-full mb-4 px-4">
           <div>
             <h2 className="text-3xl font-bold">25+</h2>
@@ -98,7 +93,6 @@ export default function TrustedByBusinesses() {
           </div>
         </div>
 
-        {/* Изображение */}
         <img
           src="/photo/shipgruz.jpg"
           alt="ship"

@@ -1,10 +1,8 @@
-// components/auth/SocialAuthButtons.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { toast } from "@/components/ui/use-toast";
-// import styles from "./SocialAuthButtons.module.css"; // Удален импорт CSS
 
 const SocialAuthButtons = () => {
   const handleSocialLogin = (provider: string) => {
@@ -16,34 +14,26 @@ const SocialAuthButtons = () => {
 
   return (
     <div className="w-full flex flex-col justify-start gap-4">
-      {" "}
-      {/* socialAuthContainer */}
       <Button
         variant="outline"
-        className="w-full py-3.5 px-6 font-semibold rounded-full bg-white text-gray-900 border-2 border-gray-400 shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-50 hover:scale-105" // googleButton
+        className="w-full py-3.5 px-6 font-semibold rounded-full bg-white text-gray-900 border-2 border-gray-400 shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-50 hover:scale-105 gap-2"
         onClick={() => handleSocialLogin("Google")}
       >
         <Image
-          src="/images/google-icon.svg"
+          src="/icons/google-icon.png"
           alt="Google"
           width={18}
           height={18}
-          className="mb-px"
         />
         Continue with Google
       </Button>
+
       <Button
         variant="outline"
-        className="w-full py-3.5 px-6 font-semibold rounded-full bg-black text-white border-2 border-black shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-800 hover:scale-105" // appleButton
+        className="w-full py-3.5 px-6 font-semibold rounded-full bg-white text-gray-900 border-2 border-gray-400 shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-50 hover:scale-105 gap-2"
         onClick={() => handleSocialLogin("Apple")}
       >
-        <Image
-          src="/images/apple-icon.svg"
-          alt="Apple"
-          width={18}
-          height={18}
-          className="mb-px"
-        />
+        <Image src="/icons/apple-icon.png" alt="Apple" width={18} height={18} />
         Continue with Apple
       </Button>
     </div>

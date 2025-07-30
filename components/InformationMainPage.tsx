@@ -40,24 +40,26 @@ export default function DashboardPage() {
             <img
               src="/ship-inspection.jpg"
               alt="Ship"
-              className="w-full h-[40rem] object-cover rounded-[2rem]"
+              className="w-full h-[50rem] object-cover block rounded-[2rem]"
             />
-            <div className="absolute inset-0 bg-black/45 flex flex-col justify-center items-center p-8">
-              <div className="absolute top-6 flex gap-4 z-10">
-                <ButonContackt
-                  onContactClick={() => setActiveBlock("contact")}
-                  onServicesClick={() => setActiveBlock("services")}
-                />
-              </div>
-              <div className="text-center max-w-xl text-white">
-                <h2 className="text-4xl font-bold mb-4">
-                  One Platform to Manage All{" "}
-                  <span className="italic text-teal-300">Your Ships & Cargoes</span>
-                </h2>
-                <p className="text-lg">
-                  Connect ship owners with qualified inspectors to simplify
-                  compliance and maintenance processes.
-                </p>
+            <div className="absolute inset-0 bg-black/45 flex items-center justify-center p-6">
+              <div className="text-center flex flex-col items-center max-w-3xl">
+                <div className="mb-6">
+                  <ButonContackt
+                    onContactClick={() => setActiveBlock("contact")}
+                    onServicesClick={() => setActiveBlock("services")}
+                  />
+                </div>
+                <div className="text-white">
+                  <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                    One Platform to Manage All{" "}
+                    <span className="italic text-teal-300">Your Ships & Cargoes</span>
+                  </h2>
+                  <p className="text-lg md:text-xl">
+                    Connect ship owners with qualified inspectors to simplify
+                    compliance and maintenance processes.
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -153,7 +155,10 @@ export default function DashboardPage() {
             </h3>
             <ul className="list-disc list-inside text-gray-700 space-y-2">
               <li>We track X% of ships worldwide.</li>
-              <li>We provide information about what is on the ship and how much it is.</li>
+              <li>
+                We provide information about what is on the ship and how much it
+                is.
+              </li>
             </ul>
           </motion.div>
         )}
