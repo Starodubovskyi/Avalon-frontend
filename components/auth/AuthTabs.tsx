@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import styles from "./AuthTabs.module.css";
+// import styles from "./AuthTabs.module.css"; // Удален импорт CSS
 
 interface AuthTabsProps {
   onCloseModal: () => void;
@@ -19,27 +19,38 @@ const AuthTabs: React.FC<AuthTabsProps> = ({ onCloseModal }) => {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className={styles.tabWrapper}
+        // Используем прямые классы Tailwind
+        className="w-full max-w-md flex flex-col items-center"
       >
-        <TabsList className={styles.tabList}>
-          <TabsTrigger value="login" className={styles.tabTrigger}>
+        <TabsList className="inline-flex mt-4 mb-6 rounded-full bg-gray-100 p-1">
+          <TabsTrigger
+            value="login"
+            className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent rounded-[15rem] cursor-pointer transition-all duration-200 ease-in-out data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]"
+          >
             Login
           </TabsTrigger>
-          <TabsTrigger value="register" className={styles.tabTrigger}>
+          <TabsTrigger
+            value="register"
+            className="py-2 px-4 text-sm font-medium text-gray-600 bg-transparent rounded-[15rem] cursor-pointer transition-all duration-200 ease-in-out data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]"
+          >
             Register
           </TabsTrigger>
         </TabsList>
-        {/* Удаляем flex-1 и overflow-y-auto. tabs-content-area - это просто контейнер, не должен вызывать скролл */}
-        <div className="w-full pt-4 h-full">
+        {/* Удалены h-full из этого div и TabsContent, чтобы позволить форме быть меньше */}
+        <div className="w-full pt-4">
           {" "}
-          {/* Добавляем h-full сюда */}
-          <TabsContent value="login" className="h-full">
+          {/* Убрал h-full */}
+          <TabsContent value="login">
+            {" "}
+            {/* Убрал h-full */}
             <LoginForm
               onSwitchTab={() => setActiveTab("register")}
               onCloseModal={onCloseModal}
             />
           </TabsContent>
-          <TabsContent value="register" className="h-full">
+          <TabsContent value="register">
+            {" "}
+            {/* Убрал h-full */}
             <RegisterForm
               onSwitchTab={() => setActiveTab("login")}
               onCloseModal={onCloseModal}

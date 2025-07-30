@@ -4,7 +4,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import styles from "./Navbar.module.css";
 import Logo from "./nav/Logo";
 import ThemeToggler from "./ThemeToggler";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -17,8 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; // Ensure Dialog components are imported
-import AuthModalContent from "./auth/AuthModalContent"; // Ensure AuthModalContent is imported
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import AuthModalContent from "./auth/AuthModalContent";
 
 const scrollTo = (id: string) => {
   if (typeof window !== "undefined") {
@@ -33,7 +32,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for modal visibility
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -73,10 +72,15 @@ const Navbar = () => {
     router.push("/login");
   };
 
-  // Function to close the modal
   const handleCloseModal = () => {
     setIsAuthModalOpen(false);
   };
+
+  const navButton =
+    "px-6 py-2 rounded-full font-semibold bg-white text-black hover:bg-black hover:text-white transition-colors duration-300";
+
+  const getStartedClass =
+    "group relative inline-flex items-center justify-center gap-2 overflow-hidden text-white bg-black rounded-full px-6 py-3 font-semibold shadow-md transition-all duration-300 hover:bg-black";
 
   return (
     <div
@@ -94,51 +98,69 @@ const Navbar = () => {
           <Logo />
         </div>
 
-        <nav className={`${styles.navButtonGroup} hidden md:flex`}>
+        <nav className="hidden md:inline-flex gap-4 px-3 py-2 rounded-full bg-white/60 backdrop-blur-md shadow-md">
           <button
-            className={styles.navButton}
+            className={navButton}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             Home
           </button>
-
           <button
-            className={styles.navButton}
+            className={navButton}
             onClick={() => scrollTo("how-it-works")}
           >
             How It Works
           </button>
           <button
-            className={styles.navButton}
+            className={navButton}
             onClick={() => scrollTo("for-ship-owners")}
           >
             For Ship Owners
           </button>
           <button
-            className={styles.navButton}
+            className={navButton}
             onClick={() => scrollTo("for-inspectors")}
           >
             For Inspectors
           </button>
         </nav>
 
-        {/* Правая часть */}
         <div className="flex items-center gap-4">
           {!isLoggedIn ? (
             <>
-              {/* Wrap the "Log in" button with DialogTrigger */}
               <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
                 <DialogTrigger asChild>
-                  <button className={styles.navButton}>Log in</button>
+                  <button className={navButton}>Log in</button>
                 </DialogTrigger>
-                {/* Increased max-w and h for an even larger modal window */}
                 <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-lg">
                   <AuthModalContent onCloseModal={handleCloseModal} />
                 </DialogContent>
               </Dialog>
-
-              <Link href="/dashboard" className={styles.getStartedBtn}>
-                Get Started
+              <Link href="/dashboard" className={getStartedClass}>
+                <span className="relative block overflow-hidden h-6">
+                  <span className="block transition-transform duration-300 group-hover:-translate-y-full">
+                    Get Started
+                  </span>
+                  <span className="absolute inset-0 transition-transform duration-300 translate-y-full group-hover:translate-y-0">
+                    Right Now
+                  </span>
+                </span>
+                <span className="flex items-center justify-center w-6 h-6 bg-white text-black rounded-full transition-transform duration-300 group-hover:rotate-45">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M7.5 16.5L16.5 7.5M16.5 7.5H10.5M16.5 7.5V13.5"
+                    />
+                  </svg>
+                </span>
               </Link>
             </>
           ) : (
