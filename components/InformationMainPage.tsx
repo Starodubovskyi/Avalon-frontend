@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSuccessVisible(true);
+
     setTimeout(() => {
       setIsSuccessVisible(false);
       setActiveBlock(null);
@@ -26,7 +27,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="p-6">
+    <div className="p-12 md:p-24">
       <AnimatePresence>
         {!activeBlock && (
           <motion.div
@@ -34,27 +35,29 @@ export default function DashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="relative overflow-hidden rounded-[5rem] shadow-lg mt-12 mb-4 max-w-[1600px] w-[95vw] mx-auto"
+            className="relative overflow-hidden rounded-[2rem] shadow-lg w-full mx-auto mt-2 bg-white"
           >
-            <img src="/ship-inspection.jpg" alt="Ship" className="w-full h-[50rem] object-cover block" />
-
-            <div className="absolute inset-0 bg-black/45 flex items-center justify-center p-6">
-              <div className="text-center flex flex-col items-center max-w-3xl">
-                <div className="mb-6">
-                  <ButonContackt
-                    onContactClick={() => setActiveBlock("contact")}
-                    onServicesClick={() => setActiveBlock("services")}
-                  />
-                </div>
-                <div className="text-white">
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                    One Platform to Manage All{" "}
-                    <span className="italic text-teal-300">Your Ships & Cargoes</span>
-                  </h2>
-                  <p className="text-lg md:text-xl">
-                    Connect ship owners with qualified inspectors to simplify compliance and maintenance processes.
-                  </p>
-                </div>
+            <img
+              src="/ship-inspection.jpg"
+              alt="Ship"
+              className="w-full h-[40rem] object-cover rounded-[2rem]"
+            />
+            <div className="absolute inset-0 bg-black/45 flex flex-col justify-center items-center p-8">
+              <div className="absolute top-6 flex gap-4 z-10">
+                <ButonContackt
+                  onContactClick={() => setActiveBlock("contact")}
+                  onServicesClick={() => setActiveBlock("services")}
+                />
+              </div>
+              <div className="text-center max-w-xl text-white">
+                <h2 className="text-4xl font-bold mb-4">
+                  One Platform to Manage All{" "}
+                  <span className="italic text-teal-300">Your Ships & Cargoes</span>
+                </h2>
+                <p className="text-lg">
+                  Connect ship owners with qualified inspectors to simplify
+                  compliance and maintenance processes.
+                </p>
               </div>
             </div>
           </motion.div>
@@ -68,13 +71,17 @@ export default function DashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-className="w-[500px] bg-white p-8 rounded-2xl shadow-lg relative mt-12 ml-auto mr-20"
-
+            className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg relative mt-8"
           >
-            <button className="absolute top-4 right-4 text-xl text-gray-600" onClick={() => setActiveBlock(null)}>
+            <button
+              className="absolute top-8 right-4 text-xl bg-none border-none text-gray-600 cursor-pointer"
+              onClick={() => setActiveBlock(null)}
+            >
               ✕
             </button>
-            <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">Get in Touch</h3>
+            <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">
+              Get in Touch
+            </h3>
 
             <AnimatePresence>
               {isSuccessVisible && (
@@ -84,29 +91,40 @@ className="w-[500px] bg-white p-8 rounded-2xl shadow-lg relative mt-12 ml-auto m
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.6 }}
-                  className="bg-green-500 text-white px-5 py-3 rounded-lg text-center mb-4"
+                  className="bg-green-500 text-white px-5 py-3 rounded-md text-center mb-4"
                 >
                   Message sent successfully!
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col">
                 <label className="mb-1 font-medium text-gray-700">Your Name</label>
-                <input type="text" required className="w-full px-4 py-2 border rounded-md" />
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 rounded-md border border-gray-300 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition"
+                />
               </div>
               <div className="flex flex-col">
                 <label className="mb-1 font-medium text-gray-700">Email</label>
-                <input type="email" required className="w-full px-4 py-2 border rounded-md" />
+                <input
+                  type="email"
+                  required
+                  className="w-full px-4 py-2 rounded-md border border-gray-300 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition"
+                />
               </div>
               <div className="flex flex-col">
                 <label className="mb-1 font-medium text-gray-700">Message</label>
-                <textarea required className="w-full px-4 py-2 border rounded-md" />
+                <textarea
+                  required
+                  className="w-full px-4 py-2 rounded-md border border-gray-300 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition"
+                />
               </div>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-md w-full hover:bg-blue-700 transition"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md w-full transition"
               >
                 Send Message
               </button>
@@ -122,14 +140,18 @@ className="w-[500px] bg-white p-8 rounded-2xl shadow-lg relative mt-12 ml-auto m
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-[500px] bg-white p-8 rounded-2xl shadow-lg relative mt-12 ml-auto mr-20"
-
+            className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg relative mt-8"
           >
-            <button className="absolute top-4 right-4 text-xl text-gray-600" onClick={() => setActiveBlock(null)}>
+            <button
+              className="absolute top-8 right-4 text-xl bg-none border-none text-gray-600 cursor-pointer"
+              onClick={() => setActiveBlock(null)}
+            >
               ✕
             </button>
-            <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">Our Services</h3>
-            <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <h3 className="text-2xl font-bold mb-4 text-center text-gray-800">
+              Our Services
+            </h3>
+            <ul className="list-disc list-inside text-gray-700 space-y-2">
               <li>We track X% of ships worldwide.</li>
               <li>We provide information about what is on the ship and how much it is.</li>
             </ul>

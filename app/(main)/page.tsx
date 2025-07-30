@@ -34,7 +34,7 @@ export default function Home() {
       <Navbar onLoginClick={() => setIsAuthModalOpen(true)} />
 
       <div className="mainContent">
-        <BannerIntro />
+        {/* <BannerIntro /> */}
         <DashboardPage />
 
         <section id="home" className="py-20 bg-gray-50">
