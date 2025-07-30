@@ -1,6 +1,4 @@
-// components/InspectorFeatures.tsx
 import { Smartphone, ChartLine } from "lucide-react";
-import styles from "./InspectorFeatures.module.css";
 import FeatureCard from "./featureCard";
 
 const featuresLeft = [
@@ -10,7 +8,7 @@ const featuresLeft = [
   },
   {
     title: "Photo Documentation",
-    description: "built in photo capture with animations",
+    description: "Built-in photo capture with animations",
   },
   {
     title: "Report Generation",
@@ -35,13 +33,13 @@ const featuresRight = [
 
 export default function InspectorFeatures() {
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>For Inspectors</h2>
-      <p className={styles.subtitle}>
+    <div className="pt-24 px-4 text-center">
+      <h2 className="text-3xl font-bold mb-4">For Inspectors</h2>
+      <p className="text-gray-600 text-sm -mt-2 mb-10 truncate max-w-2xl mx-auto">
         Advanced tools and features designed to enhance your workflow and grow
         your business
       </p>
-      <div className={styles.cards}>
+      <div className="flex flex-wrap justify-center gap-8">
         <FeatureCard
           title="Digital Inspection Tools"
           icon={<Smartphone size={24} />}
