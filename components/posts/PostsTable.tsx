@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import posts from "@/data/posts";
-import { Post } from "@/types/posts";
+import { Post } from "@/types/post";
 import {
 	Table,
 	TableBody,

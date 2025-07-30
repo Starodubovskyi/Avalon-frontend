@@ -7,6 +7,7 @@ import { User, Newspaper, Folder, MessageCircle } from "lucide-react";
 import DashboardPage from "@/components/InformationMainPage";
 import InspectorFeatures from "@/components/ui/inspectorFeatures";
 import InspectorBenefits from "@/components/ui/inspectorBenefits";
+import FAQ from "@/components/MostAskedQuestion";
 // import ForInspectorsButton from "@/components/nav/ForInspectorsButton";
 // import HomeButton from "@/components/nav/HomeButton";
 
@@ -38,6 +39,7 @@ export default function Home() {
           <InspectorFeatures />
           <InspectorBenefits />
         </section>
+        <FAQ/>
       </div>
     </div>
   );
