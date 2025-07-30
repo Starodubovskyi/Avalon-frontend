@@ -1,12 +1,13 @@
 /* components/auth/authForm.module.css */
 
 .card {
+  
   width: 100%;
-  max-width: 380px; /* Можно попробовать уменьшить до 360px или 350px, если нужно */
+  max-width: 390px; /* Можно попробовать уменьшить до 360px или 350px, если нужно */
   min-height: auto; /* Позволяет форме быть адаптивной по высоте */
   background-color: white;
   border-radius: 0.5rem;
-  padding: 0.8rem; /* Уменьшаем отступ еще сильнее */
+  padding: 10rem; /* Уменьшаем отступ еще сильнее */
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   display: flex;
   flex-direction: column;

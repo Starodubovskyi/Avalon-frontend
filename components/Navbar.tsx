@@ -1,3 +1,4 @@
+// components/Navbar.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -16,6 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; // Ensure Dialog components are imported
+import AuthModalContent from "./auth/AuthModalContent"; // Ensure AuthModalContent is imported
 
 const scrollTo = (id: string) => {
   if (typeof window !== "undefined") {
@@ -30,6 +33,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for modal visibility
   const router = useRouter();
 
   useEffect(() => {
@@ -67,6 +71,11 @@ const Navbar = () => {
       description: "You have been successfully logged out.",
     });
     router.push("/login");
+  };
+
+  // Function to close the modal
+  const handleCloseModal = () => {
+    setIsAuthModalOpen(false);
   };
 
   return (
@@ -117,9 +126,17 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           {!isLoggedIn ? (
             <>
-              <Link href="/login" className={styles.navButton}>
-                Log in
-              </Link>
+              {/* Wrap the "Log in" button with DialogTrigger */}
+              <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+                <DialogTrigger asChild>
+                  <button className={styles.navButton}>Log in</button>
+                </DialogTrigger>
+                {/* Increased max-w and h for an even larger modal window */}
+                <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-lg">
+                  <AuthModalContent onCloseModal={handleCloseModal} />
+                </DialogContent>
+              </Dialog>
+
               <Link href="/dashboard" className={styles.getStartedBtn}>
                 Get Started
               </Link>
