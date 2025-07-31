@@ -37,7 +37,7 @@ export default function HowItWorks() {
         {steps.map((step, index) => (
           <div
             key={index}
-            className="relative bg-white border border-gray-300 rounded-xl p-6 text-left shadow-lg min-h-[20rem]" // Изменено: border-gray-200 на border-gray-300, shadow-sm на shadow-lg
+            className="relative bg-white border rounded-xl p-6 text-left shadow-lg min-h-[20rem]" 
           >
             <div className="absolute top-4 right-6 text-gray-400 text-6xl font-bold z-0">
               {step.number}
