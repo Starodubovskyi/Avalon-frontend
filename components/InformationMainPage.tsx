@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import ButonContackt from "./ui/ButonForMainPage";
 
 export default function DashboardPage() {
-  const [activeBlock, setActiveBlock] = useState<"contact" | "services" | null>(null);
+  const [activeBlock, setActiveBlock] = useState<"contact" | "services" | null>(
+    null
+  );
   const [isSuccessVisible, setIsSuccessVisible] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -27,7 +29,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="p-12 md:p-24">
+    <div>
       <AnimatePresence>
         {!activeBlock && (
           <motion.div
@@ -35,7 +37,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="relative overflow-hidden rounded-[2rem] shadow-lg w-full mx-auto mt-2 bg-white"
+            className="relative overflow-hidden rounded-[2rem] shadow-lg w-full mt-2 bg-white"
           >
             <img
               src="/ship-inspection.jpg"
@@ -53,7 +55,9 @@ export default function DashboardPage() {
                 <div className="text-white">
                   <h2 className="text-4xl md:text-5xl font-bold mb-4">
                     One Platform to Manage All{" "}
-                    <span className="italic text-teal-300">Your Ships & Cargoes</span>
+                    <span className="italic text-teal-300">
+                      Your Ships & Cargoes
+                    </span>
                   </h2>
                   <p className="text-lg md:text-xl">
                     Connect ship owners with qualified inspectors to simplify
@@ -102,7 +106,9 @@ export default function DashboardPage() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col">
-                <label className="mb-1 font-medium text-gray-700">Your Name</label>
+                <label className="mb-1 font-medium text-gray-700">
+                  Your Name
+                </label>
                 <input
                   type="text"
                   required
@@ -118,7 +124,9 @@ export default function DashboardPage() {
                 />
               </div>
               <div className="flex flex-col">
-                <label className="mb-1 font-medium text-gray-700">Message</label>
+                <label className="mb-1 font-medium text-gray-700">
+                  Message
+                </label>
                 <textarea
                   required
                   className="w-full px-4 py-2 rounded-md border border-gray-300 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition"
