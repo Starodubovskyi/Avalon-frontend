@@ -26,33 +26,35 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="w-full py-24 text-center bg-white dark:bg-gray-900">
-      <h2 className="text-4xl font-bold mb-4 text-dark-700">How It Works</h2>
-      <p className="text-gray-500 text-lg mb-12">
+    <section className="w-full py-24 text-center bg-white dark:bg-gray-900 dark:text-white">
+      <h2 className="text-4xl font-bold mb-4 text-dark-700 dark:text-white">
+        How It Works
+      </h2>
+
+      <p className="text-gray-500 text-lg mb-12 dark:text-gray-300">
         Our platform simplifies the ship inspection process with just three easy
         steps.
       </p>
-
       <div className="grid gap-8 grid-cols-1 md:grid-cols-3 max-w-full mx-auto px-4">
         {steps.map((step, index) => (
           <div
             key={index}
-            className="relative bg-white border rounded-xl p-6 text-left shadow-lg min-h-[20rem]" 
+            className="relative bg-white border rounded-xl p-6 text-left shadow-lg min-h-[20rem] dark:bg-gray-800 dark:border-gray-700"
           >
-            <div className="absolute top-4 right-6 text-gray-400 text-6xl font-bold z-0">
+            <div className="absolute top-4 right-6 text-gray-400 text-6xl font-bold z-0 dark:text-gray-600">
               {step.number}
             </div>
 
             <div className="relative z-10">
               <div className="mb-4">
-                <div className="w-12 h-12 flex items-center justify-center rounded-md border border-gray-400 bg-gray-100">
+                <div className="w-12 h-12 flex items-center justify-center rounded-md border border-gray-400 bg-gray-100 dark:border-gray-600 dark:bg-gray-700">
                   {step.icon}
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-dark-900 mb-2">
+              <h3 className="text-2xl font-semibold text-dark-900 mb-2 dark:text-white">
                 {step.title}
               </h3>
-              <p className="text-base font-semibold text-gray-600 leading-relaxed">
+              <p className="text-base font-semibold text-gray-600 leading-relaxed dark:text-gray-300">
                 {step.description}
               </p>
             </div>

@@ -54,20 +54,21 @@ const featuresWithoutImage = [
 
 export default function ShipOwners() {
   return (
-    <section className="w-full pt-0 pb-8 text-gray-800">
+    <section className="w-full pt-0 pb-8 text-gray-800 dark:bg-gray-900 dark:text-white">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h2 className="text-4xl font-extrabold mb-2">For Ship Owners</h2>
-        <p className="text-gray-600 text-base">
+        <h2 className="text-4xl font-extrabold mb-2 dark:text-white">
+          For Ship Owners
+        </h2>
+        <p className="text-gray-600 text-base dark:text-gray-300">
           Experience a new era of maritime compliance with our comprehensive
           digital solutions
         </p>
       </div>
-
       <div className="grid md:grid-cols-2 gap-8 mb-10 max-w-full mx-auto px-4">
         {featuresWithImage.map((feature, index) => (
           <div
             key={index}
-            className="flex flex-row bg-white rounded-2xl shadow-md overflow-hidden w-full"
+            className="flex flex-row bg-white rounded-2xl shadow-md overflow-hidden w-full dark:bg-gray-800 dark:border-gray-700"
           >
             <div className="w-1/2">
               <img
@@ -76,14 +77,19 @@ export default function ShipOwners() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="p-6 border border-gray-200 flex flex-col justify-center flex-1">
-              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+            <div className="p-6 border border-gray-200 flex flex-col justify-center flex-1 dark:border-gray-700">
+              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4 dark:bg-teal-900">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-semibold mb-3 dark:text-white">
+                {feature.title}
+              </h3>
               <ul className="space-y-2">
                 {feature.items.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 text-sm dark:text-gray-300"
+                  >
                     <Check className="w-4 h-4 mt-1 text-teal-500 shrink-0" />
                     <span>{item}</span>
                   </li>
@@ -93,20 +99,24 @@ export default function ShipOwners() {
           </div>
         ))}
       </div>
-
       <div className="grid md:grid-cols-3 gap-8 max-w-full mx-auto px-4">
         {featuresWithoutImage.map((feature, index) => (
           <div
             key={index}
-            className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 text-left flex flex-col justify-between w-full"
+            className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 text-left flex flex-col justify-between w-full dark:bg-gray-800 dark:border-gray-700"
           >
-            <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4 dark:bg-teal-900">
               {feature.icon}
             </div>
-            <h3 className="text-lg font-semibold mb-3">{feature.title}</h3>
+            <h3 className="text-lg font-semibold mb-3 dark:text-white">
+              {feature.title}
+            </h3>
             <ul className="space-y-2">
               {feature.items.map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
+                <li
+                  key={i}
+                  className="flex items-start gap-2 text-sm dark:text-gray-300"
+                >
                   <Check className="w-4 h-4 mt-1 text-teal-500 shrink-0" />
                   <span>{item}</span>
                 </li>

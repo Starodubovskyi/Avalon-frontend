@@ -1,19 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import {
-  Ship,
-  Anchor,
-  Sailboat,
-  Container,
-} from "lucide-react";
+import { Ship, Anchor, Sailboat, Container } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function DashboardPage() {
@@ -39,14 +29,18 @@ export default function DashboardPage() {
 
       const tankerIcon = new L.DivIcon({
         className: "",
-        html: renderToStaticMarkup(<Anchor className="text-blue-600 w-5 h-5" />),
+        html: renderToStaticMarkup(
+          <Anchor className="text-blue-600 w-5 h-5" />
+        ),
         iconSize: [24, 24],
         iconAnchor: [12, 12],
       });
 
       const sugboatIcon = new L.DivIcon({
         className: "",
-        html: renderToStaticMarkup(<Sailboat className="text-red-600 w-5 h-5" />),
+        html: renderToStaticMarkup(
+          <Sailboat className="text-red-600 w-5 h-5" />
+        ),
         iconSize: [24, 24],
         iconAnchor: [12, 12],
       });
@@ -59,7 +53,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <section className="pt-32 min-h-screen bg-white">
+    <section className="pt-32 min-h-screen bg-white dark:bg-gray-900">
       <div className="px-6 md:px-12 pb-12">
         <AnimatePresence>
           <motion.div
@@ -69,19 +63,18 @@ export default function DashboardPage() {
             exit={{ opacity: 0 }}
             className="text-center mb-10"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">
-              One Platform to Manage All{" "}
-              <span className="italic text-teal-500">
-                Your Ships & Cargoes
-              </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white">
+              One Platform to Manage All
+              <span className="italic text-teal-500">Your Ships & Cargoes</span>
             </h2>
-            <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
-              Connect ship owners with qualified inspectors to simplify compliance and maintenance processes.
+            <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto dark:text-gray-300">
+              Connect ship owners with qualified inspectors to simplify
+              compliance and maintenance processes.
             </p>
           </motion.div>
         </AnimatePresence>
 
-        <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden dark:bg-gray-800">
           <div className="relative w-full h-[28rem]">
             {leafletLoaded && (
               <MapContainer
@@ -100,14 +93,16 @@ export default function DashboardPage() {
                 <Marker position={[51.5074, -0.1278]} icon={icons.tankerIcon}>
                   <Popup>Tanker: Hamburg → NY</Popup>
                 </Marker>
-                <Marker position={[25.276987, 55.296249]} icon={icons.sugboatIcon}>
+                <Marker
+                  position={[25.276987, 55.296249]}
+                  icon={icons.sugboatIcon}
+                >
                   <Popup>Sugboat: Dubai → Hamburg</Popup>
                 </Marker>
               </MapContainer>
             )}
 
-            {/* Legend */}
-            <div className="absolute top-4 right-4 bg-white p-4 rounded-xl shadow text-sm space-y-2 z-10">
+            <div className="absolute top-4 right-4 bg-white p-4 rounded-xl shadow text-sm space-y-2 z-10 dark:bg-gray-700 dark:text-white">
               <div className="flex items-center gap-2">
                 <Ship className="w-4 h-4 text-green-600" />
                 <span>Ship</span>
@@ -122,12 +117,13 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-
-          {/* Stats Blocks */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6">
-            <div className="bg-white p-4 rounded-2xl shadow">
-              <h4 className="font-semibold text-gray-800 mb-4">LIVE SHIPPING STATS</h4>
-              <ul className="space-y-2 text-sm text-gray-700">
+            <div className="bg-white p-4 rounded-2xl shadow dark:bg-gray-700 dark:text-white">
+              <h4 className="font-semibold text-gray-800 mb-4 dark:text-white">
+                LIVE SHIPPING STATS
+              </h4>
+
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                 <li className="flex items-center gap-2">
                   <Ship className="w-4 h-4 text-green-600" />
                   Ships Underway
@@ -137,8 +133,7 @@ export default function DashboardPage() {
                   Active Ports
                 </li>
                 <li className="flex items-center gap-2">
-                  <Sailboat className="w-4 h-4 text-blue-500" />
-                  3 Arrivals Today
+                  <Sailboat className="w-4 h-4 text-blue-500" />3 Arrivals Today
                 </li>
               </ul>
             </div>
@@ -150,38 +145,54 @@ export default function DashboardPage() {
             ].map(({ value, label }, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center justify-center bg-white p-6 rounded-2xl shadow"
+                className="flex flex-col items-center justify-center bg-white p-6 rounded-2xl shadow dark:bg-gray-700 dark:text-white"
               >
-                <div className="text-3xl font-bold text-gray-800">{value}</div>
-                <div className="text-sm text-gray-600">{label}</div>
+                <div className="text-3xl font-bold text-gray-800 dark:text-white">
+                  {value}
+                </div>
+
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  {label}
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Upcoming Arrivals & Quick Orders */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Upcoming Arrivals</h3>
-              <ul className="space-y-3 text-gray-700 text-sm">
+            <div className="bg-white rounded-2xl shadow p-6 dark:bg-gray-700 dark:text-white">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 dark:text-white">
+                Upcoming Arrivals
+              </h3>
+
+              <ul className="space-y-3 text-gray-700 text-sm dark:text-gray-300">
                 <li className="flex gap-2 items-start">
                   <Container className="w-4 h-4 text-green-600 mt-1" />
                   <div>
-                    <span className="font-semibold text-green-600">Ship #12345</span><br />
+                    <span className="font-semibold text-green-600">
+                      Ship #12345
+                    </span>
+                    <br />
                     From: Shanghai to Los Angeles
                   </div>
                 </li>
                 <li className="flex gap-2 items-start">
                   <Container className="w-4 h-4 text-red-600 mt-1" />
                   <div>
-                    <span className="font-semibold text-red-600">Tanker #12346</span><br />
+                    <span className="font-semibold text-red-600">
+                      Tanker #12346
+                    </span>
+                    <br />
                     From: Hamburg to New York
                   </div>
                 </li>
               </ul>
             </div>
 
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Orders Panel</h3>
+            <div className="bg-white rounded-2xl shadow p-6 dark:bg-gray-700 dark:text-white">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 dark:text-white">
+                Quick Orders Panel
+              </h3>
+
               <ul className="space-y-3 text-sm">
                 {[
                   { id: "12345", from: "Shanghai", to: "Los Angeles" },
@@ -190,13 +201,17 @@ export default function DashboardPage() {
                 ].map((item) => (
                   <li
                     key={item.id}
-                    className="bg-white border border-gray-200 rounded-md p-4 flex gap-3 items-start shadow-sm"
+                    className="bg-white border border-gray-200 rounded-md p-4 flex gap-3 items-start shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                   >
                     <Container className="w-4 h-4 text-blue-600 mt-1" />
                     <div>
-                      <div className="text-xs uppercase text-blue-600 font-bold">In Transit</div>
+                      <div className="text-xs uppercase text-blue-600 font-bold">
+                        In Transit
+                      </div>
                       <div className="font-semibold">Cargo #{item.id}</div>
-                      <div className="text-gray-600">From: {item.from} — To: {item.to}</div>
+                      <div className="text-gray-600 dark:text-gray-300">
+                        From: {item.from} — To: {item.to}
+                      </div>
                     </div>
                   </li>
                 ))}
