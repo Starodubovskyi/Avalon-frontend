@@ -24,6 +24,7 @@ import {
 import AuthModalContent from "@/components/auth/AuthModalContent";
 import TrustedByBusinesses from "@/components/ui/trustedByBusinesses";
 import ClientsSpeak from "@/components/ui/clientsSpeak";
+import { Footer } from "@/components/ui/footer";
 
 export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -33,7 +34,6 @@ export default function Home() {
       <Navbar />
 
       <div className="mainContent">
-        {/* <BannerIntro /> */}
         <DashboardPage />
 
         <section id="home" className="py-20 bg-gray-50">
@@ -64,6 +64,7 @@ export default function Home() {
         </section>
 
         <FAQ />
+        <Footer />
       </div>
 
       <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
