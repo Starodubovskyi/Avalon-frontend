@@ -3,7 +3,6 @@
 @tailwind utilities;
 @import "leaflet/dist/leaflet.css";
 
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -83,5 +82,14 @@
 @layer components {
   .navbar-container {
     @apply bg-white dark:bg-gray-900 text-black dark:text-white shadow-md border-b border-gray-200 dark:border-gray-700;
+  }
+}
+
+@keyframes showRay {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
   }
 }

@@ -95,12 +95,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   };
 
   return (
-    <Card className="w-full max-w-[360px] bg-white rounded-lg p-4 shadow-[rgba(0,0,0,0.35)_0px_5px_15px] flex flex-col justify-between mx-auto md:p-[15px] mb-8">
+    <Card className="w-full max-w-[360px] bg-white rounded-lg p-4 shadow-[rgba(0,0,0,0.35)_0px_5px_15px] flex flex-col justify-between mx-auto md:p-[15px] mb-8 dark:bg-gray-800 dark:text-white dark:shadow-[rgba(0,0,0,0.7)_0px_5px_15px]">
       <CardHeader className="text-center pb-3">
-        <CardTitle className="font-sans text-2xl font-extrabold mt-1.5 mb-2.5 text-gray-900">
+        <CardTitle className="font-sans text-2xl font-extrabold mt-1.5 mb-2.5 text-gray-900 dark:text-white">
           Create Your Account
         </CardTitle>
-        <CardDescription className="text-gray-600 text-sm font-sans">
+        <CardDescription className="text-gray-600 text-sm font-sans dark:text-gray-300">
           Register to start
         </CardDescription>
       </CardHeader>
@@ -117,12 +117,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-semibold text-gray-700">
+                    <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                       Your Name
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6]"
+                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="Enter your name"
                         {...field}
                       />
@@ -137,12 +137,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-semibold text-gray-700">
+                    <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                       Your Email
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6]"
+                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="info@example.com"
                         {...field}
                       />
@@ -157,13 +157,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-semibold text-gray-700">
+                    <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                       Password
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6]"
+                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="••••••••"
                         {...field}
                       />
@@ -178,13 +178,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-semibold text-gray-700">
+                    <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                       Confirm Password
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6]"
+                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="••••••••"
                         {...field}
                       />
@@ -195,7 +195,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               />
 
               <Button
-                className="w-full py-2.5 px-4 font-semibold rounded-full bg-black text-white transition-all duration-250 ease-in-out cursor-pointer shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] hover:scale-[1.02]"
+                className="w-full py-2.5 px-4 font-semibold rounded-full bg-black text-white transition-all duration-250 ease-in-out cursor-pointer shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] hover:scale-[1.02] dark:bg-teal-600 dark:hover:bg-teal-700 dark:shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.5)]"
                 type="submit"
               >
                 Register
@@ -204,17 +204,19 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           </Form>
 
           <div className="flex items-center pt-2.5 mt-auto">
-            <div className="flex-grow border-t border-gray-200"></div>
-            <span className="mx-2.5 text-sm text-gray-600 font-sans">or</span>
-            <div className="flex-grow border-t border-gray-200"></div>
+            <div className="flex-grow border-t border-gray-200 dark:border-gray-600"></div>
+            <span className="mx-2.5 text-sm text-gray-600 font-sans dark:text-gray-300">
+              or
+            </span>
+            <div className="flex-grow border-t border-gray-200 dark:border-gray-600"></div>
           </div>
 
           <SocialAuthButtons />
 
-          <div className="text-center text-sm text-gray-600 mt-2.5">
+          <div className="text-center text-sm text-gray-600 mt-2.5 dark:text-gray-300">
             Already have an account?{" "}
             <a
-              className="text-blue-600 font-bold no-underline hover:underline"
+              className="text-blue-600 font-bold no-underline hover:underline dark:hover:text-blue-400"
               onClick={onSwitchTab}
             >
               Log In

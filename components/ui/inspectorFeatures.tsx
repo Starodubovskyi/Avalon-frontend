@@ -32,22 +32,21 @@ const featuresRight = [
 
 export default function InspectorFeatures() {
   return (
-    <div className="py-24 px-4 bg-white text-center">
-      <h2 className="text-5xl font-extrabold mb-4 text-black">
+    <div className="py-24 px-4 bg-white text-center dark:bg-gray-900">
+      <h2 className="text-5xl font-extrabold mb-4 text-black dark:text-white">
         For Inspectors
       </h2>
-      <p className="text-gray-600 text-lg font-semibold mb-12">
+      <p className="text-gray-600 text-lg font-semibold mb-12 dark:text-gray-300">
         Advanced tools and features designed to enhance your workflow and grow
         your business
       </p>
-
       <div className="flex flex-col md:flex-row gap-4 max-w-[1600px] w-full mx-auto">
-        <div className="w-full rounded-3xl border border-gray-200 shadow-sm p-10 text-left bg-white min-h-[450px]">
+        <div className="w-full rounded-3xl border border-gray-200 shadow-sm p-10 text-left bg-white min-h-[450px] dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 rounded-full bg-[#E6F4F1] flex items-center justify-center mr-4">
+            <div className="w-12 h-12 rounded-full bg-[#E6F4F1] flex items-center justify-center mr-4 dark:bg-teal-900">
               <Smartphone className="text-teal-600" size={22} />
             </div>
-            <h3 className="text-2xl font-bold text-black">
+            <h3 className="text-2xl font-bold text-black dark:text-white">
               Digital Inspection Tools
             </h3>
           </div>
@@ -55,14 +54,14 @@ export default function InspectorFeatures() {
             {featuresLeft.map((feature, index) => (
               <div
                 key={index}
-                className="bg-gray-50 p-5 rounded-xl flex items-start"
+                className="bg-gray-50 p-5 rounded-xl flex items-start dark:bg-gray-700"
               >
                 <CheckCircle className="text-teal-600 mt-1 mr-3" size={20} />
                 <div>
-                  <h4 className="text-base font-bold text-black">
+                  <h4 className="text-base font-bold text-black dark:text-white">
                     {feature.title}
                   </h4>
-                  <p className="text-gray-600 text-sm font-semibold">
+                  <p className="text-gray-600 text-sm font-semibold dark:text-gray-300">
                     {feature.description}
                   </p>
                 </div>
@@ -71,12 +70,12 @@ export default function InspectorFeatures() {
           </div>
         </div>
 
-        <div className="w-full rounded-3xl border border-gray-200 shadow-sm p-10 text-left bg-white min-h-[450px]">
+        <div className="w-full rounded-3xl border border-gray-200 shadow-sm p-10 text-left bg-white min-h-[450px] dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 rounded-full bg-[#E6F4F1] flex items-center justify-center mr-4">
+            <div className="w-12 h-12 rounded-full bg-[#E6F4F1] flex items-center justify-center mr-4 dark:bg-teal-900">
               <ChartLine className="text-teal-600" size={22} />
             </div>
-            <h3 className="text-2xl font-bold text-black">
+            <h3 className="text-2xl font-bold text-black dark:text-white">
               Digital Inspection Tools
             </h3>
           </div>
@@ -84,14 +83,14 @@ export default function InspectorFeatures() {
             {featuresRight.map((feature, index) => (
               <div
                 key={index}
-                className="bg-gray-50 p-5 rounded-xl flex items-start"
+                className="bg-gray-50 p-5 rounded-xl flex items-start dark:bg-gray-700"
               >
                 <CheckCircle className="text-teal-600 mt-1 mr-3" size={20} />
                 <div>
-                  <h4 className="text-base font-bold text-black">
+                  <h4 className="text-base font-bold text-black dark:text-white">
                     {feature.title}
                   </h4>
-                  <p className="text-gray-600 text-sm font-semibold">
+                  <p className="text-gray-600 text-sm font-semibold dark:text-gray-300">
                     {feature.description}
                   </p>
                 </div>

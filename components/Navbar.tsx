@@ -71,7 +71,7 @@ const Navbar = () => {
     setCurrentUser(null);
     toast({
       title: "Logged Out",
-      description: "You have been successfully logged out.",
+      description: "Вы успешно вышли из аккаунта.",
     });
     setIsMobileMenuOpen(false);
   };
@@ -81,28 +81,23 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const loginButtonClass =
-    "px-6 py-2 rounded-full font-semibold bg-white text-black border border-black hover:bg-black hover:text-white transition-colors duration-300";
-
   const navLinkButtonClass =
-    "px-6 py-2 rounded-full font-semibold bg-white text-black hover:bg-black hover:text-white transition-colors duration-300";
+    "px-6 py-2 rounded-full font-semibold bg-white text-black hover:bg-black hover:text-white transition-colors duration-300 dark:bg-gray-700 dark:text-white dark:hover:bg-teal-600 dark:hover:text-white";
 
   const getStartedClass =
-    "group relative inline-flex items-center justify-center gap-2 overflow-hidden text-white bg-black rounded-full px-4 py-3 font-semibold shadow-md transition-all duration-300 hover:bg-black";
+    "group relative inline-flex items-center justify-center gap-2 overflow-hidden text-white bg-black rounded-full px-4 py-3 font-semibold shadow-md transition-all duration-300 hover:bg-black dark:bg-teal-600 dark:hover:bg-teal-700";
 
   return (
     <div
       className={`sticky top-0 w-full md:max-w-[1700px] mx-auto z-50
-                  transition-all duration-300 rounded-b-lg
-                  ${
-                    isScrolled
-                      ? "bg-white dark:bg-gray-900 shadow-md"
-                      : "bg-transparent"
-                  }`}
+                   transition-all duration-300 rounded-b-lg
+                   ${
+                     isScrolled
+                       ? "bg-white dark:bg-gray-900 shadow-md"
+                       : "bg-transparent"
+                   }`}
     >
-      <div
-        className={`flex items-center justify-between px-6 md:px-10 lg:px-12 py-4`}
-      >
+      <div className="flex items-center justify-between px-6 md:px-10 lg:px-12 py-4">
         <div
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="cursor-pointer"
@@ -110,7 +105,7 @@ const Navbar = () => {
           <Logo />
         </div>
 
-        <nav className="hidden md:inline-flex gap-4 px-3 py-2 rounded-full bg-white/60 backdrop-blur-md shadow-md">
+        <nav className="hidden md:inline-flex gap-4 px-3 py-2 rounded-full bg-white/60 backdrop-blur-md shadow-md dark:bg-gray-800/60 dark:shadow-lg">
           <button
             className={navLinkButtonClass}
             onClick={() => handleNavLinkClick("home")}
@@ -135,6 +130,9 @@ const Navbar = () => {
           >
             For Inspectors
           </button>
+          <Link href="/companies">
+            <button className={navLinkButtonClass}>Companies</button>
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -148,7 +146,6 @@ const Navbar = () => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               {isMobileMenuOpen ? (
                 <path
@@ -168,7 +165,8 @@ const Navbar = () => {
             </svg>
           </button>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggler className="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300" />
             {!isLoggedIn ? (
               <>
                 <Dialog
@@ -176,7 +174,7 @@ const Navbar = () => {
                   onOpenChange={setIsAuthModalOpen}
                 >
                   <DialogTrigger asChild>
-                    <button className={loginButtonClass}>Log in</button>
+                    <button className={navLinkButtonClass}>Log in</button>
                   </DialogTrigger>
                   <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-lg">
                     <AuthModalContent
@@ -194,7 +192,7 @@ const Navbar = () => {
                       Right Now
                     </span>
                   </span>
-                  <span className="flex items-center justify-center w-6 h-6 bg-white text-black rounded-full transition-transform duration-300 group-hover:rotate-45">
+                  <span className="flex items-center justify-center w-6 h-6 bg-white text-black rounded-full transition-transform duration-300 group-hover:rotate-45 dark:bg-gray-200 dark:text-teal-600">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="w-3.5 h-3.5"
@@ -214,7 +212,6 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <ThemeToggler />
                 <DropdownMenu>
                   <DropdownMenuTrigger className="focus:outline-none">
                     <Avatar>
@@ -228,20 +225,29 @@ const Navbar = () => {
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>
+                  <DropdownMenuContent
+                    align="end"
+                    className="dark:bg-gray-800 dark:text-white dark:border-gray-700"
+                  >
+                    <DropdownMenuLabel className="dark:text-white">
                       My Account
                       {currentUser?.email && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                           {currentUser.email}
                         </div>
                       )}
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuSeparator className="dark:bg-gray-700" />
+                    <DropdownMenuItem
+                      asChild
+                      className="dark:hover:bg-gray-700 dark:text-white"
+                    >
                       <Link href="/profile">Profile</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout}>
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="dark:hover:bg-gray-700 dark:text-white"
+                    >
                       Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -275,7 +281,6 @@ const Navbar = () => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
@@ -312,14 +317,20 @@ const Navbar = () => {
           >
             For Inspectors
           </button>
+          <Link href="/companies">
+            <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Companies
+            </button>
+          </Link>
         </nav>
 
         <div className="flex flex-col gap-4 mt-auto">
+          <ThemeToggler />
           {!isLoggedIn ? (
             <>
               <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
                 <DialogTrigger asChild>
-                  <button className="w-full py-2.5 px-4 font-semibold rounded-full bg-black text-white transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-800">
+                  <button className="w-full py-2.5 px-4 font-semibold rounded-full bg-black text-white transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-800 dark:bg-teal-600 dark:hover:bg-teal-700">
                     Log in
                   </button>
                 </DialogTrigger>
@@ -332,14 +343,13 @@ const Navbar = () => {
 
               <Link
                 href="/dashboard"
-                className="w-full py-2.5 px-4 font-semibold rounded-full bg-blue-600 text-white text-center hover:bg-blue-700 transition-colors"
+                className="w-full py-2.5 px-4 font-semibold rounded-full bg-blue-600 text-white text-center hover:bg-blue-700 transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
               >
                 Get Started
               </Link>
             </>
           ) : (
             <>
-              <ThemeToggler />
               <div className="flex items-center gap-2 mt-4">
                 <Avatar>
                   <AvatarImage
@@ -355,7 +365,7 @@ const Navbar = () => {
                 </span>
               </div>
               <button
-                className="w-full py-2.5 px-4 font-semibold rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
+                className="w-full py-2.5 px-4 font-semibold rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors dark:bg-red-700 dark:hover:bg-red-800"
                 onClick={handleLogout}
               >
                 Logout
