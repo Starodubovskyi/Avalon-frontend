@@ -31,7 +31,7 @@ export default function Home() {
           <DashboardPage />
         </section>
 
-        <section id="how-it-works" className="pt-32 pb-32 bg-gray-50">
+        <section id="how-it-works" className="pt-0 pb-32 ">
           <div>
             <HowItWorks />
           </div>

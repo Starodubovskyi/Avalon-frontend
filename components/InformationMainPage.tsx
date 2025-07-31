@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -8,8 +8,6 @@ import {
   Popup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { renderToStaticMarkup } from "react-dom/server";
 import {
   Ship,
   Anchor,
@@ -17,108 +15,99 @@ import {
   Container,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import ButonContackt from "@/components/ButonContackt"; // Предполагается, что такой компонент есть
-
-const shipIcon = new L.DivIcon({
-  className: "",
-  html: renderToStaticMarkup(<Ship className="text-green-600 w-5 h-5" />),
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-});
-
-const tankerIcon = new L.DivIcon({
-  className: "",
-  html: renderToStaticMarkup(<Anchor className="text-blue-600 w-5 h-5" />),
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-});
-
-const sugboatIcon = new L.DivIcon({
-  className: "",
-  html: renderToStaticMarkup(<Sailboat className="text-red-600 w-5 h-5" />),
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-});
 
 export default function DashboardPage() {
-  const [activeBlock, setActiveBlock] = useState<"contact" | "services" | null>(null);
-  const [isSuccessVisible, setIsSuccessVisible] = useState(false);
+  const [icons, setIcons] = useState<{
+    shipIcon?: L.DivIcon;
+    tankerIcon?: L.DivIcon;
+    sugboatIcon?: L.DivIcon;
+  }>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSuccessVisible(true);
-  };
+  const [leafletLoaded, setLeafletLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadLeaflet = async () => {
+      const L = await import("leaflet");
+      const { renderToStaticMarkup } = await import("react-dom/server");
+
+      const shipIcon = new L.DivIcon({
+        className: "",
+        html: renderToStaticMarkup(<Ship className="text-green-600 w-5 h-5" />),
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+
+      const tankerIcon = new L.DivIcon({
+        className: "",
+        html: renderToStaticMarkup(<Anchor className="text-blue-600 w-5 h-5" />),
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+
+      const sugboatIcon = new L.DivIcon({
+        className: "",
+        html: renderToStaticMarkup(<Sailboat className="text-red-600 w-5 h-5" />),
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+
+      setIcons({ shipIcon, tankerIcon, sugboatIcon });
+      setLeafletLoaded(true);
+    };
+
+    loadLeaflet();
+  }, []);
 
   return (
-    <section className="pt-32 bg-gray-50 min-h-screen">
-      <div className="p-6 md:p-12">
+    <section className="pt-32 min-h-screen bg-white">
+      <div className="px-6 md:px-12 pb-12">
         <AnimatePresence>
-          {!activeBlock && (
-            <motion.div
-              key="banner"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="relative overflow-hidden rounded-[2rem] shadow-lg w-full mt-2 bg-white"
-            >
-              <img
-                src="/ship-inspection.jpg"
-                alt="Ship"
-                className="w-full h-[50rem] object-cover block rounded-[2rem]"
-              />
-              <div className="absolute inset-0 bg-black/45 flex items-center justify-center p-6">
-                <div className="text-center flex flex-col items-center max-w-3xl">
-                  <div className="mb-6">
-                    <ButonContackt
-                      onContactClick={() => setActiveBlock("contact")}
-                      onServicesClick={() => setActiveBlock("services")}
-                    />
-                  </div>
-                  <div className="text-white">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                      One Platform to Manage All{" "}
-                      <span className="italic text-teal-300">
-                        Your Ships & Cargoes
-                      </span>
-                    </h2>
-                    <p className="text-lg md:text-xl">
-                      Connect ship owners with qualified inspectors to simplify
-                      compliance and maintenance processes.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
+          <motion.div
+            key="title"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">
+              One Platform to Manage All{" "}
+              <span className="italic text-teal-500">
+                Your Ships & Cargoes
+              </span>
+            </h2>
+            <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
+              Connect ship owners with qualified inspectors to simplify compliance and maintenance processes.
+            </p>
+          </motion.div>
         </AnimatePresence>
 
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
           <div className="relative w-full h-[28rem]">
-            <MapContainer
-              center={[20, 0]}
-              zoom={2}
-              scrollWheelZoom={true}
-              className="w-full h-full z-0"
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="&copy; OpenStreetMap contributors"
-              />
+            {leafletLoaded && (
+              <MapContainer
+                center={[20, 0]}
+                zoom={2}
+                scrollWheelZoom={true}
+                className="w-full h-full z-0"
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution="&copy; OpenStreetMap contributors"
+                />
+                <Marker position={[37.7749, -122.4194]} icon={icons.shipIcon}>
+                  <Popup>Ship: Shanghai → LA</Popup>
+                </Marker>
+                <Marker position={[51.5074, -0.1278]} icon={icons.tankerIcon}>
+                  <Popup>Tanker: Hamburg → NY</Popup>
+                </Marker>
+                <Marker position={[25.276987, 55.296249]} icon={icons.sugboatIcon}>
+                  <Popup>Sugboat: Dubai → Hamburg</Popup>
+                </Marker>
+              </MapContainer>
+            )}
 
-              <Marker position={[37.7749, -122.4194]} icon={shipIcon}>
-                <Popup>Ship: Shanghai → LA</Popup>
-              </Marker>
-
-              <Marker position={[51.5074, -0.1278]} icon={tankerIcon}>
-                <Popup>Tanker: Hamburg → NY</Popup>
-              </Marker>
-
-              <Marker position={[25.276987, 55.296249]} icon={sugboatIcon}>
-                <Popup>Sugboat: Dubai → Hamburg</Popup>
-              </Marker>
-            </MapContainer>
-
-            <div className="absolute top-4 right-4 bg-white p-4 rounded-xl shadow-md text-sm space-y-2 z-10">
+            {/* Legend */}
+            <div className="absolute top-4 right-4 bg-white p-4 rounded-xl shadow text-sm space-y-2 z-10">
               <div className="flex items-center gap-2">
                 <Ship className="w-4 h-4 text-green-600" />
                 <span>Ship</span>
@@ -134,8 +123,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Stats Blocks */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6">
-            <div className="bg-gray-100 p-4 rounded-2xl">
+            <div className="bg-white p-4 rounded-2xl shadow">
               <h4 className="font-semibold text-gray-800 mb-4">LIVE SHIPPING STATS</h4>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-center gap-2">
@@ -153,20 +143,22 @@ export default function DashboardPage() {
               </ul>
             </div>
 
-            <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-2xl">
-              <div className="text-3xl font-bold text-gray-800">12</div>
-              <div className="text-sm text-gray-600">Ships Underway</div>
-            </div>
-            <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-2xl">
-              <div className="text-3xl font-bold text-gray-800">4</div>
-              <div className="text-sm text-gray-600">Active Ports</div>
-            </div>
-            <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-2xl">
-              <div className="text-3xl font-bold text-gray-800">3</div>
-              <div className="text-sm text-gray-600">Arrivals Today</div>
-            </div>
+            {[
+              { value: 12, label: "Ships Underway" },
+              { value: 4, label: "Active Ports" },
+              { value: 3, label: "Arrivals Today" },
+            ].map(({ value, label }, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center justify-center bg-white p-6 rounded-2xl shadow"
+              >
+                <div className="text-3xl font-bold text-gray-800">{value}</div>
+                <div className="text-sm text-gray-600">{label}</div>
+              </div>
+            ))}
           </div>
 
+          {/* Upcoming Arrivals & Quick Orders */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
             <div className="bg-white rounded-2xl shadow p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-4">Upcoming Arrivals</h3>
@@ -198,15 +190,13 @@ export default function DashboardPage() {
                 ].map((item) => (
                   <li
                     key={item.id}
-                    className="bg-gray-100 rounded-md p-4 flex gap-3 items-start"
+                    className="bg-white border border-gray-200 rounded-md p-4 flex gap-3 items-start shadow-sm"
                   >
                     <Container className="w-4 h-4 text-blue-600 mt-1" />
                     <div>
                       <div className="text-xs uppercase text-blue-600 font-bold">In Transit</div>
                       <div className="font-semibold">Cargo #{item.id}</div>
-                      <div className="text-gray-600">
-                        From: {item.from} — To: {item.to}
-                      </div>
+                      <div className="text-gray-600">From: {item.from} — To: {item.to}</div>
                     </div>
                   </li>
                 ))}
