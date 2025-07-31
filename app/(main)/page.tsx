@@ -10,6 +10,7 @@ import InspectorBenefits from "@/components/ui/inspectorBenefits";
 import FAQ from "@/components/MostAskedQuestion";
 import TrustedByBusinesses from "@/components/ui/trustedByBusinesses";
 import ClientsSpeak from "@/components/ui/clientsSpeak";
+import { Footer } from "@/components/ui/footer";
 
 import {
   Dialog,
@@ -52,6 +53,7 @@ export default function Home() {
         </section>
 
         <FAQ />
+        <Footer />
       </div>
 
       <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
