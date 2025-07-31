@@ -26,20 +26,20 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="max-w-6xl mx-auto px-4 py-16 text-center">
-      <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-      <p className="text-gray-600 text-lg mb-12">
+    <section className="w-full py-24 text-center bg-white dark:bg-gray-900">
+      <h2 className="text-4xl font-bold mb-4 text-dark-700">How It Works</h2>
+      <p className="text-gray-500 text-lg mb-12">
         Our platform simplifies the ship inspection process with just three easy
         steps.
       </p>
 
-      <div className="grid gap-8 grid-cols-1 md:grid-cols-3">
+      <div className="grid gap-8 grid-cols-1 md:grid-cols-3 max-w-full mx-auto px-4">
         {steps.map((step, index) => (
           <div
             key={index}
-            className="relative bg-white border border-gray-200 rounded-xl p-6 text-left shadow-sm"
+            className="relative bg-white border border-gray-300 rounded-xl p-6 text-left shadow-lg min-h-[20rem]" // Изменено: border-gray-200 на border-gray-300, shadow-sm на shadow-lg
           >
-            <div className="absolute top-4 right-6 text-gray-200 text-6xl font-bold z-0">
+            <div className="absolute top-4 right-6 text-gray-400 text-6xl font-bold z-0">
               {step.number}
             </div>
 
@@ -49,10 +49,10 @@ export default function HowItWorks() {
                   {step.icon}
                 </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-2xl font-semibold text-dark-900 mb-2">
                 {step.title}
               </h3>
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-base font-semibold text-gray-600 leading-relaxed">
                 {step.description}
               </p>
             </div>

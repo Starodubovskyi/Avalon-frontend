@@ -9,15 +9,21 @@ export type FeatureCardProps = {
   title: string;
   icon: React.ReactNode;
   features: Feature[];
+  className?: string;
 };
 
 export default function FeatureCard({
   title,
   icon,
   features,
+  className,
 }: FeatureCardProps) {
   return (
-    <div className="bg-white rounded-3xl shadow-lg p-8 w-full max-w-sm border border-gray-200">
+    <div
+      className={`bg-white rounded-3xl shadow-lg p-8 border border-gray-200 ${
+        className || ""
+      }`}
+    >
       <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4 text-teal-700">
         {icon}
       </div>

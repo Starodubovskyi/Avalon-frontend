@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -16,6 +16,8 @@ import {
   Sailboat,
   Container,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import ButonContackt from "@/components/ButonContackt"; // Предполагается, что такой компонент есть
 
 const shipIcon = new L.DivIcon({
   className: "",
@@ -39,18 +41,56 @@ const sugboatIcon = new L.DivIcon({
 });
 
 export default function DashboardPage() {
+  const [activeBlock, setActiveBlock] = useState<"contact" | "services" | null>(null);
+  const [isSuccessVisible, setIsSuccessVisible] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSuccessVisible(true);
+  };
+
   return (
     <section className="pt-32 bg-gray-50 min-h-screen">
       <div className="p-6 md:p-12">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-800">
-            One Platform to Manage All{" "}
-            <span className="text-teal-600 italic">Your Ships & Cargoes</span>
-          </h1>
-          <p className="text-gray-600 mt-4 max-w-3xl mx-auto">
-            Connect ship owners with qualified inspectors to simplify compliance and maintenance processes.
-          </p>
-        </div>
+        <AnimatePresence>
+          {!activeBlock && (
+            <motion.div
+              key="banner"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative overflow-hidden rounded-[2rem] shadow-lg w-full mt-2 bg-white"
+            >
+              <img
+                src="/ship-inspection.jpg"
+                alt="Ship"
+                className="w-full h-[50rem] object-cover block rounded-[2rem]"
+              />
+              <div className="absolute inset-0 bg-black/45 flex items-center justify-center p-6">
+                <div className="text-center flex flex-col items-center max-w-3xl">
+                  <div className="mb-6">
+                    <ButonContackt
+                      onContactClick={() => setActiveBlock("contact")}
+                      onServicesClick={() => setActiveBlock("services")}
+                    />
+                  </div>
+                  <div className="text-white">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                      One Platform to Manage All{" "}
+                      <span className="italic text-teal-300">
+                        Your Ships & Cargoes
+                      </span>
+                    </h2>
+                    <p className="text-lg md:text-xl">
+                      Connect ship owners with qualified inspectors to simplify
+                      compliance and maintenance processes.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
           <div className="relative w-full h-[28rem]">

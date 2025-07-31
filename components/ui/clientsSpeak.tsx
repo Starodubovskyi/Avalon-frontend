@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 const clients = [
@@ -45,11 +44,11 @@ export default function ClientsSpeak() {
   };
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-20 text-center">
+    <section className="max-w-7xl mx-auto px-4 py-20 text-center">
       <h2 className="text-4xl font-bold mb-2">
         Clients Speak Volumes About Us
       </h2>
-      <p className="text-gray-600 mb-10">
+      <p className="text-gray-600 mb-10 font-medium">
         Hear from ship owners and inspectors who use our platform
       </p>
 
@@ -61,11 +60,11 @@ export default function ClientsSpeak() {
               initial={{ opacity: 0.5, scale: 0.95 }}
               animate={{
                 opacity: 1,
-                scale: activeIndex === index ? 1.05 : 1,
+                scale: activeIndex === index ? 1.02 : 1,
               }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className={`rounded-2xl p-6 border shadow-sm ${
+              className={`w-full h-full rounded-2xl p-6 border shadow-sm ${
                 activeIndex === index
                   ? "border-teal-500 shadow-lg bg-white"
                   : "bg-gray-50"
@@ -76,10 +75,14 @@ export default function ClientsSpeak() {
                 alt={client.name}
                 className="w-16 h-16 rounded-full mx-auto mb-4 object-cover"
               />
-              <h3 className="text-lg font-semibold">{client.name}</h3>
-              <p className="text-teal-600 text-sm mb-2">{client.job}</p>
-              <p className="text-gray-700 text-sm mb-4">{client.description}</p>
-              <div className="flex justify-between items-center text-sm text-gray-500">
+              <h3 className="text-lg font-bold">{client.name}</h3>
+              <p className="text-teal-600 text-sm font-semibold mb-2">
+                {client.job}
+              </p>
+              <p className="text-gray-700 text-sm font-medium mb-4">
+                {client.description}
+              </p>
+              <div className="flex justify-between items-center text-sm text-gray-500 font-medium">
                 <span>{client.date}</span>
                 <span className="flex items-center gap-1 text-yellow-500">
                   <Star size={16} fill="currentColor" /> {client.rating}
