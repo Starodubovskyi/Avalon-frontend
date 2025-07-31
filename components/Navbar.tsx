@@ -36,8 +36,12 @@ const Navbar = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
 
     const loggedInStatus = localStorage.getItem("isAuthenticated") === "true";
     setIsLoggedIn(loggedInStatus);
@@ -55,7 +59,7 @@ const Navbar = () => {
 
     window.addEventListener("storage", handleStorageChange);
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
@@ -77,21 +81,28 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const navButton =
+  const loginButtonClass =
+    "px-6 py-2 rounded-full font-semibold bg-white text-black border border-black hover:bg-black hover:text-white transition-colors duration-300";
+
+  const navLinkButtonClass =
     "px-6 py-2 rounded-full font-semibold bg-white text-black hover:bg-black hover:text-white transition-colors duration-300";
 
   const getStartedClass =
-    "group relative inline-flex items-center justify-center gap-2 overflow-hidden text-white bg-black rounded-full px-6 py-3 font-semibold shadow-md transition-all duration-300 hover:bg-black";
+    "group relative inline-flex items-center justify-center gap-2 overflow-hidden text-white bg-black rounded-full px-4 py-3 font-semibold shadow-md transition-all duration-300 hover:bg-black";
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white dark:bg-black shadow-md" // Изменено: bg-white (полностью белый), dark:bg-black (полностью черный), добавлена тень
-          : "bg-transparent"
-      }`}
+      className={`sticky top-0 w-full md:max-w-[1700px] mx-auto z-50
+                  transition-all duration-300 rounded-b-lg
+                  ${
+                    isScrolled
+                      ? "bg-white dark:bg-gray-900 shadow-md"
+                      : "bg-transparent"
+                  }`}
     >
-      <div className="w-full flex items-center justify-between px-6 py-4">
+      <div
+        className={`flex items-center justify-between px-6 md:px-10 lg:px-12 py-4`}
+      >
         <div
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="cursor-pointer"
@@ -101,25 +112,25 @@ const Navbar = () => {
 
         <nav className="hidden md:inline-flex gap-4 px-3 py-2 rounded-full bg-white/60 backdrop-blur-md shadow-md">
           <button
-            className={navButton}
+            className={navLinkButtonClass}
             onClick={() => handleNavLinkClick("home")}
           >
             Home
           </button>
           <button
-            className={navButton}
+            className={navLinkButtonClass}
             onClick={() => handleNavLinkClick("how-it-works")}
           >
             How It Works
           </button>
           <button
-            className={navButton}
+            className={navLinkButtonClass}
             onClick={() => handleNavLinkClick("for-ship-owners")}
           >
             For Ship Owners
           </button>
           <button
-            className={navButton}
+            className={navLinkButtonClass}
             onClick={() => handleNavLinkClick("for-inspectors")}
           >
             For Inspectors
@@ -165,7 +176,7 @@ const Navbar = () => {
                   onOpenChange={setIsAuthModalOpen}
                 >
                   <DialogTrigger asChild>
-                    <button className={navButton}>Log in</button>
+                    <button className={loginButtonClass}>Log in</button>
                   </DialogTrigger>
                   <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-lg">
                     <AuthModalContent

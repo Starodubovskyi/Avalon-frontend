@@ -2,18 +2,16 @@
 
 import { useState } from "react";
 
-import AnalyticsCharts from "@/components/dashboard/AnalyticsCharts";
-import DashboardCard from "@/components/dashboard/DashboardCard";
-import PostsTable from "@/components/posts/PostsTable";
 import HowItWorks from "@/components/ui/information";
 import ForShipOwners from "@/components/ui/shipOwners";
-import { User, Newspaper, Folder, MessageCircle } from "lucide-react";
 import DashboardPage from "@/components/InformationMainPage";
 import InspectorFeatures from "@/components/ui/inspectorFeatures";
 import InspectorBenefits from "@/components/ui/inspectorBenefits";
 import FAQ from "@/components/MostAskedQuestion";
+import TrustedByBusinesses from "@/components/ui/trustedByBusinesses";
+import ClientsSpeak from "@/components/ui/clientsSpeak";
+import { Footer } from "@/components/ui/footer";
 
-import Navbar from "@/components/Navbar";
 import {
   Dialog,
   DialogContent,
@@ -22,40 +20,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import AuthModalContent from "@/components/auth/AuthModalContent";
-import TrustedByBusinesses from "@/components/ui/trustedByBusinesses";
-import ClientsSpeak from "@/components/ui/clientsSpeak";
-import { Footer } from "@/components/ui/footer";
 
 export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
-    <div className={`pageBackground ${isAuthModalOpen ? "modal-open" : ""}`}>
-      <Navbar />
-
+    <div className={`${isAuthModalOpen ? "modal-open" : ""}`}>
       <div className="mainContent">
-        <DashboardPage />
-
-        <section id="home" className="py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-6"></h2>
-          </div>
+        <section id="home">
+          <DashboardPage />
         </section>
 
-        <section id="how-it-works" className="-mt-56 pt-0 pb-32 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4">
+        <section id="how-it-works" className="pt-32 pb-32 bg-gray-50">
+          <div>
             <HowItWorks />
           </div>
         </section>
 
         <section id="for-ship-owners" className="-mt-2 pt-0 pb-32">
-          <div className="max-w-7xl mx-auto px-4">
+          <div>
             <ForShipOwners />
           </div>
         </section>
 
         <section id="for-inspectors" className="-mt-8 pt-0 pb-16">
-          <div className="max-w-7xl mx-auto px-4">
+          <div>
             <InspectorFeatures />
             <InspectorBenefits />
             <TrustedByBusinesses />

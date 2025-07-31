@@ -54,7 +54,7 @@ const featuresWithoutImage = [
 
 export default function ShipOwners() {
   return (
-    <section className="py-16 px-6 bg-white text-gray-800">
+    <section className="w-full pt-0 pb-8 text-gray-800">
       <div className="text-center max-w-3xl mx-auto mb-12">
         <h2 className="text-4xl font-extrabold mb-2">For Ship Owners</h2>
         <p className="text-gray-600 text-base">
@@ -63,13 +63,13 @@ export default function ShipOwners() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-10 justify-center">
+      <div className="grid md:grid-cols-2 gap-8 mb-10 max-w-full mx-auto px-4">
         {featuresWithImage.map((feature, index) => (
           <div
             key={index}
-            className="flex flex-row bg-white rounded-2xl shadow-md overflow-hidden max-w-3xl"
+            className="flex flex-row bg-white rounded-2xl shadow-md overflow-hidden w-full"
           >
-            <div className="w-1/2 max-w-sm">
+            <div className="w-1/2">
               <img
                 src={feature.image}
                 alt={feature.title}
@@ -94,11 +94,11 @@ export default function ShipOwners() {
         ))}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-3 gap-8 max-w-full mx-auto px-4">
         {featuresWithoutImage.map((feature, index) => (
           <div
             key={index}
-            className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 text-left flex flex-col justify-between"
+            className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 text-left flex flex-col justify-between w-full"
           >
             <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
               {feature.icon}
