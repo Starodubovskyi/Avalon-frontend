@@ -1,31 +1,27 @@
-/** @format */
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
+import { useState } from "react";
+import PortsTable from "@/components/dashboard/ports.tsx/portsTable";
+import mockData  from "@/data/portsMockData";
 
-interface DashboardCardProps {
-  title: string;
-  count: number;
-  icon: LucideIcon;
-}
-const DashboardCard = ({ title, count, icon: Icon }: DashboardCardProps) => {
+const PortsPage = () => {
+  const [search, setSearch] = useState("");
+
   return (
-    <div className="pt-12">
-      <Card className="bg-slate-100 dark:bg-slate-800 p-4 pb-0">
-        <CardContent>
-          <h3 className="text-3xl text-center mb-4 font-bold text-slate-500 dark:text-slate-200">
-            {title}
-          </h3>
-          <div className="flex gap-5 justify-center items-center">
-            {Icon && <Icon size={72} className=" text-slate-500" />}
-            <h3 className="text-5xl font-semibold text-slate-500 dark:text-slate-200">
-              {count}
-            </h3>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Ports Overview</h1>
+
+      <input
+        type="text"
+        placeholder="Search by Port or UN/LOCODE..."
+        className="mb-4 p-2 border rounded w-full max-w-md"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <PortsTable data={mockData} search={search} />
     </div>
   );
 };
 
-export default DashboardCard;
+export default PortsPage;
