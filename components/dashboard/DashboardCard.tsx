@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import PortsTable from "@/components/dashboard/ports.tsx/portsTable";
+import PortsTable from "@/components/ports.tsx/portsTable";
 import mockData  from "@/data/portsMockData";
 
 const PortsPage = () => {

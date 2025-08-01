@@ -36,9 +36,10 @@ export default function FaqSection() {
   };
 
   return (
-    <div className="px-4 py-20 flex justify-center bg-white dark:bg-gray-900">
-      <div className="w-full max-w-[70rem] rounded-2xl bg-white shadow-xl dark:bg-gray-800">
-        <div className="max-w-4xl mx-auto px-6">
+    // Увеличен вертикальный отступ вокруг всего раздела FAQ
+    <div className="px-4 py-4  flex justify-center bg-white dark:bg-gray-900">
+      <div className="w-auto max-w-[70rem] rounded-2xl bg-white shadow-xl dark:bg-gray-800">
+        <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-4xl font-extrabold text-center mb-3 text-black dark:text-white">
             Frequently Asked Questions
           </h2>
@@ -92,7 +93,8 @@ export default function FaqSection() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                       >
-                        <div className="px-6 pb-6 pt-0 text-base font-normal leading-relaxed text-white">
+                        {/* Увеличен нижний отступ для содержимого ответа */}
+                        <div className="px-6 pb-10 pt-0 text-base font-normal leading-relaxed text-white">
                           {faq.answer}
                         </div>
                       </motion.div>

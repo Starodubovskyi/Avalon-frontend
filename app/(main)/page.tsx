@@ -31,13 +31,13 @@ export default function Home() {
           <DashboardPage />
         </section>
 
-        <section id="how-it-works" className="pt-0 pb-32 ">
+        <section id="how-it-works" className="pt-0 pb-28 ">
           <div>
             <HowItWorks />
           </div>
         </section>
 
-        <section id="for-ship-owners" className="-mt-2 pt-0 pb-32">
+        <section id="for-ship-owners" className="-mt-2 pt-0 pb-28">
           <div>
             <ForShipOwners />
           </div>

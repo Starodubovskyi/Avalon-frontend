@@ -22,6 +22,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "emoji-picker-react": "^4.13.2",
     "framer-motion": "^12.23.12",
     "i18n-iso-countries": "^7.14.0",
     "leaflet": "^1.9.4",
