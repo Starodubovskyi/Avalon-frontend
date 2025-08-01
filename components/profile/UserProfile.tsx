@@ -26,6 +26,7 @@ type User = {
   country?: string;
   birthDate?: string;
   links?: string[];
+  profileImage?: string;
 };
 
 type Company = {
@@ -47,6 +48,7 @@ export default function UserProfile() {
     country: "",
     birthDate: "",
     links: [],
+    profileImage: "",
   });
   const [birthDateObj, setBirthDateObj] = useState<Date | null>(null);
 
@@ -55,7 +57,11 @@ export default function UserProfile() {
     if (storedUser) {
       const parsedUser: User = JSON.parse(storedUser);
       setUser(parsedUser);
-      setFormData({ ...parsedUser, links: parsedUser.links || [] });
+      setFormData({
+        ...parsedUser,
+        links: parsedUser.links || [],
+        profileImage: parsedUser.profileImage || "",
+      });
       if (parsedUser.birthDate) {
         setBirthDateObj(new Date(parsedUser.birthDate));
       }
@@ -73,21 +79,19 @@ export default function UserProfile() {
   }, []);
 
   const handleSave = () => {
-    if (!formData.lastName || !birthDateObj) {
-      alert("Last name and birth date are required.");
-      return;
-    }
-
-    const updatedUser = {
+    // Создаем объект для сохранения в localStorage, исключая большое изображение
+    const userToSave = {
       ...formData,
       birthDate: birthDateObj?.toISOString(),
+      profileImage: undefined, // Исключаем изображение из объекта для сохранения
     };
-    setUser(updatedUser);
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+
+    localStorage.setItem("currentUser", JSON.stringify(userToSave));
+    setUser(userToSave);
 
     const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
     const updatedUsers = allUsers.map((u: User) =>
-      u.email === updatedUser.email ? updatedUser : u
+      u.email === userToSave.email ? userToSave : u
     );
     localStorage.setItem("users", JSON.stringify(updatedUsers));
     setEditMode(false);
@@ -109,6 +113,17 @@ export default function UserProfile() {
     setFormData({ ...formData, links });
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, profileImage: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   if (!user)
     return <div className="text-gray-500 text-center">No user logged in</div>;
 
@@ -118,9 +133,25 @@ export default function UserProfile() {
       <div className="col-span-1 space-y-6">
         {/* Avatar Card */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 text-center flex flex-col items-center">
-          <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-4xl text-gray-500 dark:text-gray-300">
-            <FaUserCircle />
+          <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-4xl text-gray-500 dark:text-gray-300 overflow-hidden">
+            {formData.profileImage ? (
+              <img
+                src={formData.profileImage}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <FaUserCircle />
+            )}
           </div>
+          {editMode && (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="mt-4 text-sm text-gray-500 dark:text-gray-300"
+            />
+          )}
           <h2 className="text-lg font-semibold mt-4 text-gray-900 dark:text-white">
             {user.name} {user.lastName}
           </h2>

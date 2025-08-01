@@ -1,3 +1,4 @@
+// Sidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -54,17 +55,14 @@ const footerItems = [
   { label: "Notifications", href: "/notifications", icon: Bell },
 ];
 
-interface SidebarProps {
-  onEditProfileClick: () => void;
-  isLoggedIn: boolean;
-  currentUser: { name?: string; lastName?: string; avatar?: string };
-}
+// Removed SidebarProps interface as props will be internal to Sidebar
+// interface SidebarProps {
+//   onEditProfileClick: () => void;
+//   isLoggedIn: boolean;
+//   currentUser: { name?: string; lastName?: string; avatar?: string };
+// }
 
-const Sidebar = ({
-  onEditProfileClick,
-  isLoggedIn,
-  currentUser,
-}: SidebarProps) => {
+const Sidebar = () => { // No longer takes props
   const pathname = usePathname();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -72,11 +70,37 @@ const Sidebar = ({
   const [showApplications, setShowApplications] = useState(false);
   const { theme } = useTheme();
 
+  // New state for currentUser, moved from page.tsx
+  const [currentUser, setCurrentUser] = useState<{
+    name?: string;
+    lastName?: string;
+    avatar?: string;
+  } | null>(null);
+
+  // New state for isLoggedIn, derived from currentUser
+  const isLoggedIn = Boolean(currentUser);
+
+  useEffect(() => {
+    // Moved from page.tsx
+    const stored = localStorage.getItem("currentUser");
+    if (stored) {
+      setCurrentUser(JSON.parse(stored));
+    }
+  }, []);
+
   useEffect(() => {
     if (!isSidebarExpanded) {
       setShowApplications(false);
     }
   }, [isSidebarExpanded]);
+
+  // If you want to handle "Edit Profile" logic, it would be here,
+  // for example, navigating to a specific route.
+  // const handleEditProfileClick = () => {
+  //   // Example: navigate to an edit profile page
+  //   // router.push('/profile/edit');
+  // };
+
 
   const SidebarLinks = () => (
     <>
@@ -221,7 +245,7 @@ const Sidebar = ({
           </Dialog>
         ) : (
           <Link
-            href="/profile"
+            href="/profile" // Link directly to profile page
             className="group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
           >
             {currentUser?.avatar ? (

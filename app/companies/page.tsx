@@ -58,15 +58,7 @@ const CompaniesPage = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const [currentUser, setCurrentUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("profile");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("currentUser");
-    if (stored) {
-      setCurrentUser(JSON.parse(stored));
-    }
-  }, []);
+ 
 
   const router = useRouter();
 
@@ -91,11 +83,8 @@ const CompaniesPage = () => {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar
-        onEditProfileClick={() => setActiveTab("edit")}
-        isLoggedIn={Boolean(currentUser)}
-        currentUser={currentUser}
-      />
+      <Sidebar/>
+        
 
       <div className="flex-1 flex flex-col bg-muted/40">
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-10">
