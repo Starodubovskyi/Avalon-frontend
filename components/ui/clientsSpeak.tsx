@@ -13,8 +13,8 @@ const clients = [
     rating: 4.9,
   },
   {
-    name: "James Chen",
-    job: "Operations Director",
+    name: "Vasilii Shevchuk",
+    job: "Owner",
     image: "/photo/james.jpg",
     description:
       "ShipInspect gives real-time compliance tracking for our 35 vessels, delivering strong ROI.",

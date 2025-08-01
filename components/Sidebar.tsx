@@ -12,6 +12,16 @@ import {
   UserCircle,
   Menu,
   X,
+  LayoutDashboard,
+  Anchor,
+  Settings,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+  Mail,
+  CheckSquare,
+  StickyNote,
+  Users,
 } from "lucide-react";
 import clsx from "clsx";
 import ThemeToggler from "@/components/ThemeToggler";
@@ -24,44 +34,49 @@ import { useTheme } from "next-themes";
 const navItems = [
   { label: "Home", href: "/", icon: Home },
   { label: "Maps", href: "/maps", icon: MapPinned },
-  { label: "Ports", href: "/ports", icon: Building2 },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Ports", href: "/ports", icon: Anchor },
   { label: "Vessels", href: "/vessels", icon: Ship },
   { label: "Companies", href: "/companies", icon: Building2 },
 ];
 
+const applicationItems = [
+  { label: "Chat", href: "/chat", icon: MessageSquare },
+  { label: "Email", href: "/email", icon: Mail },
+  { label: "To Do", href: "/todo", icon: CheckSquare },
+  { label: "Notes", href: "/notes", icon: StickyNote },
+  { label: "Social Feed", href: "/social", icon: Users },
+];
+
 const footerItems = [
+  { label: "Settings", href: "/settings", icon: Settings },
   { label: "Support", href: "/support", icon: LifeBuoy },
   { label: "Notifications", href: "/notifications", icon: Bell },
 ];
 
-const Sidebar = () => {
+interface SidebarProps {
+  onEditProfileClick: () => void;
+  isLoggedIn: boolean;
+  currentUser: { name?: string; lastName?: string; avatar?: string };
+}
+
+const Sidebar = ({
+  onEditProfileClick,
+  isLoggedIn,
+  currentUser,
+}: SidebarProps) => {
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
+  const [showApplications, setShowApplications] = useState(false);
   const { theme } = useTheme();
 
   useEffect(() => {
-    const loggedInStatus = localStorage.getItem("isAuthenticated") === "true";
-    setIsLoggedIn(loggedInStatus);
-
-    const userData = localStorage.getItem("currentUser");
-    if (userData) setCurrentUser(JSON.parse(userData));
-
-    const handleStorageChange = () => {
-      const newLoggedInStatus =
-        localStorage.getItem("isAuthenticated") === "true";
-      setIsLoggedIn(newLoggedInStatus);
-      const newUserData = localStorage.getItem("currentUser");
-      setCurrentUser(newUserData ? JSON.parse(newUserData) : null);
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+    if (!isSidebarExpanded) {
+      setShowApplications(false);
+    }
+  }, [isSidebarExpanded]);
 
   const SidebarLinks = () => (
     <>
@@ -91,8 +106,73 @@ const Sidebar = () => {
             </span>
           </Link>
         ))}
+
+        {/* Applications Collapsible */}
+        <button
+          onClick={() => setShowApplications(!showApplications)}
+          className={clsx(
+            "group w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+            "text-muted-foreground hover:bg-muted"
+          )}
+        >
+          <LayoutDashboard className="w-5 h-5 shrink-0" />
+          <span
+            className={clsx(
+              "text-sm font-medium truncate transition-opacity duration-300 flex-1 text-left",
+              isSidebarExpanded
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100"
+            )}
+          >
+            Applications
+          </span>
+          {isSidebarExpanded &&
+            (showApplications ? (
+              <ChevronUp className="w-4 h-4 ml-auto" />
+            ) : (
+              <ChevronDown className="w-4 h-4 ml-auto" />
+            ))}
+        </button>
+
+        <div
+          className={clsx(
+            "pl-8 overflow-hidden transition-all duration-300 ease-in-out",
+            showApplications
+              ? "max-h-[1000px] opacity-100"
+              : "max-h-0 opacity-0"
+          )}
+        >
+          <div className="space-y-1">
+            {applicationItems.map(({ label, href, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setIsMobileOpen(false)}
+                className={clsx(
+                  "group flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                  pathname === href
+                    ? "bg-muted text-primary font-medium"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span
+                  className={clsx(
+                    "text-sm truncate transition-opacity duration-300",
+                    isSidebarExpanded
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  )}
+                >
+                  {label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
 
+      {/* Footer Items */}
       <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
         <div className="group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors">
           <ThemeToggler className="w-5 h-5 shrink-0" />
@@ -144,17 +224,15 @@ const Sidebar = () => {
             href="/profile"
             className="group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
           >
-            <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-600 overflow-hidden">
-              {currentUser?.avatar ? (
-                <img
-                  src={currentUser.avatar}
-                  alt="Avatar"
-                  className="w-6 h-6 rounded-full object-cover"
-                />
-              ) : (
-                <UserCircle className="w-5 h-5 text-white" />
-              )}
-            </div>
+            {currentUser?.avatar ? (
+              <img
+                src={currentUser.avatar}
+                alt="Avatar"
+                className="w-6 h-6 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <UserCircle className="w-5 h-5 shrink-0" />
+            )}
             <span
               className={clsx(
                 "text-sm truncate transition-opacity duration-300",
@@ -163,7 +241,9 @@ const Sidebar = () => {
                   : "opacity-0 group-hover:opacity-100"
               )}
             >
-              {currentUser?.name || "Profile"}
+              {currentUser?.name
+                ? `${currentUser.name} ${currentUser.lastName ?? ""}`
+                : "Profile"}
             </span>
           </Link>
         )}
@@ -218,8 +298,9 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {/* Mobile Toggle */}
       <button
-        className="fixed bottom-4 right-4 z-50 bg-primary text-white p-2 rounded-full shadow-md lg:hidden"
+        className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-2 rounded-full shadow-md lg:hidden"
         onClick={() => setIsMobileOpen(true)}
       >
         <Menu className="w-6 h-6" />
@@ -241,9 +322,8 @@ const Sidebar = () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-
             <div className="flex-1 overflow-y-auto flex flex-col justify-between">
-              <SidebarLinks />
+              {SidebarLinks()}
             </div>
           </div>
         </div>

@@ -25,7 +25,7 @@ const LogoSideBar = ({ isSidebarExpanded }: LogoSideBarProps) => {
             : "opacity-0 group-hover:opacity-100"
         )}
       >
-        Avalon Shipping SRL
+        Avalon
       </span>
     </Link>
   );

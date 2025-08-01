@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +57,17 @@ const CompaniesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+
+  const [currentUser, setCurrentUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("profile");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("currentUser");
+    if (stored) {
+      setCurrentUser(JSON.parse(stored));
+    }
+  }, []);
+
   const router = useRouter();
 
   const filteredCompanies = companiesData.filter((company) => {
@@ -80,7 +91,11 @@ const CompaniesPage = () => {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar
+        onEditProfileClick={() => setActiveTab("edit")}
+        isLoggedIn={Boolean(currentUser)}
+        currentUser={currentUser}
+      />
 
       <div className="flex-1 flex flex-col bg-muted/40">
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-10">

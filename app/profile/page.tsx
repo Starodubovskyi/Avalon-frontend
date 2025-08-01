@@ -1,30 +1,53 @@
 "use client";
 
-import React from "react";
-import LeftSidebar from "@/components/profile/leftSidebar";
-import { ActivityTabs } from "@/components/profile/activityTabs";
-import SubscriptionPanel from "@/components/profile/subscriptionPanel";
-import Tags from "@/components/profile/tags";
+import { useEffect, useState } from "react";
+import TopProfileNavbar from "@/components/shared/TopProfileNavbar";
+import UserProfile from "@/components/profile/UserProfile";
+import CompanyProfile from "@/components/profile/CompanyProfile";
+import EditProfile from "@/components/profile/EditProfile";
+import OnlineServices from "@/components/profile/OnlineServices";
+import MySubscriptions from "@/components/profile/MySubscriptions";
 import Sidebar from "@/components/Sidebar";
 
-const ProfilePage = () => {
+export default function ProfilePage() {
+  const [activeTab, setActiveTab] = useState("profile");
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("currentUser");
+    if (stored) {
+      setCurrentUser(JSON.parse(stored));
+    }
+  }, []);
+
+  const renderTab = () => {
+    switch (activeTab) {
+      case "profile":
+        return <UserProfile />;
+      case "company":
+        return <CompanyProfile />;
+      case "edit":
+        return <EditProfile />;
+      case "services":
+        return <OnlineServices />;
+      case "subscriptions":
+        return <MySubscriptions />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-      <Sidebar />
-
-      <main className="flex flex-col lg:flex-row gap-6 p-6 flex-1">
-        <div className="flex-1 flex flex-col gap-6">
-          <LeftSidebar />
-          <ActivityTabs />
-        </div>
-
-        <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4">
-          <SubscriptionPanel />
-          <Tags />
-        </div>
-      </main>
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
+      <Sidebar
+        onEditProfileClick={() => setActiveTab("edit")}
+        isLoggedIn={Boolean(currentUser)}
+        currentUser={currentUser}
+      />
+      <div className="flex-1 p-6">
+        <TopProfileNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="mt-6">{renderTab()}</div>
+      </div>
     </div>
   );
-};
-
-export default ProfilePage;
+}
