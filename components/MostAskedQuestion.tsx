@@ -36,7 +36,6 @@ export default function FaqSection() {
   };
 
   return (
-    // Увеличен вертикальный отступ вокруг всего раздела FAQ
     <div className="px-4 py-4  flex justify-center bg-white dark:bg-gray-900">
       <div className="w-auto max-w-[70rem] rounded-2xl bg-white shadow-xl dark:bg-gray-800">
         <div className="max-w-4xl mx-auto px-4">
@@ -93,7 +92,6 @@ export default function FaqSection() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                       >
-                        {/* Увеличен нижний отступ для содержимого ответа */}
                         <div className="px-6 pb-10 pt-0 text-base font-normal leading-relaxed text-white">
                           {faq.answer}
                         </div>

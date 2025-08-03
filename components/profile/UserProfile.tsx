@@ -79,11 +79,10 @@ export default function UserProfile() {
   }, []);
 
   const handleSave = () => {
-    // Создаем объект для сохранения в localStorage, исключая большое изображение
     const userToSave = {
       ...formData,
       birthDate: birthDateObj?.toISOString(),
-      profileImage: undefined, // Исключаем изображение из объекта для сохранения
+      profileImage: undefined, 
     };
 
     localStorage.setItem("currentUser", JSON.stringify(userToSave));
@@ -129,9 +128,7 @@ export default function UserProfile() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left: Avatar & Company */}
       <div className="col-span-1 space-y-6">
-        {/* Avatar Card */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 text-center flex flex-col items-center">
           <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-4xl text-gray-500 dark:text-gray-300 overflow-hidden">
             {formData.profileImage ? (
@@ -160,7 +157,6 @@ export default function UserProfile() {
           )}
         </div>
 
-        {/* Company Card */}
         {company?.businessName && (
           <a
             href="/profile?tab=CompanyProfile"
@@ -189,7 +185,6 @@ export default function UserProfile() {
         )}
       </div>
 
-      {/* Right: Info */}
       <div className="col-span-2 space-y-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 relative">
           <button
@@ -204,7 +199,6 @@ export default function UserProfile() {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* First Name */}
             <div>
               <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
                 First Name
@@ -222,7 +216,6 @@ export default function UserProfile() {
               )}
             </div>
 
-            {/* Last Name */}
             <div>
               <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
                 Last Name *
@@ -241,7 +234,6 @@ export default function UserProfile() {
               )}
             </div>
 
-            {/* Email */}
             <div>
               <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
                 Email
@@ -249,7 +241,6 @@ export default function UserProfile() {
               <p className="text-gray-900 dark:text-white">{user.email}</p>
             </div>
 
-            {/* Country */}
             <div>
               <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
                 Country
@@ -276,7 +267,6 @@ export default function UserProfile() {
               )}
             </div>
 
-            {/* Birth Date */}
             <div>
               <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
                 Birth Date *
@@ -304,7 +294,6 @@ export default function UserProfile() {
             </div>
           </div>
 
-          {/* Bio */}
           {editMode && (
             <div className="mt-4">
               <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
@@ -321,7 +310,6 @@ export default function UserProfile() {
             </div>
           )}
 
-          {/* Links */}
           <div className="mt-4">
             <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
               Links

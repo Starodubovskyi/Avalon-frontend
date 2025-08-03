@@ -1,4 +1,3 @@
-// types/chat.d.ts
 export type Attachment = {
   name: string;
   type: string;
@@ -24,10 +23,10 @@ export type Message = {
 export type User = {
   id: string;
   name: string;
-  avatar: string; // обязательно
+  avatar: string; 
   isOnline: boolean;
-  isTyping: boolean; // обязательно
-  unreadCount: number; // обязательно
+  isTyping: boolean; 
+  unreadCount: number; 
 };
 
 

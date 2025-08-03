@@ -4,7 +4,7 @@ import { FaGlobe } from "react-icons/fa";
 import { TbLock } from "react-icons/tb";
 import { FaSearch } from "react-icons/fa";
 import { useState } from "react";
-import PortsTable from "@/components/dashboard/ports.tsx/portsTable";
+// import PortsTable from "@/components/dashboard/ports.tsx/portsTable";
 import mockPorts from "@/data/portsMockData";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
@@ -74,7 +74,7 @@ const PortsPage = () => {
           <span className="flex items-center gap-1">▼ Time Display</span>
         </div>
       </div>
-      <PortsTable data={mockPorts} search={search} />
+      {/* <PortsTable data={mockPorts} search={search} /> */}
     </div>
   );
 };
