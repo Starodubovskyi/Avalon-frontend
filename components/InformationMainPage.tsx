@@ -53,7 +53,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <section className="pt-32 min-h-screen bg-white dark:bg-gray-900">
+    <section className="pt-27 min-h-screen bg-white dark:bg-gray-900">
       <div className="px-6 md:px-12 pb-12">
         <AnimatePresence>
           <motion.div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import TopProfileNavbar from "@/components/shared/TopProfileNavbar";
 import UserProfile from "@/components/profile/UserProfile";
 import CompanyProfile from "@/components/profile/CompanyProfile";
@@ -11,15 +11,8 @@ import Sidebar from "@/components/Sidebar";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
-  const [currentUser, setCurrentUser] = useState(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("currentUser");
-    if (stored) {
-      setCurrentUser(JSON.parse(stored));
-    }
-  }, []);
-
+ 
   const renderTab = () => {
     switch (activeTab) {
       case "profile":
@@ -39,11 +32,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
-      <Sidebar
-        onEditProfileClick={() => setActiveTab("edit")}
-        isLoggedIn={Boolean(currentUser)}
-        currentUser={currentUser}
-      />
+      <Sidebar/>
       <div className="flex-1 p-6">
         <TopProfileNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="mt-6">{renderTab()}</div>

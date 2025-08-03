@@ -32,7 +32,7 @@ const featuresRight = [
 
 export default function InspectorFeatures() {
   return (
-    <div className="py-24 px-4 bg-white text-center dark:bg-gray-900">
+    <div className="py-20 px-4 bg-white text-center dark:bg-gray-900">
       <h2 className="text-5xl font-extrabold mb-4 text-black dark:text-white">
         For Inspectors
       </h2>
