@@ -95,7 +95,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   };
 
   return (
-    <Card className="w-full max-w-[360px] bg-white rounded-lg p-4 shadow-[rgba(0,0,0,0.35)_0px_5px_15px] flex flex-col justify-between mx-auto md:p-[15px] mb-8 dark:bg-gray-800 dark:text-white dark:shadow-[rgba(0,0,0,0.7)_0px_5px_15px]">
+    // Уменьшим mb-8 до mb-4 для экономии места, если нужно. Можно убрать полностью, если CardContent прокручивается.
+    <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl bg-white rounded-lg p-4 shadow-[rgba(0,0,0,0.35)_0px_5px_15px] flex flex-col justify-between mx-auto md:p-[15px] mb-4 dark:bg-gray-800 dark:text-white dark:shadow-[rgba(0,0,0,0.7)_0px_5px_15px]">
       <CardHeader className="text-center pb-3">
         <CardTitle className="font-sans text-2xl font-extrabold mt-1.5 mb-2.5 text-gray-900 dark:text-white">
           Create Your Account
@@ -105,7 +106,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-0 flex flex-col flex-grow">
+      {/* Добавим max-h-full и overflow-y-auto для прокрутки содержимого CardContent */}
+      <CardContent className="p-0 flex flex-col flex-grow max-h-full overflow-y-auto">
         <div>
           <Form {...form}>
             <form
@@ -122,7 +124,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
+                        className="w-full rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="Enter your name"
                         {...field}
                       />
@@ -142,7 +144,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
+                        className="w-full rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="info@example.com"
                         {...field}
                       />
@@ -163,7 +165,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     <FormControl>
                       <Input
                         type="password"
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
+                        className="w-full rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="••••••••"
                         {...field}
                       />
@@ -184,7 +186,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     <FormControl>
                       <Input
                         type="password"
-                        className="rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
+                        className="w-full rounded-full border border-gray-300 py-2 px-3.5 bg-white text-gray-900 outline-none transition-all duration-200 ease-in-out focus:border-blue-500 focus:shadow-[0_0_0_1px_#3b82f6] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-blue-400"
                         placeholder="••••••••"
                         {...field}
                       />

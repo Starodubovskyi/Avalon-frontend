@@ -1,4 +1,3 @@
-// Sidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -23,6 +22,7 @@ import {
   CheckSquare,
   StickyNote,
   Users,
+  ScrollText,
 } from "lucide-react";
 import clsx from "clsx";
 import ThemeToggler from "@/components/ThemeToggler";
@@ -49,20 +49,24 @@ const applicationItems = [
   { label: "Social Feed", href: "/social", icon: Users },
 ];
 
+const adminItems = [
+  { label: "Dashboard", href: "/admindashboard" },
+  { label: "Companies", href: "/admincompanies" },
+];
+
 const footerItems = [
   { label: "Settings", href: "/settings", icon: Settings },
   { label: "Support", href: "/support", icon: LifeBuoy },
   { label: "Notifications", href: "/notifications", icon: Bell },
 ];
 
-
-
-const Sidebar = () => { 
+const Sidebar = () => {
   const pathname = usePathname();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [showApplications, setShowApplications] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const { theme } = useTheme();
 
   const [currentUser, setCurrentUser] = useState<{
@@ -83,11 +87,18 @@ const Sidebar = () => {
   useEffect(() => {
     if (!isSidebarExpanded) {
       setShowApplications(false);
+      setShowAdminPanel(false);
+    } else {
+      if (
+        pathname.startsWith("/admindashboard") ||
+        pathname.startsWith("/admin/companies")
+      ) {
+        setShowAdminPanel(true);
+      } else {
+        setShowAdminPanel(false);
+      }
     }
-  }, [isSidebarExpanded]);
-
-  
-
+  }, [isSidebarExpanded, pathname]);
 
   const SidebarLinks = () => (
     <>
@@ -180,9 +191,68 @@ const Sidebar = () => {
             ))}
           </div>
         </div>
+
+        <button
+          onClick={() => setShowAdminPanel(!showAdminPanel)}
+          className={clsx(
+            "group w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+            "text-muted-foreground hover:bg-muted"
+          )}
+        >
+          <Settings className="w-5 h-5 shrink-0" />
+          <span
+            className={clsx(
+              "text-sm font-medium truncate transition-opacity duration-300 flex-1 text-left",
+              isSidebarExpanded
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100"
+            )}
+          >
+            Admin Panel
+          </span>
+          {isSidebarExpanded &&
+            (showAdminPanel ? (
+              <ChevronUp className="w-4 h-4 ml-auto" />
+            ) : (
+              <ChevronDown className="w-4 h-4 ml-auto" />
+            ))}
+        </button>
+
+        <div
+          className={clsx(
+            "pl-8 overflow-hidden transition-all duration-300 ease-in-out",
+            showAdminPanel ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+          )}
+        >
+          <div className="space-y-1">
+            {adminItems.map(({ label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setIsMobileOpen(false)}
+                className={clsx(
+                  "group flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                  pathname.startsWith(href)
+                    ? "bg-muted text-primary font-medium"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+              >
+                <span
+                  className={clsx(
+                    "text-sm truncate transition-opacity duration-300",
+                    isSidebarExpanded
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  )}
+                >
+                  {label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Footer Items */}
       <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
         <div className="group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors">
           <ThemeToggler className="w-5 h-5 shrink-0" />
@@ -231,7 +301,7 @@ const Sidebar = () => {
           </Dialog>
         ) : (
           <Link
-            href="/profile" 
+            href="/profile"
             className="group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
           >
             {currentUser?.avatar ? (

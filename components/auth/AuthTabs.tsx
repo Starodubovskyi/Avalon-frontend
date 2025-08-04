@@ -17,9 +17,9 @@ const AuthTabs: React.FC<AuthTabsProps> = ({ onCloseModal }) => {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="w-full max-w-md flex flex-col items-center"
+        className="w-full flex flex-col items-center"
       >
-        <TabsList className="inline-flex mt-4 mb-6 rounded-full bg-gray-100 p-1 h-[46px] w-[320px] dark:bg-gray-700">
+        <TabsList className="inline-flex mt-4 mb-6 rounded-full bg-gray-100 p-1 h-[46px] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg dark:bg-gray-700">
           <TabsTrigger
             value="login"
             className="flex-1 text-center cursor-pointer relative z-10 py-2 px-4 rounded-full transition-all duration-300 font-semibold text-base
@@ -39,9 +39,11 @@ const AuthTabs: React.FC<AuthTabsProps> = ({ onCloseModal }) => {
           </TabsTrigger>
         </TabsList>
 
-        <div className="w-full pt-4 relative h-[650px] overflow-hidden">
+        {/* Изменено: h-full для занятия доступного пространства, overflow-y-auto для прокрутки,
+            удален overflow-hidden, который обрезал содержимое. */}
+        <div className="w-full h-full pt-4 relative min-h-[500px] sm:min-h-[550px] overflow-y-auto">
           <div
-            className={`absolute w-full transition-all duration-300 ease-in-out
+            className={`absolute inset-0 transition-all duration-300 ease-in-out
               ${
                 activeTab === "login"
                   ? "opacity-100 translate-x-0"
@@ -54,7 +56,7 @@ const AuthTabs: React.FC<AuthTabsProps> = ({ onCloseModal }) => {
             />
           </div>
           <div
-            className={`absolute w-full transition-all duration-300 ease-in-out
+            className={`absolute inset-0 transition-all duration-300 ease-in-out
               ${
                 activeTab === "register"
                   ? "opacity-100 translate-x-0"

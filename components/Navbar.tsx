@@ -112,16 +112,28 @@ const Navbar = () => {
         </div>
 
         <nav className="hidden md:inline-flex gap-4 px-3 py-2 rounded-full bg-white/60 backdrop-blur-md shadow-md dark:bg-gray-800/60 dark:shadow-lg">
-          <button className={navLinkButtonClass} onClick={() => handleNavLinkClick("home")}>
+          <button
+            className={navLinkButtonClass}
+            onClick={() => handleNavLinkClick("home")}
+          >
             Home
           </button>
-          <button className={navLinkButtonClass} onClick={() => handleNavLinkClick("how-it-works")}>
+          <button
+            className={navLinkButtonClass}
+            onClick={() => handleNavLinkClick("how-it-works")}
+          >
             How It Works
           </button>
-          <button className={navLinkButtonClass} onClick={() => handleNavLinkClick("for-ship-owners")}>
+          <button
+            className={navLinkButtonClass}
+            onClick={() => handleNavLinkClick("for-ship-owners")}
+          >
             For Ship Owners
           </button>
-          <button className={navLinkButtonClass} onClick={() => handleNavLinkClick("for-inspectors")}>
+          <button
+            className={navLinkButtonClass}
+            onClick={() => handleNavLinkClick("for-inspectors")}
+          >
             For Inspectors
           </button>
         </nav>
@@ -139,9 +151,19 @@ const Navbar = () => {
               viewBox="0 0 24 24"
             >
               {isMobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                />
               )}
             </svg>
           </button>
@@ -150,17 +172,19 @@ const Navbar = () => {
             <ThemeToggler className="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300" />
 
             {!isLoggedIn && (
-              <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
+              <Dialog
+                open={isLoginModalOpen}
+                onOpenChange={setIsLoginModalOpen}
+              >
                 <DialogTrigger asChild>
-                  <button
-                    
-                    className="px-6 py-2 rounded-full font-semibold bg-transparent text-black border border-black transition-colors duration-300 hover:bg-black hover:text-white dark:bg-transparent dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700"
-                  >
+                  <button className="px-6 py-2 rounded-full font-semibold bg-transparent text-black border border-black transition-colors duration-300 hover:bg-black hover:text-white dark:bg-transparent dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700">
                     Log In
                   </button>
                 </DialogTrigger>
-                <DialogContent className="p-0 max-w-[1350px] w-full h-[900px] sm:h-[1050px] md:h-[1050px] lg:h-[900px] flex items-center justify-center overflow-hidden rounded-lg">
-                  <AuthModalContent onCloseModal={() => setIsLoginModalOpen(false)} />
+                <DialogContent className="p-0 w-full max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl max-h-[90vh] overflow-y-auto flex items-center justify-center rounded-lg">
+                  <AuthModalContent
+                    onCloseModal={() => setIsLoginModalOpen(false)}
+                  />
                 </DialogContent>
               </Dialog>
             )}
@@ -169,8 +193,10 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none">
                   <Avatar>
-                    
-                    <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
+                    <AvatarImage
+                      src={currentUser?.profileImage}
+                      alt={currentUser?.name || "User"}
+                    />
                     <AvatarFallback className="text-black dark:text-white">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -187,18 +213,29 @@ const Navbar = () => {
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:text-white dark:border-gray-700">
+                <DropdownMenuContent
+                  align="end"
+                  className="dark:bg-gray-800 dark:text-white dark:border-gray-700"
+                >
                   <DropdownMenuLabel className="dark:text-white">
                     My Account
                     {currentUser?.email && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{currentUser.email}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {currentUser.email}
+                      </div>
                     )}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="dark:bg-gray-700" />
-                  <DropdownMenuItem asChild className="dark:hover:bg-gray-700 dark:text-white">
+                  <DropdownMenuItem
+                    asChild
+                    className="dark:hover:bg-gray-700 dark:text-white"
+                  >
                     <Link href="/profile">Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="dark:hover:bg-gray-700 dark:text-white">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="dark:hover:bg-gray-700 dark:text-white"
+                  >
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -215,8 +252,19 @@ const Navbar = () => {
                 </span>
               </span>
               <span className="flex items-center justify-center w-6 h-6 bg-white text-black rounded-full transition-transform duration-300 group-hover:rotate-45 dark:bg-gray-200 dark:text-teal-600">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 16.5L16.5 7.5M16.5 7.5H10.5M16.5 7.5V13.5" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M7.5 16.5L16.5 7.5M16.5 7.5H10.5M16.5 7.5V13.5"
+                  />
                 </svg>
               </span>
             </button>
@@ -248,18 +296,45 @@ const Navbar = () => {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
         <nav className="flex flex-col gap-4 text-lg font-semibold mb-8">
-          <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onClick={() => handleNavLinkClick("home")}>Home</button>
-          <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onClick={() => handleNavLinkClick("how-it-works")}>How It Works</button>
-          <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onClick={() => handleNavLinkClick("for-ship-owners")}>For Ship Owners</button>
-          <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onClick={() => handleNavLinkClick("for-inspectors")}>For Inspectors</button>
+          <button
+            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            onClick={() => handleNavLinkClick("home")}
+          >
+            Home
+          </button>
+          <button
+            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            onClick={() => handleNavLinkClick("how-it-works")}
+          >
+            How It Works
+          </button>
+          <button
+            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            onClick={() => handleNavLinkClick("for-ship-owners")}
+          >
+            For Ship Owners
+          </button>
+          <button
+            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            onClick={() => handleNavLinkClick("for-inspectors")}
+          >
+            For Inspectors
+          </button>
           <Link href="/companies">
-            <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Companies</button>
+            <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Companies
+            </button>
           </Link>
         </nav>
 
@@ -284,8 +359,10 @@ const Navbar = () => {
                   Log In
                 </button>
               </DialogTrigger>
-              <DialogContent className="p-0 max-w-[1350px] w-full h-[900px] sm:h-[1050px] md:h-[1050px] lg:h-[900px] flex items-center justify-center overflow-hidden rounded-lg">
-                <AuthModalContent onCloseModal={() => setIsLoginModalOpen(false)} />
+              <DialogContent className="p-0 w-full max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl max-h-[90vh] overflow-y-auto flex items-center justify-center rounded-lg">
+                <AuthModalContent
+                  onCloseModal={() => setIsLoginModalOpen(false)}
+                />
               </DialogContent>
             </Dialog>
           )}
@@ -294,8 +371,10 @@ const Navbar = () => {
             <>
               <div className="flex items-center gap-2 mt-4">
                 <Avatar>
-                 
-                  <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
+                  <AvatarImage
+                    src={currentUser?.profileImage}
+                    alt={currentUser?.name || "User"}
+                  />
                   <AvatarFallback className="text-black dark:text-white">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

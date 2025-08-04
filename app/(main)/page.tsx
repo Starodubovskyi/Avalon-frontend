@@ -37,13 +37,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="for-ship-owners" className="-mt-2 pt-0 pb-28">
+        <section id="for-ship-owners" className="-mt-2 pb-28">
           <div>
             <ForShipOwners />
           </div>
         </section>
 
-        <section id="for-inspectors" className="-mt-8 pt-0 pb-16">
+        <section id="for-inspectors" className="-mt-8 pb-16">
           <div>
             <InspectorFeatures />
             <InspectorBenefits />
