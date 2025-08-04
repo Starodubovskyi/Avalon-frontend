@@ -42,7 +42,6 @@ export default function ChatMessage({ message, isCurrentUser, sender }: Props) {
         )
       )}
 
-      {/* Сообщение */}
       <div
         className={clsx(
           "max-w-sm px-4 py-2 rounded-2xl text-sm shadow-md",
@@ -51,10 +50,8 @@ export default function ChatMessage({ message, isCurrentUser, sender }: Props) {
             : "bg-gray-100 dark:bg-[#1a1f2b] text-gray-900 dark:text-white rounded-bl-none"
         )}
       >
-        {/* Текст */}
         {message.text && <p className="whitespace-pre-wrap">{message.text}</p>}
 
-        {/* Фото / вложения */}
         {message.attachments?.map((att, idx) =>
           att.type === "image" ? (
             <img
@@ -75,7 +72,6 @@ export default function ChatMessage({ message, isCurrentUser, sender }: Props) {
           )
         )}
 
-        {/* Локация */}
         {message.location && (
           <a
             href={`https://maps.google.com/?q=${message.location}`}
@@ -87,7 +83,6 @@ export default function ChatMessage({ message, isCurrentUser, sender }: Props) {
           </a>
         )}
 
-        {/* Время и статус */}
         <span className="flex items-center justify-end gap-1 text-[10px] text-white/80 dark:text-gray-400 mt-1">
           {message.time}
         </span>

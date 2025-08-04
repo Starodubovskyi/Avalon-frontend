@@ -71,7 +71,6 @@ export default function ChatInput({ onSend }: Props) {
         </div>
       )}
 
-      {/* Прикрепленные файлы */}
       {(files.length > 0 || location) && (
         <div className="mb-2 flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
           {files.map((file, idx) => (
@@ -105,7 +104,6 @@ export default function ChatInput({ onSend }: Props) {
       )}
 
       <div className="flex items-center gap-2">
-        {/* Левая панель: иконки */}
         <button onClick={() => setShowEmoji((prev) => !prev)}>
           <Smile className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-emerald-500" />
         </button>
@@ -119,7 +117,6 @@ export default function ChatInput({ onSend }: Props) {
           <MapPin className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-indigo-500" />
         </button>
 
-        {/* Ввод текста */}
         <input
           type="text"
           value={text}
@@ -129,7 +126,6 @@ export default function ChatInput({ onSend }: Props) {
           className="flex-1 px-4 py-2 rounded-xl bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 text-sm focus:outline-none"
         />
 
-        {/* Отправка */}
         <button
           onClick={handleSend}
           className="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full"
@@ -137,7 +133,6 @@ export default function ChatInput({ onSend }: Props) {
           <Send className="w-4 h-4" />
         </button>
 
-        {/* Скрытые инпуты */}
         <input
           type="file"
           hidden

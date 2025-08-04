@@ -47,7 +47,6 @@ const PersonalProfile: React.FC<PersonalProfileProps> = ({ user }) => {
         </div>
       </div>
 
-      {/* Тут можно добавить другие личные данные, например подпись и т.д. */}
 
     </div>
   );

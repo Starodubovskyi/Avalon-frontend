@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
             </Button>
           </div>
           <p className="mt-4 text-center text-gray-600 dark:text-gray-400 text-sm font-sans">
-            Remember your password?{" "}
+            Remember your password?
             <Link
               href="/login"
               className="text-blue-600 hover:underline dark:text-blue-400 font-medium font-bold"

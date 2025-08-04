@@ -55,14 +55,9 @@ const footerItems = [
   { label: "Notifications", href: "/notifications", icon: Bell },
 ];
 
-// Removed SidebarProps interface as props will be internal to Sidebar
-// interface SidebarProps {
-//   onEditProfileClick: () => void;
-//   isLoggedIn: boolean;
-//   currentUser: { name?: string; lastName?: string; avatar?: string };
-// }
 
-const Sidebar = () => { // No longer takes props
+
+const Sidebar = () => { 
   const pathname = usePathname();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -70,18 +65,15 @@ const Sidebar = () => { // No longer takes props
   const [showApplications, setShowApplications] = useState(false);
   const { theme } = useTheme();
 
-  // New state for currentUser, moved from page.tsx
   const [currentUser, setCurrentUser] = useState<{
     name?: string;
     lastName?: string;
     avatar?: string;
   } | null>(null);
 
-  // New state for isLoggedIn, derived from currentUser
   const isLoggedIn = Boolean(currentUser);
 
   useEffect(() => {
-    // Moved from page.tsx
     const stored = localStorage.getItem("currentUser");
     if (stored) {
       setCurrentUser(JSON.parse(stored));
@@ -94,12 +86,7 @@ const Sidebar = () => { // No longer takes props
     }
   }, [isSidebarExpanded]);
 
-  // If you want to handle "Edit Profile" logic, it would be here,
-  // for example, navigating to a specific route.
-  // const handleEditProfileClick = () => {
-  //   // Example: navigate to an edit profile page
-  //   // router.push('/profile/edit');
-  // };
+  
 
 
   const SidebarLinks = () => (
@@ -131,7 +118,6 @@ const Sidebar = () => { // No longer takes props
           </Link>
         ))}
 
-        {/* Applications Collapsible */}
         <button
           onClick={() => setShowApplications(!showApplications)}
           className={clsx(
@@ -245,7 +231,7 @@ const Sidebar = () => { // No longer takes props
           </Dialog>
         ) : (
           <Link
-            href="/profile" // Link directly to profile page
+            href="/profile" 
             className="group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
           >
             {currentUser?.avatar ? (
@@ -322,7 +308,6 @@ const Sidebar = () => { // No longer takes props
         </div>
       </div>
 
-      {/* Mobile Toggle */}
       <button
         className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-2 rounded-full shadow-md lg:hidden"
         onClick={() => setIsMobileOpen(true)}

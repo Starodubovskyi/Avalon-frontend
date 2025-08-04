@@ -50,7 +50,6 @@ export default function ChatWindow({ otherUserId }: Props) {
 
   return (
     <div className="flex flex-col flex-1 h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
-      {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3">
           {otherUser.avatar ? (
@@ -69,7 +68,6 @@ export default function ChatWindow({ otherUserId }: Props) {
         </div>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-400/30 scrollbar-track-transparent">
         {messages.map((msg) => (
           <ChatMessage
@@ -82,8 +80,6 @@ export default function ChatWindow({ otherUserId }: Props) {
         {otherUser.isTyping && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Input */}
       <ChatInput onSend={handleSendMessage} />
     </div>
   );

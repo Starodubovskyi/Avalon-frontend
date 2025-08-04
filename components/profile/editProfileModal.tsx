@@ -24,7 +24,7 @@ const EditProfileModal = ({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [avatar, setAvatar] = useState(""); // For avatar URL if you plan to allow changing it
+  const [avatar, setAvatar] = useState(""); 
 
   useEffect(() => {
     if (currentUser) {
@@ -37,15 +37,15 @@ const EditProfileModal = ({
 
   const handleSaveChanges = () => {
     const updatedUser = {
-      ...currentUser, // Keep existing fields not modified by the modal
+      ...currentUser, 
       name,
       email,
       phone,
-      avatar, // Include avatar if it's part of the form
+      avatar, 
     };
 
     localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-    window.dispatchEvent(new Event("storage")); // Notify other components of the change
+    window.dispatchEvent(new Event("storage")); 
     onClose();
   };
 
@@ -128,23 +128,7 @@ const EditProfileModal = ({
                       className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     />
                   </div>
-                  {/* You can add an input for avatar URL here if needed */}
-                  {/*
-                  <div>
-                    <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Avatar URL
-                    </label>
-                    <input
-                      type="text"
-                      id="avatar"
-                      value={avatar}
-                      onChange={(e) => setAvatar(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    />
-                  </div>
-                  */}
                 </div>
-
                 <div className="mt-6 flex justify-end gap-3">
                   <button
                     type="button"

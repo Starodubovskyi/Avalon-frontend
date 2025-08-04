@@ -153,8 +153,7 @@ const Navbar = () => {
               <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
                 <DialogTrigger asChild>
                   <button
-                    // Styling for "Log In" button in light theme: transparent with a black border,
-                    // becomes black with white text on hover.
+                    
                     className="px-6 py-2 rounded-full font-semibold bg-transparent text-black border border-black transition-colors duration-300 hover:bg-black hover:text-white dark:bg-transparent dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700"
                   >
                     Log In
@@ -170,9 +169,7 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none">
                   <Avatar>
-                    {/* The profile image is now taken from currentUser?.profileImage.
-                        If profileImage is not available or the image fails to load,
-                        the AvatarFallback will be shown. */}
+                    
                     <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
                     <AvatarFallback className="text-black dark:text-white">
                       <svg
@@ -297,9 +294,7 @@ const Navbar = () => {
             <>
               <div className="flex items-center gap-2 mt-4">
                 <Avatar>
-                  {/* The profile image is now taken from currentUser?.profileImage.
-                      If profileImage is not available or the image fails to load,
-                      the AvatarFallback will be shown. */}
+                 
                   <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
                   <AvatarFallback className="text-black dark:text-white">
                     <svg

@@ -16,11 +16,10 @@ export default function ChatList({ users, setUsers, onSelectUser, selectedUserId
   const [search, setSearch] = useState("");
 
   const filteredUsers = users
-    .filter((u) => u.id !== "u1") // currentUserId
+    .filter((u) => u.id !== "u1") 
     .filter((u) => u.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleSelectUser = (userId: string) => {
-    // Обнуляем счётчик
     const updatedUsers = users.map((u) =>
       u.id === userId ? { ...u, unreadCount: 0 } : u
     );
@@ -54,7 +53,6 @@ export default function ChatList({ users, setUsers, onSelectUser, selectedUserId
                 : "bg-gray-100 dark:bg-[#1a1f2b] hover:bg-gray-200 dark:hover:bg-[#1f2733]"
             )}
           >
-            {/* Левая часть */}
             <div className="flex items-center gap-3 min-w-0">
               {user.avatar ? (
                 <img
@@ -96,7 +94,6 @@ export default function ChatList({ users, setUsers, onSelectUser, selectedUserId
               </div>
             </div>
 
-            {/* unread + status */}
             <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400 shrink-0 ml-2">
               <span>02:40 PM</span>
               <div className="flex items-center gap-1 mt-1">

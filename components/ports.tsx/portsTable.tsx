@@ -1,6 +1,6 @@
 "use client";
 
-import ColumnsDropdown from "@/components/dashboard/ports.tsx/columnsDropdown";
+// import ColumnsDropdown from "@/components/dashboard/ports.tsx/columnsDropdown";
 import { useState, useMemo } from "react";
 import {
   flexRender,
@@ -101,7 +101,7 @@ const PortsTable: React.FC<PortsTableProps> = ({ data, search }) => {
   return (
     <div className="overflow-auto border rounded max-w-full">
       {/* Колонки — кнопка ColumnsDropdown, если у тебя реализована */}
-      <ColumnsDropdown table={table} />
+      {/* <ColumnsDropdown table={table} /> */}
 
       <table className="min-w-[1200px] w-full text-sm">
         <thead className="bg-gray-100 dark:bg-neutral-800 text-black dark:text-white">

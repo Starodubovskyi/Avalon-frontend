@@ -8,7 +8,7 @@ export const users = [
   {
     id: "u1",
     name: "You",
-    avatar: "", // можно добавить путь к аватарке, если нужно
+    avatar: "",
     isOnline: true,
     isTyping: false,
     unreadCount: 0,
@@ -32,7 +32,7 @@ export const users = [
   {
     id: "u4",
     name: "Emily Clark",
-    avatar: "", // без аватарки, чтобы проверить иконку профиля
+    avatar: "", 
     isOnline: true,
     isTyping: true,
     unreadCount: 0,

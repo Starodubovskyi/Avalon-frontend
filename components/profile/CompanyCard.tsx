@@ -6,6 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { Company } from "../types/company.types"; 
 
 const DefaultIcon = L.icon({
   iconUrl: typeof icon === "string" ? icon : icon.src,
@@ -13,33 +14,9 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-type Company = {
-  legalName: string;
-  businessName: string;
-  activity: string;
-  founded: string;
-  employees: string;
-  description: string;
-  country: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  email: string;
-  telephone?: string;
-  fax?: string;
-  website: string;
-  poBox?: string;
-  logoUrl?: string;
-  bannerUrl?: string;
-  pinUrl?: string;
-  lat: number;
-  lng: number;
-};
-
 export default function CompanyCard({ company }: { company: Company }) {
   return (
     <div className="space-y-6 w-full max-w-7xl mx-auto px-4">
-      {/* Banner */}
       <div className="w-full h-48 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
         {company.bannerUrl ? (
           <img
@@ -52,7 +29,6 @@ export default function CompanyCard({ company }: { company: Company }) {
         )}
       </div>
 
-      {/* Logo and Info */}
       <div className="flex items-center gap-4">
         <div className="w-20 h-20 rounded-full border-4 border-white dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden flex items-center justify-center">
           {company.logoUrl ? (
@@ -75,7 +51,6 @@ export default function CompanyCard({ company }: { company: Company }) {
         </div>
       </div>
 
-      {/* Description */}
       <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4">
         <h3 className="text-md font-semibold mb-2 text-gray-900 dark:text-white">
           About Company
@@ -85,7 +60,6 @@ export default function CompanyCard({ company }: { company: Company }) {
         </p>
       </div>
 
-      {/* Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-100 dark:bg-gray-800 rounded-xl p-4">
         <div className="space-y-2">
           <p>
@@ -128,7 +102,6 @@ export default function CompanyCard({ company }: { company: Company }) {
         </div>
       </div>
 
-      {/* Map */}
       <div className="rounded-xl overflow-hidden shadow-lg w-full h-[300px]">
         <MapContainer
           center={[company.lat, company.lng]}
