@@ -2,6 +2,7 @@ import Port from "@/components/types/port";
 
 const mockPorts: Port[] = [
   {
+    id: "1",
     country: "China",
     countryFlag: "https://flagcdn.com/cn.svg",
     port: "SHANGHAI",
@@ -17,6 +18,7 @@ const mockPorts: Port[] = [
     areaLocal: "East China Sea",
   },
   {
+    id: "2",
     country: "China",
     countryFlag: "https://flagcdn.com/cn.svg",
     port: "ZHOUSHAN",
