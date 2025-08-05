@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 
 import HowItWorks from "@/components/ui/information";
 import ForShipOwners from "@/components/ui/shipOwners";
-import DashboardPage from "@/components/InformationMainPage";
+const DashboardPage = dynamic(() => import("@/components/InformationMainPage"), {
+  ssr: false,
+});
 import InspectorFeatures from "@/components/ui/inspectorFeatures";
 import InspectorBenefits from "@/components/ui/inspectorBenefits";
 import FAQ from "@/components/MostAskedQuestion";

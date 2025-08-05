@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "@/components/Sidebar";
+import MainLayout from "@/components/layout/MainLayout";
+
+
 import ChatWindow from "@/components/chat/ChatWindow";
 import ChatList from "@/components/chat/ChatList";
 import { users as initialUsers } from "@/components/shared/fakeData";
@@ -13,17 +15,18 @@ export default function ChatPage() {
   );
 
   return (
+    <MainLayout>
     <div className="flex h-screen">
-      <Sidebar />
       <ChatList
         users={users}
         setUsers={setUsers}
         selectedUserId={selectedUserId}
         onSelectUser={setSelectedUserId}
-      />
+        />
       <ChatWindow
         otherUserId={selectedUserId}
-      />
+        />
     </div>
+        </MainLayout>
   );
 }

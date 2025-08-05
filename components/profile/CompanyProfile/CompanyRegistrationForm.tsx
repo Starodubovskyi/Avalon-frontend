@@ -5,7 +5,7 @@ import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
-import { Company } from "../types/company.types"; 
+import { Company } from "@/components/types/company.types";
 
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en"));
