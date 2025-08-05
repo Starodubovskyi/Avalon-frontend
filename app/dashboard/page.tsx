@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Sun, Moon, ChevronDown, LayoutDashboard, Users, Zap, Briefcase } from 'lucide-react';
 
 // Импорт Sidebar, предполагая, что он находится по указанному пути
-import Sidebar from '../../components/Sidebar';
+import MainLayout from '@/components/layout/MainLayout';
 
 // Импорт глобальных стилей
 import '../globals.css';
@@ -221,9 +221,10 @@ const FilterPanel: React.FC = () => {
 // Главный компонент для страницы дашборда
 const DashboardPage: React.FC = () => {
   return (
+    <MainLayout>
+
     <div className="min-h-screen bg-gray-50 dark:bg-[#0f172a] text-gray-900 dark:text-white flex">
-      {/* Теперь Sidebar импортируется и используется */}
-      <Sidebar />
+      
 
       <div className="flex-1 p-4 space-y-4">
         <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
@@ -244,6 +245,7 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </MainLayout>
   );
 };
 

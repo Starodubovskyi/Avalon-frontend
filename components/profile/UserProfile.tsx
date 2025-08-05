@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  FaUserCircle,
   FaEdit,
   FaSave,
   FaPlus,
@@ -13,6 +13,10 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
+import imageCompression from "browser-image-compression";
+
+import ProfileHeader from "./ProfileHeader";
+import Gallery from "./Gallery";
 
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en"));
@@ -27,6 +31,9 @@ type User = {
   birthDate?: string;
   links?: string[];
   profileImage?: string;
+  tags?: string[];
+  gallery?: string[];
+  activityData?: { date: string; value: number }[];
 };
 
 type Company = {
@@ -36,6 +43,8 @@ type Company = {
 };
 
 export default function UserProfile() {
+  const router = useRouter();
+
   const [user, setUser] = useState<User | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -49,6 +58,9 @@ export default function UserProfile() {
     birthDate: "",
     links: [],
     profileImage: "",
+    tags: [],
+    gallery: [],
+    activityData: [],
   });
   const [birthDateObj, setBirthDateObj] = useState<Date | null>(null);
 
@@ -61,6 +73,9 @@ export default function UserProfile() {
         ...parsedUser,
         links: parsedUser.links || [],
         profileImage: parsedUser.profileImage || "",
+        tags: parsedUser.tags || [],
+        gallery: parsedUser.gallery || [],
+        activityData: parsedUser.activityData || generateFakeActivity(),
       });
       if (parsedUser.birthDate) {
         setBirthDateObj(new Date(parsedUser.birthDate));
@@ -78,21 +93,37 @@ export default function UserProfile() {
     }
   }, []);
 
+  function generateFakeActivity() {
+    const arr = [];
+    const today = new Date();
+    for (let i = 9; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      arr.push({
+        date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        value: Math.floor(Math.random() * 10) + 1,
+      });
+    }
+    return arr;
+  }
+
+  const saveProfile = (updatedData: User) => {
+    localStorage.setItem("currentUser", JSON.stringify(updatedData));
+    setUser(updatedData);
+    const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const updatedUsers = allUsers.map((u: User) =>
+      u.email === updatedData.email ? updatedData : u
+    );
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+    setFormData(updatedData);
+  };
+
   const handleSave = () => {
     const userToSave = {
       ...formData,
       birthDate: birthDateObj?.toISOString(),
-      profileImage: undefined, 
     };
-
-    localStorage.setItem("currentUser", JSON.stringify(userToSave));
-    setUser(userToSave);
-
-    const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    const updatedUsers = allUsers.map((u: User) =>
-      u.email === userToSave.email ? userToSave : u
-    );
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
+    saveProfile(userToSave);
     setEditMode(false);
   };
 
@@ -112,50 +143,102 @@ export default function UserProfile() {
     setFormData({ ...formData, links });
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, profileImage: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 0.3,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(file, options);
+      return compressedFile;
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      return file;
     }
   };
 
-  if (!user)
-    return <div className="text-gray-500 text-center">No user logged in</div>;
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+
+  const onUploadAvatar = async (file: File) => {
+    const compressed = await compressImage(file);
+    const base64 = await fileToBase64(compressed);
+    const updatedData = { ...formData, profileImage: base64 };
+    saveProfile(updatedData);
+  };
+
+  const onDeleteAvatar = () => {
+    const updatedData = { ...formData, profileImage: "" };
+    saveProfile(updatedData);
+  };
+
+  const onAddTag = (tag: string) => {
+    if (!formData.tags?.includes(tag)) {
+      const newTags = [...(formData.tags || []), tag];
+      saveProfile({ ...formData, tags: newTags });
+    }
+  };
+
+  const onRemoveTag = (tag: string) => {
+    const newTags = (formData.tags || []).filter((t) => t !== tag);
+    saveProfile({ ...formData, tags: newTags });
+  };
+
+  const onAddImage = async (file: File) => {
+    const compressed = await compressImage(file);
+    const base64 = await fileToBase64(compressed);
+    const newGallery = [...(formData.gallery || []), base64];
+    const updatedData = { ...formData, gallery: newGallery };
+    saveProfile(updatedData);
+  };
+
+  const onRemoveImage = (idx: number) => {
+    const newGallery = (formData.gallery || []).filter((_, i) => i !== idx);
+    saveProfile({ ...formData, gallery: newGallery });
+  };
+
+  const onLogout = () => {
+    localStorage.removeItem("currentUser");
+    setUser(null);
+    setFormData({
+      name: "",
+      lastName: "",
+      email: "",
+      password: "",
+      bio: "",
+      country: "",
+      birthDate: "",
+      links: [],
+      profileImage: "",
+      tags: [],
+      gallery: [],
+      activityData: [],
+    });
+    router.push("/");
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="col-span-1 space-y-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 text-center flex flex-col items-center">
-          <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-4xl text-gray-500 dark:text-gray-300 overflow-hidden">
-            {formData.profileImage ? (
-              <img
-                src={formData.profileImage}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <FaUserCircle />
-            )}
-          </div>
-          {editMode && (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="mt-4 text-sm text-gray-500 dark:text-gray-300"
-            />
-          )}
-          <h2 className="text-lg font-semibold mt-4 text-gray-900 dark:text-white">
-            {user.name} {user.lastName}
-          </h2>
-          {user.bio && !editMode && (
-            <p className="text-gray-500 text-sm mt-1">{user.bio}</p>
-          )}
-        </div>
+        <ProfileHeader
+          name={formData.name}
+          lastName={formData.lastName}
+          bio={formData.bio}
+          profileImage={formData.profileImage}
+          tags={formData.tags || []}
+          editMode={editMode}
+          onUploadAvatar={onUploadAvatar}
+          onDeleteAvatar={onDeleteAvatar}
+          onAddTag={onAddTag}
+          onRemoveTag={onRemoveTag}
+          onLogout={onLogout}
+        />
 
         {company?.businessName && (
           <a
@@ -190,6 +273,7 @@ export default function UserProfile() {
           <button
             onClick={() => (editMode ? handleSave() : setEditMode(true))}
             className="absolute top-4 right-4 text-gray-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+            type="button"
           >
             {editMode ? <FaSave /> : <FaEdit />}
           </button>
@@ -212,7 +296,7 @@ export default function UserProfile() {
                   className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                 />
               ) : (
-                <p className="text-gray-900 dark:text-white">{user.name}</p>
+                <p className="text-gray-900 dark:text-white">{user?.name}</p>
               )}
             </div>
 
@@ -230,7 +314,7 @@ export default function UserProfile() {
                   className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                 />
               ) : (
-                <p className="text-gray-900 dark:text-white">{user.lastName}</p>
+                <p className="text-gray-900 dark:text-white">{user?.lastName}</p>
               )}
             </div>
 
@@ -238,7 +322,7 @@ export default function UserProfile() {
               <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
                 Email
               </label>
-              <p className="text-gray-900 dark:text-white">{user.email}</p>
+              <p className="text-gray-900 dark:text-white">{user?.email}</p>
             </div>
 
             <div>
@@ -262,7 +346,7 @@ export default function UserProfile() {
                 </select>
               ) : (
                 <p className="text-gray-900 dark:text-white">
-                  {user.country || "—"}
+                  {user?.country || "—"}
                 </p>
               )}
             </div>
@@ -286,7 +370,7 @@ export default function UserProfile() {
                 />
               ) : (
                 <p className="text-gray-900 dark:text-white">
-                  {user.birthDate
+                  {user?.birthDate
                     ? new Date(user.birthDate).toLocaleDateString()
                     : "—"}
                 </p>
@@ -326,6 +410,7 @@ export default function UserProfile() {
                     <button
                       onClick={() => removeLink(i)}
                       className="text-red-600"
+                      type="button"
                     >
                       <FaTrash />
                     </button>
@@ -334,11 +419,12 @@ export default function UserProfile() {
                 <button
                   onClick={addLink}
                   className="mt-2 inline-flex items-center text-sm text-blue-600 hover:underline"
+                  type="button"
                 >
                   <FaPlus className="mr-1" /> Add link
                 </button>
               </div>
-            ) : user.links && user.links.length > 0 ? (
+            ) : user?.links && user.links.length > 0 ? (
               <ul className="list-disc pl-5 text-blue-600">
                 {user.links.map((link, i) => (
                   <li key={i}>
@@ -358,6 +444,12 @@ export default function UserProfile() {
             )}
           </div>
         </div>
+
+        <Gallery
+          images={formData.gallery || []}
+          onAddImage={onAddImage}
+          onRemoveImage={onRemoveImage}
+        />
       </div>
     </div>
   );

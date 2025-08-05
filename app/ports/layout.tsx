@@ -1,4 +1,4 @@
-import Sidebar from "@/components/Sidebar";
+import MainLayout from "@/components/layout/MainLayout";
 
 export default function PortsLayout({
   children,
@@ -6,9 +6,10 @@ export default function PortsLayout({
   children: React.ReactNode;
 }) {
   return (
+    <MainLayout>
     <div className="flex">
-      <Sidebar />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
+    </MainLayout>
   );
 }

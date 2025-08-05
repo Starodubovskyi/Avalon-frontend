@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import CompanyRegistrationForm from "./CompanyRegistrationForm";
 import CompanyCard from "./CompanyCard";
-import { Company } from "../types/company.types"; 
+import { Company } from "@/components/types/company.types";
 
 export default function CompanyProfile() {
   const [company, setCompany] = useState<Company | null>(null);

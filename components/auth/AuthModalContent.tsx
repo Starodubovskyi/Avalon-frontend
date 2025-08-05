@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import AuthTabs from "./AuthTabs";
-import logo from "@/img/3.1.jpg";
+import img from "@/img/3.3.jpg";
 
 interface AuthModalContentProps {
   onCloseModal: () => void;
@@ -12,13 +12,10 @@ const AuthModalContent: React.FC<AuthModalContentProps> = ({
   onCloseModal,
 }) => {
   return (
-    // Этот div внутри DialogContent будет занимать всю его ширину и высоту.
-    // DialogContent контролирует общую max-width на разных брейкпоинтах.
-    <div className="flex h-full w-full">
-      {/* Левая часть с изображением */}
+    <div className="flex h-full w-full flex-col lg:flex-row">
       <div className="relative hidden lg:flex flex-[1.2] items-center justify-center overflow-hidden rounded-l-lg">
         <Image
-          src={logo}
+          src={img}
           alt="Ship"
           layout="fill"
           objectFit="cover"
@@ -28,9 +25,7 @@ const AuthModalContent: React.FC<AuthModalContentProps> = ({
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 to-transparent"></div>
       </div>
 
-      {/* Правая часть с формами (адаптивная колонка) */}
-      {/* p-6 sm:p-8 lg:p-10: адаптивные отступы внутри */}
-      <div className="flex flex-1 flex-col items-center justify-start p-6 sm:p-8 lg:p-10">
+      <div className="flex flex-1 flex-col items-center justify-start p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto">
         <AuthTabs onCloseModal={onCloseModal} />
       </div>
     </div>

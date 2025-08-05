@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   Dialog,
@@ -65,13 +67,16 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     onSave({
       ...formData,
-      createdDate: new Date(formData.createdDate).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
+      createdDate: formData.createdDate
+        ? new Date(formData.createdDate).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "",
     });
   };
 
@@ -87,7 +92,7 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
           <div>
             <label
               htmlFor="companyName"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium leading-none"
             >
               Company Name
             </label>
@@ -97,13 +102,13 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
               value={formData.companyName}
               onChange={handleChange}
               required
-              className="mt-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-white"
+              className="mt-1"
             />
           </div>
           <div>
             <label
               htmlFor="email"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium leading-none"
             >
               Email
             </label>
@@ -114,13 +119,13 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
               value={formData.email}
               onChange={handleChange}
               required
-              className="mt-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-white"
+              className="mt-1"
             />
           </div>
           <div>
             <label
               htmlFor="accountURL"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium leading-none"
             >
               Account URL
             </label>
@@ -130,14 +135,11 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
               value={formData.accountURL}
               onChange={handleChange}
               required
-              className="mt-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-white"
+              className="mt-1"
             />
           </div>
           <div>
-            <label
-              htmlFor="plan"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
+            <label htmlFor="plan" className="text-sm font-medium leading-none">
               Plan
             </label>
             <select
@@ -146,20 +148,24 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
               value={formData.plan}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-white px-3 py-2"
+              className="mt-1 block w-full rounded-md border px-3 py-2"
             >
               <option value="Basic (Monthly)">Basic (Monthly)</option>
               <option value="Basic (Yearly)">Basic (Yearly)</option>
               <option value="Advanced (Monthly)">Advanced (Monthly)</option>
               <option value="Advanced (Yearly)">Advanced (Yearly)</option>
-              <option value="Enterprise (Monthly)">Enterprise (Monthly)</option>
-              <option value="Enterprise (Yearly)">Enterprise (Yearly)</option>
+              <option value="Enterprise (Monthly)">
+                Enterprise (Monthly)
+              </option>
+              <option value="Enterprise (Yearly)">
+                Enterprise (Yearly)
+              </option>
             </select>
           </div>
           <div>
             <label
               htmlFor="createdDate"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium leading-none"
             >
               Created Date
             </label>
@@ -170,13 +176,13 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
               value={formData.createdDate}
               onChange={handleChange}
               required
-              className="mt-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-white"
+              className="mt-1"
             />
           </div>
           <div>
             <label
               htmlFor="status"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium leading-none"
             >
               Status
             </label>
@@ -186,7 +192,7 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
               value={formData.status}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-white px-3 py-2"
+              className="mt-1 block w-full rounded-md border px-3 py-2"
             >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
@@ -195,7 +201,7 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
           <div>
             <label
               htmlFor="logoUrl"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium leading-none"
             >
               Logo URL (Optional)
             </label>
@@ -204,7 +210,7 @@ const AddEditCompanyModal: React.FC<AddEditCompanyModalProps> = ({
               name="logoUrl"
               value={formData.logoUrl}
               onChange={handleChange}
-              className="mt-1 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-white"
+              className="mt-1"
             />
           </div>
           <DialogFooter>

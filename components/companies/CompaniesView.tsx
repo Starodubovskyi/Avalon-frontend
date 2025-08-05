@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Footer } from "@/components/ui/footer";
 import { motion } from "framer-motion";
 import { Search, ArrowLeft, Globe, Building2 } from "lucide-react";
-import Sidebar from "@/components/Sidebar"; 
+import MainLayout from "../layout/MainLayout";
 
 interface Company {
   name: string;
@@ -48,8 +48,9 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
   onBackClick,
 }) => {
   return (
+  <MainLayout>
+
     <div className="flex min-h-screen">
-      <Sidebar />
 
       <div className="flex-1 flex flex-col bg-muted/40">
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-10">
@@ -59,7 +60,7 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
                 variant="default"
                 onClick={onBackClick}
                 className="rounded-full bg-black text-white hover:bg-gray-800 mr-4"
-              >
+                >
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
               <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white text-center flex-1">
@@ -74,13 +75,13 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="max-w-md rounded-full px-4 py-2 text-base border border-gray-300 dark:border-gray-700"
-              />
+                />
 
               <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 className="w-[150px] rounded-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white"
-              >
+                >
                 <option value="">Country</option>
                 <option value="🇹🇷">🇹🇷 Turkey</option>
                 <option value="🇦🇪">🇦🇪 UAE</option>
@@ -91,7 +92,7 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-[200px] rounded-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white"
-              >
+                >
                 <option value="">Category</option>
                 <option value="Ship Services / Suppliers">
                   Ship Services / Suppliers
@@ -105,14 +106,14 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
               <Button
                 variant="default"
                 className="rounded-full px-6 py-2 text-base font-medium bg-black text-white hover:bg-gray-800"
-              >
+                >
                 <Search className="w-4 h-4 mr-2" /> Search
               </Button>
 
               <Button
                 onClick={resetFilters}
                 className="rounded-full px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
-              >
+                >
                 Reset
               </Button>
             </div>
@@ -131,18 +132,18 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
                 ) : (
                   filteredCompanies.map((company, idx) => (
                     <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
                     >
                       <Card className="rounded-2xl shadow-md dark:bg-gray-800 transition-transform hover:scale-[1.02] hover:shadow-lg">
                         <CardContent className="p-5 flex items-center gap-4">
                           {company.logoUrl ? (
                             <img
-                              src={company.logoUrl}
-                              alt={company.name}
-                              className="w-12 h-12 rounded-full object-cover"
+                            src={company.logoUrl}
+                            alt={company.name}
+                            className="w-12 h-12 rounded-full object-cover"
                             />
                           ) : (
                             <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
@@ -180,8 +181,8 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {businessSectors.map((group, i) => (
                   <div
-                    key={i}
-                    className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl shadow"
+                  key={i}
+                  className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl shadow"
                   >
                     <h4 className="font-bold text-lg text-gray-900 dark:text-white">
                       {group.letter}
@@ -189,8 +190,8 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
                     <ul className="mt-2 space-y-1">
                       {group.sectors.map((sector, j) => (
                         <li
-                          key={j}
-                          className="text-sm text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer"
+                        key={j}
+                        className="text-sm text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer"
                         >
                           {sector}
                         </li>
@@ -206,6 +207,7 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
         <Footer />
       </div>
     </div>
+                </MainLayout>
   );
 };
 

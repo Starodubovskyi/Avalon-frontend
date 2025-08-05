@@ -2,22 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { toast } from "@/components/ui/use-toast";
 
 const SocialAuthButtons = () => {
   const handleSocialLogin = (provider: string) => {
-    toast({
-      title: `${provider} Login`,
-      description: `Login with ${provider} is not implemented yet. Coming soon!`,
-    });
+    console.log(`Login with ${provider}`);
   };
 
+  const buttonClass =
+    "w-full py-3 px-5 font-semibold rounded-full bg-white text-gray-900 border border-gray-300 shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 flex items-center justify-center gap-2 transition-transform duration-200 transform hover:scale-[1.02]";
+
   return (
-    <div className="w-full flex flex-col justify-start gap-4">
+    <div className="flex flex-col gap-3 pt-4 overflow-hidden">
       <Button
         variant="outline"
-        className="w-full py-3.5 px-6 font-semibold rounded-full bg-white text-gray-900 border-2 border-gray-400 shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-50 hover:scale-105 gap-2"
         onClick={() => handleSocialLogin("Google")}
+        className={buttonClass + " hover:bg-gray-100 dark:hover:bg-gray-700"}
       >
         <Image
           src="/icons/google-icon.png"
@@ -30,10 +29,29 @@ const SocialAuthButtons = () => {
 
       <Button
         variant="outline"
-        className="w-full py-3.5 px-6 font-semibold rounded-full bg-white text-gray-900 border-2 border-gray-400 shadow-[4px_8px_19px_-3px_rgba(0,0,0,0.27)] transition-all duration-250 ease-in-out cursor-pointer hover:bg-gray-50 hover:scale-105 gap-2"
-        onClick={() => handleSocialLogin("Apple")}
+        onClick={() => handleSocialLogin("Facebook")}
+        className={buttonClass + " hover:bg-gray-100 dark:hover:bg-gray-700"}
       >
-        <Image src="/icons/apple-icon.png" alt="Apple" width={18} height={18} />
+        <Image
+          src="/icons/facebook-icon.png"
+          alt="Facebook"
+          width={18}
+          height={18}
+        />
+        Continue with Facebook
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={() => handleSocialLogin("Apple")}
+        className={buttonClass + " hover:bg-gray-100 dark:hover:bg-gray-700"}
+      >
+        <Image
+          src="/icons/apple-icon.png"
+          alt="Apple"
+          width={18}
+          height={18}
+        />
         Continue with Apple
       </Button>
     </div>

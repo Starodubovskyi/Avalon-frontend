@@ -8,7 +8,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="p-0 w-auto md:max-w-auto mx-auto bg-white dark:bg-gray-900 rounded-1xl shadow-lg px-6 md:auto lg:auto mt-auto mb-auto relative">
         <Navbar />
         <Bot/>
-        <div className="flex-1 w-full pt-0">{children}</div>{" "}
+        <div className="flex-1 w-full pt-0">
+          {children}
+          </div>
       </div>
     </div>
   );

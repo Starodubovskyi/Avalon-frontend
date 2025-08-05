@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Sidebar from "@/components/Sidebar";
+import MainLayout from "@/components/layout/MainLayout"
 import FilterPanel from "@/components/dashboard/FilterPanel";
 import SummaryCards from "@/components/dashboard/SummaryCards";
 import DealsProjectionChart from "@/components/dashboard/DealsProjectionsChart";
@@ -10,8 +10,10 @@ import DealLossReasonsChart from "@/components/dashboard/DealLossReasonsChart";
 
 export default function AdminDashboardPage() {
   return (
+    <MainLayout>
+
     <div className="flex h-screen bg-gray-50 dark:bg-gray-800">
-      <Sidebar />
+      
 
       <main className="flex-1 overflow-y-auto p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
@@ -43,5 +45,6 @@ export default function AdminDashboardPage() {
         </div>
       </main>
     </div>
+    </MainLayout>
   );
 }

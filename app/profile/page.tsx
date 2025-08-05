@@ -1,13 +1,17 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
 import {  useState } from "react";
 import TopProfileNavbar from "@/components/shared/TopProfileNavbar";
 import UserProfile from "@/components/profile/UserProfile";
-import CompanyProfile from "@/components/profile/CompanyProfile";
+const CompanyProfile = dynamic(() => import("@/components/profile/CompanyProfile/CompanyProfile"), {
+  ssr: false,
+});
 import EditProfile from "@/components/profile/EditProfile";
 import OnlineServices from "@/components/profile/OnlineServices";
 import MySubscriptions from "@/components/profile/MySubscriptions";
-import Sidebar from "@/components/Sidebar";
+import MainLayout from "@/components/layout/MainLayout";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -31,12 +35,13 @@ export default function ProfilePage() {
   };
 
   return (
+    <MainLayout>
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
-      <Sidebar/>
       <div className="flex-1 p-6">
         <TopProfileNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="mt-6">{renderTab()}</div>
       </div>
     </div>
+    </MainLayout>
   );
 }

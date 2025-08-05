@@ -6,7 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { Company } from "../types/company.types"; 
+import { Company } from "@/components/types/company.types";
 
 const DefaultIcon = L.icon({
   iconUrl: typeof icon === "string" ? icon : icon.src,

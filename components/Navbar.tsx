@@ -16,8 +16,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import AuthModalContent from "./auth/AuthModalContent";
+import ResponsiveDialogContent from "./ui/ResponsiveDialogContent";
+
+// Собственный Overlay с блюром и затемнением
+const DialogOverlay = () => (
+  <div
+    className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+    aria-hidden="true"
+  />
+);
 
 const scrollTo = (id: string) => {
   if (typeof window !== "undefined") {
@@ -44,24 +53,32 @@ const Navbar = () => {
 
     window.addEventListener("scroll", handleScroll);
 
-    const loggedInStatus = localStorage.getItem("isAuthenticated") === "true";
-    setIsLoggedIn(loggedInStatus);
+    const checkLoginStatus = () => {
+      const loggedInStatus = localStorage.getItem("isAuthenticated") === "true";
+      setIsLoggedIn(loggedInStatus);
 
-    const userData = localStorage.getItem("currentUser");
-    if (userData) setCurrentUser(JSON.parse(userData));
+      const userData = localStorage.getItem("currentUser");
+      if (userData) setCurrentUser(JSON.parse(userData));
+      else setCurrentUser(null);
+    };
+
+    checkLoginStatus();
 
     const handleStorageChange = () => {
-      const newLoggedInStatus =
-        localStorage.getItem("isAuthenticated") === "true";
-      setIsLoggedIn(newLoggedInStatus);
-      const newUserData = localStorage.getItem("currentUser");
-      setCurrentUser(newUserData ? JSON.parse(newUserData) : null);
+      checkLoginStatus();
+    };
+
+    const handleAuthChange = () => {
+      checkLoginStatus();
     };
 
     window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authchange", handleAuthChange);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authchange", handleAuthChange);
     };
   }, []);
 
@@ -72,9 +89,13 @@ const Navbar = () => {
     setCurrentUser(null);
     toast({
       title: "Logged Out",
-      description: "Вы успешно вышли из аккаунта.",
+      description: "You have successfully logged out.",
     });
     setIsMobileMenuOpen(false);
+
+    window.dispatchEvent(new Event("authchange"));
+
+    router.push("/");
   };
 
   const handleNavLinkClick = (id: string) => {
@@ -172,20 +193,21 @@ const Navbar = () => {
             <ThemeToggler className="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300" />
 
             {!isLoggedIn && (
-              <Dialog
-                open={isLoginModalOpen}
-                onOpenChange={setIsLoginModalOpen}
-              >
+              <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
                 <DialogTrigger asChild>
                   <button className="px-6 py-2 rounded-full font-semibold bg-transparent text-black border border-black transition-colors duration-300 hover:bg-black hover:text-white dark:bg-transparent dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700">
                     Log In
                   </button>
                 </DialogTrigger>
-                <DialogContent className="p-0 w-full max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl max-h-[90vh] overflow-y-auto flex items-center justify-center rounded-lg">
-                  <AuthModalContent
-                    onCloseModal={() => setIsLoginModalOpen(false)}
-                  />
-                </DialogContent>
+
+                {isLoginModalOpen && (
+                  <>
+                    <DialogOverlay />
+                    <ResponsiveDialogContent className="z-50">
+                      <AuthModalContent onCloseModal={() => setIsLoginModalOpen(false)} />
+                    </ResponsiveDialogContent>
+                  </>
+                )}
               </Dialog>
             )}
 
@@ -269,139 +291,6 @@ const Navbar = () => {
               </span>
             </button>
           </div>
-        </div>
-      </div>
-
-      <div
-        className={`fixed inset-0 bg-black bg-opacity-75 z-40 transition-opacity duration-300 ${
-          isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => setIsMobileMenuOpen(false)}
-      ></div>
-
-      <div
-        className={`fixed top-0 right-0 w-64 h-full bg-white dark:bg-gray-800 shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-        } p-6 flex flex-col`}
-      >
-        <div className="flex justify-end mb-8">
-          <button
-            className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
-            onClick={() => setIsMobileMenuOpen(false)}
-            aria-label="Close mobile menu"
-          >
-            <svg
-              className="w-6 h-6 text-black dark:text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <nav className="flex flex-col gap-4 text-lg font-semibold mb-8">
-          <button
-            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            onClick={() => handleNavLinkClick("home")}
-          >
-            Home
-          </button>
-          <button
-            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            onClick={() => handleNavLinkClick("how-it-works")}
-          >
-            How It Works
-          </button>
-          <button
-            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            onClick={() => handleNavLinkClick("for-ship-owners")}
-          >
-            For Ship Owners
-          </button>
-          <button
-            className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            onClick={() => handleNavLinkClick("for-inspectors")}
-          >
-            For Inspectors
-          </button>
-          <Link href="/companies">
-            <button className="text-black dark:text-white text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              Companies
-            </button>
-          </Link>
-        </nav>
-
-        <div className="flex flex-col gap-4 mt-auto">
-          <ThemeToggler />
-          <button
-            onClick={handleGetStartedClick}
-            className="w-full py-2.5 px-4 font-semibold rounded-full bg-blue-600 text-white text-center hover:bg-blue-700 transition-colors dark:bg-teal-600 dark:hover:bg-teal-700"
-          >
-            Get Started
-          </button>
-
-          {!isLoggedIn && (
-            <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
-              <DialogTrigger asChild>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full py-2.5 px-4 font-semibold rounded-full bg-transparent text-black border border-black hover:bg-black hover:text-white transition-colors dark:bg-transparent dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700"
-                >
-                  Log In
-                </button>
-              </DialogTrigger>
-              <DialogContent className="p-0 w-full max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl max-h-[90vh] overflow-y-auto flex items-center justify-center rounded-lg">
-                <AuthModalContent
-                  onCloseModal={() => setIsLoginModalOpen(false)}
-                />
-              </DialogContent>
-            </Dialog>
-          )}
-
-          {isLoggedIn && (
-            <>
-              <div className="flex items-center gap-2 mt-4">
-                <Avatar>
-                  <AvatarImage
-                    src={currentUser?.profileImage}
-                    alt={currentUser?.name || "User"}
-                  />
-                  <AvatarFallback className="text-black dark:text-white">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-full h-full p-1"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.795 0-5.419-.305-7.85-2.07a.75.75 0 01-.438-.695z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-semibold text-black dark:text-white">
-                  {currentUser?.name || "User"}
-                </span>
-              </div>
-              <button
-                className="w-full py-2.5 px-4 font-semibold rounded-full bg-white text-black border border-black hover:bg-gray-100 transition-colors dark:bg-red-700 dark:hover:bg-red-800 dark:border-none dark:text-white"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </>
-          )}
         </div>
       </div>
     </div>
