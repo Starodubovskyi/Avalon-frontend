@@ -31,7 +31,9 @@ const filterKeyMap: Record<string, string> = {
 };
 
 const VesselsPage: React.FC = () => {
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
+    {}
+  );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [vessels, setVessels] = useState(mockVesselsData);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -43,9 +45,7 @@ const VesselsPage: React.FC = () => {
   };
 
   const handleEditVessel = (updated: any) => {
-    setVessels((prev) =>
-      prev.map((v) => (v.id === updated.id ? updated : v))
-    );
+    setVessels((prev) => prev.map((v) => (v.id === updated.id ? updated : v)));
   };
 
   const handleDeleteVessel = (id: string) => {
@@ -89,60 +89,78 @@ const VesselsPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-4 sm:p-8 dark:bg-[#0f172a]">
-      <VesselsHeader
-        onAdd={() => setIsAddOpen(true)}
-        onDeleteSelected={handleDeleteSelected}
-        hasSelected={selectedIds.length > 0}
-      />
-      <VesselsTabs />
-      <VesselsActions onAddFilter={handleAddFilter} onSearch={setSearchQuery} />
-      {Object.keys(activeFilters).length > 0 && (
-        <div className="flex items-center space-x-2 sm:space-x-4 mb-6 flex-wrap">
-          {Object.entries(activeFilters).map(([key, value]) => (
-            <div
-              key={key}
-              className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 mb-2"
-            >
-              <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
-                {renderFilterName(key)}:
-              </span>
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => handleUpdateFilterValue(key, e.target.value)}
-                placeholder="Enter value"
-                className="w-24 sm:w-32 bg-transparent text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none"
-              />
-              <button
-                onClick={() => handleRemoveFilter(key)}
-                className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                <X size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-      <VesselsTable
-        filters={activeFilters}
-        searchQuery={searchQuery}
-        vessels={vessels}
-        selectedIds={selectedIds}
-        setSelectedIds={setSelectedIds}
-        onEdit={setEditVessel}
-        onDelete={handleDeleteVessel}
-      />
-      {isAddOpen && (
-        <VesselsModal onClose={() => setIsAddOpen(false)} onSubmit={handleAddVessel} />
-      )}
-      {editVessel && (
-        <VesselsModal
-          initialData={editVessel}
-          onClose={() => setEditVessel(null)}
-          onSubmit={handleEditVessel}
+    <div className="flex min-h-screen bg-gray-100 dark:bg-black">
+      <div
+        className="
+          flex-1 p-6 
+          bg-white 
+          border border-gray-200 
+          shadow 
+          dark:bg-white/5 
+          dark:border-white/10 
+          dark:shadow-white/10
+        "
+      >
+        <VesselsHeader
+          onAdd={() => setIsAddOpen(true)}
+          onDeleteSelected={handleDeleteSelected}
+          hasSelected={selectedIds.length > 0}
         />
-      )}
+        <VesselsTabs />
+        <VesselsActions
+          onAddFilter={handleAddFilter}
+          onSearch={setSearchQuery}
+        />
+        {Object.keys(activeFilters).length > 0 && (
+          <div className="flex items-center space-x-2 sm:space-x-4 mb-6 flex-wrap">
+            {Object.entries(activeFilters).map(([key, value]) => (
+              <div
+                key={key}
+                className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 mb-2"
+              >
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
+                  {renderFilterName(key)}:
+                </span>
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => handleUpdateFilterValue(key, e.target.value)}
+                  placeholder="Enter value"
+                  className="w-24 sm:w-32 bg-transparent text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none"
+                />
+                <button
+                  onClick={() => handleRemoveFilter(key)}
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <VesselsTable
+          filters={activeFilters}
+          searchQuery={searchQuery}
+          vessels={vessels}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+          onEdit={setEditVessel}
+          onDelete={handleDeleteVessel}
+        />
+        {isAddOpen && (
+          <VesselsModal
+            onClose={() => setIsAddOpen(false)}
+            onSubmit={handleAddVessel}
+          />
+        )}
+        {editVessel && (
+          <VesselsModal
+            initialData={editVessel}
+            onClose={() => setEditVessel(null)}
+            onSubmit={handleEditVessel}
+          />
+        )}
+      </div>
     </div>
   );
 };

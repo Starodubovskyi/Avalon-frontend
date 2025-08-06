@@ -1,23 +1,27 @@
-
-export type Company = {
+export interface Company {
+  id?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  pinUrl?: string;
   legalName: string;
   businessName: string;
   activity: string;
-  founded: string;
   employees: string;
-  description: string;
-  country: string;
-  address: string;
-  city?: string;
-  postalCode: string;
+  founded: string;
   email: string;
-  telephone?: string;
-  fax?: string;
   website: string;
-  poBox?: string;
-  logoUrl?: string; 
-  bannerUrl?: string; 
-  pinUrl?: string;   
-  lat: number;        
+  telephone: string;
+  fax: string;
+  address: string;
+  servicedPorts?: string; // Новый тип
+  city: string;
+  state?: string; // Новый тип
+  postalCode: string;
+  country: string;
+  poBox?: string; // Новый тип
+  tagline?: string; // Новый тип
+  description: string;
+  lat: number;
   lng: number;
-};
+  checkbox?: boolean;
+}

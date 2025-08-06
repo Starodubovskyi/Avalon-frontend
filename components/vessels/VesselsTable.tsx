@@ -59,9 +59,14 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#1a233b] p-2 sm:p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-x-auto">
-      <table className="w-full text-xs sm:text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs sm:text-sm">
+    <div
+      className="
+        bg-white border border-slate-200 shadow rounded-2xl p-6 overflow-x-auto
+        dark:bg-white/5 dark:border-white/10 dark:shadow-white/10
+      "
+    >
+      <table className="w-full text-xs sm:text-sm text-left text-slate-500 dark:text-slate-400">
+        <thead className="text-slate-700 uppercase bg-slate-50 dark:bg-[#1a1a1a] dark:text-slate-400 text-xs sm:text-sm">
           <tr>
             <th className="p-2 sm:p-4 rounded-tl-xl">
               <input
@@ -93,7 +98,7 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
           {filteredData.map((vessel) => (
             <tr
               key={vessel.id}
-              className="bg-white dark:bg-[#1a233b] border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="bg-white dark:bg-[#1a1a1a] border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
             >
               <td className="w-4 p-2 sm:p-4">
                 <input
@@ -105,7 +110,7 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
               </td>
               <th
                 scope="row"
-                className="px-3 py-2 sm:px-6 sm:py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap"
+                className="px-3 py-2 sm:px-6 sm:py-4 font-medium text-slate-900 dark:text-white whitespace-nowrap"
               >
                 {vessel.name}
               </th>
@@ -150,7 +155,7 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
           ))}
         </tbody>
       </table>
-      <div className="p-2 sm:p-4 flex flex-col sm:flex-row justify-between items-center text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
+      <div className="p-2 sm:p-4 flex flex-col sm:flex-row justify-between items-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
         <span>Total filtered records: {filteredData.length}</span>
         <span>Total Rows: {vessels.length}</span>
       </div>

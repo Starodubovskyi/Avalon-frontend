@@ -31,9 +31,7 @@ export default function ProfileHeader({
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [newTag, setNewTag] = useState("");
 
-  const openFileDialog = () => {
-    avatarInputRef.current?.click();
-  };
+  const openFileDialog = () => avatarInputRef.current?.click();
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -49,8 +47,8 @@ export default function ProfileHeader({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 text-center flex flex-col items-center">
-      <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-6xl text-gray-500 dark:text-gray-300 overflow-hidden relative">
+    <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 text-center flex flex-col items-center dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
+      <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-6xl text-gray-600 dark:text-gray-400 overflow-hidden relative">
         {profileImage ? (
           <img
             src={profileImage}
@@ -65,17 +63,17 @@ export default function ProfileHeader({
       {editMode && (
         <>
           <button
-            type="button"
             onClick={openFileDialog}
-            className="mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition shadow-md hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-3 px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full transition"
+            type="button"
           >
             Upload Avatar
           </button>
           {profileImage && (
             <button
-              type="button"
               onClick={onDeleteAvatar}
-              className="mt-3 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition shadow-md hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="mt-3 px-6 py-2 bg-red-700 hover:bg-red-800 text-white rounded-full transition"
+              type="button"
             >
               Delete Avatar
             </button>
@@ -90,23 +88,24 @@ export default function ProfileHeader({
         </>
       )}
 
-      <h2 className="text-xl font-semibold mt-4 text-gray-900 dark:text-white">
+      <h2 className="text-xl font-semibold mt-4 text-gray-900 dark:text-gray-200">
         {name} {lastName}
       </h2>
-      {bio && <p className="text-gray-500 text-sm mt-1">{bio}</p>}
+      {bio && (
+        <p className="text-gray-700 dark:text-gray-400 text-sm mt-1">{bio}</p>
+      )}
 
       <div className="mt-3 flex flex-wrap justify-center gap-2 items-center">
         {tags.map((tag) => (
           <div
             key={tag}
-            className="flex items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 rounded-full px-3 py-1 text-sm"
+            className="flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm dark:bg-blue-900 dark:bg-opacity-50 dark:text-blue-300"
           >
             {tag}
             {editMode && (
               <button
                 onClick={() => onRemoveTag(tag)}
-                className="ml-2 text-blue-600 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
-                aria-label={`Remove tag ${tag}`}
+                className="ml-2 text-blue-600 hover:text-blue-700 dark:text-blue-400"
                 type="button"
               >
                 <FaTimes />
@@ -115,7 +114,7 @@ export default function ProfileHeader({
           </div>
         ))}
         {editMode && (
-          <div className="flex items-center border rounded-full px-3 py-1 text-sm bg-white dark:bg-gray-700">
+          <div className="flex items-center border border-gray-300 rounded-full px-3 py-1 text-sm bg-white dark:bg-white/10 dark:border-white/30">
             <input
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
@@ -123,12 +122,11 @@ export default function ProfileHeader({
                 e.key === "Enter" && (e.preventDefault(), addTag())
               }
               placeholder="Add tag"
-              className="outline-none bg-transparent w-20 dark:text-white"
+              className="outline-none bg-transparent w-20 text-gray-900 dark:text-gray-200"
             />
             <button
               onClick={addTag}
-              className="ml-2 text-blue-600 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
-              aria-label="Add tag"
+              className="ml-2 text-blue-700 hover:text-blue-800 dark:text-blue-400"
               type="button"
             >
               <FaPlus />

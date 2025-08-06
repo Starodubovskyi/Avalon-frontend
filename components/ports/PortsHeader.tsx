@@ -20,9 +20,11 @@ const PortsHeader: React.FC<PortsHeaderProps> = ({
   setSearch,
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold">Ports</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-200">
+          Ports
+        </h1>
         <div className="relative">
           <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
             <FaSearch />
@@ -30,7 +32,7 @@ const PortsHeader: React.FC<PortsHeaderProps> = ({
           <input
             type="text"
             placeholder="Search in Port / UNLOCODE"
-            className="w-full sm:w-80 pl-10 pr-4 py-2 rounded-full border border-gray-300 shadow focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+            className="w-full sm:w-80 pl-10 pr-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white dark:border-gray-600"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  FaEdit,
-  FaSave,
-  FaPlus,
-  FaTrash,
-  FaShip,
-} from "react-icons/fa";
+import { FaEdit, FaSave, FaPlus, FaTrash, FaShip } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import countries from "i18n-iso-countries";
@@ -242,10 +236,10 @@ export default function UserProfile() {
 
         {company?.businessName && (
           <a
-            href="/profile?tab=CompanyProfile"
-            className="block bg-white dark:bg-gray-800 rounded-xl shadow p-4 flex items-center gap-4 hover:shadow-md transition"
+            href="/companyprofile"
+            className="block bg-white/10 border border-gray-400 shadow-lg rounded-xl p-4 flex items-center gap-4 hover:shadow-xl transition dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md"
           >
-            <div className="w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+            <div className="w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800">
               {company.logoUrl ? (
                 <img
                   src={company.logoUrl}
@@ -253,14 +247,14 @@ export default function UserProfile() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <FaShip className="text-xl text-gray-500 dark:text-gray-400" />
+                <FaShip className="text-xl text-gray-600 dark:text-gray-400" />
               )}
             </div>
             <div className="flex flex-col">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200">
                 {company.businessName}
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-700 dark:text-gray-400">
                 {company.activity || "No activity"}
               </p>
             </div>
@@ -269,22 +263,22 @@ export default function UserProfile() {
       </div>
 
       <div className="col-span-2 space-y-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 relative">
+        <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 relative dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
           <button
             onClick={() => (editMode ? handleSave() : setEditMode(true))}
-            className="absolute top-4 right-4 text-gray-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white"
+            className="absolute top-4 right-4 text-gray-700 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-400"
             type="button"
           >
             {editMode ? <FaSave /> : <FaEdit />}
           </button>
 
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4">
             Personal Info
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
+              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
                 First Name
               </label>
               {editMode ? (
@@ -293,15 +287,15 @@ export default function UserProfile() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
                 />
               ) : (
-                <p className="text-gray-900 dark:text-white">{user?.name}</p>
+                <p className="text-gray-900 dark:text-gray-200">{user?.name}</p>
               )}
             </div>
 
             <div>
-              <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
+              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
                 Last Name *
               </label>
               {editMode ? (
@@ -311,22 +305,24 @@ export default function UserProfile() {
                   onChange={(e) =>
                     setFormData({ ...formData, lastName: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
                 />
               ) : (
-                <p className="text-gray-900 dark:text-white">{user?.lastName}</p>
+                <p className="text-gray-900 dark:text-gray-200">
+                  {user?.lastName}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
+              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
                 Email
               </label>
-              <p className="text-gray-900 dark:text-white">{user?.email}</p>
+              <p className="text-gray-900 dark:text-gray-200">{user?.email}</p>
             </div>
 
             <div>
-              <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
+              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
                 Country
               </label>
               {editMode ? (
@@ -335,7 +331,7 @@ export default function UserProfile() {
                   onChange={(e) =>
                     setFormData({ ...formData, country: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
                 >
                   <option value="">Select a country</option>
                   {countryList.map(([code, name]) => (
@@ -345,21 +341,21 @@ export default function UserProfile() {
                   ))}
                 </select>
               ) : (
-                <p className="text-gray-900 dark:text-white">
+                <p className="text-gray-900 dark:text-gray-200">
                   {user?.country || "—"}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
+              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
                 Birth Date *
               </label>
               {editMode ? (
                 <DatePicker
                   selected={birthDateObj}
                   onChange={(date) => setBirthDateObj(date)}
-                  className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
                   showMonthDropdown
                   showYearDropdown
                   dropdownMode="select"
@@ -369,7 +365,7 @@ export default function UserProfile() {
                   required
                 />
               ) : (
-                <p className="text-gray-900 dark:text-white">
+                <p className="text-gray-900 dark:text-gray-200">
                   {user?.birthDate
                     ? new Date(user.birthDate).toLocaleDateString()
                     : "—"}
@@ -380,7 +376,7 @@ export default function UserProfile() {
 
           {editMode && (
             <div className="mt-4">
-              <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
+              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
                 Bio
               </label>
               <textarea
@@ -389,13 +385,13 @@ export default function UserProfile() {
                   setFormData({ ...formData, bio: e.target.value })
                 }
                 rows={3}
-                className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
               />
             </div>
           )}
 
           <div className="mt-4">
-            <label className="text-sm text-gray-500 dark:text-gray-300 mb-1 block">
+            <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
               Links
             </label>
             {editMode ? (
@@ -405,11 +401,11 @@ export default function UserProfile() {
                     <input
                       value={link}
                       onChange={(e) => handleLinkChange(i, e.target.value)}
-                      className="flex-1 border rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                      className="flex-1 border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
                     />
                     <button
                       onClick={() => removeLink(i)}
-                      className="text-red-600"
+                      className="text-red-700"
                       type="button"
                     >
                       <FaTrash />
@@ -418,14 +414,14 @@ export default function UserProfile() {
                 ))}
                 <button
                   onClick={addLink}
-                  className="mt-2 inline-flex items-center text-sm text-blue-600 hover:underline"
+                  className="mt-2 inline-flex items-center text-sm text-blue-700 hover:underline"
                   type="button"
                 >
                   <FaPlus className="mr-1" /> Add link
                 </button>
               </div>
             ) : user?.links && user.links.length > 0 ? (
-              <ul className="list-disc pl-5 text-blue-600">
+              <ul className="list-disc pl-5 text-blue-700">
                 {user.links.map((link, i) => (
                   <li key={i}>
                     <a

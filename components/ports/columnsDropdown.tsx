@@ -1,7 +1,6 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +19,7 @@ export default function ColumnsDropdown<T>({ table }: Props<T>) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost">▼ Columns</Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 max-h-80 overflow-y-auto">
+      <DropdownMenuContent className="w-56 max-h-80 overflow-y-auto bg-white border border-gray-200 shadow rounded-2xl dark:bg-white/5 dark:border-white/10 dark:shadow-white/10">
         {table
           .getAllColumns()
           .filter((column) => column.getCanHide())

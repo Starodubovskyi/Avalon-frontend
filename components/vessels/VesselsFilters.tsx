@@ -110,7 +110,7 @@ const VesselsFilters: React.FC<VesselsFiltersProps> = ({
   return (
     <div
       ref={wrapperRef}
-      className="absolute z-10 mt-2 w-[calc(100%-2rem)] sm:w-72 max-h-[300px] overflow-y-auto bg-white dark:bg-[#1a233b] rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 left-4 right-4 sm:left-auto sm:right-auto" // Adjusted width and positioning for mobile
+      className="absolute z-10 mt-2 w-[calc(100%-2rem)] sm:w-72 max-h-[300px] overflow-y-auto bg-white dark:bg-gray rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 left-4 right-4 sm:left-auto sm:right-auto" // Adjusted width and positioning for mobile
     >
       <div className="text-gray-900 dark:text-white font-bold mb-2 text-base">
         Add filter
