@@ -125,7 +125,11 @@ const PortsTable: React.FC<PortsTableProps> = ({
         header: "Actions",
         cell: ({ row }) => (
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => onEdit(row.original)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onEdit(row.original)}
+            >
               Edit
             </Button>
             <Button
@@ -153,9 +157,7 @@ const PortsTable: React.FC<PortsTableProps> = ({
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
-      rowSelection: Object.fromEntries(
-        selectedIds.map((id) => [id, true])
-      ),
+      rowSelection: Object.fromEntries(selectedIds.map((id) => [id, true])),
     },
     onRowSelectionChange: (updater) => {
       if (typeof updater === "function") {
@@ -174,31 +176,47 @@ const PortsTable: React.FC<PortsTableProps> = ({
   });
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-sm text-left">
-        <thead className="bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} className="px-4 py-2 font-medium">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody className="divide-y dark:divide-neutral-700">
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-3">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div
+      className="
+      bg-white 
+      border border-gray-200 
+      shadow 
+      rounded-2xl p-6 overflow-x-auto
+      dark:bg-white/5 dark:border-white/10 dark:shadow-white/10
+    "
+    >
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm text-left">
+          <thead className="bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className="px-4 py-2 font-medium">
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="divide-y dark:divide-neutral-700">
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="hover:bg-gray-50 dark:hover:bg-neutral-800"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="px-4 py-3">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -7,7 +7,9 @@ import PortsHeader from "@/components/ports/PortsHeader";
 import mockPorts from "@/data/portsMockData";
 
 const PortsPage = () => {
-  const [ports, setPorts] = useState(mockPorts.map((p, i) => ({ ...p, id: `${i + 1}` })));
+  const [ports, setPorts] = useState(
+    mockPorts.map((p, i) => ({ ...p, id: `${i + 1}` }))
+  );
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPort, setEditingPort] = useState<any>(null);
@@ -25,9 +27,7 @@ const PortsPage = () => {
 
   const handleSubmit = (port: any) => {
     if (editingPort) {
-      setPorts((prev) =>
-        prev.map((p) => (p.id === port.id ? port : p))
-      );
+      setPorts((prev) => prev.map((p) => (p.id === port.id ? port : p)));
     } else {
       setPorts((prev) => [...prev, { ...port, id: Date.now().toString() }]);
     }
@@ -36,7 +36,16 @@ const PortsPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div
+      className="p-6
+        bg-white 
+        border border-gray-200 
+        shadow 
+        dark:bg-white/5 
+        dark:border-white/10 
+        dark:shadow-white/10
+      "
+    >
       <PortsHeader
         onAdd={handleAdd}
         onDeleteSelected={handleDeleteSelected}

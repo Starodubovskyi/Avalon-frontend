@@ -7,7 +7,11 @@ interface GalleryProps {
   onRemoveImage: (index: number) => void;
 }
 
-export default function Gallery({ images, onAddImage, onRemoveImage }: GalleryProps) {
+export default function Gallery({
+  images,
+  onAddImage,
+  onRemoveImage,
+}: GalleryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -26,12 +30,12 @@ export default function Gallery({ images, onAddImage, onRemoveImage }: GalleryPr
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center justify-between">
+      <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center justify-between">
           Gallery
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+            className="text-blue-700 dark:text-blue-400 hover:underline flex items-center"
             type="button"
           >
             <FaPlus className="mr-1" /> Add Photo
@@ -48,16 +52,20 @@ export default function Gallery({ images, onAddImage, onRemoveImage }: GalleryPr
           {images.map((img, i) => (
             <div
               key={i}
-              className="relative rounded overflow-hidden shadow-sm cursor-pointer"
+              className="relative rounded overflow-hidden shadow-md cursor-pointer"
               onClick={() => openLightbox(i)}
             >
-              <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-24 object-cover" />
+              <img
+                src={img}
+                alt={`Gallery ${i + 1}`}
+                className="w-full h-24 object-cover"
+              />
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemoveImage(i);
                 }}
-                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                className="absolute top-1 right-1 bg-red-700 text-white rounded-full p-1 hover:bg-red-800"
                 aria-label="Remove image"
                 type="button"
               >
@@ -71,7 +79,7 @@ export default function Gallery({ images, onAddImage, onRemoveImage }: GalleryPr
       {lightboxIndex !== null && (
         <div
           onClick={closeLightbox}
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
         >
           <img
             src={images[lightboxIndex]}

@@ -80,7 +80,7 @@ const PortsModal: React.FC<PortsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-4">
+      <div className="bg-white dark:bg-zinc-800 border border-gray-200  p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
           {initialData ? "Edit Port" : "Add Port"}
         </h2>
