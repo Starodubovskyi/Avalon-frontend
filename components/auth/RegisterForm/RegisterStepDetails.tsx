@@ -26,6 +26,7 @@ import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
 countries.registerLocale(enLocale);
 
@@ -50,14 +51,11 @@ type FormData = z.infer<typeof schema>;
 interface Props {
   email: string;
   onEditEmail: () => void;
-  onCloseModal: () => void;
 }
 
-const RegisterStepDetails: React.FC<Props> = ({
-  email,
-  onEditEmail,
-  onCloseModal,
-}) => {
+const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
+  const router = useRouter();
+
   const countryOptions = useMemo(() => {
     const names = countries.getNames('en', { select: 'official' });
     return Object.entries(names).map(([code, name]) => ({
@@ -107,10 +105,10 @@ const RegisterStepDetails: React.FC<Props> = ({
 
     toast({
       title: 'Registration Successful',
-      description: 'Your account has been created. Please log in.',
+      description: 'Your account has been created.',
     });
 
-    onCloseModal();
+    router.push('/profile');
   };
 
   return (

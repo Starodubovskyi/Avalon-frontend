@@ -5,6 +5,8 @@ import VesselsHeader from "./VesselsHeader";
 import VesselsTabs from "./VesselsTabs";
 import VesselsActions from "./VesselsActions";
 import VesselsTable from "./VesselsTable";
+import VesselsModal from "./VesselsModal";
+import { mockVesselsData } from "../shared/mockData1";
 import { X } from "lucide-react";
 
 const filterKeyMap: Record<string, string> = {
@@ -29,10 +31,31 @@ const filterKeyMap: Record<string, string> = {
 };
 
 const VesselsPage: React.FC = () => {
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
-    {}
-  );
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [vessels, setVessels] = useState(mockVesselsData);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editVessel, setEditVessel] = useState<any>(null);
+
+  const handleAddVessel = (vessel: any) => {
+    setVessels((prev) => [...prev, vessel]);
+  };
+
+  const handleEditVessel = (updated: any) => {
+    setVessels((prev) =>
+      prev.map((v) => (v.id === updated.id ? updated : v))
+    );
+  };
+
+  const handleDeleteVessel = (id: string) => {
+    setVessels((prev) => prev.filter((v) => v.id !== id));
+  };
+
+  const handleDeleteSelected = () => {
+    setVessels((prev) => prev.filter((v) => !selectedIds.includes(v.id)));
+    setSelectedIds([]);
+  };
 
   const handleAddFilter = (filterName: string) => {
     const key =
@@ -67,7 +90,11 @@ const VesselsPage: React.FC = () => {
 
   return (
     <div className="flex-1 p-4 sm:p-8 dark:bg-[#0f172a]">
-      <VesselsHeader />
+      <VesselsHeader
+        onAdd={() => setIsAddOpen(true)}
+        onDeleteSelected={handleDeleteSelected}
+        hasSelected={selectedIds.length > 0}
+      />
       <VesselsTabs />
       <VesselsActions onAddFilter={handleAddFilter} onSearch={setSearchQuery} />
       {Object.keys(activeFilters).length > 0 && (
@@ -91,13 +118,31 @@ const VesselsPage: React.FC = () => {
                 onClick={() => handleRemoveFilter(key)}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                <X size={14} className="sm:size={16}" />
+                <X size={14} />
               </button>
             </div>
           ))}
         </div>
       )}
-      <VesselsTable filters={activeFilters} searchQuery={searchQuery} />
+      <VesselsTable
+        filters={activeFilters}
+        searchQuery={searchQuery}
+        vessels={vessels}
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
+        onEdit={setEditVessel}
+        onDelete={handleDeleteVessel}
+      />
+      {isAddOpen && (
+        <VesselsModal onClose={() => setIsAddOpen(false)} onSubmit={handleAddVessel} />
+      )}
+      {editVessel && (
+        <VesselsModal
+          initialData={editVessel}
+          onClose={() => setEditVessel(null)}
+          onSubmit={handleEditVessel}
+        />
+      )}
     </div>
   );
 };

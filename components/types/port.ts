@@ -1,8 +1,9 @@
-type Port = {
-  country: string;
-  countryFlag: string;
+export default interface Port {
+  id: string;
   port: string;
   unlocode: string;
+  country: string;
+  countryFlag: string;
   photo: string;
   vessels: number;
   departures: number;
@@ -12,6 +13,4 @@ type Port = {
   anchorage: string;
   areaGlobal: string;
   areaLocal: string;
-};
-
-export default Port;
+}
