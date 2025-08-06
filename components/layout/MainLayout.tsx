@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Sidebar from "./Sidebar"
-import Navbar from "./Navbar"
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -9,12 +9,10 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MainLayout
+export default MainLayout;

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 
-
 import ChatWindow from "@/components/chat/ChatWindow";
 import ChatList from "@/components/chat/ChatList";
 import { users as initialUsers } from "@/components/shared/fakeData";
@@ -16,17 +15,15 @@ export default function ChatPage() {
 
   return (
     <MainLayout>
-    <div className="flex h-screen">
-      <ChatList
-        users={users}
-        setUsers={setUsers}
-        selectedUserId={selectedUserId}
-        onSelectUser={setSelectedUserId}
+      <div className="flex h-screen">
+        <ChatList
+          users={users}
+          setUsers={setUsers}
+          selectedUserId={selectedUserId}
+          onSelectUser={setSelectedUserId}
         />
-      <ChatWindow
-        otherUserId={selectedUserId}
-        />
-    </div>
-        </MainLayout>
+        <ChatWindow otherUserId={selectedUserId} users={users} />
+      </div>
+    </MainLayout>
   );
 }
