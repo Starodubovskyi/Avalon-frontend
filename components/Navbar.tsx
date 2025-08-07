@@ -15,17 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
-
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import AuthModalContent from "./auth/AuthModalContent";
 import ResponsiveDialogContent from "./ui/ResponsiveDialogContent";
 
-// Собственный Overlay с блюром и затемнением
 const DialogOverlay = () => (
-  <div
-    className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
-    aria-hidden="true"
-  />
+  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" aria-hidden="true" />
 );
 
 const scrollTo = (id: string) => {
@@ -37,6 +32,13 @@ const scrollTo = (id: string) => {
   }
 };
 
+const navLinks = [
+  { id: "home", label: "Home" },
+  { id: "how-it-works", label: "How It Works" },
+  { id: "for-ship-owners", label: "For Ship Owners" },
+  { id: "for-inspectors", label: "For Inspectors" },
+];
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,32 +48,19 @@ const Navbar = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 10);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
 
     const checkLoginStatus = () => {
       const loggedInStatus = localStorage.getItem("isAuthenticated") === "true";
       setIsLoggedIn(loggedInStatus);
-
       const userData = localStorage.getItem("currentUser");
-      if (userData) setCurrentUser(JSON.parse(userData));
-      else setCurrentUser(null);
+      setCurrentUser(userData ? JSON.parse(userData) : null);
     };
-
     checkLoginStatus();
 
-    const handleStorageChange = () => {
-      checkLoginStatus();
-    };
-
-    const handleAuthChange = () => {
-      checkLoginStatus();
-    };
-
+    const handleStorageChange = () => checkLoginStatus();
+    const handleAuthChange = () => checkLoginStatus();
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("authchange", handleAuthChange);
 
@@ -81,6 +70,16 @@ const Navbar = () => {
       window.removeEventListener("authchange", handleAuthChange);
     };
   }, []);
+
+  useEffect(() => {
+    // Prevent background scroll when mobile menu open
+    if (isMobileMenuOpen || isLoginModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [isMobileMenuOpen, isLoginModalOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
@@ -92,9 +91,7 @@ const Navbar = () => {
       description: "You have successfully logged out.",
     });
     setIsMobileMenuOpen(false);
-
     window.dispatchEvent(new Event("authchange"));
-
     router.push("/");
   };
 
@@ -114,15 +111,13 @@ const Navbar = () => {
 
   const navLinkButtonClass =
     "px-6 py-2 rounded-full font-semibold bg-white text-black hover:bg-black hover:text-white transition-colors duration-300 dark:bg-gray-700 dark:text-white dark:hover:bg-teal-600 dark:hover:text-white";
-
   const getStartedClass =
     "group relative inline-flex items-center justify-center gap-2 overflow-hidden text-white bg-black rounded-full px-4 py-3 font-semibold shadow-md transition-all duration-300 hover:bg-black dark:bg-teal-600 dark:hover:bg-teal-700";
 
   return (
     <div
-      className={`sticky top-0 w-full z-50 transition-all duration-300 rounded-b-lg ${
-        isScrolled ? "bg-white dark:bg-gray-900 shadow-md" : "bg-transparent"
-      }`}
+      className={`sticky top-0 w-full z-50 transition-all duration-300 rounded-b-lg ${isScrolled ? "bg-white dark:bg-gray-900 shadow-md" : "bg-transparent"
+        }`}
     >
       <div className="flex items-center justify-between py-4">
         <div
@@ -133,138 +128,175 @@ const Navbar = () => {
         </div>
 
         <nav className="hidden md:inline-flex gap-4 px-3 py-2 rounded-full bg-white/60 backdrop-blur-md shadow-md dark:bg-gray-800/60 dark:shadow-lg">
-          <button
-            className={navLinkButtonClass}
-            onClick={() => handleNavLinkClick("home")}
-          >
-            Home
-          </button>
-          <button
-            className={navLinkButtonClass}
-            onClick={() => handleNavLinkClick("how-it-works")}
-          >
-            How It Works
-          </button>
-          <button
-            className={navLinkButtonClass}
-            onClick={() => handleNavLinkClick("for-ship-owners")}
-          >
-            For Ship Owners
-          </button>
-          <button
-            className={navLinkButtonClass}
-            onClick={() => handleNavLinkClick("for-inspectors")}
-          >
-            For Inspectors
-          </button>
+          {navLinks.map((link) => (
+            <button
+              key={link.id}
+              className={navLinkButtonClass}
+              onClick={() => handleNavLinkClick(link.id)}
+            >
+              {link.label}
+            </button>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-4">
-          <button
-            className="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            <svg
-              className="w-6 h-6 text-black dark:text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
+        <div className="hidden md:flex items-center gap-2">
+          <ThemeToggler className="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300" />
+
+          {!isLoggedIn && (
+            <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
+              <DialogTrigger asChild>
+                <button className="px-6 py-2 rounded-full font-semibold bg-transparent text-black border border-black transition-colors duration-300 hover:bg-black hover:text-white dark:bg-transparent dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700">
+                  Log In
+                </button>
+              </DialogTrigger>
+
+              {isLoginModalOpen && (
+                <>
+                  <DialogOverlay />
+                  <ResponsiveDialogContent className="z-50">
+                    <AuthModalContent onCloseModal={() => setIsLoginModalOpen(false)} />
+                  </ResponsiveDialogContent>
+                </>
               )}
-            </svg>
+            </Dialog>
+          )}
+
+          {isLoggedIn && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="focus:outline-none">
+                <Avatar>
+                  <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
+                  <AvatarFallback className="text-black dark:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full p-1">
+                      <path
+                        fillRule="evenodd"
+                        d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.795 0-5.419-.305-7.85-2.07a.75.75 0 01-.438-.695z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:text-white dark:border-gray-700">
+                <DropdownMenuLabel className="dark:text-white">
+                  My Account
+                  {currentUser?.email && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {currentUser.email}
+                    </div>
+                  )}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="dark:bg-gray-700" />
+                <DropdownMenuItem asChild className="dark:hover:bg-gray-700 dark:text-white">
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="dark:hover:bg-gray-700 dark:text-white">
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          <button onClick={handleGetStartedClick} className={getStartedClass}>
+            <span className="relative block overflow-hidden h-6">
+              <span className="block transition-transform duration-300 group-hover:-translate-y-full">
+                Get Started
+              </span>
+              <span className="absolute inset-0 transition-transform duration-300 translate-y-full group-hover:translate-y-0">
+                Right Now
+              </span>
+            </span>
+            <span className="flex items-center justify-center w-6 h-6 bg-white text-black rounded-full transition-transform duration-300 group-hover:rotate-45 dark:bg-gray-200 dark:text-teal-600">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-3.5 h-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M7.5 16.5L16.5 7.5M16.5 7.5H10.5M16.5 7.5V13.5"
+                />
+              </svg>
+            </span>
           </button>
+        </div>
 
-          <div className="hidden md:flex items-center gap-2">
-            <ThemeToggler className="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300" />
-
-            {!isLoggedIn && (
-              <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
-                <DialogTrigger asChild>
-                  <button className="px-6 py-2 rounded-full font-semibold bg-transparent text-black border border-black transition-colors duration-300 hover:bg-black hover:text-white dark:bg-transparent dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700">
-                    Log In
-                  </button>
-                </DialogTrigger>
-
-                {isLoginModalOpen && (
-                  <>
-                    <DialogOverlay />
-                    <ResponsiveDialogContent className="z-50">
-                      <AuthModalContent onCloseModal={() => setIsLoginModalOpen(false)} />
-                    </ResponsiveDialogContent>
-                  </>
-                )}
-              </Dialog>
+        <button
+          className="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle mobile menu"
+        >
+          <svg className="w-6 h-6 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {isMobileMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
             )}
+          </svg>
+        </button>
+      </div>
 
-            {isLoggedIn && (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="focus:outline-none">
-                  <Avatar>
-                    <AvatarImage
-                      src={currentUser?.profileImage}
-                      alt={currentUser?.name || "User"}
-                    />
-                    <AvatarFallback className="text-black dark:text-white">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-full h-full p-1"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.795 0-5.419-.305-7.85-2.07a.75.75 0 01-.438-.695z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="dark:bg-gray-800 dark:text-white dark:border-gray-700"
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex flex-col md:hidden">
+          <div className="flex-1" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="bg-white dark:bg-gray-900 rounded-t-2xl px-6 py-8 shadow-2xl flex flex-col gap-5 animate-slideUp min-h-[320px]">
+            <nav className="flex flex-col gap-2 mb-4">
+              {navLinks.map((link) => (
+                <button
+                  key={link.id}
+                  className="w-full text-lg py-3 rounded-xl font-semibold bg-gray-100 hover:bg-black hover:text-white transition-colors duration-200 dark:bg-gray-800 dark:text-white dark:hover:bg-teal-700"
+                  onClick={() => handleNavLinkClick(link.id)}
                 >
-                  <DropdownMenuLabel className="dark:text-white">
-                    My Account
-                    {currentUser?.email && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {currentUser.email}
-                      </div>
-                    )}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="dark:bg-gray-700" />
-                  <DropdownMenuItem
-                    asChild
-                    className="dark:hover:bg-gray-700 dark:text-white"
-                  >
-                    <Link href="/profile">Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="dark:hover:bg-gray-700 dark:text-white"
-                  >
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  {link.label}
+                </button>
+              ))}
+            </nav>
+            <ThemeToggler className="mb-3 p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm self-center" />
+
+            {!isLoggedIn ? (
+              <button
+                className="w-full py-3 rounded-xl font-semibold bg-transparent text-black border border-black mb-2 transition-colors duration-200 hover:bg-black hover:text-white dark:text-white dark:border-teal-600 dark:hover:bg-teal-700 dark:hover:border-teal-700"
+                onClick={() => {
+                  setIsLoginModalOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                Log In
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 mb-3">
+                <Avatar>
+                  <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
+                  <AvatarFallback className="text-black dark:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full p-1">
+                      <path
+                        fillRule="evenodd"
+                        d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.795 0-5.419-.305-7.85-2.07a.75.75 0 01-.438-.695z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="font-semibold dark:text-white">{currentUser?.name || "User"}</span>
+                  {currentUser?.email && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{currentUser.email}</span>
+                  )}
+                </div>
+                <button
+                  className="ml-auto px-3 py-1 rounded-lg text-sm bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-red-500 hover:text-white transition-colors"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
             )}
 
-            <button onClick={handleGetStartedClick} className={getStartedClass}>
+            <button onClick={handleGetStartedClick} className="w-full py-3 mt-2 rounded-xl font-semibold text-white bg-black hover:bg-gray-800 transition-colors duration-200 dark:bg-teal-600 dark:hover:bg-teal-700">
               <span className="relative block overflow-hidden h-6">
                 <span className="block transition-transform duration-300 group-hover:-translate-y-full">
                   Get Started
@@ -273,26 +305,28 @@ const Navbar = () => {
                   Right Now
                 </span>
               </span>
-              <span className="flex items-center justify-center w-6 h-6 bg-white text-black rounded-full transition-transform duration-300 group-hover:rotate-45 dark:bg-gray-200 dark:text-teal-600">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M7.5 16.5L16.5 7.5M16.5 7.5H10.5M16.5 7.5V13.5"
-                  />
-                </svg>
-              </span>
             </button>
           </div>
         </div>
-      </div>
+      )}
+
+      {isLoginModalOpen && (
+        <>
+          <DialogOverlay />
+          <ResponsiveDialogContent className="z-[1001]">
+            <AuthModalContent onCloseModal={() => setIsLoginModalOpen(false)} />
+          </ResponsiveDialogContent>
+        </>
+      )}
+      <style jsx global>{`
+        @keyframes slideUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        .animate-slideUp {
+          animation: slideUp 0.35s cubic-bezier(.4,2,.4,1) both;
+        }
+      `}</style>
     </div>
   );
 };
