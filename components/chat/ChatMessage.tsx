@@ -12,6 +12,7 @@ import {
   Share,
   Trash2,
   CheckSquare,
+  Edit3 as EditIcon,
 } from "lucide-react";
 
 type Reaction = {
@@ -21,7 +22,11 @@ type Reaction = {
 };
 
 type Props = {
-  message: Message & { reactions?: Reaction[]; replyTo?: Message | null };
+  message: Message & {
+    reactions?: Reaction[];
+    replyTo?: Message | null;
+    changed?: boolean;
+  };
   isCurrentUser: boolean;
   sender: User;
   onReply: (msg: Message) => void;
@@ -32,12 +37,14 @@ type Props = {
   onDeleteForMe: (msg: Message) => void;
   onSelect: (msg: Message) => void;
   onReact: (msg: Message, reaction: string) => void;
+  onEdit: (msg: Message) => void;
   onJumpToMessage?: (id: string) => void;
   containerRef?: (el: HTMLDivElement | null) => void;
   highlighted?: boolean;
   isSelected?: boolean;
   showSelectCircle?: boolean;
   userReactions: Set<string>;
+  isPinned: boolean; // новый пропс
 };
 
 export default function ChatMessage({
@@ -52,12 +59,14 @@ export default function ChatMessage({
   onDeleteForMe,
   onSelect,
   onReact,
+  onEdit,
   onJumpToMessage,
   containerRef,
   highlighted,
   isSelected,
   showSelectCircle = false,
   userReactions,
+  isPinned,
 }: Props) {
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [menuStyle, setMenuStyle] = useState<CSSProperties>({
@@ -298,11 +307,29 @@ export default function ChatMessage({
               "px-4 py-2 rounded-2xl text-sm shadow-sm relative",
               isCurrentUser
                 ? "bg-emerald-400 text-gray-900 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl"
-                : "bg-gray-100 dark:bg-[#1a1f2b] text-gray-900 dark:text-white rounded-tr-2xl rounded-br-2xl rounded-tl-2xl"
+                : "bg-gray-100 dark:bg-[#1a1f2b] text-gray-900 dark:text-white rounded-tr-2xl rounded-br-2xl rounded-tl-2xl",
+              { "pr-8": isPinned } // отступ справа под иконку
             )}
           >
+            {isPinned && (
+              <span
+                className="absolute right-2 top-[0.6rem] text-black"
+                title="Pinned message"
+                aria-label="Pinned message"
+                style={{ transform: "translateY(2px)" }}
+              >
+                <Pin width={14} height={14} />
+              </span>
+            )}
+
             {message.text && (
               <p className="whitespace-pre-wrap">{message.text}</p>
+            )}
+
+            {message.changed && (
+              <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-1 select-none">
+                Changed
+              </p>
             )}
 
             {message.attachments?.map((att, idx) =>
@@ -438,8 +465,13 @@ export default function ChatMessage({
                 className="flex items-center gap-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded w-full text-left"
                 type="button"
               >
-                <Pin className="w-5 h-5" />
-                Pin
+                <Pin
+                  className={clsx("w-5 h-5", {
+                    "line-through text-red-500": isPinned,
+                    "text-gray-700 dark:text-gray-300": !isPinned,
+                  })}
+                />
+                {isPinned ? "Unpin" : "Pin"}
               </button>
 
               <button
@@ -467,6 +499,18 @@ export default function ChatMessage({
               >
                 <Share className="w-5 h-5" />
                 Forward
+              </button>
+
+              <button
+                onClick={() => {
+                  onEdit(message);
+                  closeMenu();
+                }}
+                className="flex items-center gap-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded w-full text-left"
+                type="button"
+              >
+                <EditIcon className="w-5 h-5" />
+                Edit Message
               </button>
 
               <div className="relative w-full">
