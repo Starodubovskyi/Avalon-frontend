@@ -52,7 +52,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             <RegisterStepDetails
               email={email}
               onEditEmail={() => setStep('email')}
-              onCloseModal={onCloseModal}
             />
           </motion.div>
         )}

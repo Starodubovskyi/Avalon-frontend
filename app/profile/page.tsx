@@ -1,34 +1,29 @@
 "use client";
 
 import dynamic from "next/dynamic";
-
-import {  useState } from "react";
-import TopProfileNavbar from "@/components/shared/TopProfileNavbar";
+import { usePathname } from "next/navigation";
+import TopProfileNavbar from "@/components/profile/TopProfileNavbar";
 import UserProfile from "@/components/profile/UserProfile";
-const CompanyProfile = dynamic(() => import("@/components/profile/CompanyProfile/CompanyProfile"), {
+import MainLayout from "@/components/layout/MainLayout";
+import BackgroundAnimation from "@/components/layout/BackgroundAnimation";
+
+const CompanyProfile = dynamic(
+  () => import("@/components/companyprofile/CompanyProfile"),
+  {
+    ssr: false,
+  }
+);
+const EditProfile = dynamic(() => import("@/components/profile/EditProfile"), {
   ssr: false,
 });
-import EditProfile from "@/components/profile/EditProfile";
-import OnlineServices from "@/components/profile/OnlineServices";
-import MySubscriptions from "@/components/profile/MySubscriptions";
-import MainLayout from "@/components/layout/MainLayout";
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("profile");
+  const pathname = usePathname();
 
- 
   const renderTab = () => {
-    switch (activeTab) {
-      case "profile":
+    switch (pathname) {
+      case "/profile":
         return <UserProfile />;
-      case "company":
-        return <CompanyProfile />;
-      case "edit":
-        return <EditProfile />;
-      case "services":
-        return <OnlineServices />;
-      case "subscriptions":
-        return <MySubscriptions />;
       default:
         return null;
     }
@@ -36,12 +31,24 @@ export default function ProfilePage() {
 
   return (
     <MainLayout>
-    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="flex-1 p-6">
-        <TopProfileNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="mt-6">{renderTab()}</div>
+      <div className="relative flex min-h-screen">
+        <BackgroundAnimation />
+        <div
+          className="
+          flex-1 p-6
+          bg-white/10
+          border border-gray-200
+          shadow
+          dark:bg-black/20
+          dark:border-white/10
+          dark:shadow-white/10
+          backdrop-blur-md
+        "
+        >
+          <TopProfileNavbar />
+          <div className="mt-6">{renderTab()}</div>
+        </div>
       </div>
-    </div>
     </MainLayout>
   );
 }
