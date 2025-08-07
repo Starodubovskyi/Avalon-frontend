@@ -2,7 +2,10 @@
 
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+
+
 import BackgroundAnimation from "./BackgroundAnimation";
+
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (

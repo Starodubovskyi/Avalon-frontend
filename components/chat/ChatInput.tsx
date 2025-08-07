@@ -1,53 +1,86 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
-import {
-  Paperclip,
-  Smile,
-  Send,
-  ImageIcon,
-  MapPin,
-  X,
-} from "lucide-react";
+import { Paperclip, Smile, Send, ImageIcon, MapPin, X } from "lucide-react";
+import { Message } from "../types/chat";
 
 type Props = {
   onSend: (message: string, attachments?: File[], location?: string) => void;
+  onReactToLastMessage?: (reaction: string) => void;
+  replyTo?: Message | null;
+  onCancelReply?: () => void;
+  inputText?: string; // новый пропс
+  setInputText?: (text: string) => void; // новый пропс
 };
 
-export default function ChatInput({ onSend }: Props) {
-  const [text, setText] = useState("");
+export default function ChatInput({
+  onSend,
+  onReactToLastMessage,
+  replyTo,
+  onCancelReply,
+  inputText = "",
+  setInputText,
+}: Props) {
+  // Инициализация из контролируемого пропса inputText
+  const [text, setText] = useState(inputText);
+
+  // Синхронизируем внутренний state с внешним при изменении inputText
+  useEffect(() => {
+    setText(inputText);
+  }, [inputText]);
+
   const [showEmoji, setShowEmoji] = useState(false);
+  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [location, setLocation] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const attachmentButtonRef = useRef<HTMLButtonElement>(null);
+  const attachmentMenuRef = useRef<HTMLDivElement>(null);
+
   const handleEmojiClick = (emoji: EmojiClickData) => {
-    setText((prev) => prev + emoji.emoji);
+    if (onReactToLastMessage) {
+      onReactToLastMessage(emoji.emoji);
+      setShowEmoji(false);
+    } else {
+      // Добавляем emoji в контролируемый или локальный state
+      if (setInputText) {
+        setInputText(text + emoji.emoji);
+      } else {
+        setText((prev) => prev + emoji.emoji);
+      }
+    }
   };
 
   const handleSend = () => {
     if (!text.trim() && files.length === 0 && !location) return;
 
     onSend(text.trim(), files, location ?? undefined);
-    setText("");
+
+    // Очищаем локальный и контролируемый inputText
+    if (setInputText) {
+      setInputText("");
+    } else {
+      setText("");
+    }
     setFiles([]);
     setLocation(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-  setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])
-]);
-}
-
+      setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])]);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])
-]);
+      setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])]);
     }
   };
 
@@ -56,6 +89,7 @@ export default function ChatInput({ onSend }: Props) {
     navigator.geolocation.getCurrentPosition((pos) => {
       const { latitude, longitude } = pos.coords;
       setLocation(`https://maps.google.com/?q=${latitude},${longitude}`);
+      setShowAttachmentMenu(false);
     });
   };
 
@@ -63,10 +97,54 @@ export default function ChatInput({ onSend }: Props) {
     if (e.key === "Enter") handleSend();
   };
 
+  const onClickPhotoVideo = () => {
+    imageInputRef.current?.click();
+    setShowAttachmentMenu(false);
+  };
+
+  const onClickFile = () => {
+    fileInputRef.current?.click();
+    setShowAttachmentMenu(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+
+      if (
+        showAttachmentMenu &&
+        attachmentMenuRef.current &&
+        attachmentButtonRef.current &&
+        !attachmentMenuRef.current.contains(target) &&
+        !attachmentButtonRef.current.contains(target)
+      ) {
+        setShowAttachmentMenu(false);
+      }
+
+      if (
+        showEmoji &&
+        emojiPickerRef.current &&
+        emojiButtonRef.current &&
+        !emojiPickerRef.current.contains(target) &&
+        !emojiButtonRef.current.contains(target)
+      ) {
+        setShowEmoji(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showAttachmentMenu, showEmoji]);
+
+  // Функция обрезки текста цитаты, максимум 60 символов с "..."
+  const trimReplyText = (text: string, maxLength = 60) =>
+    text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+
   return (
     <div className="relative border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-[#0d1117]">
       {showEmoji && (
-        <div className="absolute bottom-16 left-4 z-50">
+        <div ref={emojiPickerRef} className="absolute bottom-16 left-4 z-50">
           <EmojiPicker onEmojiClick={handleEmojiClick} theme={Theme.DARK} />
         </div>
       )}
@@ -97,30 +175,100 @@ export default function ChatInput({ onSend }: Props) {
               >
                 Location
               </a>
-              <X className="w-4 h-4 cursor-pointer" onClick={() => setLocation(null)} />
+              <X
+                className="w-4 h-4 cursor-pointer"
+                onClick={() => setLocation(null)}
+              />
             </div>
           )}
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <button onClick={() => setShowEmoji((prev) => !prev)}>
+      {/* --- Цитируемое сообщение сверху поля ввода --- */}
+      {replyTo && (
+        <div className="mb-2 flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold truncate">Replying to:</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
+              {replyTo.text
+                ? trimReplyText(replyTo.text)
+                : replyTo.attachments?.length
+                ? `Attachment${replyTo.attachments.length > 1 ? "s" : ""}`
+                : replyTo.location
+                ? "Location"
+                : ""}
+            </p>
+          </div>
+          <button
+            className="ml-3 text-gray-500 hover:text-red-500"
+            onClick={onCancelReply}
+            type="button"
+            aria-label="Cancel reply"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      <div className="flex items-center gap-2 relative">
+        <button
+          ref={emojiButtonRef}
+          onClick={() => setShowEmoji((prev) => !prev)}
+          aria-label="Emoji picker"
+          type="button"
+        >
           <Smile className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-emerald-500" />
         </button>
-        <button onClick={() => fileInputRef.current?.click()}>
-          <Paperclip className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-blue-500" />
+
+        <button
+          ref={attachmentButtonRef}
+          onClick={() => setShowAttachmentMenu((prev) => !prev)}
+          className="text-gray-500 dark:text-gray-400 hover:text-emerald-500"
+          aria-label="Attachment menu"
+          type="button"
+        >
+          <Paperclip className="w-5 h-5" />
         </button>
-        <button onClick={() => imageInputRef.current?.click()}>
-          <ImageIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-pink-500" />
-        </button>
-        <button onClick={handleLocation}>
-          <MapPin className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-indigo-500" />
-        </button>
+
+        {showAttachmentMenu && (
+          <div
+            ref={attachmentMenuRef}
+            className="absolute bottom-full mb-2 left-12 z-50 w-40 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-md shadow-lg p-2 flex flex-col gap-2"
+          >
+            <button
+              onClick={onClickPhotoVideo}
+              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+              type="button"
+            >
+              <ImageIcon className="w-5 h-5 text-pink-500" />
+              Photo/Video
+            </button>
+            <button
+              onClick={onClickFile}
+              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+              type="button"
+            >
+              <Paperclip className="w-5 h-5 text-blue-500" />
+              File
+            </button>
+            <button
+              onClick={handleLocation}
+              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+              type="button"
+            >
+              <MapPin className="w-5 h-5 text-indigo-500" />
+              Location
+            </button>
+          </div>
+        )}
 
         <input
           type="text"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            if (setInputText) setInputText(e.target.value);
+          }}
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
           className="flex-1 px-4 py-2 rounded-xl bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 text-sm focus:outline-none"
@@ -129,6 +277,7 @@ export default function ChatInput({ onSend }: Props) {
         <button
           onClick={handleSend}
           className="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full"
+          aria-label="Send message"
         >
           <Send className="w-4 h-4" />
         </button>

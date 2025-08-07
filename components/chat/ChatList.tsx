@@ -12,11 +12,16 @@ type Props = {
   selectedUserId: string;
 };
 
-export default function ChatList({ users, setUsers, onSelectUser, selectedUserId }: Props) {
+export default function ChatList({
+  users,
+  setUsers,
+  onSelectUser,
+  selectedUserId,
+}: Props) {
   const [search, setSearch] = useState("");
 
   const filteredUsers = users
-    .filter((u) => u.id !== "u1") 
+    .filter((u) => u.id !== "u1")
     .filter((u) => u.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleSelectUser = (userId: string) => {
@@ -40,7 +45,9 @@ export default function ChatList({ users, setUsers, onSelectUser, selectedUserId
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-400/30 scrollbar-track-transparent">
-        <h3 className="text-xs text-gray-500 dark:text-gray-400 px-1">ALL CHATS</h3>
+        <h3 className="text-xs text-gray-500 dark:text-gray-400 px-1">
+          ALL CHATS
+        </h3>
 
         {filteredUsers.map((user) => (
           <div
