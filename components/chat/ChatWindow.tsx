@@ -7,6 +7,8 @@ import TypingIndicator from "./TypingIndicator";
 import { Message } from "../types/chat";
 import ChatInput from "./ChatInput";
 import ForwardUserSelector from "./ForwardUserSelector";
+import clsx from "clsx";
+import { X } from "lucide-react";
 
 type Reaction = {
   emoji: string;
@@ -17,6 +19,7 @@ type Reaction = {
 type MessageWithReactions = Message & {
   reactions?: Reaction[];
   replyTo?: MessageWithReactions | null;
+  changed?: boolean;
 };
 
 type MessagesByUserId = Record<string, MessageWithReactions[]>;
@@ -37,6 +40,11 @@ export default function ChatWindow({ otherUserId, users }: Props) {
   const [replyToMessage, setReplyToMessage] =
     useState<MessageWithReactions | null>(null);
 
+  const [editMessage, setEditMessage] = useState<MessageWithReactions | null>(
+    null
+  );
+  const [editInputText, setEditInputText] = useState("");
+
   const [highlightedMessageId, setHighlightedMessageId] = useState<
     string | null
   >(null);
@@ -50,35 +58,69 @@ export default function ChatWindow({ otherUserId, users }: Props) {
 
   const [selectionMode, setSelectionMode] = useState(false);
 
-  // Forward states
   const [forwardMessage, setForwardMessage] =
     useState<MessageWithReactions | null>(null);
   const [showForwardPanel, setShowForwardPanel] = useState(false);
   const [forwardInputText, setForwardInputText] = useState("");
 
-  // Для мультивыбора сообщений для пересылки
   const [forwardMessagesForMultiple, setForwardMessagesForMultiple] = useState<
     MessageWithReactions[] | null
   >(null);
 
+  // Храним закрепленные сообщения для каждого пользователя отдельно
+  const [pinnedMessagesByUser, setPinnedMessagesByUser] = useState<
+    Record<string, MessageWithReactions[]>
+  >({});
+
+  // Активный индекс закрепленного сообщения для каждого пользователя
+  const [activePinnedIndexByUser, setActivePinnedIndexByUser] = useState<
+    Record<string, number>
+  >({});
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Получаем закрепленные сообщения и активный индекс для текущего пользователя
+  const pinnedMessages = pinnedMessagesByUser[otherUserId] ?? [];
+  const activePinnedIndex = activePinnedIndexByUser[otherUserId] ?? 0;
+
+  // Вспомогательная функция для установки активного индекса закрепленных сообщений текущего чата
+  const setActivePinnedIndexForCurrentUser = (index: number) => {
+    setActivePinnedIndexByUser((prev) => ({
+      ...prev,
+      [otherUserId]: index,
+    }));
+  };
 
   useEffect(() => {
     setHiddenMessageIdsForCurrentUser(new Set());
     setSelectedMessageIds(new Set());
     setSelectionMode(false);
     setReplyToMessage(null);
+    setEditMessage(null);
+    setEditInputText("");
 
     setMessages(messagesByUser[otherUserId] ?? []);
 
-    // Сброс forward при переключении чата
     setForwardMessage(null);
     setShowForwardPanel(false);
     setForwardInputText("");
     setForwardMessagesForMultiple(null);
-  }, [otherUserId, messagesByUser]);
+
+    const pinnedForUser = pinnedMessagesByUser[otherUserId];
+    if (pinnedForUser && pinnedForUser.length > 0) {
+      setActivePinnedIndexByUser((prev) => ({
+        ...prev,
+        [otherUserId]: pinnedForUser.length - 1,
+      }));
+    } else {
+      setActivePinnedIndexByUser((prev) => ({
+        ...prev,
+        [otherUserId]: 0,
+      }));
+    }
+  }, [messagesByUser, otherUserId, pinnedMessagesByUser]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -92,7 +134,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     }));
   };
 
-  // Отправка обычного сообщения (без пересылки)
   const handleSendMessage = (
     text: string,
     attachments?: File[],
@@ -101,6 +142,33 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     if (!text.trim() && (!attachments || attachments.length === 0) && !location)
       return;
 
+    if (editMessage) {
+      // Обновляем существующее сообщение
+      const updatedMessages = messages.map((m) =>
+        m.id === editMessage.id
+          ? {
+              ...m,
+              text,
+              attachments: attachments
+                ? attachments.map((file) => ({
+                    name: file.name,
+                    type: file.type,
+                    url: URL.createObjectURL(file),
+                  }))
+                : m.attachments,
+              location: location || m.location,
+              changed: true,
+            }
+          : m
+      );
+
+      updateMessagesForUser(updatedMessages);
+      setEditMessage(null);
+      setEditInputText("");
+      return;
+    }
+
+    // Обычное добавление нового сообщения
     const filesToUrls =
       attachments?.map((file) => ({
         name: file.name,
@@ -128,7 +196,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     setReplyToMessage(null);
   };
 
-  // Отправка пересланного сообщения с текстом из input (может быть пустой)
   const handleSendForwardMessage = (text: string) => {
     if (!forwardMessage) return;
 
@@ -166,11 +233,13 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     cancelForwarding();
   };
 
-  // Forward handlers
   const startForwarding = (msg: MessageWithReactions) => {
     setForwardMessage(msg);
     setShowForwardPanel(true);
     setForwardMessagesForMultiple(null);
+    setEditMessage(null);
+    setEditInputText("");
+    setReplyToMessage(null);
   };
 
   const cancelForwarding = () => {
@@ -180,7 +249,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     setForwardMessagesForMultiple(null);
   };
 
-  // Быстрая пересылка на одного пользователя из списка (без мультивыбора)
   const handleForwardToUser = (forwardToUserId: string) => {
     if (!forwardMessage) return;
 
@@ -224,12 +292,15 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     cancelForwarding();
   };
 
-  // Пересылка нескольким пользователям сразу нескольких сообщений
   const handleForwardToMultipleUsers = (
     userIds: string[],
     messagesToForward: MessageWithReactions[]
   ) => {
     if (!messagesToForward || messagesToForward.length === 0) return;
+
+    setEditMessage(null);
+    setEditInputText("");
+    setReplyToMessage(null);
 
     setMessagesByUser((prev) => {
       const newState = { ...prev };
@@ -281,7 +352,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     setForwardMessagesForMultiple(null);
   };
 
-  // Обновлённая функция реакции с трекингом userIds для emoji
   const handleReact = (msg: MessageWithReactions, emoji: string) => {
     const newMessages = messages.map((m) => {
       if (m.id !== msg.id) return m;
@@ -290,7 +360,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
       const reactionIndex = reactions.findIndex((r) => r.emoji === emoji);
 
       if (reactionIndex === -1) {
-        // Реакции такого emoji ещё нет, создаем новую с текущим пользователем
         reactions = [
           ...reactions,
           { emoji, count: 1, userIds: [currentUserId] },
@@ -300,15 +369,12 @@ export default function ChatWindow({ otherUserId, users }: Props) {
         const userIndex = reaction.userIds.indexOf(currentUserId);
 
         if (userIndex === -1) {
-          // Текущий пользователь ещё не ставил эту реакцию — добавляем
           reaction.userIds.push(currentUserId);
           reaction.count = reaction.userIds.length;
         } else {
-          // Текущий пользователь уже ставил эту реакцию — убираем его
           reaction.userIds.splice(userIndex, 1);
           reaction.count = reaction.userIds.length;
           if (reaction.count === 0) {
-            // Удаляем реакцию целиком, если никто больше не реагирует этим emoji
             reactions.splice(reactionIndex, 1);
           }
         }
@@ -320,17 +386,60 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     updateMessagesForUser(newMessages);
   };
 
+  // При начале reply сбрасываем edit и forward
   const handleReply = (msg: MessageWithReactions) => {
     setReplyToMessage(msg);
+    setEditMessage(null);
+    setEditInputText("");
+    setForwardMessage(null);
+    setShowForwardPanel(false);
+    setForwardInputText("");
+    setForwardMessagesForMultiple(null);
   };
 
-  const handlePin = (msg: MessageWithReactions) => {
-    console.log("Pin message:", msg);
+  // При начале редактирования сбрасываем reply и forward
+  const handleEditMessage = (msg: MessageWithReactions) => {
+    setEditMessage(msg);
+    setEditInputText(msg.text || "");
+    setReplyToMessage(null);
+    setForwardMessage(null);
+    setShowForwardPanel(false);
+    setForwardInputText("");
+    setForwardMessagesForMultiple(null);
   };
+
+  const togglePinMessage = (msg: MessageWithReactions) => {
+    setPinnedMessagesByUser((prev) => {
+      const currentPinned = prev[otherUserId] ?? [];
+      const exists = currentPinned.find((m) => m.id === msg.id);
+
+      let newPinned: MessageWithReactions[];
+      if (exists) {
+        newPinned = currentPinned.filter((m) => m.id !== msg.id);
+
+        setActivePinnedIndexByUser((prevIdx) => {
+          const currentIndex = prevIdx[otherUserId] ?? 0;
+          let newIndex = currentIndex;
+          if (currentIndex >= newPinned.length) {
+            newIndex = Math.max(0, newPinned.length - 1);
+          }
+          return { ...prevIdx, [otherUserId]: newIndex };
+        });
+      } else {
+        newPinned = [...currentPinned, msg];
+      }
+
+      return {
+        ...prev,
+        [otherUserId]: newPinned,
+      };
+    });
+  };
+
   const handleCopy = (msg: MessageWithReactions) => {
     if (msg.text) navigator.clipboard.writeText(msg.text);
-    console.log("Copied message text:", msg.text);
   };
+
   const handleForward = (msg: MessageWithReactions) => {
     startForwarding(msg);
   };
@@ -348,6 +457,14 @@ export default function ChatWindow({ otherUserId, users }: Props) {
         return copy;
       }
       return prev;
+    });
+
+    setPinnedMessagesByUser((prev) => {
+      const currentPinned = prev[otherUserId] ?? [];
+      return {
+        ...prev,
+        [otherUserId]: currentPinned.filter((m) => m.id !== msg.id),
+      };
     });
   };
 
@@ -423,8 +540,31 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     }
   };
 
+  const onPinnedClick = (clickedIndex: number) => {
+    handleJumpToMessage(pinnedMessages[clickedIndex].id);
+    setTimeout(() => {
+      setActivePinnedIndexForCurrentUser(
+        clickedIndex === 0 ? pinnedMessages.length - 1 : clickedIndex - 1
+      );
+    }, 100);
+  };
+
+  // Здесь не меняем логику, только заменяем setActivePinnedIndex на setActivePinnedIndexForCurrentUser
+  const onPinnedTextClick = () => {
+    if (pinnedMessages.length === 0) return;
+
+    const newIndex =
+      activePinnedIndex === 0
+        ? pinnedMessages.length - 1 // если был первый — перейти к последнему (круговой сдвиг)
+        : activePinnedIndex - 1;
+
+    handleJumpToMessage(pinnedMessages[activePinnedIndex].id);
+
+    setActivePinnedIndexForCurrentUser(newIndex);
+  };
+
   return (
-    <div className="flex flex-col flex-1 h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
+    <div className="flex flex-col flex-1 h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3">
           {otherUser.avatar ? (
@@ -504,6 +644,9 @@ export default function ChatWindow({ otherUserId, users }: Props) {
                 );
                 setForwardMessagesForMultiple(msgsToForward);
                 setShowForwardPanel(true);
+                setEditMessage(null);
+                setEditInputText("");
+                setReplyToMessage(null);
               }}
               className="px-3 py-1 rounded text-sm font-medium bg-gray-500 text-white hover:bg-gray-600"
             >
@@ -512,6 +655,56 @@ export default function ChatWindow({ otherUserId, users }: Props) {
           </div>
         )}
       </div>
+
+      {pinnedMessages.length > 0 && (
+        <div className="flex items-center px-4 py-2 border-b border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#161b22] h-14 select-none">
+          <div
+            className="flex flex-col items-center justify-center gap-1"
+            style={{ height: 24, width: 8 }}
+          >
+            {pinnedMessages.map((msg, idx) => {
+              const isActive = idx === activePinnedIndex;
+
+              const totalHeight = 24;
+              const barHeight = totalHeight / pinnedMessages.length;
+
+              return (
+                <div
+                  key={msg.id}
+                  onClick={() => {
+                    setActivePinnedIndexForCurrentUser(idx);
+                    handleJumpToMessage(pinnedMessages[idx].id);
+                  }}
+                  title={msg.text || "Pinned message"}
+                  className={clsx(
+                    "w-1.5 rounded cursor-pointer transition-colors duration-200",
+                    isActive
+                      ? "bg-emerald-600 border-emerald-600"
+                      : "bg-gray-400 dark:bg-gray-600 border-gray-400 dark:border-gray-600",
+                    "border"
+                  )}
+                  style={{
+                    height: barHeight,
+                    borderStyle: "solid",
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          <div
+            className="ml-4 flex-1 text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer select-text"
+            onClick={onPinnedTextClick}
+            title={pinnedMessages[activePinnedIndex]?.text}
+          >
+            {pinnedMessages.length > 0
+              ? pinnedMessages[activePinnedIndex]?.text.length > 60
+                ? pinnedMessages[activePinnedIndex]?.text.slice(0, 60) + "..."
+                : pinnedMessages[activePinnedIndex]?.text
+              : ""}
+          </div>
+        </div>
+      )}
 
       <div
         ref={scrollContainerRef}
@@ -526,7 +719,7 @@ export default function ChatWindow({ otherUserId, users }: Props) {
               isCurrentUser={msg.senderId === currentUserId}
               sender={msg.senderId === currentUserId ? currentUser : otherUser}
               onReply={handleReply}
-              onPin={handlePin}
+              onPin={togglePinMessage}
               onCopy={handleCopy}
               onForward={handleForward}
               onDelete={handleDeleteForAll}
@@ -549,6 +742,8 @@ export default function ChatWindow({ otherUserId, users }: Props) {
               highlighted={highlightedMessageId === msg.id}
               isSelected={selectionMode && selectedMessageIds.has(msg.id)}
               showSelectCircle={selectionMode}
+              isPinned={pinnedMessages.some((m) => m.id === msg.id)}
+              onEdit={handleEditMessage}
             />
           ))}
         {otherUser.isTyping && <TypingIndicator />}
@@ -587,15 +782,54 @@ export default function ChatWindow({ otherUserId, users }: Props) {
         />
       )}
 
-      {!showForwardPanel && (
-        <ChatInput
-          onSend={forwardMessage ? handleSendForwardMessage : handleSendMessage}
-          inputText={forwardMessage ? forwardInputText : undefined}
-          setInputText={forwardMessage ? setForwardInputText : undefined}
-          replyTo={replyToMessage}
-          onCancelReply={() => setReplyToMessage(null)}
-        />
+      {/* Показываем только editMessage над полем ввода */}
+      {editMessage && (
+        <div className="mb-2 flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold truncate">Editing message:</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
+              {editMessage.text}
+            </p>
+          </div>
+          <button
+            className="ml-3 text-gray-500 hover:text-red-500"
+            onClick={() => {
+              setEditMessage(null);
+              setEditInputText("");
+            }}
+            type="button"
+            aria-label="Cancel edit"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       )}
+
+      <ChatInput
+        onSend={
+          editMessage
+            ? handleSendMessage
+            : forwardMessage
+            ? handleSendForwardMessage
+            : handleSendMessage
+        }
+        inputText={
+          editMessage
+            ? editInputText
+            : forwardMessage
+            ? forwardInputText
+            : undefined
+        }
+        setInputText={
+          editMessage
+            ? setEditInputText
+            : forwardMessage
+            ? setForwardInputText
+            : undefined
+        }
+        replyTo={replyToMessage}
+        onCancelReply={() => setReplyToMessage(null)}
+      />
     </div>
   );
 }
