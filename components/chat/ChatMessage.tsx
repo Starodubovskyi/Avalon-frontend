@@ -85,6 +85,7 @@ export default function ChatMessage({
   const ACTIONS_MENU_WIDTH = 192;
   const REACTIONS_MENU_WIDTH = ACTIONS_MENU_WIDTH + 80;
   const RIGHT_SCREEN_PADDING = 12;
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (contextMenuVisible) {
@@ -333,12 +334,13 @@ export default function ChatMessage({
             )}
 
             {message.attachments?.map((att, idx) =>
-              att.type === "image" ? (
+              att.type.startsWith("image") ? (
                 <img
                   key={idx}
                   src={att.url}
                   alt={att.name}
-                  className="mt-2 max-w-xs rounded-lg border dark:border-gray-700"
+                  className="mt-2 max-w-xs rounded-lg border dark:border-gray-700 cursor-pointer"
+                  onClick={() => setPreviewImage(att.url)}
                 />
               ) : (
                 <a
@@ -570,6 +572,44 @@ export default function ChatMessage({
             </div>
           </div>
         </>
+      )}
+      {previewImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          onClick={() => setPreviewImage(null)} // клик по затемнению закрывает
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation(); // остановить всплытие, чтобы не закрывать оверлей дважды
+              setPreviewImage(null); // закрыть превью
+            }}
+            aria-label="Close preview"
+            className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition z-60"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          <img
+            src={previewImage}
+            alt="Preview"
+            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()} // клик по фото не закрывает
+          />
+        </div>
       )}
     </>
   );
