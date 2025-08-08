@@ -15,7 +15,7 @@ export default function ChatPage() {
 
   return (
     <MainLayout>
-      <div className="flex h-screen">
+      <div className="flex h-[calc(100vh-64px)]">
         <ChatList
           users={users}
           setUsers={setUsers}

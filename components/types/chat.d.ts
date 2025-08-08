@@ -23,11 +23,33 @@ export type Message = {
   reactions?: Reaction[];
 };
 
+// export type User = {
+//   id: string;
+//   name: string;
+//   avatar: string;
+//   isOnline: boolean; // Зроблено обов’язковим!
+//   isTyping: boolean;
+//   unreadCount: number;
+// };
 export type User = {
   id: string;
   name: string;
-  avatar: string;
-  isOnline: boolean; // Зроблено обов’язковим!
-  isTyping: boolean;
-  unreadCount: number;
+  avatar: string; // Обязательное поле — всегда строка
+  isOnline?: boolean;
+  unreadCount?: number;
+  isTyping?: boolean;
+  isGroup?: boolean; // Для групповых чатов
+  memberIds?: string[]; // Участники группы
+  lastSeen?: string;
+};
+
+const newGroup: User = {
+  id: newGroupId,
+  name: groupName,
+  avatar: avatarUrl || "",
+  isOnline: false,
+  unreadCount: 0,
+  isTyping: false,
+  isGroup: true,
+  memberIds,
 };
