@@ -21,6 +21,8 @@ import { CSS } from "@dnd-kit/utilities"
 import { useState, useEffect, useRef } from "react"
 import { Plus, Edit, Trash2, CheckSquare, Save, X, ArrowUp, ArrowDown } from "lucide-react"
 import clsx from "clsx"
+import TopProfileNavbar from "@/components/profile/TopProfileNavbar"
+import MainLayout from "@/components/layout/MainLayout"
 
 const STATUSES = [
   { id: "todo", label: "To Do", color: "bg-blue-100 border-blue-300", dot: "bg-blue-500" },
@@ -343,8 +345,11 @@ export default function KanbanTodo() {
   }
 
   return (
+    <MainLayout>
+
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-green-50 to-yellow-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 flex flex-col items-center justify-start px-2 py-10">
       <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3 mb-10 drop-shadow-sm">
+        <TopProfileNavbar/>
         <CheckSquare className="w-9 h-9 text-blue-600 dark:text-blue-400" />
         My Kanban Board
       </h1>
@@ -354,13 +359,13 @@ export default function KanbanTodo() {
           collisionDetection={closestCorners}
           onDragEnd={onDragEnd}
           onDragStart={(e: DragStartEvent) => setActiveId(String(e.active.id))}
-        >
+          >
           {STATUSES.map(col => (
             <SortableContext
-              key={col.id}
-              id={col.id}
-              items={tasks[col.id].map(t => t.id)}
-              strategy={verticalListSortingStrategy}
+            key={col.id}
+            id={col.id}
+            items={tasks[col.id].map(t => t.id)}
+            strategy={verticalListSortingStrategy}
             >
               <div
                 className={clsx(
@@ -368,7 +373,7 @@ export default function KanbanTodo() {
                   col.color
                 )}
                 id={col.id}
-              >
+                >
                 <div className="flex items-center gap-2 mb-4">
                   <span className={clsx("w-3 h-3 rounded-full", col.dot)} />
                   <h2 className="font-bold text-lg text-gray-900 dark:text-white tracking-wide">{col.label}</h2>
@@ -379,7 +384,7 @@ export default function KanbanTodo() {
                       col.id === "inprogress" && "text-yellow-500",
                       col.id === "done" && "text-green-600"
                     )}
-                  >
+                    >
                     {tasks[col.id].length}
                   </span>
                 </div>
@@ -394,13 +399,13 @@ export default function KanbanTodo() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
                       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                         if (e.key === "Enter") addTask()
-                      }}
-                    />
+                        }}
+                      />
                     <button
                       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition active:scale-95 flex items-center gap-2 font-semibold"
                       onClick={addTask}
                       aria-label="Add task"
-                    >
+                      >
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
@@ -415,19 +420,19 @@ export default function KanbanTodo() {
                   )}
                   {tasks[col.id].map((task, idx) => (
                     <KanbanCard
-                      key={task.id}
-                      task={task}
-                      index={idx}
-                      total={tasks[col.id].length}
-                      onEdit={startEdit}
-                      onDelete={deleteTask}
-                      onComplete={completeTask}
-                      editingId={editingId}
-                      editText={editText}
-                      setEditText={setEditText}
-                      saveEdit={saveEdit}
-                      cancelEdit={cancelEdit}
-                      onMove={moveTask}
+                    key={task.id}
+                    task={task}
+                    index={idx}
+                    total={tasks[col.id].length}
+                    onEdit={startEdit}
+                    onDelete={deleteTask}
+                    onComplete={completeTask}
+                    editingId={editingId}
+                    editText={editText}
+                    setEditText={setEditText}
+                    saveEdit={saveEdit}
+                    cancelEdit={cancelEdit}
+                    onMove={moveTask}
                     />
                   ))}
                 </div>
@@ -450,5 +455,6 @@ export default function KanbanTodo() {
         Drag tasks between columns or sort with arrows.
       </div>
     </div>
+            </MainLayout>
   )
 }

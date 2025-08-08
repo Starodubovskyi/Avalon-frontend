@@ -88,14 +88,12 @@ export default function CompanyRegistrationForm({
     e.preventDefault();
     const validationErrors: { [key: string]: string } = {};
 
-    // Валидация для обязательных полей
     if (!formData.legalName)
       validationErrors.legalName = "Legal Name is required";
     if (!formData.businessName)
       validationErrors.businessName = "Business Name is required";
     if (!formData.website) validationErrors.website = "Website is required";
 
-    // Если есть ошибки, не отправляем данные
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -137,7 +135,6 @@ export default function CompanyRegistrationForm({
           Please, provide your company details in English. Remember: the more
           complete your profile is, the more visibility it will get.
         </p>
-        {/* Поля выше карты */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -221,7 +218,6 @@ export default function CompanyRegistrationForm({
           </div>
         </div>
 
-        {/* Поля загрузки файлов в ряд */}
         <div className="grid grid-cols-3 gap-6">
           {/* Логотип */}
           <div className="border-2 border-dashed p-4 rounded-lg">
@@ -249,7 +245,6 @@ export default function CompanyRegistrationForm({
                 JPEG, JPG, PNG (min. 300x250px / max. 512kb)
               </div>
 
-              {/* Превью лого */}
               {logo && (
                 <div className="mt-4 relative">
                   <img
@@ -260,7 +255,7 @@ export default function CompanyRegistrationForm({
                   <button
                     type="button"
                     className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow-md hover:bg-red-600 transition-transform transform hover:scale-110"
-                    onClick={() => setLogo(null)} // Сбрасывает выбранный файл
+                    onClick={() => setLogo(null)} 
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -308,7 +303,6 @@ export default function CompanyRegistrationForm({
                 JPEG, JPG, PNG (min. 234x60px / max. 512kb)
               </div>
 
-              {/* Превью баннера */}
               {banner && (
                 <div className="mt-4 relative">
                   <img
@@ -319,7 +313,7 @@ export default function CompanyRegistrationForm({
                   <button
                     type="button"
                     className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow-md hover:bg-red-600 transition-transform transform hover:scale-110"
-                    onClick={() => setBanner(null)} // Сбрасывает выбранный файл
+                    onClick={() => setBanner(null)} 
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -341,7 +335,6 @@ export default function CompanyRegistrationForm({
             </div>
           </div>
 
-          {/* Пин */}
           <div className="border-2 border-dashed p-4 rounded-lg">
             <label className="block text-sm font-medium text-gray-700">
               Company Logo Pin
@@ -367,7 +360,6 @@ export default function CompanyRegistrationForm({
                 JPEG, JPG, PNG (min. 42x42px / max. 512kb)
               </div>
 
-              {/* Превью пина */}
               {pin && (
                 <div className="mt-4 relative">
                   <img
@@ -401,7 +393,6 @@ export default function CompanyRegistrationForm({
           </div>
         </div>
 
-        {/* Поля для Business Activities и Serviced Ports */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -432,7 +423,6 @@ export default function CompanyRegistrationForm({
           </div>
         </div>
 
-        {/* Карта */}
         <div className="h-72 mt-6">
           <MapContainer
             center={[formData.lat!, formData.lng!]}
@@ -455,7 +445,6 @@ export default function CompanyRegistrationForm({
           </MapContainer>
         </div>
 
-        {/* Контактная информация */}
         <div className="mt-6">
           <h3 className="text-lg font-medium text-gray-900">Contact Info</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -611,7 +600,6 @@ export default function CompanyRegistrationForm({
           </div>
         </div>
 
-        {/* Описание компании */}
         <div className="mt-6">
           <label className="block text-sm font-medium text-gray-700">
             Company Description *
@@ -626,7 +614,6 @@ export default function CompanyRegistrationForm({
           />
         </div>
 
-        {/* Tagline */}
         <div className="mt-6">
           <label className="block text-sm font-medium text-gray-700">
             Tagline
@@ -641,7 +628,6 @@ export default function CompanyRegistrationForm({
           />
         </div>
 
-        {/* Галочка */}
         <div className="mt-6">
           <label className="flex items-center text-sm text-gray-700">
             <input
@@ -658,7 +644,6 @@ export default function CompanyRegistrationForm({
           </label>
         </div>
 
-        {/* Кнопка */}
         <button
           type="submit"
           className="w-full py-3 mt-6 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition"

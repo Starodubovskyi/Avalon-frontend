@@ -1,4 +1,3 @@
-// components/companies/CompaniesView.tsx
 "use client";
 
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Footer } from "@/components/ui/footer";
 import { motion } from "framer-motion";
-import { Search, ArrowLeft, Globe, Building2 } from "lucide-react";
+import { Search, Globe, Building2 } from "lucide-react";
 import MainLayout from "../layout/MainLayout";
 
 interface Company {
@@ -32,7 +31,6 @@ interface CompaniesViewProps {
   resetFilters: () => void;
   filteredCompanies: Company[];
   businessSectors: BusinessSectorGroup[];
-  onBackClick: () => void;
 }
 
 const CompaniesView: React.FC<CompaniesViewProps> = ({
@@ -45,39 +43,22 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
   resetFilters,
   filteredCompanies,
   businessSectors,
-  onBackClick,
 }) => {
   return (
     <MainLayout>
-      <div className="flex min-h-screen">
-        <div className="flex-1 flex flex-col bg-white dark:bg-[#121212] p-8">
-          <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-10">
-            <div
-              className="
-  bg-white
-  border border-gray-200
-  shadow-lg
-  rounded-2xl
-  p-6
-  dark:bg-white/5
-  dark:border-white/10
-  dark:shadow-white/10
-  transition-colors duration-300
-"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <Button
-                  variant="default"
-                  onClick={onBackClick}
-                  className="rounded-full bg-black text-white hover:bg-gray-800 dark:bg-blue-900 dark:hover:bg-blue-800 mr-4 transition-colors duration-300"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" /> Back
-                </Button>
-                <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white text-center flex-1">
-                  Companies
-                </h1>
-                <div className="w-[100px]" />
-              </div>
+      <div className="min-h-[100dvh] bg-gray-100 dark:bg-black">
+        <div className="px-1 sm:px-2 lg:px-2 py-1">
+          <div
+            className="
+              w-full
+              rounded-3xl border border-gray-200 bg-white shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+              dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+            "
+          >
+            <div className="p-4 sm:p-6 lg:p-8">
+              <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white text-center mb-6">
+                Companies
+              </h1>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 justify-center mb-4">
                 <Input
@@ -213,11 +194,11 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
                 </div>
               </section>
             </div>
-          </main>
-
-          <Footer />
+          </div>
         </div>
       </div>
+
+      <Footer />
     </MainLayout>
   );
 };

@@ -20,7 +20,6 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import AuthModalContent from "./auth/AuthModalContent";
 import ResponsiveDialogContent from "./ui/ResponsiveDialogContent";
 
-// Собственный Overlay с блюром и затемнением
 const DialogOverlay = () => (
   <div
     className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"

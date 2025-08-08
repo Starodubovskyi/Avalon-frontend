@@ -1,78 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import PortsTable from "@/components/ports/portsTable";
-import PortsModal from "@/components/ports/PortsModal";
-import PortsHeader from "@/components/ports/PortsHeader";
-import mockPorts from "@/data/portsMockData";
+import dynamic from "next/dynamic";
 
-const PortsPage = () => {
-  const [ports, setPorts] = useState(
-    mockPorts.map((p, i) => ({ ...p, id: `${i + 1}` }))
-  );
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPort, setEditingPort] = useState<any>(null);
-  const [search, setSearch] = useState("");
+const PortsPage = dynamic(() => import("@/components/ports/PortsPage"), {
+  ssr: false,
+});
 
-  const handleAdd = () => setIsModalOpen(true);
-  const handleEdit = (port: any) => setEditingPort(port);
-  const handleDelete = (id: string) =>
-    setPorts((prev) => prev.filter((p) => p.id !== id));
-
-  const handleDeleteSelected = () => {
-    setPorts((prev) => prev.filter((p) => !selectedIds.includes(p.id)));
-    setSelectedIds([]);
-  };
-
-  const handleSubmit = (port: any) => {
-    if (editingPort) {
-      setPorts((prev) => prev.map((p) => (p.id === port.id ? port : p)));
-    } else {
-      setPorts((prev) => [...prev, { ...port, id: Date.now().toString() }]);
-    }
-    setIsModalOpen(false);
-    setEditingPort(null);
-  };
-
+export default function PortsRoutePage() {
   return (
-    <div
-      className="p-6
-        bg-white 
-        border border-gray-200 
-        shadow 
-        dark:bg-white/5 
-        dark:border-white/10 
-        dark:shadow-white/10
-      "
-    >
-      <PortsHeader
-        onAdd={handleAdd}
-        onDeleteSelected={handleDeleteSelected}
-        hasSelected={selectedIds.length > 0}
-        search={search}
-        setSearch={setSearch}
-      />
-      <PortsTable
-        data={ports}
-        search={search}
-        selectedIds={selectedIds}
-        setSelectedIds={setSelectedIds}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-      {(isModalOpen || editingPort) && (
-        <PortsModal
-          initialData={editingPort}
-          onClose={() => {
-            setIsModalOpen(false);
-            setEditingPort(null);
-          }}
-          onSubmit={handleSubmit}
-        />
-      )}
-    </div>
+      <div className="min-h-[100dvh] bg-gray-100 dark:bg-black">
+        <div className="px-1 sm:px-2 lg:px-2 py-1">
+          <div
+            className="
+              w-full
+              rounded-3xl border border-gray-200 bg-white shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+              dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+            "
+          >
+            <div className="p-4 sm:p-6 lg:p-8">
+              <PortsPage />
+            </div>
+          </div>
+        </div>
+      </div>
   );
-};
-
-export default PortsPage;
+}

@@ -2,7 +2,7 @@
 
 export default function EditProfile() {
   return (
-    <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 max-w-4xl mx-auto dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
+    <div className="bg-white border border-gray-400 shadow-lg rounded-xl p-6 max-w-4xl mx-auto dark:bg-white/10 dark:border-white/30 dark:shadow-white/20">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
         Edit Profile
       </h2>
