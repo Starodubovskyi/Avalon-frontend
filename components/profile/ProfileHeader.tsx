@@ -26,7 +26,6 @@ export default function ProfileHeader({
   onDeleteAvatar,
   onAddTag,
   onRemoveTag,
-  onLogout,
 }: ProfileHeaderProps) {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [newTag, setNewTag] = useState("");
@@ -47,24 +46,33 @@ export default function ProfileHeader({
   };
 
   return (
-    <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 text-center flex flex-col items-center dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
-      <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-6xl text-gray-600 dark:text-gray-400 overflow-hidden relative">
-        {profileImage ? (
-          <img
-            src={profileImage}
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <FaUserCircle />
-        )}
+    <div className="text-left">
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-5xl text-gray-600 dark:text-gray-400 overflow-hidden relative">
+          {profileImage ? (
+            <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <FaUserCircle />
+          )}
+        </div>
+
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {name} {lastName}
+          </h2>
+          {bio && (
+            <p className="text-gray-500 dark:text-gray-400 text-sm truncate">
+              {bio}
+            </p>
+          )}
+        </div>
       </div>
 
       {editMode && (
-        <>
+        <div className="mt-3 flex gap-2">
           <button
             onClick={openFileDialog}
-            className="mt-3 px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full transition"
+            className="px-4 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-sm transition"
             type="button"
           >
             Upload Avatar
@@ -72,10 +80,10 @@ export default function ProfileHeader({
           {profileImage && (
             <button
               onClick={onDeleteAvatar}
-              className="mt-3 px-6 py-2 bg-red-700 hover:bg-red-800 text-white rounded-full transition"
+              className="px-4 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded-full text-sm transition"
               type="button"
             >
-              Delete Avatar
+              Delete
             </button>
           )}
           <input
@@ -85,53 +93,45 @@ export default function ProfileHeader({
             onChange={handleAvatarChange}
             className="hidden"
           />
-        </>
+        </div>
       )}
 
-      <h2 className="text-xl font-semibold mt-4 text-gray-900 dark:text-gray-200">
-        {name} {lastName}
-      </h2>
-      {bio && (
-        <p className="text-gray-700 dark:text-gray-400 text-sm mt-1">{bio}</p>
-      )}
-
-      <div className="mt-3 flex flex-wrap justify-center gap-2 items-center">
+      <div className="mt-4 flex flex-wrap gap-2">
         {tags.map((tag) => (
-          <div
+          <span
             key={tag}
-            className="flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm dark:bg-blue-900 dark:bg-opacity-50 dark:text-blue-300"
+            className="inline-flex items-center bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full px-3 py-1 text-xs"
           >
             {tag}
             {editMode && (
               <button
                 onClick={() => onRemoveTag(tag)}
-                className="ml-2 text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                className="ml-2 text-blue-600 dark:text-blue-300"
                 type="button"
+                aria-label={`remove ${tag}`}
               >
                 <FaTimes />
               </button>
             )}
-          </div>
+          </span>
         ))}
         {editMode && (
-          <div className="flex items-center border border-gray-300 rounded-full px-3 py-1 text-sm bg-white dark:bg-white/10 dark:border-white/30">
+          <span className="inline-flex items-center border border-dashed border-gray-300 dark:border-white/20 rounded-full px-3 py-1 text-xs">
             <input
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && (e.preventDefault(), addTag())
-              }
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
               placeholder="Add tag"
-              className="outline-none bg-transparent w-20 text-gray-900 dark:text-gray-200"
+              className="outline-none bg-transparent w-24 text-gray-900 dark:text-gray-200"
             />
             <button
               onClick={addTag}
-              className="ml-2 text-blue-700 hover:text-blue-800 dark:text-blue-400"
+              className="ml-2 text-blue-700 dark:text-blue-300"
               type="button"
             >
               <FaPlus />
             </button>
-          </div>
+          </span>
         )}
       </div>
     </div>

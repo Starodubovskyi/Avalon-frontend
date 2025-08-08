@@ -1,8 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FaEdit, FaSave, FaPlus, FaTrash, FaShip } from "react-icons/fa";
+import {
+  FaEdit,
+  FaSave,
+  FaPlus,
+  FaTrash,
+  FaShip,
+  FaCheckCircle,
+  FaRegCircle,
+} from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import countries from "i18n-iso-countries";
@@ -14,6 +22,10 @@ import Gallery from "./Gallery";
 
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en"));
+
+type Membership = {
+  plan: "Basic" | "Pro" | "Business";
+};
 
 type User = {
   name: string;
@@ -28,6 +40,10 @@ type User = {
   tags?: string[];
   gallery?: string[];
   activityData?: { date: string; value: number }[];
+  phone?: string;
+  address?: string;
+  insurance?: string;
+  membership?: Membership;
 };
 
 type Company = {
@@ -35,6 +51,8 @@ type Company = {
   logoUrl?: string;
   activity?: string;
 };
+
+type Task = { id: string; title: string; due?: string; done: boolean };
 
 export default function UserProfile() {
   const router = useRouter();
@@ -55,8 +73,18 @@ export default function UserProfile() {
     tags: [],
     gallery: [],
     activityData: [],
+    phone: "",
+    address: "",
+    insurance: "",
+    membership: { plan: "Basic" },
   });
   const [birthDateObj, setBirthDateObj] = useState<Date | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const tasksKey = useMemo(
+    () => `profileTasks:${formData.email || "anon"}`,
+    [formData.email]
+  );
 
   useEffect(() => {
     const storedUser = localStorage.getItem("currentUser");
@@ -70,10 +98,12 @@ export default function UserProfile() {
         tags: parsedUser.tags || [],
         gallery: parsedUser.gallery || [],
         activityData: parsedUser.activityData || generateFakeActivity(),
+        phone: parsedUser.phone || "",
+        address: parsedUser.address || "",
+        insurance: parsedUser.insurance || "",
+        membership: parsedUser.membership || { plan: "Basic" },
       });
-      if (parsedUser.birthDate) {
-        setBirthDateObj(new Date(parsedUser.birthDate));
-      }
+      if (parsedUser.birthDate) setBirthDateObj(new Date(parsedUser.birthDate));
     }
 
     const storedCompany = localStorage.getItem("company");
@@ -86,6 +116,36 @@ export default function UserProfile() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    const t = localStorage.getItem(tasksKey);
+    if (t) {
+      setTasks(JSON.parse(t));
+    } else {
+      const seed: Task[] = [
+        {
+          id: "t1",
+          title: "Contact client for outstanding invoices (Monthly)",
+          due: "Mon, 16 Aug",
+          done: false,
+        },
+        {
+          id: "t2",
+          title: "Share consultation forms before the next appointment",
+          due: "Tue, 25 Aug",
+          done: false,
+        },
+        {
+          id: "t3",
+          title: "Schedule next personal consultation",
+          due: "Wed, 26 Aug",
+          done: true,
+        },
+      ];
+      setTasks(seed);
+      localStorage.setItem(tasksKey, JSON.stringify(seed));
+    }
+  }, [tasksKey]);
 
   function generateFakeActivity() {
     const arr = [];
@@ -101,7 +161,7 @@ export default function UserProfile() {
     return arr;
   }
 
-  const saveProfile = (updatedData: User) => {
+  const persistUser = (updatedData: User) => {
     localStorage.setItem("currentUser", JSON.stringify(updatedData));
     setUser(updatedData);
     const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
@@ -117,7 +177,7 @@ export default function UserProfile() {
       ...formData,
       birthDate: birthDateObj?.toISOString(),
     };
-    saveProfile(userToSave);
+    persistUser(userToSave);
     setEditMode(false);
   };
 
@@ -138,16 +198,11 @@ export default function UserProfile() {
   };
 
   const compressImage = async (file: File): Promise<File> => {
-    const options = {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1024,
-      useWebWorker: true,
-    };
+    const options = { maxSizeMB: 0.3, maxWidthOrHeight: 1024, useWebWorker: true };
     try {
       const compressedFile = await imageCompression(file, options);
       return compressedFile;
-    } catch (error) {
-      console.error("Error compressing image:", error);
+    } catch {
       return file;
     }
   };
@@ -164,24 +219,24 @@ export default function UserProfile() {
     const compressed = await compressImage(file);
     const base64 = await fileToBase64(compressed);
     const updatedData = { ...formData, profileImage: base64 };
-    saveProfile(updatedData);
+    persistUser(updatedData);
   };
 
   const onDeleteAvatar = () => {
     const updatedData = { ...formData, profileImage: "" };
-    saveProfile(updatedData);
+    persistUser(updatedData);
   };
 
   const onAddTag = (tag: string) => {
     if (!formData.tags?.includes(tag)) {
       const newTags = [...(formData.tags || []), tag];
-      saveProfile({ ...formData, tags: newTags });
+      persistUser({ ...formData, tags: newTags });
     }
   };
 
   const onRemoveTag = (tag: string) => {
     const newTags = (formData.tags || []).filter((t) => t !== tag);
-    saveProfile({ ...formData, tags: newTags });
+    persistUser({ ...formData, tags: newTags });
   };
 
   const onAddImage = async (file: File) => {
@@ -189,12 +244,12 @@ export default function UserProfile() {
     const base64 = await fileToBase64(compressed);
     const newGallery = [...(formData.gallery || []), base64];
     const updatedData = { ...formData, gallery: newGallery };
-    saveProfile(updatedData);
+    persistUser(updatedData);
   };
 
   const onRemoveImage = (idx: number) => {
     const newGallery = (formData.gallery || []).filter((_, i) => i !== idx);
-    saveProfile({ ...formData, gallery: newGallery });
+    persistUser({ ...formData, gallery: newGallery });
   };
 
   const onLogout = () => {
@@ -213,189 +268,299 @@ export default function UserProfile() {
       tags: [],
       gallery: [],
       activityData: [],
+      phone: "",
+      address: "",
+      insurance: "",
+      membership: { plan: "Basic" },
     });
     router.push("/");
   };
 
+  const toggleTask = (id: string) => {
+    const next = tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
+    setTasks(next);
+    localStorage.setItem(tasksKey, JSON.stringify(next));
+  };
+
+  const goUpgrade = () => {
+    
+    router.push("/pricing");
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="col-span-1 space-y-6">
-        <ProfileHeader
-          name={formData.name}
-          lastName={formData.lastName}
-          bio={formData.bio}
-          profileImage={formData.profileImage}
-          tags={formData.tags || []}
-          editMode={editMode}
-          onUploadAvatar={onUploadAvatar}
-          onDeleteAvatar={onDeleteAvatar}
-          onAddTag={onAddTag}
-          onRemoveTag={onRemoveTag}
-          onLogout={onLogout}
-        />
+      {/* Левая колонка */}
+      <aside className="col-span-1">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+          <ProfileHeader
+            name={formData.name}
+            lastName={formData.lastName}
+            bio={formData.bio}
+            profileImage={formData.profileImage}
+            tags={formData.tags || []}
+            editMode={editMode}
+            onUploadAvatar={onUploadAvatar}
+            onDeleteAvatar={onDeleteAvatar}
+            onAddTag={onAddTag}
+            onRemoveTag={onRemoveTag}
+            onLogout={onLogout}
+          />
 
-        {company?.businessName && (
-          <a
-            href="/companyprofile"
-            className="block bg-white/10 border border-gray-400 shadow-lg rounded-xl p-4 flex items-center gap-4 hover:shadow-xl transition dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md"
-          >
-            <div className="w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-              {company.logoUrl ? (
-                <img
-                  src={company.logoUrl}
-                  alt="Company Logo"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <FaShip className="text-xl text-gray-600 dark:text-gray-400" />
-              )}
-            </div>
-            <div className="flex flex-col">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                {company.businessName}
+          <div className="mt-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Info
               </h3>
-              <p className="text-xs text-gray-700 dark:text-gray-400">
-                {company.activity || "No activity"}
-              </p>
-            </div>
-          </a>
-        )}
-      </div>
-
-      <div className="col-span-2 space-y-6">
-        <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 relative dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
-          <button
-            onClick={() => (editMode ? handleSave() : setEditMode(true))}
-            className="absolute top-4 right-4 text-gray-700 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-400"
-            type="button"
-          >
-            {editMode ? <FaSave /> : <FaEdit />}
-          </button>
-
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4">
-            Personal Info
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
-                First Name
-              </label>
-              {editMode ? (
-                <input
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
-                />
-              ) : (
-                <p className="text-gray-900 dark:text-gray-200">{user?.name}</p>
-              )}
+              <button
+                onClick={() => (editMode ? handleSave() : setEditMode(true))}
+                className="text-xs inline-flex items-center gap-2 text-blue-700 dark:text-blue-400 hover:underline"
+                type="button"
+              >
+                {editMode ? (
+                  <>
+                    <FaSave /> Save
+                  </>
+                ) : (
+                  <>
+                    <FaEdit /> Edit
+                  </>
+                )}
+              </button>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
-                Last Name *
-              </label>
-              {editMode ? (
-                <input
-                  value={formData.lastName}
-                  required
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
-                />
-              ) : (
-                <p className="text-gray-900 dark:text-gray-200">
-                  {user?.lastName}
-                </p>
-              )}
-            </div>
+            <dl className="mt-3 space-y-3 text-sm">
+              <Row label="Email">
+                {user?.email ? (
+                  <a
+                    className="text-blue-700 dark:text-blue-400 hover:underline break-all"
+                    href={`mailto:${user.email}`}
+                  >
+                    {user.email}
+                  </a>
+                ) : (
+                  "—"
+                )}
+              </Row>
 
-            <div>
-              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
-                Email
-              </label>
-              <p className="text-gray-900 dark:text-gray-200">{user?.email}</p>
-            </div>
+              <Row label="Phone number">
+                {editMode ? (
+                  <input
+                    value={formData.phone || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                  />
+                ) : formData.phone ? (
+                  <a
+                    className="text-blue-700 dark:text-blue-400 hover:underline"
+                    href={`tel:${formData.phone}`}
+                  >
+                    {formData.phone}
+                  </a>
+                ) : (
+                  "—"
+                )}
+              </Row>
 
-            <div>
-              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
-                Country
-              </label>
-              {editMode ? (
-                <select
-                  value={formData.country || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, country: e.target.value })
-                  }
-                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
-                >
-                  <option value="">Select a country</option>
-                  {countryList.map(([code, name]) => (
-                    <option key={code} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-gray-900 dark:text-gray-200">
-                  {user?.country || "—"}
-                </p>
-              )}
-            </div>
+              <Row label="Date of birth">
+                {editMode ? (
+                  <DatePicker
+                    selected={birthDateObj}
+                    onChange={(date) => setBirthDateObj(date)}
+                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    placeholderText="Select birth date"
+                    maxDate={new Date()}
+                    dateFormat="dd/MM/yyyy"
+                    required
+                  />
+                ) : user?.birthDate ? (
+                  new Date(user.birthDate).toLocaleDateString()
+                ) : (
+                  "—"
+                )}
+              </Row>
 
-            <div>
-              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
-                Birth Date *
-              </label>
-              {editMode ? (
-                <DatePicker
-                  selected={birthDateObj}
-                  onChange={(date) => setBirthDateObj(date)}
-                  className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select"
-                  placeholderText="Select birth date"
-                  maxDate={new Date()}
-                  dateFormat="dd/MM/yyyy"
-                  required
-                />
-              ) : (
-                <p className="text-gray-900 dark:text-gray-200">
-                  {user?.birthDate
-                    ? new Date(user.birthDate).toLocaleDateString()
-                    : "—"}
-                </p>
-              )}
-            </div>
+              <Row label="Home address">
+                {editMode ? (
+                  <input
+                    value={formData.address || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                  />
+                ) : formData.address ? (
+                  formData.address
+                ) : (
+                  "—"
+                )}
+              </Row>
+
+              <Row label="Country">
+                {editMode ? (
+                  <select
+                    value={formData.country || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, country: e.target.value })
+                    }
+                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                  >
+                    <option value="">Select a country</option>
+                    {countryList.map(([code, name]) => (
+                      <option key={code} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  user?.country || "—"
+                )}
+              </Row>
+
+              <Row label="Insurance">
+                {editMode ? (
+                  <input
+                    value={formData.insurance || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, insurance: e.target.value })
+                    }
+                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                  />
+                ) : formData.insurance ? (
+                  formData.insurance
+                ) : (
+                  "—"
+                )}
+              </Row>
+            </dl>
           </div>
 
-          {editMode && (
-            <div className="mt-4">
-              <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
-                Bio
-              </label>
-              <textarea
-                value={formData.bio || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, bio: e.target.value })
-                }
-                rows={3}
-                className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
-              />
-            </div>
+          {company?.businessName && (
+            <a
+              href="/companyprofile"
+              className="mt-6 block rounded-xl border border-gray-200 bg-white p-4 hover:shadow-md transition dark:bg-black/30 dark:border-white/10"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                  {company.logoUrl ? (
+                    <img
+                      src={company.logoUrl}
+                      alt="Company Logo"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FaShip className="text-xl text-gray-600 dark:text-gray-400" />
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                    {company.businessName}
+                  </h3>
+                  <p className="text-xs text-gray-700 dark:text-gray-400">
+                    {company.activity || "No activity"}
+                  </p>
+                </div>
+              </div>
+            </a>
           )}
 
-          <div className="mt-4">
-            <label className="text-sm text-gray-700 dark:text-gray-400 mb-1 block">
-              Links
-            </label>
+          <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden dark:border-white/10">
+            <div className="p-4 bg-white dark:bg-black/30">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Membership
+              </h3>
+              <div className="mt-3 text-sm text-gray-700 dark:text-gray-300">
+                Member Level:
+                <span className="ml-2 inline-flex items-center rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                  {(formData.membership?.plan || "Basic").toUpperCase()}
+                </span>
+              </div>
+              <div className="mt-3 h-12 rounded-xl border border-gray-100 bg-gray-50 dark:border-white/10 dark:bg-white/5" />
+            </div>
+            <div className="bg-gray-50 p-4 dark:bg-white/5">
+              <button
+                type="button"
+                onClick={goUpgrade}
+                className="w-full rounded-full bg-black py-2 text-sm font-semibold text-white dark:bg-white dark:text-black"
+              >
+                Upgrade
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section className="col-span-2 space-y-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              Latest tasks
+            </h3>
+            <button
+              type="button"
+              className="text-sm text-blue-700 hover:underline dark:text-blue-400"
+              onClick={() => {
+                const title = prompt("New task title");
+                if (!title) return;
+                const t: Task = { id: crypto.randomUUID(), title, done: false };
+                const next = [t, ...tasks];
+                setTasks(next);
+                localStorage.setItem(tasksKey, JSON.stringify(next));
+              }}
+            >
+              Show all
+            </button>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {tasks.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => toggleTask(t.id)}
+                className={[
+                  "w-full text-left rounded-xl border px-3 py-2 flex items-center gap-3 transition",
+                  "border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5",
+                  t.done ? "opacity-70 line-through" : "",
+                ].join(" ")}
+              >
+                <span className="shrink-0">
+                  {t.done ? (
+                    <FaCheckCircle className="text-blue-600 dark:text-blue-400" />
+                  ) : (
+                    <FaRegCircle className="text-gray-400" />
+                  )}
+                </span>
+                <span className="flex-1 text-sm text-gray-900 dark:text-gray-100">
+                  {t.title}
+                </span>
+                {t.due && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                    {t.due}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              Pinned documents & files
+            </h3>
+            <span className="text-sm text-blue-700 hover:underline dark:text-blue-400">
+              Show all
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-4">
             {editMode ? (
-              <div className="space-y-2">
+              <div className="w-full space-y-2">
                 {formData.links?.map((link, i) => (
                   <div key={i} className="flex gap-2">
                     <input
@@ -407,6 +572,7 @@ export default function UserProfile() {
                       onClick={() => removeLink(i)}
                       className="text-red-700"
                       type="button"
+                      title="Remove link"
                     >
                       <FaTrash />
                     </button>
@@ -414,39 +580,64 @@ export default function UserProfile() {
                 ))}
                 <button
                   onClick={addLink}
-                  className="mt-2 inline-flex items-center text-sm text-blue-700 hover:underline"
+                  className="mt-2 inline-flex items-center text-sm text-blue-700 hover:underline dark:text-blue-400"
                   type="button"
                 >
                   <FaPlus className="mr-1" /> Add link
                 </button>
               </div>
             ) : user?.links && user.links.length > 0 ? (
-              <ul className="list-disc pl-5 text-blue-700">
-                {user.links.map((link, i) => (
-                  <li key={i}>
-                    <a
-                      href={link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:underline"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              user.links.map((link, i) => (
+                <a
+                  key={i}
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:underline dark:bg-blue-900/30 dark:text-blue-300"
+                >
+                  {link}
+                </a>
+              ))
             ) : (
-              <p className="text-gray-500">—</p>
+              <span className="text-sm text-gray-500">No links yet.</span>
             )}
           </div>
+
+          <Gallery
+            images={formData.gallery || []}
+            onAddImage={onAddImage}
+            onRemoveImage={onRemoveImage}
+          />
         </div>
 
-        <Gallery
-          images={formData.gallery || []}
-          onAddImage={onAddImage}
-          onRemoveImage={onRemoveImage}
-        />
-      </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">
+            Latest activity
+          </h3>
+          <ul className="space-y-3">
+            {(formData.activityData || []).slice(-5).map((a, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <div className="mt-1 h-2 w-2 rounded-full bg-gray-400" />
+                <div className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+                  Updated personal client information
+                  <span className="ml-2 text-xs text-blue-700 dark:text-blue-400">
+                    {a.date}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-3 gap-3">
+      <dt className="col-span-1 text-gray-500">{label}</dt>
+      <dd className="col-span-2 text-gray-900 dark:text-gray-100">{children}</dd>
     </div>
   );
 }

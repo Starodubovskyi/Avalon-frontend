@@ -33,7 +33,6 @@ export default function CompanyProfile() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-0 bg-gray-100 dark:bg-gray-900">
-      {/* If no company, show create form */}
       {!company && !showForm && (
         <div className="text-center">
           <p className="text-gray-700 dark:text-gray-300 mb-4 text-lg">
@@ -48,7 +47,6 @@ export default function CompanyProfile() {
         </div>
       )}
 
-      {/* Show company profile or edit form */}
       {company && !showForm && !editMode && (
         <div className="relative w-full h-full max-w-full">
           <CompanyCard company={company} />
@@ -69,7 +67,6 @@ export default function CompanyProfile() {
         </div>
       )}
 
-      {/* Show the company registration form or editing mode */}
       {(showForm || editMode) && (
         <CompanyRegistrationForm
           onSubmit={handleCompanyCreated}

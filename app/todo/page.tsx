@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect, useRef } from "react";
 import {
   DndContext,
@@ -33,21 +33,24 @@ const STATUSES = [
   {
     id: "todo",
     label: "To Do",
-    color: "bg-gradient-to-b from-purple-800/40 to-purple-900/60 border-purple-500/30",
+    color:
+      "bg-gradient-to-b from-purple-800/40 to-purple-900/60 border-purple-500/30",
     dot: "bg-purple-400/80",
     shadow: "shadow-[0_8px_32px_0_rgba(64,0,128,0.13)]",
   },
   {
     id: "inprogress",
     label: "In Progress",
-    color: "bg-gradient-to-b from-cyan-800/40 to-cyan-900/60 border-cyan-500/30",
+    color:
+      "bg-gradient-to-b from-cyan-800/40 to-cyan-900/60 border-cyan-500/30",
     dot: "bg-cyan-300/80",
     shadow: "shadow-[0_8px_32px_0_rgba(0,220,240,0.13)]",
   },
   {
     id: "done",
     label: "Done",
-    color: "bg-gradient-to-b from-emerald-800/40 to-emerald-900/60 border-emerald-500/30",
+    color:
+      "bg-gradient-to-b from-emerald-800/40 to-emerald-900/60 border-emerald-500/30",
     dot: "bg-emerald-400/80",
     shadow: "shadow-[0_8px_32px_0_rgba(0,128,64,0.12)]",
   },
@@ -91,7 +94,14 @@ function KanbanCard({
   const sortable =
     task.status !== "done"
       ? useSortable({ id: task.id })
-      : { attributes: {}, listeners: {}, setNodeRef: undefined, transform: undefined, transition: undefined, isDragging: false };
+      : {
+          attributes: {},
+          listeners: {},
+          setNodeRef: undefined,
+          transform: undefined,
+          transition: undefined,
+          isDragging: false,
+        };
 
   const style: React.CSSProperties =
     sortable.setNodeRef && sortable.transform
@@ -111,7 +121,8 @@ function KanbanCard({
       {...sortable.listeners}
       className={clsx(
         "flex items-center group gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-3 mb-3 backdrop-blur-md shadow-sm hover:shadow-lg transition",
-        task.status === "done" && "border-emerald-500/40 bg-emerald-300/10 text-emerald-100/90"
+        task.status === "done" &&
+          "border-emerald-500/40 bg-emerald-300/10 text-emerald-100/90"
       )}
     >
       <div className="flex flex-col items-center mr-2 gap-1">
@@ -365,113 +376,116 @@ export default function KanbanBoard() {
 
   return (
     <MainLayout>
-
-    <div
-      className="min-h-screen w-full flex flex-col items-center px-2 py-10"
-      style={{
-        background:
-        "linear-gradient(120deg,rgba(20,18,34,0.78) 0%,rgba(26,22,44,0.72) 70%,rgba(24,24,30,0.64) 100%)",
-        backdropFilter: "blur(12px)",
-      }}
+      <div
+        className="min-h-screen w-full flex flex-col items-center px-2 py-10"
+        style={{
+          background:
+            "linear-gradient(120deg,rgba(20,18,34,0.78) 0%,rgba(26,22,44,0.72) 70%,rgba(24,24,30,0.64) 100%)",
+          backdropFilter: "blur(12px)",
+        }}
       >
-      <h1 className="text-3xl font-extrabold text-white/90 flex items-center gap-3 mb-10 drop-shadow-sm">
-        <CheckSquare className="w-9 h-9 text-purple-300/90" />
-        My To Do Board
-      </h1>
-      <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 items-stretch">
-        {STATUSES.map((col) => (
-          <DndContext
-          key={col.id}
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragStart={() => setActiveCol(col.id)}
-            onDragEnd={onDragEnd}
+        <h1 className="text-3xl font-extrabold text-white/90 flex items-center gap-3 mb-10 drop-shadow-sm">
+          <CheckSquare className="w-9 h-9 text-purple-300/90" />
+          My To Do Board
+        </h1>
+        <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8 items-stretch">
+          {STATUSES.map((col) => (
+            <DndContext
+              key={col.id}
+              sensors={sensors}
+              collisionDetection={closestCorners}
+              onDragStart={() => setActiveCol(col.id)}
+              onDragEnd={onDragEnd}
             >
-            <SortableContext
-              id={col.id}
-              items={tasks[col.id].map((t) => t.id)}
-              strategy={verticalListSortingStrategy}
+              <SortableContext
+                id={col.id}
+                items={tasks[col.id].map((t) => t.id)}
+                strategy={verticalListSortingStrategy}
               >
-              <div
-                className={clsx(
-                  "flex-1 min-w-[260px] rounded-3xl border-2 flex flex-col px-5 py-5",
-                  col.color,
-                  col.shadow,
-                  "backdrop-blur-md border-white/20"
-                )}
+                <div
+                  className={clsx(
+                    "flex-1 min-w-[260px] rounded-3xl border-2 flex flex-col px-5 py-5",
+                    col.color,
+                    col.shadow,
+                    "backdrop-blur-md border-white/20"
+                  )}
                 >
-                <div className="flex items-center gap-2 mb-4">
-                  <span className={clsx("w-3 h-3 rounded-full", col.dot)} />
-                  <h2 className="font-bold text-lg text-white/80 tracking-wide">{col.label}</h2>
-                  <span
-                    className={clsx(
-                      "ml-auto text-xs font-bold",
-                      col.id === "todo" && "text-purple-200",
-                      col.id === "inprogress" && "text-cyan-200",
-                      col.id === "done" && "text-emerald-100"
-                    )}
-                  >
-                    {tasks[col.id].length}
-                  </span>
-                </div>
-                {col.id === "todo" && (
-                  <div className="flex gap-2 mb-5">
-                    <input
-                      ref={inputRef}
-                      className="flex-1 px-3 py-2 rounded-xl border border-white/20 bg-white/10 text-white focus:outline-none text-base shadow-inner placeholder-gray-400/70"
-                      type="text"
-                      placeholder="Add task..."
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") addTask();
-                      }}
-                      />
-                    <button
-                      className="bg-purple-700/70 hover:bg-purple-700 text-white px-4 py-2 rounded-xl shadow transition active:scale-95 flex items-center"
-                      onClick={addTask}
-                      aria-label="Add task"
-                      >
-                      <Plus className="w-5 h-5" />
-                    </button>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className={clsx("w-3 h-3 rounded-full", col.dot)} />
+                    <h2 className="font-bold text-lg text-white/80 tracking-wide">
+                      {col.label}
+                    </h2>
+                    <span
+                      className={clsx(
+                        "ml-auto text-xs font-bold",
+                        col.id === "todo" && "text-purple-200",
+                        col.id === "inprogress" && "text-cyan-200",
+                        col.id === "done" && "text-emerald-100"
+                      )}
+                    >
+                      {tasks[col.id].length}
+                    </span>
                   </div>
-                )}
-                <div className="flex flex-col flex-1 min-h-[40px]">
-                  {tasks[col.id].length === 0 && (
-                    <div className="text-xs text-white/40 text-center py-6">
-                      {col.id === "todo" && "No tasks yet"}
-                      {col.id === "inprogress" && "Nothing in progress"}
-                      {col.id === "done" && "No tasks done"}
+                  {col.id === "todo" && (
+                    <div className="flex gap-2 mb-5">
+                      <input
+                        ref={inputRef}
+                        className="flex-1 px-3 py-2 rounded-xl border border-white/20 bg-white/10 text-white focus:outline-none text-base shadow-inner placeholder-gray-400/70"
+                        type="text"
+                        placeholder="Add task..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") addTask();
+                        }}
+                      />
+                      <button
+                        className="bg-purple-700/70 hover:bg-purple-700 text-white px-4 py-2 rounded-xl shadow transition active:scale-95 flex items-center"
+                        onClick={addTask}
+                        aria-label="Add task"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
                     </div>
                   )}
-                  {tasks[col.id].map((task, idx) => (
-                    <KanbanCard
-                      key={task.id}
-                      task={task}
-                      index={idx}
-                      total={tasks[col.id].length}
-                      onEdit={startEdit}
-                      onDelete={deleteTask}
-                      onComplete={completeTask}
-                      editingId={editingId}
-                      editText={editText}
-                      setEditText={setEditText}
-                      saveEdit={saveEdit}
-                      cancelEdit={cancelEdit}
-                      onMove={moveTask}
-                      onMoveToInProgress={col.id === "todo" ? moveToInProgress : undefined}
+                  <div className="flex flex-col flex-1 min-h-[40px]">
+                    {tasks[col.id].length === 0 && (
+                      <div className="text-xs text-white/40 text-center py-6">
+                        {col.id === "todo" && "No tasks yet"}
+                        {col.id === "inprogress" && "Nothing in progress"}
+                        {col.id === "done" && "No tasks done"}
+                      </div>
+                    )}
+                    {tasks[col.id].map((task, idx) => (
+                      <KanbanCard
+                        key={task.id}
+                        task={task}
+                        index={idx}
+                        total={tasks[col.id].length}
+                        onEdit={startEdit}
+                        onDelete={deleteTask}
+                        onComplete={completeTask}
+                        editingId={editingId}
+                        editText={editText}
+                        setEditText={setEditText}
+                        saveEdit={saveEdit}
+                        cancelEdit={cancelEdit}
+                        onMove={moveTask}
+                        onMoveToInProgress={
+                          col.id === "todo" ? moveToInProgress : undefined
+                        }
                       />
                     ))}
+                  </div>
                 </div>
-              </div>
-            </SortableContext>
-          </DndContext>
-        ))}
+              </SortableContext>
+            </DndContext>
+          ))}
+        </div>
+        <div className="mt-8 text-xs text-white/40">
+          You can control your tasks
+        </div>
       </div>
-      <div className="mt-8 text-xs text-white/40">
-        You can control your tasks
-      </div>
-    </div>
-        </MainLayout>
+    </MainLayout>
   );
 }
