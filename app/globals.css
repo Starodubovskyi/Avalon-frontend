@@ -76,12 +76,16 @@
 
   html {
     scroll-behavior: smooth;
+    min-height: 100%; /* Используем min-height, чтобы страница занимала всю высоту */
+    overflow-x: hidden; /* Скрываем только горизонтальный скролл */
   }
 }
 
 @layer components {
   .navbar-container {
     @apply bg-white dark:bg-gray-900 text-black dark:text-white shadow-md border-b border-gray-200 dark:border-gray-700;
+    max-width: 100%;
+    overflow-x: hidden; /* Скрываем только горизонтальный скролл */
   }
 }
 
@@ -102,8 +106,18 @@
   @apply w-full rounded border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap");
 
-html, body {
-  font-family: 'Inter', sans-serif;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%; /* Используем min-height, чтобы страница занимала всю высоту */
+  overflow-x: hidden; /* Скрываем горизонтальный скролл */
+}
+
+.main-content {
+  height: calc(100vh - 64px); /* Учитываем высоту навбара */
+  overflow-y: auto; /* Включаем вертикальный скролл */
+  overflow-x: hidden; /* Скрываем горизонтальный скролл */
 }

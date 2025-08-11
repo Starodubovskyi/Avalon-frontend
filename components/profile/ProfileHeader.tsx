@@ -47,7 +47,7 @@ export default function ProfileHeader({
   };
 
   return (
-    <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 text-center flex flex-col items-center dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
+    <div className="bg-white border border-gray-400 shadow-lg rounded-xl p-6 text-center flex flex-col items-center dark:bg-white/10 dark:border-white/30 dark:shadow-white/20">
       <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-6xl text-gray-600 dark:text-gray-400 overflow-hidden relative">
         {profileImage ? (
           <img

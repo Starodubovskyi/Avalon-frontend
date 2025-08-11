@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import TopProfileNavbar from "@/components/profile/TopProfileNavbar";
 import UserProfile from "@/components/profile/UserProfile";
 import MainLayout from "@/components/layout/MainLayout";
-import BackgroundAnimation from "@/components/layout/BackgroundAnimation";
 
 const CompanyProfile = dynamic(
   () => import("@/components/companyprofile/CompanyProfile"),
@@ -31,19 +30,18 @@ export default function ProfilePage() {
 
   return (
     <MainLayout>
-      <div className="relative flex min-h-screen">
-        <BackgroundAnimation />
+      <div className="flex min-h-screen bg-gray-100 dark:bg-black">
         <div
           className="
-          flex-1 p-6
-          bg-white/10
-          border border-gray-200
-          shadow
-          dark:bg-black/20
-          dark:border-white/10
-          dark:shadow-white/10
-          backdrop-blur-md
-        "
+            flex-1 p-6
+            bg-white
+            border border-gray-200
+            shadow
+            dark:bg-white/5
+            dark:border-white/10
+            dark:shadow-white/10
+            overflow-x-hidden /* Убирает горизонтальный скролл */
+          "
         >
           <TopProfileNavbar />
           <div className="mt-6">{renderTab()}</div>

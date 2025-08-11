@@ -237,7 +237,7 @@ export default function UserProfile() {
         {company?.businessName && (
           <a
             href="/companyprofile"
-            className="block bg-white/10 border border-gray-400 shadow-lg rounded-xl p-4 flex items-center gap-4 hover:shadow-xl transition dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md"
+            className="block bg-white border border-gray-400 shadow-lg rounded-xl p-4 flex items-center gap-4 hover:shadow-xl transition dark:bg-white/10 dark:border-white/30 dark:shadow-white/20"
           >
             <div className="w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800">
               {company.logoUrl ? (
@@ -263,7 +263,7 @@ export default function UserProfile() {
       </div>
 
       <div className="col-span-2 space-y-6">
-        <div className="bg-white/10 border border-gray-400 shadow-lg rounded-xl p-6 relative dark:bg-black/20 dark:border-white/30 dark:shadow-white/20 backdrop-blur-md">
+        <div className="bg-white border border-gray-400 shadow-lg rounded-xl p-6 relative dark:bg-white/10 dark:border-white/30 dark:shadow-white/20">
           <button
             onClick={() => (editMode ? handleSave() : setEditMode(true))}
             className="absolute top-4 right-4 text-gray-700 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-400"

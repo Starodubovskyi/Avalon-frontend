@@ -34,7 +34,6 @@ interface CompaniesViewProps {
   businessSectors: BusinessSectorGroup[];
   onBackClick: () => void;
 }
-
 const CompaniesView: React.FC<CompaniesViewProps> = ({
   searchTerm,
   setSearchTerm,
@@ -68,7 +67,7 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
               <div className="flex items-center justify-between mb-6">
                 <Button
                   variant="default"
-                  onClick={onBackClick}
+                  onClick={onBackClick ?? (() => window.history.back())}
                   className="rounded-full bg-black text-white hover:bg-gray-800 dark:bg-blue-900 dark:hover:bg-blue-800 mr-4 transition-colors duration-300"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" /> Back

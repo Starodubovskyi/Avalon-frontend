@@ -86,9 +86,7 @@ const Sidebar = () => {
           <span
             className={clsx(
               "text-sm font-medium truncate transition-opacity duration-300",
-              isSidebarExpanded
-                ? "opacity-100"
-                : "opacity-0 group-hover:opacity-100"
+              isSidebarExpanded ? "opacity-100" : "opacity-100"
             )}
           >
             {label}
@@ -106,7 +104,7 @@ const Sidebar = () => {
             "text-sm font-medium truncate transition-opacity duration-300 flex-1 text-left",
             isSidebarExpanded
               ? "opacity-100"
-              : "opacity-0 group-hover:opacity-100"
+              : "opacity-100 group-hover:opacity-100"
           )}
         >
           Applications
@@ -139,7 +137,7 @@ const Sidebar = () => {
                   "text-sm truncate transition-opacity duration-300",
                   isSidebarExpanded
                     ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100"
+                    : "opacity-100 group-hover:opacity-100"
                 )}
               >
                 {label}
@@ -159,7 +157,7 @@ const Sidebar = () => {
             "text-sm font-medium truncate transition-opacity duration-300 flex-1 text-left",
             isSidebarExpanded
               ? "opacity-100"
-              : "opacity-0 group-hover:opacity-100"
+              : "opacity-100 group-hover:opacity-100"
           )}
         >
           Admin Panel
@@ -191,7 +189,7 @@ const Sidebar = () => {
                   "text-sm truncate transition-opacity duration-300",
                   isSidebarExpanded
                     ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100"
+                    : "opacity-100 group-hover:opacity-100"
                 )}
               >
                 {label}
@@ -204,16 +202,56 @@ const Sidebar = () => {
   );
 
   return (
-    <div
-      className={clsx(
-        "hidden lg:flex sticky top-0 h-screen transition-all duration-300 overflow-hidden",
-        "bg-white/10 border border-gray-200 shadow dark:bg-black/20 dark:border-white/10 dark:shadow-white/10 backdrop-blur-md",
-        isSidebarExpanded ? "w-48" : "w-16"
-      )}
-      onMouseEnter={() => setIsSidebarExpanded(true)}
-      onMouseLeave={() => setIsSidebarExpanded(false)}
-    >
-      {SidebarLinks()}
+    <div className="bg-gray-100 dark:bg-black">
+      <div
+        className="
+          bg-white 
+          border border-gray-200 
+          shadow 
+          dark:bg-white/5 
+          dark:border-white/10 
+          dark:shadow-white/10
+        "
+      >
+        <div
+          className={clsx(
+            "hidden lg:flex sticky top-0 h-screen transition-all duration-300 overflow-hidden bg-transparent border-none shadow-none flex-col z-40",
+            isSidebarExpanded ? "w-48" : "w-16"
+          )}
+          onMouseEnter={() => setIsSidebarExpanded(true)}
+          onMouseLeave={() => setIsSidebarExpanded(false)}
+        >
+          {SidebarLinks()}
+        </div>
+
+        <button
+          className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-2 rounded-full shadow-md lg:hidden hover:bg-blue-700"
+          onClick={() => setIsMobileOpen(true)}
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+
+        {/* Mobile sidebar */}
+        {isMobileOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50"
+              onClick={() => setIsMobileOpen(false)}
+            />
+            <div className="ml-auto h-full w-64 bg-white dark:bg-black shadow-lg relative flex flex-col">
+              <div className="flex justify-between items-center px-4 py-3 border-b border-gray-300 dark:border-white/10">
+                <span className="text-lg font-semibold text-gray-900 dark:text-gray-200">
+                  Menu
+                </span>
+                <button onClick={() => setIsMobileOpen(false)}>
+                  <X className="w-6 h-6 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">{SidebarLinks()}</div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
