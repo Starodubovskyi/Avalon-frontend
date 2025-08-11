@@ -9,6 +9,7 @@ import ChatInput from "./ChatInput";
 import ForwardUserSelector from "./ForwardUserSelector";
 import clsx from "clsx";
 import { X } from "lucide-react";
+import UserInfoModal from "./UserInfoModal";
 
 type Reaction = {
   emoji: string;
@@ -67,12 +68,10 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     MessageWithReactions[] | null
   >(null);
 
-  // Храним закрепленные сообщения для каждого пользователя отдельно
   const [pinnedMessagesByUser, setPinnedMessagesByUser] = useState<
     Record<string, MessageWithReactions[]>
   >({});
 
-  // Активный индекс закрепленного сообщения для каждого пользователя
   const [activePinnedIndexByUser, setActivePinnedIndexByUser] = useState<
     Record<string, number>
   >({});
@@ -81,11 +80,13 @@ export default function ChatWindow({ otherUserId, users }: Props) {
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Получаем закрепленные сообщения и активный индекс для текущего пользователя
+  const [showUserInfo, setShowUserInfo] = useState(false);
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
   const pinnedMessages = pinnedMessagesByUser[otherUserId] ?? [];
   const activePinnedIndex = activePinnedIndexByUser[otherUserId] ?? 0;
 
-  // Вспомогательная функция для установки активного индекса закрепленных сообщений текущего чата
   const setActivePinnedIndexForCurrentUser = (index: number) => {
     setActivePinnedIndexByUser((prev) => ({
       ...prev,
@@ -143,7 +144,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
       return;
 
     if (editMessage) {
-      // Обновляем существующее сообщение
       const updatedMessages = messages.map((m) =>
         m.id === editMessage.id
           ? {
@@ -168,7 +168,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
       return;
     }
 
-    // Обычное добавление нового сообщения
     const filesToUrls =
       attachments?.map((file) => ({
         name: file.name,
@@ -386,7 +385,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     updateMessagesForUser(newMessages);
   };
 
-  // При начале reply сбрасываем edit и forward
   const handleReply = (msg: MessageWithReactions) => {
     setReplyToMessage(msg);
     setEditMessage(null);
@@ -397,7 +395,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     setForwardMessagesForMultiple(null);
   };
 
-  // При начале редактирования сбрасываем reply и forward
   const handleEditMessage = (msg: MessageWithReactions) => {
     setEditMessage(msg);
     setEditInputText(msg.text || "");
@@ -549,13 +546,12 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     }, 100);
   };
 
-  // Здесь не меняем логику, только заменяем setActivePinnedIndex на setActivePinnedIndexForCurrentUser
   const onPinnedTextClick = () => {
     if (pinnedMessages.length === 0) return;
 
     const newIndex =
       activePinnedIndex === 0
-        ? pinnedMessages.length - 1 // если был первый — перейти к последнему (круговой сдвиг)
+        ? pinnedMessages.length - 1
         : activePinnedIndex - 1;
 
     handleJumpToMessage(pinnedMessages[activePinnedIndex].id);
@@ -563,273 +559,261 @@ export default function ChatWindow({ otherUserId, users }: Props) {
     setActivePinnedIndexForCurrentUser(newIndex);
   };
 
+  const handleUserInfoToggle = () => {
+    setShowUserInfo(true);
+  };
+
+  const handleUserInfoClose = () => {
+    setShowUserInfo(false);
+  };
+
   return (
-    <div className="flex flex-col flex-1 h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-3">
-          {otherUser.avatar ? (
-            <img
-              src={otherUser.avatar}
-              alt={otherUser.name}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-gray-600 dark:text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                viewBox="0 0 24 24"
+    <>
+      <div className="flex flex-col flex-1 h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div
+            className="flex items-center gap-3 cursor-pointer select-none w-full"
+            onClick={handleUserInfoToggle}
+            title={`View ${otherUser.name} info`}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleUserInfoToggle();
+            }}
+            style={{ userSelect: "none" }}
+          >
+            {otherUser.avatar ? (
+              <img
+                src={otherUser.avatar}
+                alt={otherUser.name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+                  />
+                </svg>
+              </div>
+            )}
+            <div>
+              <h2 className="font-semibold text-lg">{otherUser.name}</h2>
+              <span className="text-xs text-green-500">
+                {otherUser.isOnline ? "Online" : "Offline"}
+              </span>
+            </div>
+          </div>
+
+          {selectionMode && (
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={() => {
+                  setSelectionMode(false);
+                  setSelectedMessageIds(new Set());
+                }}
+                className="px-3 py-1 rounded text-sm font-medium bg-blue-700 text-white hover:bg-blue-800"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
-                />
-              </svg>
+                Cancel Select
+              </button>
+
+              <button
+                onClick={handleSelectAll}
+                className="px-3 py-1 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Select All
+              </button>
+
+              <button
+                onClick={() => {
+                  const newMessages = messages.filter(
+                    (msg) => !selectedMessageIds.has(msg.id)
+                  );
+                  updateMessagesForUser(newMessages);
+                  setSelectedMessageIds(new Set());
+                  setSelectionMode(false);
+                  if (
+                    replyToMessage &&
+                    selectedMessageIds.has(replyToMessage.id)
+                  ) {
+                    setReplyToMessage(null);
+                  }
+                }}
+                className="px-3 py-1 rounded text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete Selected
+              </button>
+
+              <button
+                onClick={() => {
+                  const msgsToForward = messages.filter((msg) =>
+                    selectedMessageIds.has(msg.id)
+                  );
+                  setForwardMessagesForMultiple(msgsToForward);
+                  setShowForwardPanel(true);
+                  setEditMessage(null);
+                  setEditInputText("");
+                  setReplyToMessage(null);
+                }}
+                className="px-3 py-1 rounded text-sm font-medium bg-gray-500 text-white hover:bg-gray-600"
+              >
+                Forward Selected
+              </button>
             </div>
           )}
-          <div>
-            <h2 className="font-semibold text-lg">{otherUser.name}</h2>
-            <span className="text-xs text-green-500">
-              {otherUser.isOnline ? "Online" : "Offline"}
-            </span>
-          </div>
         </div>
 
-        {selectionMode && (
-          <div className="flex gap-2 items-center">
-            <button
-              onClick={() => {
-                setSelectionMode(false);
-                setSelectedMessageIds(new Set());
-              }}
-              className="px-3 py-1 rounded text-sm font-medium bg-blue-700 text-white hover:bg-blue-800"
+        {pinnedMessages.length > 0 && (
+          <div className="flex items-center px-4 py-2 border-b border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#161b22] h-14 select-none">
+            <div
+              className="flex flex-col items-center justify-center gap-1"
+              style={{ height: 24, width: 8 }}
             >
-              Cancel Select
-            </button>
+              {pinnedMessages.map((msg, idx) => {
+                const isActive = idx === activePinnedIndex;
 
-            <button
-              onClick={handleSelectAll}
-              className="px-3 py-1 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Select All
-            </button>
+                const totalHeight = 24;
+                const barHeight = totalHeight / pinnedMessages.length;
 
-            <button
-              onClick={() => {
-                const newMessages = messages.filter(
-                  (msg) => !selectedMessageIds.has(msg.id)
+                return (
+                  <div
+                    key={msg.id}
+                    onClick={() => {
+                      setActivePinnedIndexForCurrentUser(idx);
+                      handleJumpToMessage(pinnedMessages[idx].id);
+                    }}
+                    title={msg.text || "Pinned message"}
+                    className={clsx(
+                      "w-1.5 rounded cursor-pointer transition-colors duration-200",
+                      isActive
+                        ? "bg-emerald-600 border-emerald-600"
+                        : "bg-gray-400 dark:bg-gray-600 border-gray-400 dark:border-gray-600",
+                      "border"
+                    )}
+                    style={{
+                      height: barHeight,
+                      borderStyle: "solid",
+                    }}
+                  />
                 );
-                updateMessagesForUser(newMessages);
-                setSelectedMessageIds(new Set());
-                setSelectionMode(false);
-                if (
-                  replyToMessage &&
-                  selectedMessageIds.has(replyToMessage.id)
-                ) {
-                  setReplyToMessage(null);
-                }
-              }}
-              className="px-3 py-1 rounded text-sm font-medium bg-red-600 text-white hover:bg-red-700"
-            >
-              Delete Selected
-            </button>
+              })}
+            </div>
 
-            <button
-              onClick={() => {
-                const msgsToForward = messages.filter((msg) =>
-                  selectedMessageIds.has(msg.id)
-                );
-                setForwardMessagesForMultiple(msgsToForward);
-                setShowForwardPanel(true);
-                setEditMessage(null);
-                setEditInputText("");
-                setReplyToMessage(null);
-              }}
-              className="px-3 py-1 rounded text-sm font-medium bg-gray-500 text-white hover:bg-gray-600"
+            <div
+              className="ml-4 flex-1 text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer select-text"
+              onClick={onPinnedTextClick}
+              title={pinnedMessages[activePinnedIndex]?.text}
             >
-              Forward Selected
-            </button>
+              {pinnedMessages.length > 0
+                ? pinnedMessages[activePinnedIndex]?.text.length > 60
+                  ? pinnedMessages[activePinnedIndex]?.text.slice(0, 60) + "..."
+                  : pinnedMessages[activePinnedIndex]?.text
+                : ""}
+            </div>
           </div>
         )}
-      </div>
 
-      {pinnedMessages.length > 0 && (
-        <div className="flex items-center px-4 py-2 border-b border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#161b22] h-14 select-none">
-          <div
-            className="flex flex-col items-center justify-center gap-1"
-            style={{ height: 24, width: 8 }}
-          >
-            {pinnedMessages.map((msg, idx) => {
-              const isActive = idx === activePinnedIndex;
-
-              const totalHeight = 24;
-              const barHeight = totalHeight / pinnedMessages.length;
-
-              return (
-                <div
-                  key={msg.id}
-                  onClick={() => {
-                    setActivePinnedIndexForCurrentUser(idx);
-                    handleJumpToMessage(pinnedMessages[idx].id);
-                  }}
-                  title={msg.text || "Pinned message"}
-                  className={clsx(
-                    "w-1.5 rounded cursor-pointer transition-colors duration-200",
-                    isActive
-                      ? "bg-emerald-600 border-emerald-600"
-                      : "bg-gray-400 dark:bg-gray-600 border-gray-400 dark:border-gray-600",
-                    "border"
-                  )}
-                  style={{
-                    height: barHeight,
-                    borderStyle: "solid",
-                  }}
-                />
-              );
-            })}
-          </div>
-
-          <div
-            className="ml-4 flex-1 text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer select-text"
-            onClick={onPinnedTextClick}
-            title={pinnedMessages[activePinnedIndex]?.text}
-          >
-            {pinnedMessages.length > 0
-              ? pinnedMessages[activePinnedIndex]?.text.length > 60
-                ? pinnedMessages[activePinnedIndex]?.text.slice(0, 60) + "..."
-                : pinnedMessages[activePinnedIndex]?.text
-              : ""}
-          </div>
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-400/30 scrollbar-track-transparent"
+        >
+          {messages
+            .filter((msg) => !hiddenMessageIdsForCurrentUser.has(msg.id))
+            .map((msg) => (
+              <ChatMessage
+                key={msg.id}
+                message={msg}
+                isCurrentUser={msg.senderId === currentUserId}
+                sender={
+                  msg.senderId === currentUserId ? currentUser : otherUser
+                }
+                onReply={handleReply}
+                onPin={togglePinMessage}
+                onCopy={handleCopy}
+                onForward={handleForward}
+                onDelete={handleDeleteForAll}
+                onDeleteForMe={handleDeleteForMe}
+                onSelect={toggleSelectMessage}
+                onReact={handleReact}
+                userReactions={
+                  msg.reactions?.some((r) => r.userIds.includes(currentUserId))
+                    ? new Set(
+                        msg.reactions
+                          .filter((r) => r.userIds.includes(currentUserId))
+                          .map((r) => `${msg.id}_${r.emoji}`)
+                      )
+                    : new Set()
+                }
+                onJumpToMessage={handleJumpToMessage}
+                containerRef={(el) => {
+                  messageRefs.current[msg.id] = el;
+                }}
+                highlighted={highlightedMessageId === msg.id}
+                isSelected={selectionMode && selectedMessageIds.has(msg.id)}
+                showSelectCircle={selectionMode}
+                isPinned={pinnedMessages.some((m) => m.id === msg.id)}
+                onEdit={handleEditMessage}
+              />
+            ))}
+          {otherUser.isTyping && <TypingIndicator />}
+          <div ref={messagesEndRef} />
         </div>
-      )}
 
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-400/30 scrollbar-track-transparent"
-      >
-        {messages
-          .filter((msg) => !hiddenMessageIdsForCurrentUser.has(msg.id))
-          .map((msg) => (
-            <ChatMessage
-              key={msg.id}
-              message={msg}
-              isCurrentUser={msg.senderId === currentUserId}
-              sender={msg.senderId === currentUserId ? currentUser : otherUser}
-              onReply={handleReply}
-              onPin={togglePinMessage}
-              onCopy={handleCopy}
-              onForward={handleForward}
-              onDelete={handleDeleteForAll}
-              onDeleteForMe={handleDeleteForMe}
-              onSelect={toggleSelectMessage}
-              onReact={handleReact}
-              userReactions={
-                msg.reactions?.some((r) => r.userIds.includes(currentUserId))
-                  ? new Set(
-                      msg.reactions
-                        .filter((r) => r.userIds.includes(currentUserId))
-                        .map((r) => `${msg.id}_${r.emoji}`)
-                    )
-                  : new Set()
-              }
-              onJumpToMessage={handleJumpToMessage}
-              containerRef={(el) => {
-                messageRefs.current[msg.id] = el;
-              }}
-              highlighted={highlightedMessageId === msg.id}
-              isSelected={selectionMode && selectedMessageIds.has(msg.id)}
-              showSelectCircle={selectionMode}
-              isPinned={pinnedMessages.some((m) => m.id === msg.id)}
-              onEdit={handleEditMessage}
-            />
-          ))}
-        {otherUser.isTyping && <TypingIndicator />}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {showForwardPanel && (
-        <ForwardUserSelector
-          users={users}
-          currentUserId={currentUserId}
-          forwardMessages={
-            forwardMessagesForMultiple
-              ? forwardMessagesForMultiple
-              : forwardMessage
-              ? [forwardMessage]
-              : []
-          }
-          onCancel={() => {
-            cancelForwarding();
-            setForwardMessagesForMultiple(null);
-          }}
-          onForward={(userIds) => {
-            if (
-              forwardMessagesForMultiple &&
-              forwardMessagesForMultiple.length > 0
-            ) {
-              handleForwardToMultipleUsers(userIds, forwardMessagesForMultiple);
-              setSelectedMessageIds(new Set());
-              setSelectionMode(false);
-              setForwardMessagesForMultiple(null);
-            } else if (forwardMessage) {
-              handleForwardToMultipleUsers(userIds, [forwardMessage]);
+        {showForwardPanel && (
+          <ForwardUserSelector
+            users={users}
+            currentUserId={currentUserId}
+            forwardMessages={
+              forwardMessagesForMultiple
+                ? forwardMessagesForMultiple
+                : forwardMessage
+                ? [forwardMessage]
+                : []
             }
-            setShowForwardPanel(false);
-          }}
-        />
-      )}
-
-      {/* Показываем только editMessage над полем ввода */}
-      {editMessage && (
-        <div className="mb-2 flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold truncate">Editing message:</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
-              {editMessage.text}
-            </p>
-          </div>
-          <button
-            className="ml-3 text-gray-500 hover:text-red-500"
-            onClick={() => {
-              setEditMessage(null);
-              setEditInputText("");
+            onCancel={cancelForwarding}
+            onForward={(userIds) => {
+              if (forwardMessagesForMultiple) {
+                handleForwardToMultipleUsers(
+                  userIds,
+                  forwardMessagesForMultiple
+                );
+              } else {
+                userIds.forEach((userId) => handleForwardToUser(userId));
+              }
             }}
-            type="button"
-            aria-label="Cancel edit"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      )}
+          />
+        )}
 
-      <ChatInput
-        onSend={
-          editMessage
-            ? handleSendMessage
-            : forwardMessage
-            ? handleSendForwardMessage
-            : handleSendMessage
-        }
-        inputText={
-          editMessage
-            ? editInputText
-            : forwardMessage
-            ? forwardInputText
-            : undefined
-        }
-        setInputText={
-          editMessage
-            ? setEditInputText
-            : forwardMessage
-            ? setForwardInputText
-            : undefined
-        }
-        replyTo={replyToMessage}
-        onCancelReply={() => setReplyToMessage(null)}
-      />
-    </div>
+        <ChatInput
+          onSend={handleSendMessage}
+          replyTo={replyToMessage}
+          onCancelReply={() => setReplyToMessage(null)}
+        />
+
+        {showUserInfo && (
+          <UserInfoModal
+            user={otherUser}
+            messages={messages}
+            notificationsEnabled={notificationsEnabled}
+            setNotificationsEnabled={setNotificationsEnabled}
+            onClose={() => setShowUserInfo(false)}
+            onSendMessageClick={() => {
+              setShowUserInfo(false);
+              scrollContainerRef.current!.scrollTop =
+                scrollContainerRef.current!.scrollHeight;
+            }}
+            pinnedMessages={pinnedMessages}
+          />
+        )}
+      </div>
+    </>
   );
 }
