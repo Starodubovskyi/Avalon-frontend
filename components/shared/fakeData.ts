@@ -1,7 +1,5 @@
 import { Message, User } from "../types/chat";
 
-
-
 export const currentUserId = "u1";
 
 export const users = [
@@ -32,13 +30,12 @@ export const users = [
   {
     id: "u4",
     name: "Emily Clark",
-    avatar: "", 
+    avatar: "",
     isOnline: true,
     isTyping: true,
     unreadCount: 0,
-  }
+  },
 ];
-
 
 export const messages: Message[] = [
   {
@@ -91,5 +88,29 @@ export const messages: Message[] = [
     time: "07:30 AM",
     status: "seen",
     date: "Monday, July 29",
+  },
+];
+
+type Group = {
+  id: string;
+  name: string;
+  memberIds: string[];
+};
+
+const groups: Group[] = [
+  {
+    id: "group1",
+    name: "Developers",
+    memberIds: ["u1", "u2", "u3"],
+  },
+  {
+    id: "group2",
+    name: "Designers",
+    memberIds: ["u2", "u4"],
+  },
+  {
+    id: "group3",
+    name: "Marketing",
+    memberIds: ["u1", "u4"],
   },
 ];

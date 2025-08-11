@@ -12,6 +12,7 @@ import {
   Share,
   Trash2,
   CheckSquare,
+  Edit3 as EditIcon,
 } from "lucide-react";
 
 type Reaction = {
@@ -21,7 +22,11 @@ type Reaction = {
 };
 
 type Props = {
-  message: Message & { reactions?: Reaction[]; replyTo?: Message | null };
+  message: Message & {
+    reactions?: Reaction[];
+    replyTo?: Message | null;
+    changed?: boolean;
+  };
   isCurrentUser: boolean;
   sender: User;
   onReply: (msg: Message) => void;
@@ -32,12 +37,14 @@ type Props = {
   onDeleteForMe: (msg: Message) => void;
   onSelect: (msg: Message) => void;
   onReact: (msg: Message, reaction: string) => void;
+  onEdit: (msg: Message) => void;
   onJumpToMessage?: (id: string) => void;
   containerRef?: (el: HTMLDivElement | null) => void;
   highlighted?: boolean;
   isSelected?: boolean;
   showSelectCircle?: boolean;
   userReactions: Set<string>;
+  isPinned: boolean; // новый пропс
 };
 
 export default function ChatMessage({
@@ -52,12 +59,14 @@ export default function ChatMessage({
   onDeleteForMe,
   onSelect,
   onReact,
+  onEdit,
   onJumpToMessage,
   containerRef,
   highlighted,
   isSelected,
   showSelectCircle = false,
   userReactions,
+  isPinned,
 }: Props) {
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [menuStyle, setMenuStyle] = useState<CSSProperties>({
@@ -76,6 +85,7 @@ export default function ChatMessage({
   const ACTIONS_MENU_WIDTH = 192;
   const REACTIONS_MENU_WIDTH = ACTIONS_MENU_WIDTH + 80;
   const RIGHT_SCREEN_PADDING = 12;
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (contextMenuVisible) {
@@ -298,20 +308,39 @@ export default function ChatMessage({
               "px-4 py-2 rounded-2xl text-sm shadow-sm relative",
               isCurrentUser
                 ? "bg-emerald-400 text-gray-900 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl"
-                : "bg-gray-100 dark:bg-[#1a1f2b] text-gray-900 dark:text-white rounded-tr-2xl rounded-br-2xl rounded-tl-2xl"
+                : "bg-gray-100 dark:bg-[#1a1f2b] text-gray-900 dark:text-white rounded-tr-2xl rounded-br-2xl rounded-tl-2xl",
+              { "pr-8": isPinned } // отступ справа под иконку
             )}
           >
+            {isPinned && (
+              <span
+                className="absolute right-2 top-[0.6rem] text-black"
+                title="Pinned message"
+                aria-label="Pinned message"
+                style={{ transform: "translateY(2px)" }}
+              >
+                <Pin width={14} height={14} />
+              </span>
+            )}
+
             {message.text && (
               <p className="whitespace-pre-wrap">{message.text}</p>
             )}
 
+            {message.changed && (
+              <p className="text-xs text-gray-400 dark:text-gray-500 italic mt-1 select-none">
+                Changed
+              </p>
+            )}
+
             {message.attachments?.map((att, idx) =>
-              att.type === "image" ? (
+              att.type.startsWith("image") ? (
                 <img
                   key={idx}
                   src={att.url}
                   alt={att.name}
-                  className="mt-2 max-w-xs rounded-lg border dark:border-gray-700"
+                  className="mt-2 max-w-xs rounded-lg border dark:border-gray-700 cursor-pointer"
+                  onClick={() => setPreviewImage(att.url)}
                 />
               ) : (
                 <a
@@ -438,8 +467,13 @@ export default function ChatMessage({
                 className="flex items-center gap-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded w-full text-left"
                 type="button"
               >
-                <Pin className="w-5 h-5" />
-                Pin
+                <Pin
+                  className={clsx("w-5 h-5", {
+                    "line-through text-red-500": isPinned,
+                    "text-gray-700 dark:text-gray-300": !isPinned,
+                  })}
+                />
+                {isPinned ? "Unpin" : "Pin"}
               </button>
 
               <button
@@ -467,6 +501,18 @@ export default function ChatMessage({
               >
                 <Share className="w-5 h-5" />
                 Forward
+              </button>
+
+              <button
+                onClick={() => {
+                  onEdit(message);
+                  closeMenu();
+                }}
+                className="flex items-center gap-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded w-full text-left"
+                type="button"
+              >
+                <EditIcon className="w-5 h-5" />
+                Edit Message
               </button>
 
               <div className="relative w-full">
@@ -526,6 +572,44 @@ export default function ChatMessage({
             </div>
           </div>
         </>
+      )}
+      {previewImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          onClick={() => setPreviewImage(null)} // клик по затемнению закрывает
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation(); // остановить всплытие, чтобы не закрывать оверлей дважды
+              setPreviewImage(null); // закрыть превью
+            }}
+            aria-label="Close preview"
+            className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition z-60"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          <img
+            src={previewImage}
+            alt="Preview"
+            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()} // клик по фото не закрывает
+          />
+        </div>
       )}
     </>
   );
