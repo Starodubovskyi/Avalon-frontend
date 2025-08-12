@@ -7,12 +7,40 @@ import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const Dialog = DialogPrimitive.Root
-
 const DialogTrigger = DialogPrimitive.Trigger
-
-const DialogPortal = DialogPrimitive.Portal
-
 const DialogClose = DialogPrimitive.Close
+
+class PortalErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  componentDidCatch(error: any) {
+    if (process.env.NODE_ENV !== "production") {
+      // Мягко гасим только кейс отсутствия контекста, чтобы не падало всё приложение
+      const msg = String(error?.message || "")
+      if (!msg.includes("DialogPortal must be used within Dialog")) {
+        console.error(error)
+      }
+    }
+  }
+  render() {
+    if (this.state.hasError) return null
+    return this.props.children as React.ReactElement
+  }
+}
+
+const DialogPortal = ({
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Portal>) => (
+  <PortalErrorBoundary>
+    <DialogPrimitive.Portal {...props}>{children}</DialogPrimitive.Portal>
+  </PortalErrorBoundary>
+)
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
