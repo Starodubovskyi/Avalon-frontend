@@ -8,6 +8,7 @@ export default function NotesPage() {
       <div className="w-full h-full flex items-center justify-center">
         <Calendar />
       </div>
+      
     </MainLayout>
   );
 }

@@ -266,9 +266,6 @@ export default function SubscriptionsPage() {
                               -{pct}%
                             </span>
                           )}
-                          <span className="ml-auto text-xs text-muted-foreground">
-                            billed annually
-                          </span>
                         </div>
                       )}
                     </div>

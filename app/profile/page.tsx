@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import TopProfileNavbar from "@/components/profile/TopProfileNavbar";
 import UserProfile from "@/components/profile/UserProfile";
 import MainLayout from "@/components/layout/MainLayout";
-import BackgroundAnimation from "@/components/layout/BackgroundAnimation";
 
 const CompanyProfile = dynamic(
   () => import("@/components/companyprofile/CompanyProfile"),
@@ -32,7 +31,6 @@ export default function ProfilePage() {
   return (
     <MainLayout>
       <div className="relative flex min-h-screen">
-        <BackgroundAnimation />
         <div
           className="
           flex-1 p-6
