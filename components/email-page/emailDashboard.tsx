@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import EmailSidebar from "./emailSidebar";
-import EmailMain from "./emailMain"; // Предполагается, что этот компонент уже есть
+import EmailMain from "./emailMain";
 
 type FolderType = "inbox" | "starred" | "sent" | "drafts" | "deleted" | "spam";
 
@@ -18,16 +18,13 @@ interface Email {
   folder: FolderType;
 }
 
-type CurrentUser = {
-  name: string;
-  email: string;
-};
+type CurrentUser = { name: string; email: string };
 
 const initialEmails: Email[] = [
   {
     id: 1,
     sender: "Justin Lapointe",
-    avatar: "CD",
+    avatar: "JL",
     subject: "Client Dashboard",
     preview: "It seems that recipients are receiving...",
     time: "3:13 PM",
@@ -79,24 +76,23 @@ const EmailDashboard: React.FC<{ currentUser: CurrentUser }> = ({
 }) => {
   const [emails, setEmails] = useState<Email[]>(initialEmails);
   const [activeFolder, setActiveFolder] = useState<FolderType>("inbox");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const visibleEmails = emails.filter((email) => email.folder === activeFolder);
 
   const handleSortClick = (sortType: "recent" | "unread" | "all") => {
-    let sortedEmails = [...visibleEmails];
+    let sorted = [...visibleEmails];
     if (sortType === "unread") {
-      sortedEmails.sort((a, b) =>
-        !a.read && b.read ? -1 : a.read && !b.read ? 1 : 0
-      );
+      sorted.sort((a, b) => +a.read - +b.read);
     } else if (sortType === "recent") {
-      sortedEmails.sort((a, b) =>
-        a.isRecent && !b.isRecent ? -1 : !a.isRecent && b.isRecent ? 1 : 0
+      sorted.sort((a, b) =>
+        a.isRecent === b.isRecent ? 0 : a.isRecent ? -1 : 1
       );
     }
     setEmails((prev) =>
       prev.map((email) =>
         email.folder === activeFolder
-          ? sortedEmails.find((e) => e.id === email.id) || email
+          ? sorted.find((e) => e.id === email.id) || email
           : email
       )
     );
@@ -105,16 +101,19 @@ const EmailDashboard: React.FC<{ currentUser: CurrentUser }> = ({
   const refreshEmails = () => setEmails([...initialEmails]);
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-200">
+    <div className="flex h-[100dvh] bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 overflow-hidden">
       <EmailSidebar
         currentUser={currentUser}
         activeFolder={activeFolder}
-        onFolderSelect={setActiveFolder}
+        onFolderSelect={(f) => setActiveFolder(f)}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <EmailMain
         emails={visibleEmails}
         onSortClick={handleSortClick}
         onRefreshClick={refreshEmails}
+        onMenuClick={() => setSidebarOpen(true)}
       />
     </div>
   );

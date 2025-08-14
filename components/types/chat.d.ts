@@ -23,23 +23,14 @@ export type Message = {
   reactions?: Reaction[];
 };
 
-// export type User = {
-//   id: string;
-//   name: string;
-//   avatar: string;
-//   isOnline: boolean; // Зроблено обов’язковим!
-//   isTyping: boolean;
-//   unreadCount: number;
-// };
 export type User = {
   id: string;
   name: string;
-  avatar: string; // Обязательное поле — всегда строка
+  avatar: string;
   isOnline?: boolean;
   unreadCount?: number;
   isTyping?: boolean;
-  isGroup?: boolean; // Для групповых чатов
-  memberIds?: string[]; // Участники группы
+  isGroup?: boolean;
   lastSeen?: string;
 };
 
