@@ -1,7 +1,7 @@
 import React from "react";
 
 const VesselsTabs: React.FC = () => (
-  <div className="flex space-x-3 sm:space-x-6 border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto pb-2 no-scrollbar">
+  <div className="flex space-x-3 sm:space-x-6 border-b border-gray-200 dark:border-gray-700 mb-4 sm:mb-6 overflow-x-auto pb-2 no-scrollbar">
     {[
       "Vessels",
       "Position history",

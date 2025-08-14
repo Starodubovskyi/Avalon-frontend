@@ -1,0 +1,28 @@
+export const mockVesselsData = [
+  {
+    id: "1",
+    name: "Ever Given",
+    photoUrl: "/images/vessels/evergiven.jpg",
+    destinationPort: "Port of Rotterdam",
+    reportedETA: "2025-08-15",
+    reportedDestination: "Rotterdam",
+    currentPort: "Suez",
+    imo: "9811000",
+    vesselType: "Container Ship",
+    flag: "Panama",
+    fleets: ["Main Fleet"],
+  },
+  {
+    id: "2",
+    name: "Queen Mary 2",
+    photoUrl: "/images/vessels/queenmary2.jpg",
+    destinationPort: "Port of Southampton",
+    reportedETA: "2025-08-20",
+    reportedDestination: "Southampton",
+    currentPort: "New York",
+    imo: "9241061",
+    vesselType: "Passenger Ship",
+    flag: "United Kingdom",
+    fleets: ["Luxury Fleet"],
+  },
+];
