@@ -7,7 +7,9 @@ import PortsHeader from "./PortsHeader";
 import mockPorts from "@/data/portsMockData";
 
 const PortsPage = () => {
-  const [ports, setPorts] = useState(mockPorts.map((p, i) => ({ ...p, id: `${i + 1}` })));
+  const [ports, setPorts] = useState(
+    mockPorts.map((p, i) => ({ ...p, id: `${i + 1}` }))
+  );
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPort, setEditingPort] = useState<any>(null);
@@ -25,9 +27,7 @@ const PortsPage = () => {
 
   const handleSubmit = (port: any) => {
     if (editingPort) {
-      setPorts((prev) =>
-        prev.map((p) => (p.id === port.id ? port : p))
-      );
+      setPorts((prev) => prev.map((p) => (p.id === port.id ? port : p)));
     } else {
       setPorts((prev) => [...prev, { ...port, id: Date.now().toString() }]);
     }
@@ -36,7 +36,7 @@ const PortsPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-4">
       <PortsHeader
         onAdd={handleAdd}
         onDeleteSelected={handleDeleteSelected}
@@ -44,6 +44,7 @@ const PortsPage = () => {
         search={search}
         setSearch={setSearch}
       />
+
       <PortsTable
         data={ports}
         search={search}
@@ -52,6 +53,7 @@ const PortsPage = () => {
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
+
       {(isModalOpen || editingPort) && (
         <PortsModal
           initialData={editingPort}

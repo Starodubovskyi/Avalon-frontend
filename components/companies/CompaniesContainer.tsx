@@ -90,7 +90,6 @@ const CompaniesContainer = () => {
       resetFilters={resetFilters}
       filteredCompanies={filteredCompanies}
       businessSectors={businessSectors}
-      onBackClick={handleBackClick}
     />
   );
 };
