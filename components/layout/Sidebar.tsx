@@ -291,7 +291,7 @@ const Sidebar = () => {
           onMouseLeave={() => !pinned && setExpanded(false)}
         >
           <div>
-            <div className="flex items-center justify-between px-3 pt-3 pb-2">
+            <div className="flex items-center justify-between px-5 pt-3 pb-2">
               {expanded ? (
                 <LogoSideBar isSidebarExpanded />
               ) : (
