@@ -8,13 +8,14 @@ import React from "react";
 const EmailPage: React.FC = () => {
   return (
     <MainLayout>
-      <EmailDashboard
-        currentUser={{
-          name: "",
-          email: "",
-        }}
-      />
-      <ThemeToggler />
+      <div className="h-[100dvh]">
+        <EmailDashboard
+          currentUser={{
+            name: "",
+            email: "",
+          }}
+        />
+      </div>
     </MainLayout>
   );
 };

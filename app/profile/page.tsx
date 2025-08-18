@@ -28,9 +28,7 @@ export default function ProfilePage() {
 
   return (
     <MainLayout>
-      {/* фон страницы под планшет */}
       <div className="min-h-[100dvh] bg-gray-100 dark:bg-black">
-        {/* внутренняя «рамка» на всю ширину, с отступами от краёв */}
         <div className="px-1 sm:px-2 lg:px-2 py-1">
           <div
             className="
