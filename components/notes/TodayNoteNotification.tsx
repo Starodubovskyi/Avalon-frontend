@@ -1,12 +1,12 @@
-'use client';
+"use client";
 import { useState, useEffect } from "react";
-import { useNotesStore } from "@/app/notes/useNotesStore"; 
+import { useNotesStore } from "./useNotesStore";
 
 function getTodayStr() {
   const now = new Date();
   const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const d = String(now.getDate()).padStart(2, '0');
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 
@@ -57,7 +57,9 @@ export default function TodayNoteNotification() {
           onClick={closeNotif}
           className="ml-1 p-1 rounded-full hover:bg-white/20 transition"
           aria-label="Close notification"
-        >✕</button>
+        >
+          ✕
+        </button>
       </div>
       <style>{`
         @keyframes bounceInDown {

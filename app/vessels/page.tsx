@@ -4,10 +4,9 @@ import React from "react";
 import dynamic from "next/dynamic";
 import MainLayout from "@/components/layout/MainLayout";
 
-const VesselsPage = dynamic(
-  () => import("@/components/vessels/VesselsPage"),
-  { ssr: false }
-);
+const VesselsPage = dynamic(() => import("@/components/vessels/VesselsPage"), {
+  ssr: false,
+});
 
 export default function Page() {
   return (

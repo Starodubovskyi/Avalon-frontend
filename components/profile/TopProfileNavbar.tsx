@@ -8,12 +8,12 @@ export default function TopProfileNavbar() {
 
   const tabs = [
     { href: "/profile", label: "My Profile" },
-    { href: "/companyprofile", label: "Business Profile" }, 
+    { href: "/companyprofile", label: "Business Profile" },
     { href: "/todo", label: "Tasks" },
     { href: "/billing", label: "Billing" },
     { href: "/notes", label: "Notes" },
-    { href: "/documents", label: "Documents" },
-    { href: "/files", label: "Files" },
+    { href: "/subscriptions", label: "Subscriptions" },
+    { href: "/services", label: "My Online Sevrvices" },
   ];
 
   return (

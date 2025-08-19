@@ -1,67 +1,109 @@
 "use client";
 
 import React, { useState } from "react";
-import VesselsFilters from "./VesselsFilters";
-import { SlidersHorizontal, RefreshCw, Search } from "lucide-react";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-interface VesselsActionsProps {
-  onAddFilter: (filter: string) => void;
-  onSearch: (query: string) => void;
-  className?: string;
-}
-
-const VesselsActions: React.FC<VesselsActionsProps> = ({
+export default function VesselsActions({
   onAddFilter,
   onSearch,
   className,
-}) => {
-  const [showFilters, setShowFilters] = useState(false);
+}: {
+  onAddFilter: (filterName: string) => void;
+  onSearch: (q: string) => void;
+  className?: string;
+}) {
   const [q, setQ] = useState("");
 
-  return (
-    <div className={className}>
-      <div className="flex gap-2 sm:gap-4 items-stretch sm:items-center">
-        <button
-          onClick={() => setShowFilters(true)}
-          className="px-3 py-2 sm:px-4 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 text-sm inline-flex items-center gap-2"
-        >
-          <SlidersHorizontal size={16} />
-          <span className="hidden xs:inline">Add filter</span>
-        </button>
+  const baseFilters = [
+    "Flag",
+    "My Fleets",
+    "IMO",
+    "ENI",
+    "Vessel Name",
+    "Ship Type",
+    "Status",
+    "Build Year",
+    "Length",
+    "Beam",
+    "Deadweight",
+    "Gross Tonnage",
+    "Net Tonnage",
+    "Callsign",
+    "Destination Port",
+    "Current Port",
+    "Last Port",
+    "Reported ETA",
+  ];
 
-        <div className="relative flex-1">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={16}
+  const newFilters = [
+    "Map Icon",
+    "Latest Position Time",
+    "Latitude",
+    "Longitude",
+    "My Notes",
+  ];
+
+  const allFilters = [...baseFilters, ...newFilters];
+
+  const handleAdd = (name: string) => onAddFilter(name);
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(q);
+  };
+
+  return (
+    <div
+      className={`flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center ${
+        className || ""
+      }`}
+    >
+      <form onSubmit={submitSearch} className="flex-1">
+        <div className="flex items-center gap-2 w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-black/30 px-3 py-2">
+          <IconSearch
+            size={18}
+            className="text-gray-500 dark:text-gray-400 shrink-0"
           />
           <input
             value={q}
             onChange={(e) => {
               setQ(e.target.value);
+              // мгновенный поиск по вводу (оставляю, но сабмит тоже работает)
               onSearch(e.target.value);
             }}
-            placeholder="Search: Name, MMSI, IMO, Callsign"
-            className="w-full pl-8 pr-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            placeholder="Search vessels..."
+            className="w-full bg-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400"
           />
         </div>
+      </form>
 
-        <button
-          onClick={() => onSearch(q)}
-          className="px-3 py-2 sm:px-4 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 text-sm inline-flex items-center gap-2"
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-black/30 hover:bg-gray-50 dark:hover:bg-white/10 transition"
+            aria-label="Add filter"
+          >
+            <IconPlus size={18} />
+            <span className="text-sm">Add filter</span>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="max-h-[60vh] overflow-auto w-64"
         >
-          <RefreshCw size={16} />
-          <span className="hidden sm:inline">Refresh</span>
-        </button>
-      </div>
-
-      {showFilters && (
-        <VesselsFilters
-          onAddFilter={onAddFilter}
-          onClose={() => setShowFilters(false)}
-        />
-      )}
+          {allFilters.map((f) => (
+            <DropdownMenuItem key={f} onClick={() => handleAdd(f)}>
+              {f}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
-};
-
-export default VesselsActions;
+}
