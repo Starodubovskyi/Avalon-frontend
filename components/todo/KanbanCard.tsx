@@ -74,12 +74,10 @@ export default function KanbanCard({
         }
       : {};
 
-  // Light: «материальная» карточка с чёткой тенью (отлично читабельно)
   const lightBase =
     "bg-white border border-gray-200 text-gray-900 shadow-[0_10px_28px_rgba(2,6,23,0.08)] hover:shadow-[0_16px_40px_rgba(2,6,23,0.12)]";
   const lightDone = "bg-emerald-50 border-emerald-200 text-emerald-800";
 
-  // Dark: как было
   const darkBase =
     "dark:bg-white/10 dark:border-white/10 dark:text-white dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]";
 

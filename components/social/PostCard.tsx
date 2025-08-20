@@ -39,7 +39,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </div>
       </div>
 
-      {/* Content */}
       <div>
         <p className="text-[15px] sm:text-base leading-relaxed text-gray-900 dark:text-white mb-3 sm:mb-4 break-words">
           {post.content}
@@ -49,7 +48,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         )}
       </div>
 
-      {/* Actions */}
       <div className="flex justify-between sm:justify-around text-gray-500 dark:text-gray-400 mt-3 sm:mt-4">
         <button className="flex items-center gap-2 hover:text-red-500 transition-colors text-sm sm:text-base">
           <Heart size={18} />

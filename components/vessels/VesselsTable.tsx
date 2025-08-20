@@ -34,7 +34,6 @@ type ColumnKey =
   | "currentPort"
   | "imo"
   | "vesselType"
-  // дополнительные поля оставляем, если у тебя уже используются
   | "mapIcon"
   | "latestPositionTime"
   | "latitude"
@@ -58,16 +57,14 @@ const ALL_COLUMNS: { key: ColumnKey; label: string }[] = [
   { key: "myNotes", label: "My Notes" },
 ];
 
-/** Преобразуем название страны или уже готовый код в alpha-2 (нижний регистр) */
 function nameToAlpha2(country?: string): string {
   if (!country) return "";
   const c = country.trim();
-  if (c.length === 2) return c.toLowerCase(); // уже код, например "RO"
-  const code = countries.getAlpha2Code(c, "en"); // например "Romania" -> "RO"
+  if (c.length === 2) return c.toLowerCase(); 
+  const code = countries.getAlpha2Code(c, "en"); 
   return (code || "").toLowerCase();
 }
 
-/** Надёжный источник SVG-флагов */
 function flagImgUrl(alpha2: string) {
   if (!alpha2) return "";
   return `https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/flags/4x3/${alpha2}.svg`;
@@ -116,7 +113,6 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
       ? setSelectedIds(selectedIds.filter((v) => v !== id))
       : setSelectedIds([...selectedIds, id]);
 
-  // Настройка видимости колонок
   const [visibleCols, setVisibleCols] = useState<Record<ColumnKey, boolean>>({
     flag: true,
     name: true,
@@ -135,7 +131,6 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
   });
   const cols = ALL_COLUMNS.filter((c) => visibleCols[c.key]);
 
-  // Экспорт CSV (добавил country и flagCode)
   const exportCSV = () => {
     const rows = filteredData.map((v: any) => {
       const alpha2 = nameToAlpha2(v.country);
@@ -247,7 +242,6 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
                       checked={selectedIds.includes(v.id)}
                       onChange={() => toggleSelectOne(v.id)}
                     />
-                    {/* Флаг + имя */}
                     <div className="flex items-center gap-2 min-w-0">
                       {alpha2 ? (
                         <img
@@ -272,7 +266,6 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
                   <ActionMenu vessel={v} />
                 </div>
 
-                {/* Map icon (если используется) */}
                 {v.mapIcon ? (
                   <div className="mt-2 flex items-center gap-2">
                     <img
@@ -367,7 +360,6 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
 
   const DesktopTable = () => (
     <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 shadow overflow-hidden">
-      {/* Панель управления таблицей */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 border-b border-slate-200 dark:border-white/10">
         <div className="flex items-center gap-2 text-xs">
           <span className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
@@ -378,7 +370,6 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {/* Выбор колонок */}
           <div className="relative group">
             <button className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm">
               Columns
@@ -403,7 +394,6 @@ const VesselsTable: React.FC<VesselsTableProps> = ({
             </div>
           </div>
 
-          {/* Экспорт */}
           <button
             onClick={exportCSV}
             className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm active:scale-[0.98] transition"

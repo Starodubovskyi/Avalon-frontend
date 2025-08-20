@@ -72,7 +72,6 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    // Prevent background scroll when mobile menu open
     if (isMobileMenuOpen || isLoginModalOpen) {
       document.body.style.overflow = "hidden";
     } else {

@@ -1,4 +1,3 @@
-// components/admin/companies/HistoryModal.tsx
 import React from "react"
 import {
   Dialog,

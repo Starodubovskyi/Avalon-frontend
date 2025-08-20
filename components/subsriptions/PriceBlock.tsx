@@ -1,6 +1,7 @@
 "use client";
 
-import type { Billing, Plan } from "./types";
+import { type Plan, type Billing, PLANS, getPlanById } from "@/components/types/billing/plan";
+
 
 function yearlyMonthly(plan: Plan) {
   return plan.yearly > 0 ? Number((plan.yearly / 12).toFixed(2)) : 0;

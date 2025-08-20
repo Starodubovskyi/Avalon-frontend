@@ -13,13 +13,13 @@ export interface Company {
   telephone: string;
   fax: string;
   address: string;
-  servicedPorts?: string; // Новый тип
+  servicedPorts?: string; 
   city: string;
-  state?: string; // Новый тип
+  state?: string; 
   postalCode: string;
   country: string;
-  poBox?: string; // Новый тип
-  tagline?: string; // Новый тип
+  poBox?: string; 
+  tagline?: string; 
   description: string;
   lat: number;
   lng: number;

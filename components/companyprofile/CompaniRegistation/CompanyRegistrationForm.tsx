@@ -249,7 +249,6 @@ export default function CompanyRegistrationForm({
 
       <Progress />
 
-      {/* Step 1 — Company */}
       {step === 1 && (
         <div className={section}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -340,7 +339,6 @@ export default function CompanyRegistrationForm({
         </div>
       )}
 
-      {/* Step 2 — Branding */}
       {step === 2 && (
         <div className={section}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -398,7 +396,6 @@ export default function CompanyRegistrationForm({
               </div>
             </div>
 
-            {/* Banner */}
             <div className="border-2 border-dashed rounded-xl p-4 dark:border-neutral-700/80">
               <div className="flex items-center justify-between">
                 <span className={labelBase}>Company Banner</span>
@@ -509,7 +506,6 @@ export default function CompanyRegistrationForm({
         </div>
       )}
 
-      {/* Step 3 — Location */}
       {step === 3 && (
         <div className={section}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -626,7 +622,6 @@ export default function CompanyRegistrationForm({
         </div>
       )}
 
-      {/* Step 4 — Contacts */}
       {step === 4 && (
         <div className={section}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -699,7 +694,6 @@ export default function CompanyRegistrationForm({
         </div>
       )}
 
-      {/* Step 5 — About */}
       {step === 5 && (
         <div className={section}>
           <div className="grid grid-cols-1 gap-6">

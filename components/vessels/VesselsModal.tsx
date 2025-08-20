@@ -22,7 +22,7 @@ type FormShape = {
   reportedDestination: string;
   currentPort: string;
   country: string;
-  photoUrl: string; // dataURL или URL
+  photoUrl: string; 
 };
 
 const REQUIRED_FIELDS: (keyof FormShape)[] = [
@@ -76,7 +76,6 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
     photoUrl: "",
   });
 
-  // фикс: применять initialData только один раз при открытии
   const initializedRef = useRef(false);
 
   const [touched, setTouched] = useState<Record<keyof FormShape, boolean>>({
@@ -244,10 +243,8 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
           "max-h-[90vh] flex flex-col",
         ].join(" ")}
       >
-        {/* drag handle */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
 
-        {/* header */}
         <div className="sticky top-0 z-10 bg-white/70 dark:bg-neutral-900/70 backdrop-blur border-b border-gray-200 dark:border-gray-700 px-5 py-4 flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
             {initialData ? "Edit Vessel" : "Add Vessel"}
@@ -261,7 +258,6 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
           </button>
         </div>
 
-        {/* content */}
         <div className="px-5 py-4 overflow-y-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Field name="name" label="Name" />
@@ -287,7 +283,6 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
               }))}
             />
 
-            {/* Фото: загрузка + URL (URL опционально, загрузка приоритетна) */}
             <div className="sm:col-span-2 space-y-2">
               <label className="text-xs text-gray-500 dark:text-gray-400">
                 Photo
@@ -344,7 +339,6 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
           </div>
         </div>
 
-        {/* footer */}
         <div className="sticky bottom-0 z-10 bg-white/70 dark:bg-neutral-900/70 backdrop-blur border-t border-gray-200 dark:border-gray-700 px-5 py-4 flex flex-col sm:flex-row justify-end gap-2">
           <button
             onClick={onClose}

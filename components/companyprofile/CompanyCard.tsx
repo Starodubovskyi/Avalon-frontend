@@ -15,7 +15,6 @@ L.Marker.prototype.options.icon = DefaultIcon;
 export default function CompanyCard({ company }: { company: Company }) {
   return (
     <div className="w-full space-y-6">
-      {/* Hero */}
       <div className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10">
         <div className="h-48 w-full bg-gray-100 dark:bg-black">
           {company.bannerUrl ? (
@@ -73,7 +72,6 @@ export default function CompanyCard({ company }: { company: Company }) {
         </div>
       </div>
 
-      {/* Overview + Contacts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white/70 dark:bg-neutral-900/60 shadow p-4 sm:p-6">

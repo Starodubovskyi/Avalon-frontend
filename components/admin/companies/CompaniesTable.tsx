@@ -1,4 +1,3 @@
-// components/admin/companies/CompaniesTable.tsx
 import React from "react"
 import {
   Table,

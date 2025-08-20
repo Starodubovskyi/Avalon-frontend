@@ -1,6 +1,7 @@
 "use client";
 
-import type { Billing, Plan } from "./types";
+import { type Plan, type Billing, PLANS, getPlanById } from "@/components/types/billing/plan";
+
 import PlanCard from "./PlanCard";
 
 export default function PlanGrid({
