@@ -35,35 +35,27 @@ export default function ChatWindow({ otherUserId, users }: Props) {
   const otherUser = users.find((u) => u.id === otherUserId)!;
 
   const [messagesByUser, setMessagesByUser] = useState<MessagesByUserId>({});
-
   const [messages, setMessages] = useState<MessageWithReactions[]>([]);
-
   const [replyToMessage, setReplyToMessage] =
     useState<MessageWithReactions | null>(null);
-
   const [editMessage, setEditMessage] = useState<MessageWithReactions | null>(
     null
   );
   const [editInputText, setEditInputText] = useState("");
-
   const [highlightedMessageId, setHighlightedMessageId] = useState<
     string | null
   >(null);
-
   const [hiddenMessageIdsForCurrentUser, setHiddenMessageIdsForCurrentUser] =
     useState<Set<string>>(new Set());
-
   const [selectedMessageIds, setSelectedMessageIds] = useState<Set<string>>(
     new Set()
   );
-
   const [selectionMode, setSelectionMode] = useState(false);
 
   const [forwardMessage, setForwardMessage] =
     useState<MessageWithReactions | null>(null);
   const [showForwardPanel, setShowForwardPanel] = useState(false);
   const [forwardInputText, setForwardInputText] = useState("");
-
   const [forwardMessagesForMultiple, setForwardMessagesForMultiple] = useState<
     MessageWithReactions[] | null
   >(null);
@@ -71,7 +63,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
   const [pinnedMessagesByUser, setPinnedMessagesByUser] = useState<
     Record<string, MessageWithReactions[]>
   >({});
-
   const [activePinnedIndexByUser, setActivePinnedIndexByUser] = useState<
     Record<string, number>
   >({});
@@ -81,7 +72,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [showUserInfo, setShowUserInfo] = useState(false);
-
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const pinnedMessages = pinnedMessagesByUser[otherUserId] ?? [];
@@ -555,7 +545,6 @@ export default function ChatWindow({ otherUserId, users }: Props) {
         : activePinnedIndex - 1;
 
     handleJumpToMessage(pinnedMessages[activePinnedIndex].id);
-
     setActivePinnedIndexForCurrentUser(newIndex);
   };
 
@@ -570,18 +559,43 @@ export default function ChatWindow({ otherUserId, users }: Props) {
   return (
     <>
       <div className="flex flex-col flex-1 h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="relative flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("app:chat-back"))
+            }
+            aria-label="Back"
+            className="md:hidden absolute left-3 top-3 p-2 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur border border-gray-200 dark:border-gray-700 shadow"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
           <div
-            className="flex items-center gap-3 cursor-pointer select-none w-full"
+            className="ml-auto flex items-center gap-3 cursor-pointer select-none"
             onClick={handleUserInfoToggle}
-            title={`View ${otherUser.name} info`}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") handleUserInfoToggle();
             }}
-            style={{ userSelect: "none" }}
+            title={`View ${otherUser.name} info`}
           >
+            <div className="text-right">
+              <h2 className="font-semibold text-lg leading-5">{otherUser.name}</h2>
+              <span className="text-xs text-green-500">
+                {otherUser.isOnline ? "Online" : "Offline"}
+              </span>
+            </div>
+
             {otherUser.avatar ? (
               <img
                 src={otherUser.avatar}
@@ -605,16 +619,10 @@ export default function ChatWindow({ otherUserId, users }: Props) {
                 </svg>
               </div>
             )}
-            <div>
-              <h2 className="font-semibold text-lg">{otherUser.name}</h2>
-              <span className="text-xs text-green-500">
-                {otherUser.isOnline ? "Online" : "Offline"}
-              </span>
-            </div>
           </div>
 
           {selectionMode && (
-            <div className="flex gap-2 items-center">
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center gap-2">
               <button
                 onClick={() => {
                   setSelectionMode(false);

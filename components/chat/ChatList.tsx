@@ -83,7 +83,13 @@ export default function ChatList({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white border-r dark:border-gray-700 w-80">
+    <div
+      className={clsx(
+        "flex flex-col h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white border-r dark:border-gray-700",
+        
+        selectedUserId ? "hidden md:flex md:w-80" : "flex w-full md:w-80"
+      )}
+    >
       <div className="p-4 border-b dark:border-gray-700 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-lg">Chats</h2>
@@ -155,7 +161,7 @@ export default function ChatList({
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
                   <svg
-                    className="w-6 h-6 text-gray-600 dark:text-gray-300"
+                    className="w-5 h-5 text-gray-600 dark:text-gray-300"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"
@@ -169,42 +175,39 @@ export default function ChatList({
                   </svg>
                 </div>
               )}
-              <div className="truncate">
-                <p className="text-sm font-medium truncate">{user.name}</p>
-                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 gap-1">
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium truncate">{user.name}</p>
+                  {user.isOnline && (
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                   {user.isTyping ? (
-                    <>
-                      is typing<span className="animate-pulse">...</span>
-                    </>
+                    <span className="italic">typing…</span>
+                  ) : user.unreadCount > 0 ? (
+                    <span>{user.unreadCount} new</span>
                   ) : (
-                    <>
-                      <Paperclip className="w-3 h-3 inline-block mr-1" />
-                      Document
-                    </>
+                    <span>—</span>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400 shrink-0 ml-2">
-              <span>02:40 PM</span>
-              <div className="flex items-center gap-1 mt-1">
-                <CheckCheck className="w-4 h-4 text-green-500" />
-                {(user.unreadCount ?? 0) > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 ml-1">
-                    {user.unreadCount}
-                  </span>
-                )}
+            {user.unreadCount > 0 && (
+              <div className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                {user.unreadCount}
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
 
       {showCreateGroup && (
         <CreateGroupModal
-          users={users}
-          currentUserId="u1"
+          users={users as any}
+          currentUserId={"u1"}
           onCancel={() => setShowCreateGroup(false)}
           onCreate={handleCreateGroup}
         />

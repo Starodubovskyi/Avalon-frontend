@@ -44,7 +44,7 @@ type Props = {
   isSelected?: boolean;
   showSelectCircle?: boolean;
   userReactions: Set<string>;
-  isPinned: boolean; // новый пропс
+  isPinned: boolean; 
 };
 
 export default function ChatMessage({
@@ -243,31 +243,6 @@ export default function ChatMessage({
           </button>
         )}
 
-        {!isCurrentUser &&
-          (sender.avatar ? (
-            <img
-              src={sender.avatar}
-              alt={sender.name}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-gray-600 dark:text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
-                />
-              </svg>
-            </div>
-          ))}
-
         <div
           onContextMenu={openContextMenu}
           className={clsx(
@@ -309,7 +284,7 @@ export default function ChatMessage({
               isCurrentUser
                 ? "bg-emerald-400 text-gray-900 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl"
                 : "bg-gray-100 dark:bg-[#1a1f2b] text-gray-900 dark:text-white rounded-tr-2xl rounded-br-2xl rounded-tl-2xl",
-              { "pr-8": isPinned } // отступ справа под иконку
+              { "pr-8": isPinned } 
             )}
           >
             {isPinned && (
@@ -405,6 +380,31 @@ export default function ChatMessage({
             )}
           </div>
         </div>
+
+        {!isCurrentUser &&
+          (sender.avatar ? (
+            <img
+              src={sender.avatar}
+              alt={sender.name}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+              <svg
+                className="w-5 h-5 text-gray-600 dark:text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+                />
+              </svg>
+            </div>
+          ))}
       </div>
 
       {contextMenuVisible && (
@@ -576,13 +576,13 @@ export default function ChatMessage({
       {previewImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={() => setPreviewImage(null)} // клик по затемнению закрывает
+          onClick={() => setPreviewImage(null)}
         >
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation(); // остановить всплытие, чтобы не закрывать оверлей дважды
-              setPreviewImage(null); // закрыть превью
+              e.stopPropagation();
+              setPreviewImage(null);
             }}
             aria-label="Close preview"
             className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition z-60"
@@ -606,8 +606,8 @@ export default function ChatMessage({
           <img
             src={previewImage}
             alt="Preview"
-            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
-            onClick={(e) => e.stopPropagation()} // клик по фото не закрывает
+            className="max-h/[90vh] max-w/[90vw] rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       )}

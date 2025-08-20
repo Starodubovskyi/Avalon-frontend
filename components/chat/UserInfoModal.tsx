@@ -88,7 +88,7 @@ export default function UserInfoModal({
     null
   );
 
-  // NEW: previewImage state для отображения фото-превью
+
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -172,12 +172,12 @@ export default function UserInfoModal({
     setActiveCategory(null);
   };
 
-  // NEW: функция открытия превью фото из категории
+
   const openPreviewImage = (url: string) => {
     setPreviewImage(url);
   };
 
-  // Подсчёт для категорий
+ 
   const counts = {
     savedMessages: pinnedMessages.length,
     photos: messages.reduce(
@@ -237,7 +237,6 @@ export default function UserInfoModal({
             <X className="w-6 h-6" />
           </button>
 
-          {/* User info */}
           <div className="flex items-center gap-4">
             {user.avatar ? (
               <img
@@ -260,7 +259,6 @@ export default function UserInfoModal({
             </div>
           </div>
 
-          {/* Contact info */}
           <div className="space-y-3 border-b border-gray-300 dark:border-gray-700 pb-4">
             <div className="flex items-center gap-3 text-gray-700 dark:text-gray-400 text-sm">
               <Info className="w-5 h-5" />
@@ -277,7 +275,6 @@ export default function UserInfoModal({
             </div>
           </div>
 
-          {/* Notifications */}
           <div className="mb-4 flex items-center justify-between relative">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               {notificationsEnabled ? (
@@ -384,7 +381,6 @@ export default function UserInfoModal({
             </div>
           )}
 
-          {/* Send Message button */}
           <button
             type="button"
             className="text-blue-500 hover:underline mb-6"
@@ -396,7 +392,6 @@ export default function UserInfoModal({
             SEND MESSAGE
           </button>
 
-          {/* Media, Links and Docs list */}
           <div>
             <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
               Media, Links and Docs
@@ -424,11 +419,10 @@ export default function UserInfoModal({
               onClose={closeCategoryModal}
               messages={messages}
               pinnedMessages={pinnedMessages}
-              onPreviewImage={openPreviewImage} // NEW: прокидываем функцию превью
+              onPreviewImage={openPreviewImage} 
             />
           )}
 
-          {/* Bottom actions */}
           <div className="border-t border-gray-300 dark:border-gray-700 mt-4 pt-4 flex flex-col gap-2">
             <button
               type="button"
@@ -455,7 +449,6 @@ export default function UserInfoModal({
         </div>
       </div>
 
-      {/* NEW: общий превью-оверлей */}
       {previewImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
@@ -490,7 +483,7 @@ type CategoryModalProps = {
   onClose: () => void;
   messages: MessageWithReactions[];
   pinnedMessages: MessageWithReactions[];
-  onPreviewImage: (url: string) => void; // NEW
+  onPreviewImage: (url: string) => void; 
 };
 
 function CategoryModal({
@@ -613,7 +606,6 @@ function CategoryModal({
                       alt={item.name || "Image"}
                       className="w-full h-28 object-cover rounded-md cursor-pointer"
                       onClick={() => item.url && onPreviewImage(item.url)}
-                      // NEW: открываем превью
                     />
                   );
                 if (category === "videos")
