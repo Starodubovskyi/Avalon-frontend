@@ -198,7 +198,11 @@ export default function UserProfile() {
   };
 
   const compressImage = async (file: File): Promise<File> => {
-    const options = { maxSizeMB: 0.3, maxWidthOrHeight: 1024, useWebWorker: true };
+    const options = {
+      maxSizeMB: 0.3,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true,
+    };
     try {
       const compressedFile = await imageCompression(file, options);
       return compressedFile;
@@ -283,15 +287,22 @@ export default function UserProfile() {
   };
 
   const goUpgrade = () => {
-    
-    router.push("/pricing");
+    router.push("/subscriptions");
   };
+
+  const card =
+    "rounded-3xl border border-gray-200/70 bg-white/95 shadow-[0_8px_30px_rgba(2,6,23,0.06)] backdrop-blur-sm " +
+    "dark:bg-neutral-900/70 dark:border-white/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)]";
+
+  const inputBase =
+    "w-full rounded-xl border px-3 py-2 text-sm " +
+    "bg-white border-gray-300 text-gray-900 " +
+    "dark:bg-neutral-900/60 dark:border-white/15 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Левая колонка */}
       <aside className="col-span-1">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+        <div className={card + " p-5"}>
           <ProfileHeader
             name={formData.name}
             lastName={formData.lastName}
@@ -328,7 +339,7 @@ export default function UserProfile() {
               </button>
             </div>
 
-            <dl className="mt-3 space-y-3 text-sm">
+            <dl className="mt-4 space-y-4 text-sm">
               <Row label="Email">
                 {user?.email ? (
                   <a
@@ -349,7 +360,7 @@ export default function UserProfile() {
                     onChange={(e) =>
                       setFormData({ ...formData, phone: e.target.value })
                     }
-                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                    className={inputBase}
                   />
                 ) : formData.phone ? (
                   <a
@@ -368,7 +379,7 @@ export default function UserProfile() {
                   <DatePicker
                     selected={birthDateObj}
                     onChange={(date) => setBirthDateObj(date)}
-                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                    className={inputBase}
                     showMonthDropdown
                     showYearDropdown
                     dropdownMode="select"
@@ -391,7 +402,7 @@ export default function UserProfile() {
                     onChange={(e) =>
                       setFormData({ ...formData, address: e.target.value })
                     }
-                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                    className={inputBase}
                   />
                 ) : formData.address ? (
                   formData.address
@@ -407,7 +418,7 @@ export default function UserProfile() {
                     onChange={(e) =>
                       setFormData({ ...formData, country: e.target.value })
                     }
-                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                    className={inputBase}
                   >
                     <option value="">Select a country</option>
                     {countryList.map(([code, name]) => (
@@ -428,7 +439,7 @@ export default function UserProfile() {
                     onChange={(e) =>
                       setFormData({ ...formData, insurance: e.target.value })
                     }
-                    className="w-full border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                    className={inputBase}
                   />
                 ) : formData.insurance ? (
                   formData.insurance
@@ -442,10 +453,13 @@ export default function UserProfile() {
           {company?.businessName && (
             <a
               href="/companyprofile"
-              className="mt-6 block rounded-xl border border-gray-200 bg-white p-4 hover:shadow-md transition dark:bg-black/30 dark:border-white/10"
+              className={
+                "mt-6 block rounded-2xl border border-gray-200/70 bg-white/95 p-4 transition " +
+                "hover:shadow-[0_8px_24px_rgba(2,6,23,0.08)] dark:bg-neutral-900/60 dark:border-white/10"
+              }
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <div className="w-12 h-12 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-neutral-800 dark:border-white/10">
                   {company.logoUrl ? (
                     <img
                       src={company.logoUrl}
@@ -468,8 +482,8 @@ export default function UserProfile() {
             </a>
           )}
 
-          <div className="mt-4 rounded-2xl border border-gray-200 overflow-hidden dark:border-white/10">
-            <div className="p-4 bg-white dark:bg-black/30">
+          <div className="mt-4 overflow-hidden rounded-3xl border border-gray-200/70 dark:border-white/10">
+            <div className="p-4 bg-white/95 dark:bg-neutral-900/60">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Membership
               </h3>
@@ -485,7 +499,7 @@ export default function UserProfile() {
               <button
                 type="button"
                 onClick={goUpgrade}
-                className="w-full rounded-full bg-black py-2 text-sm font-semibold text-white dark:bg-white dark:text-black"
+                className="w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 py-2 text-sm font-semibold text-white shadow hover:opacity-90 active:scale-[.98] transition dark:from-blue-500 dark:to-indigo-600"
               >
                 Upgrade
               </button>
@@ -495,7 +509,7 @@ export default function UserProfile() {
       </aside>
 
       <section className="col-span-2 space-y-6">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+        <div className={card + " p-5"}>
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
               Latest tasks
@@ -523,8 +537,8 @@ export default function UserProfile() {
                 type="button"
                 onClick={() => toggleTask(t.id)}
                 className={[
-                  "w-full text-left rounded-xl border px-3 py-2 flex items-center gap-3 transition",
-                  "border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5",
+                  "w-full text-left rounded-2xl border px-3 py-2 flex items-center gap-3 transition",
+                  "border-gray-200/70 hover:bg-gray-50/70 dark:border-white/10 dark:hover:bg-white/5",
                   t.done ? "opacity-70 line-through" : "",
                 ].join(" ")}
               >
@@ -548,7 +562,7 @@ export default function UserProfile() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+        <div className={card + " p-5"}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
               Pinned documents & files
@@ -566,11 +580,11 @@ export default function UserProfile() {
                     <input
                       value={link}
                       onChange={(e) => handleLinkChange(i, e.target.value)}
-                      className="flex-1 border rounded px-3 py-2 bg-white border-gray-300 text-gray-900 dark:bg-black/50 dark:border-white/20 dark:text-gray-200"
+                      className={inputBase}
                     />
                     <button
                       onClick={() => removeLink(i)}
-                      className="text-red-700"
+                      className="text-red-700 dark:text-red-400"
                       type="button"
                       title="Remove link"
                     >
@@ -599,7 +613,9 @@ export default function UserProfile() {
                 </a>
               ))
             ) : (
-              <span className="text-sm text-gray-500">No links yet.</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                No links yet.
+              </span>
             )}
           </div>
 
@@ -610,7 +626,7 @@ export default function UserProfile() {
           />
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-md dark:bg-black/30 dark:border-white/10">
+        <div className={card + " p-5"}>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">
             Latest activity
           </h3>
@@ -633,11 +649,19 @@ export default function UserProfile() {
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="grid grid-cols-3 gap-3">
-      <dt className="col-span-1 text-gray-500">{label}</dt>
-      <dd className="col-span-2 text-gray-900 dark:text-gray-100">{children}</dd>
+      <dt className="col-span-1 text-gray-500 dark:text-gray-400">{label}</dt>
+      <dd className="col-span-2 text-gray-900 dark:text-gray-100">
+        {children}
+      </dd>
     </div>
   );
 }

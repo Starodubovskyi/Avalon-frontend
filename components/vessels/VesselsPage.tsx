@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import VesselsHeader from "./VesselsHeader";
 import VesselsTabs from "./VesselsTabs";
 import VesselsActions from "./VesselsActions";
@@ -30,7 +30,13 @@ const filterKeyMap: Record<string, string> = {
   "Reported ETA": "reportedETA",
 };
 
-const VesselsPage: React.FC = () => {
+const PRESETS_KEY = "vessels:filter-presets";
+
+interface VesselsPageProps {
+  className?: string;
+}
+
+const VesselsPage: React.FC<VesselsPageProps> = ({ className }) => {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
     {}
   );
@@ -39,6 +45,41 @@ const VesselsPage: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editVessel, setEditVessel] = useState<any>(null);
+
+  const [presets, setPresets] = useState<
+    { name: string; filters: Record<string, string> }[]
+  >([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PRESETS_KEY);
+      if (raw) setPresets(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const savePresets = (
+    next: { name: string; filters: Record<string, string> }[]
+  ) => {
+    setPresets(next);
+    try {
+      localStorage.setItem(PRESETS_KEY, JSON.stringify(next));
+    } catch {}
+  };
+
+  const createPreset = () => {
+    const name = prompt("Preset name?");
+    if (!name) return;
+    const next = [...presets, { name, filters: activeFilters }];
+    savePresets(next);
+  };
+
+  const applyPreset = (p: { name: string; filters: Record<string, string> }) =>
+    setActiveFilters(p.filters || {});
+
+  const removePreset = (name: string) => {
+    const next = presets.filter((p) => p.name !== name);
+    savePresets(next);
+  };
 
   const handleAddVessel = (vessel: any) =>
     setVessels((prev) => [...prev, vessel]);
@@ -69,21 +110,47 @@ const VesselsPage: React.FC = () => {
   const renderFilterName = (key: string) =>
     Object.keys(filterKeyMap).find((name) => filterKeyMap[name] === key) || key;
 
+  const resetAll = () => {
+    setActiveFilters({});
+    setSearchQuery("");
+  };
+
+  const counters = useMemo(
+    () => ({
+      total: vessels.length,
+      active: Object.keys(activeFilters).length,
+    }),
+    [vessels.length, activeFilters]
+  );
+
   return (
-    <div className="min-h-[100dvh] bg-gray-100 dark:bg-black">
-      <div className="mx-auto max-w-7xl">
+    <div className={`min-h-[100dvh] w-full ${className || ""}`}>
+      <div className="w-full">
+        {/* header + filters */}
         <div className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-black/40 bg-white dark:bg-black px-3 sm:px-6 pt-3 sm:pt-6 pb-3 border-b border-gray-200 dark:border-white/10">
           <VesselsHeader
             onAdd={() => setIsAddOpen(true)}
             onDeleteSelected={handleDeleteSelected}
             hasSelected={selectedIds.length > 0}
           />
-          <VesselsTabs />
+          <div className="flex items-center justify-between mb-2">
+            <VesselsTabs />
+            <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-white/10">
+                Total: {counters.total}
+              </span>
+              <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-white/10">
+                Filters: {counters.active}
+              </span>
+            </div>
+          </div>
+
           <VesselsActions
             onAddFilter={handleAddFilter}
             onSearch={setSearchQuery}
             className="mt-2"
           />
+
           {Object.keys(activeFilters).length > 0 && (
             <div className="flex items-center gap-2 sm:gap-3 mt-3 flex-wrap">
               {Object.entries(activeFilters).map(([key, value]) => (
@@ -112,6 +179,12 @@ const VesselsPage: React.FC = () => {
                   </button>
                 </div>
               ))}
+              <button
+                onClick={resetAll}
+                className="text-xs sm:text-sm px-2 py-1 rounded-lg bg-gray-100 dark:bg:white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-200/80 dark:hover:bg-white/15 transition"
+              >
+                Reset
+              </button>
             </div>
           )}
         </div>

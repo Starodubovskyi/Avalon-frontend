@@ -24,7 +24,7 @@ import {
   IconSearch,
   IconHelpCircle,
   IconPinned,
-  IconPinnedOff
+  IconPinnedOff,
 } from "@tabler/icons-react";
 import type { IconProps } from "@tabler/icons-react";
 import clsx from "clsx";
@@ -71,7 +71,16 @@ const Sidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const [pinned, setPinned] = useState(false);
   const [showApps, setShowApps] = useState(false);
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [mobileAnimVisible, setMobileAnimVisible] = useState(false);
+  const [overlayVisible, setOverlayVisible] = useState(false);
+
+  // Notifications slide-over
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifOverlayVisible, setNotifOverlayVisible] = useState(false);
+  const [notifAnimVisible, setNotifAnimVisible] = useState(false);
+  const [notifTab, setNotifTab] = useState<"general" | "mine">("general");
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -140,7 +149,9 @@ const Sidebar = () => {
   );
 
   const Secondary = ({ children }: { children: React.ReactNode }) => (
-    <span className="text-[12px] text-gray-500 dark:text-gray-400">{children}</span>
+    <span className="text-[12px] text-gray-500 dark:text-gray-400">
+      {children}
+    </span>
   );
 
   const IconCell = ({ children }: { children: React.ReactNode }) => (
@@ -253,7 +264,7 @@ const Sidebar = () => {
     onClick?: () => void;
   }) =>
     href ? (
-      <Link href={href} onClick={() => setIsMobileOpen(false)}>
+      <Link href={href} onClick={() => closeMobile()}>
         <div
           className={clsx(
             "flex items-center gap-3 px-4 py-3 rounded-lg",
@@ -271,10 +282,45 @@ const Sidebar = () => {
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10">
           <Icon size={20} />
           <span className="text-[14px]">{label}</span>
-          <span className="ml-auto">{showApps ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}</span>
+          <span className="ml-auto">
+            {showApps ? (
+              <IconChevronUp size={16} />
+            ) : (
+              <IconChevronDown size={16} />
+            )}
+          </span>
         </div>
       </button>
     );
+
+  function openMobile() {
+    setIsMobileOpen(true);
+    requestAnimationFrame(() => {
+      setOverlayVisible(true);
+      setMobileAnimVisible(true);
+    });
+  }
+
+  function closeMobile() {
+    setOverlayVisible(false);
+    setMobileAnimVisible(false);
+    setTimeout(() => setIsMobileOpen(false), 300);
+  }
+
+  // Notifications slide-over controls
+  function openNotifications() {
+    setNotifTab("general");
+    setIsNotificationsOpen(true);
+    requestAnimationFrame(() => {
+      setNotifOverlayVisible(true);
+      setNotifAnimVisible(true);
+    });
+  }
+  function closeNotifications() {
+    setNotifOverlayVisible(false);
+    setNotifAnimVisible(false);
+    setTimeout(() => setIsNotificationsOpen(false), 300);
+  }
 
   return (
     <div className="bg-gray-100 dark:bg-black">
@@ -339,7 +385,9 @@ const Sidebar = () => {
               <div
                 className={clsx(
                   "relative ml-[12px] overflow-hidden transition-all duration-300 ease-out",
-                  showApps && expanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                  showApps && expanded
+                    ? "max-h-96 opacity-100"
+                    : "max-h-0 opacity-0"
                 )}
               >
                 <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gray-200 dark:bg-white/10 pointer-events-none" />
@@ -350,7 +398,9 @@ const Sidebar = () => {
                         <IconCell>
                           <Icon size={18} />
                         </IconCell>
-                        {expanded && <span className="text-[13px]">{label}</span>}
+                        {expanded && (
+                          <span className="text-[13px]">{label}</span>
+                        )}
                       </Row>
                     </Link>
                   ))}
@@ -369,15 +419,20 @@ const Sidebar = () => {
               </Row>
             </Link>
 
-            <Link href="/notifications">
-              <Row active={pathname === "/notifications"}>
+            {/* Notifications opens right slide-over */}
+            <button
+              type="button"
+              onClick={openNotifications}
+              className="w-full text-left"
+            >
+              <Row active={false}>
                 <IconCell>
                   <IconBell size={20} />
                 </IconCell>
                 {expanded && <Label>Notifications</Label>}
                 {expanded && <Dot n={3} />}
               </Row>
-            </Link>
+            </button>
 
             <div className="my-2 h-px bg-gray-200 dark:bg-white/10" />
 
@@ -405,7 +460,9 @@ const Sidebar = () => {
                   </button>
                 </DialogTrigger>
                 <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-2xl">
-                  <AuthModalContent onCloseModal={() => setIsAuthModalOpen(false)} />
+                  <AuthModalContent
+                    onCloseModal={() => setIsAuthModalOpen(false)}
+                  />
                 </DialogContent>
               </Dialog>
             ) : (
@@ -482,33 +539,55 @@ const Sidebar = () => {
           </div>
         </div>
 
-        <div className={clsx("hidden lg:block transition-[width] duration-300", containerWidth)} />
+        <div
+          className={clsx(
+            "hidden lg:block transition-[width] duration-300",
+            containerWidth
+          )}
+        />
 
+        {/* FAB open mobile menu */}
         <button
           className="fixed bottom-4 right-4 z-[60] bg-blue-600 text-white p-2 rounded-full shadow-md lg:hidden hover:bg-blue-700"
-          onClick={() => setIsMobileOpen(true)}
+          onClick={openMobile}
           aria-label="Open menu"
         >
           <IconMenu2 size={24} />
         </button>
 
+        {/* Mobile drawer with animation */}
         {isMobileOpen && (
           <div className="fixed inset-0 z-[70] flex lg:hidden">
             <div
-              className="fixed inset-0 bg-black/50"
-              onClick={() => setIsMobileOpen(false)}
+              className={clsx(
+                "fixed inset-0 transition-opacity duration-300",
+                overlayVisible
+                  ? "bg-black/50 opacity-100"
+                  : "bg-black/50 opacity-0"
+              )}
+              onClick={closeMobile}
             />
-            <div className="ml-auto h-full w-[85%] max-w-[340px] bg-white dark:bg-black shadow-xl relative flex flex-col">
+            <div
+              className={clsx(
+                "ml-auto h-full w-[85%] max-w-[340px] bg-white dark:bg-black shadow-xl relative flex flex-col transform transition-transform duration-300 ease-out",
+                mobileAnimVisible ? "translate-x-0" : "translate-x-full"
+              )}
+            >
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
-                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Menu</span>
-                <button onClick={() => setIsMobileOpen(false)} aria-label="Close menu">
+                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Menu
+                </span>
+                <button onClick={closeMobile} aria-label="Close menu">
                   <IconX size={24} />
                 </button>
               </div>
 
               <div className="p-4">
                 <div className="flex items-center gap-2 min-h-[44px] px-3 rounded-lg bg-white border border-gray-200 shadow-sm dark:bg-white/5 dark:border-white/10 dark:shadow-white/5">
-                  <IconSearch size={18} className="text-gray-500 dark:text-gray-400" />
+                  <IconSearch
+                    size={18}
+                    className="text-gray-500 dark:text-gray-400"
+                  />
                   <input
                     className="flex-1 bg-transparent outline-none text-[14px] placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     placeholder="Search…"
@@ -554,8 +633,21 @@ const Sidebar = () => {
 
                 <div className="h-px bg-gray-200 dark:bg-white/10 my-2" />
 
-                <MobileRow href="/support" label="Help Center" Icon={IconHelpCircle} active={pathname === "/support"} />
-                <Link href="/notifications" onClick={() => setIsMobileOpen(false)}>
+                <MobileRow
+                  href="/support"
+                  label="Help Center"
+                  Icon={IconHelpCircle}
+                  active={pathname === "/support"}
+                />
+
+                {/* Notifications trigger on mobile */}
+                <button
+                  onClick={() => {
+                    openNotifications();
+                    closeMobile();
+                  }}
+                  className="w-full text-left"
+                >
                   <div
                     className={clsx(
                       "flex items-center gap-3 px-4 py-3 rounded-lg",
@@ -566,9 +658,11 @@ const Sidebar = () => {
                   >
                     <IconBell size={20} />
                     <span className="text-[14px]">Notifications</span>
-                    <span className="ml-auto inline-flex items-center justify-center rounded-full text-[11px] px-1.5 min-w-[16px] bg-red-600 text-white">3</span>
+                    <span className="ml-auto inline-flex items-center justify-center rounded-full text-[11px] px-1.5 min-w-[16px] bg-red-600 text-white">
+                      3
+                    </span>
                   </div>
-                </Link>
+                </button>
 
                 <div className="h-px bg-gray-200 dark:bg-white/10 my-2" />
 
@@ -576,7 +670,7 @@ const Sidebar = () => {
                   <button
                     onClick={() => {
                       setIsAuthModalOpen(true);
-                      setIsMobileOpen(false);
+                      closeMobile();
                     }}
                     className="w-full text-left"
                   >
@@ -584,7 +678,9 @@ const Sidebar = () => {
                       <IconUserCircle size={22} />
                       <div className="flex flex-col">
                         <span className="text-[14px] font-medium">Sign in</span>
-                        <span className="text-[12px] text-gray-500 dark:text-gray-400">to your account</span>
+                        <span className="text-[12px] text-gray-500 dark:text-gray-400">
+                          to your account
+                        </span>
                       </div>
                     </div>
                   </button>
@@ -592,7 +688,11 @@ const Sidebar = () => {
                   <div className="flex items-center gap-3 px-4 py-3">
                     {currentUser.avatar ? (
                       <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                        <img src={currentUser.avatar || ""} alt="Avatar" className="w-full h-full object-cover" />
+                        <img
+                          src={currentUser.avatar || ""}
+                          alt="Avatar"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     ) : (
                       <IconUserCircle size={22} />
@@ -601,7 +701,9 @@ const Sidebar = () => {
                       <span className="text-[14px] font-medium text-gray-900 dark:text-gray-100">
                         {currentUser.name} {currentUser.lastName}
                       </span>
-                      <span className="text-[12px] text-gray-500 dark:text-gray-400">My account</span>
+                      <span className="text-[12px] text-gray-500 dark:text-gray-400">
+                        My account
+                      </span>
                     </div>
                     <button
                       onClick={handleLogout}
@@ -616,6 +718,90 @@ const Sidebar = () => {
           </div>
         )}
       </div>
+
+      {/* Notifications Slide-over (right) */}
+      {isNotificationsOpen && (
+        <div className="fixed inset-0 z-[80]">
+          <div
+            className={clsx(
+              "absolute inset-0 transition-opacity duration-300",
+              notifOverlayVisible
+                ? "bg-black/50 opacity-100"
+                : "bg-black/50 opacity-0"
+            )}
+            onClick={closeNotifications}
+          />
+          <aside
+            className={clsx(
+              "absolute right-0 top-0 bottom-0 w-full sm:w-[420px] bg-white dark:bg-[#0b0b0b] border-l border-gray-200 dark:border-white/10 shadow-xl flex flex-col transform transition-transform duration-300 ease-out",
+              notifAnimVisible ? "translate-x-0" : "translate-x-full"
+            )}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Notifications"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
+              <span className="text-[16px] font-semibold">Notifications</span>
+              <button
+                onClick={closeNotifications}
+                aria-label="Close notifications"
+              >
+                <IconX size={20} />
+              </button>
+            </div>
+
+            <div className="px-4 pt-3">
+              <div className="flex border-b border-gray-200 dark:border-white/10">
+                <button
+                  className={clsx(
+                    "px-3 py-2 text-sm",
+                    notifTab === "general"
+                      ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                      : "text-gray-600 dark:text-gray-300"
+                  )}
+                  onClick={() => setNotifTab("general")}
+                >
+                  General
+                </button>
+                <button
+                  className={clsx(
+                    "px-3 py-2 text-sm",
+                    notifTab === "mine"
+                      ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                      : "text-gray-600 dark:text-gray-300"
+                  )}
+                  onClick={() => setNotifTab("mine")}
+                >
+                  My Notifications
+                </button>
+              </div>
+            </div>
+
+            <div className="px-4 py-8 flex-1 overflow-y-auto">
+              {notifTab === "general" && (
+                <div className="text-center">
+                  <p className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+                    You're all caught up!
+                  </p>
+                  <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-1">
+                    Check back later for new Announcements.
+                  </p>
+                </div>
+              )}
+              {notifTab === "mine" && (
+                <div className="text-center">
+                  <p className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+                    No notifications yet
+                  </p>
+                  <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-1">
+                    When you have updates, they'll show up here.
+                  </p>
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
+      )}
     </div>
   );
 };
