@@ -10,8 +10,8 @@ type Props = {
   onReactToLastMessage?: (reaction: string) => void;
   replyTo?: Message | null;
   onCancelReply?: () => void;
-  inputText?: string; 
-  setInputText?: (text: string) => void; 
+  inputText?: string;
+  setInputText?: (text: string) => void;
 };
 
 export default function ChatInput({
@@ -55,7 +55,7 @@ export default function ChatInput({
   };
 
   const handleSend = () => {
-    if (!text.trim() && files.length === 0 && !location) return;
+    if (!text.trim() && files.length === 0 && !location) return;  
 
     onSend(text.trim(), files, location ?? undefined);
 
@@ -64,19 +64,20 @@ export default function ChatInput({
     } else {
       setText("");
     }
+
     setFiles([]);
     setLocation(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])]);
+      setFiles((prev) => [...prev, ...Array.from(e.target.files)]);
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])]);
+      setFiles((prev) => [...prev, ...Array.from(e.target.files)]);
     }
   };
 
@@ -90,7 +91,10 @@ export default function ChatInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSend();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   const onClickPhotoVideo = () => {
@@ -106,7 +110,6 @@ export default function ChatInput({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
-
       if (
         showAttachmentMenu &&
         attachmentMenuRef.current &&
@@ -116,7 +119,6 @@ export default function ChatInput({
       ) {
         setShowAttachmentMenu(false);
       }
-
       if (
         showEmoji &&
         emojiPickerRef.current &&
@@ -128,16 +130,15 @@ export default function ChatInput({
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAttachmentMenu, showEmoji]);
 
+  // Helper to truncate reply text for display
   const trimReplyText = (text: string, maxLength = 60) =>
     text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 
   return (
-    <div className="relative border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-[#0d1117]">
+    <div className="relative z-20 border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-[#0d1117]">
       {showEmoji && (
         <div ref={emojiPickerRef} className="absolute bottom-16 left-4 z-50">
           <EmojiPicker onEmojiClick={handleEmojiClick} theme={Theme.DARK} />
@@ -148,32 +149,22 @@ export default function ChatInput({
         <div className="mb-2 flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
           {files.map((file, idx) => (
             <div
-              key={idx}
+              key={`${file.name}-${idx}`}
               className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded flex items-center gap-1"
             >
-              <span className="truncate max-w-[100px]">{file.name}</span>
+              <span className="truncate max-w-[120px]">{file.name}</span>
               <X
                 className="w-4 h-4 cursor-pointer"
-                onClick={() =>
-                  setFiles((prev) => prev.filter((_, i) => i !== idx))
-                }
+                onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
               />
             </div>
           ))}
           {location && (
             <div className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded flex items-center gap-1">
-              <a
-                href={location}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
+              <a href={location} target="_blank" rel="noopener noreferrer" className="underline">
                 Location
               </a>
-              <X
-                className="w-4 h-4 cursor-pointer"
-                onClick={() => setLocation(null)}
-              />
+              <X className="w-4 h-4 cursor-pointer" onClick={() => setLocation(null)} />
             </div>
           )}
         </div>
@@ -193,18 +184,20 @@ export default function ChatInput({
                 : ""}
             </p>
           </div>
-          <button
-            className="ml-3 text-gray-500 hover:text-red-500"
-            onClick={onCancelReply}
-            type="button"
-            aria-label="Cancel reply"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {onCancelReply && (
+            <button
+              className="ml-3 text-gray-500 hover:text-red-500"
+              onClick={onCancelReply}
+              type="button"
+              aria-label="Cancel reply"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       )}
 
-      <div className="flex items-center gap-2 relative">
+      <div className="flex items-center gap-2">
         <button
           ref={emojiButtonRef}
           onClick={() => setShowEmoji((prev) => !prev)}
@@ -227,7 +220,7 @@ export default function ChatInput({
         {showAttachmentMenu && (
           <div
             ref={attachmentMenuRef}
-            className="absolute bottom-full mb-2 left-12 z-50 w-40 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-md shadow-lg p-2 flex flex-col gap-2"
+            className="absolute bottom-full mb-2 left-12 z-50 w-44 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-md shadow-lg p-2 flex flex-col gap-2"
           >
             <button
               onClick={onClickPhotoVideo}
@@ -256,40 +249,46 @@ export default function ChatInput({
           </div>
         )}
 
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            if (setInputText) setInputText(e.target.value);
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder="Type your message..."
-          className="flex-1 px-4 py-2 rounded-xl bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 text-sm focus:outline-none"
-        />
+        <div className="flex items-center flex-1 min-w-0">
+          <div className="flex items-center bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 rounded-full px-3 py-1.5 flex-1 min-w-0 max-w-[80%] sm:max-w-full">
+            <input
+              type="text"
+              value={text}
+              onChange={(e) => {
+                setText(e.target.value);
+                if (setInputText) {
+                  setInputText(e.target.value);
+                }
+              }}
+              placeholder="Type your message..."
+              className="flex-1 min-w-0 bg-transparent text-sm focus:outline-none"
+              onKeyDown={handleKeyDown}
+            />
+            <button
+              onClick={handleSend}
+              className="ml-2 p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex-shrink-0"
+              aria-label="Send message"
+              type="button"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-        <button
-          onClick={handleSend}
-          className="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full"
-          aria-label="Send message"
-        >
-          <Send className="w-4 h-4" />
-        </button>
-
-        <input
-          type="file"
-          hidden
-          multiple
-          ref={fileInputRef}
-          onChange={handleFileChange}
+        <input 
+          type="file" 
+          hidden 
+          multiple 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
         />
-        <input
-          type="file"
-          hidden
-          accept="image/*"
-          multiple
-          ref={imageInputRef}
-          onChange={handleImageChange}
+        <input 
+          type="file" 
+          hidden 
+          accept="image/*" 
+          multiple 
+          ref={imageInputRef} 
+          onChange={handleImageChange} 
         />
       </div>
     </div>
