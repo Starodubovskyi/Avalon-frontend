@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence, easeOut } from "framer-motion";
-import { responses } from "./responses"; 
+import { responses } from "./responses";
 import type { BotResponse } from "./responses";
 
 type Message = {
@@ -40,8 +40,8 @@ function TypingIndicator() {
   );
 }
 
-export default function ChatBot() {
-  const [open, setOpen] = useState(false);
+export default function ChatBot({ initialOpen = false }: { initialOpen?: boolean }) {
+  const [open, setOpen] = useState<boolean>(initialOpen);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,7 +59,6 @@ export default function ChatBot() {
     if (open) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-  // Отправить привет при первом открытии чата
   useEffect(() => {
     if (open && messages.length === 0) {
       setTimeout(() => {
@@ -113,7 +112,6 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* Открыть чат */}
       <div className="fixed bottom-4 right-4 z-[51] sm:right-8 sm:bottom-8">
         {!open && (
           <button
@@ -126,7 +124,6 @@ export default function ChatBot() {
         )}
       </div>
 
-      {/* Сам чат */}
       <div
         className={`
           fixed left-1/2 -translate-x-1/2 bottom-0 z-[100] w-full max-w-[440px]
@@ -143,14 +140,12 @@ export default function ChatBot() {
           maxHeight: "98svh",
         }}
       >
-        {/* Хедер с кнопкой закрытия */}
         <div className="flex items-center justify-between px-4 py-3 border-b font-semibold text-center bg-gray-50 border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-100 transition-colors">
           <span className="text-base flex-1 text-center select-none">💬 Chatbot</span>
           <button
             aria-label="Close"
             onClick={toggleChat}
             className="text-gray-400 hover:text-red-500 text-xl transition ml-4"
-            tabIndex={open ? 0 : -1}
           >
             <svg viewBox="0 0 20 20" width="24" height="24" fill="none">
               <path d="M6 6l8 8M6 14L14 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -158,7 +153,6 @@ export default function ChatBot() {
           </button>
         </div>
 
-        {/* Messages */}
         <div className="flex-1 p-2 sm:p-3 overflow-y-auto space-y-4 text-sm bg-gray-50 dark:bg-neutral-900 transition-colors custom-scroll">
           <AnimatePresence initial={false}>
             {messages.map((msg) => (
@@ -258,7 +252,6 @@ export default function ChatBot() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Быстрые кнопки */}
         <div className="flex gap-2 flex-nowrap overflow-x-auto py-2 px-1 justify-center border-t border-b bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-700">
           {quickButtons.map((btn) => (
             <button
@@ -272,7 +265,6 @@ export default function ChatBot() {
           ))}
         </div>
 
-        {/* Инпут */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -288,13 +280,11 @@ export default function ChatBot() {
             placeholder="Type something..."
             onKeyDown={handleKeyDown}
             autoComplete="off"
-            tabIndex={open ? 0 : -1}
           />
           <button
             type="submit"
             disabled={loading}
             className="ml-2 sm:ml-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-colors"
-            tabIndex={open ? 0 : -1}
           >
             ➤
           </button>
