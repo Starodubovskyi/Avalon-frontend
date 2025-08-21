@@ -44,7 +44,7 @@ type Props = {
   isSelected?: boolean;
   showSelectCircle?: boolean;
   userReactions: Set<string>;
-  isPinned: boolean; 
+  isPinned: boolean;
 };
 
 export default function ChatMessage({
@@ -284,7 +284,7 @@ export default function ChatMessage({
               isCurrentUser
                 ? "bg-emerald-400 text-gray-900 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl"
                 : "bg-gray-100 dark:bg-[#1a1f2b] text-gray-900 dark:text-white rounded-tr-2xl rounded-br-2xl rounded-tl-2xl",
-              { "pr-8": isPinned } 
+              { "pr-8": isPinned }
             )}
           >
             {isPinned && (
@@ -610,6 +610,7 @@ export default function ChatMessage({
             alt="Preview"
             className="max-h/[90vh] max-w/[90vw] rounded-lg shadow-lg"
             onClick={(e) => e.stopPropagation()}
+
 
           />
         </div>

@@ -46,7 +46,7 @@ const iconMap: Record<CategoryKey, JSX.Element> = {
 };
 
 type MemberWithRole = User & {
-  role?: string; 
+  role?: string;
 };
 
 type Props = {
@@ -79,11 +79,9 @@ export default function GroupInfoModal({
   );
   const [mutedForever, setMutedForever] = React.useState(false);
   const [showMenu, setShowMenu] = React.useState(false);
-  const [showMuteDurationDialog, setShowMuteDurationDialog] =
-    React.useState(false);
+  const [showMuteDurationDialog, setShowMuteDurationDialog] = React.useState(false);
   const [muteDuration, setMuteDuration] = React.useState<number | null>(null);
-  const [muteTimeoutId, setMuteTimeoutId] =
-    React.useState<NodeJS.Timeout | null>(null);
+  const [muteTimeoutId, setMuteTimeoutId] = React.useState<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
     setNotificationsEnabled(externalNotificationsEnabled);
@@ -115,37 +113,49 @@ export default function GroupInfoModal({
     }
   }, [muteDuration, externalSetNotificationsEnabled]);
 
-  React.useEffect(() => {
-    externalSetNotificationsEnabled(notificationsEnabled);
-  }, [notificationsEnabled, externalSetNotificationsEnabled]);
-
   const counts = {
     photos: messages.reduce(
       (acc, msg) =>
         acc +
-        (msg.attachments?.filter((a) => a.type.startsWith("image")).length ||
-          0),
+        (msg.attachments?.filter(
+          (a) =>
+            a.type.startsWith("image") &&
+            !a.type.toLowerCase().includes("gif")
+        ).length || 0),
       0
     ),
     videos: messages.reduce(
       (acc, msg) =>
-        acc +
-        (msg.attachments?.filter((a) => a.type.startsWith("video")).length ||
-          0),
+        acc + (msg.attachments?.filter((a) => a.type.startsWith("video")).length || 0),
       0
     ),
     files: messages.reduce(
       (acc, msg) =>
         acc +
         (msg.attachments?.filter(
-          (a) => !a.type.startsWith("image") && !a.type.startsWith("video")
+          (a) =>
+            !a.type.startsWith("image") &&
+            !a.type.startsWith("video") &&
+            !a.type.startsWith("audio")
         ).length || 0),
       0
     ),
-    audioFiles: 0, 
-    sharedLinks: messages.reduce((acc, msg) => acc + (msg.location ? 1 : 0), 0),
-    voiceMessages: 0,
-    gifs: 1008, 
+    audioFiles: messages.reduce(
+      (acc, msg) =>
+        acc + (msg.attachments?.filter((a) => a.type.startsWith("audio")).length || 0),
+      0
+    ),
+    sharedLinks: messages.reduce(
+      (acc, msg) => acc + (msg.location ? 1 : 0),
+      0
+    ),
+    voiceMessages: 0, 
+    gifs: messages.reduce(
+      (acc, msg) =>
+        acc +
+        (msg.attachments?.filter((a) => a.type.toLowerCase().includes("gif")).length || 0),
+      0
+    ),
   };
 
   const categories: { key: CategoryKey; label: string }[] = [
@@ -368,7 +378,6 @@ export default function GroupInfoModal({
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

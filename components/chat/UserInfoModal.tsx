@@ -87,8 +87,6 @@ export default function UserInfoModal({
   const [activeCategory, setActiveCategory] = useState<CategoryKey | null>(
     null
   );
-
-
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -249,7 +247,7 @@ export default function UserInfoModal({
               </div>
             )}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text:white">
                 {user.name}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -275,7 +273,7 @@ export default function UserInfoModal({
           </div>
 
           <div className="mb-4 flex items-center justify-between relative">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text:white flex items-center gap-2">
               {notificationsEnabled ? (
                 <Bell className="w-5 h-5" />
               ) : mutedForever ? (
@@ -334,7 +332,7 @@ export default function UserInfoModal({
 
           {showMuteDurationDialog && (
             <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-40">
-              <div className="bg-[#0d1117] rounded-lg p-6 w-72 max-w-full text-white">
+              <div className="bg-[#0d1117] rounded-lg p-6 w-72 max-w-full text:white">
                 <h3 className="text-lg font-semibold mb-4">
                   Mute notifications for...
                 </h3>
@@ -371,7 +369,7 @@ export default function UserInfoModal({
                     onClick={handleConfirmMuteDuration}
                     type="button"
                     disabled={muteDuration === null}
-                    className="px-4 py-2 rounded bg-emerald-500 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded bg-emerald-500 text:white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Mute
                   </button>
@@ -392,7 +390,7 @@ export default function UserInfoModal({
           </button>
 
           <div>
-            <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
+            <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text:white flex items:center gap-2">
               Media, Links and Docs
             </h4>
             <ul className="space-y-1">
@@ -418,7 +416,7 @@ export default function UserInfoModal({
               onClose={closeCategoryModal}
               messages={messages}
               pinnedMessages={pinnedMessages}
-              onPreviewImage={openPreviewImage} 
+              onPreviewImage={openPreviewImage}
             />
           )}
 
@@ -432,14 +430,14 @@ export default function UserInfoModal({
             </button>
             <button
               type="button"
-              className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
+              className="flex items:center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
             >
               <Edit className="w-5 h-5" />
               Edit contact
             </button>
             <button
               type="button"
-              className="flex items-center gap-2 text-red-600 hover:text-red-700"
+              className="flex items:center gap-2 text-red-600 hover:text-red-700"
             >
               <Trash2 className="w-5 h-5" />
               Delete contact
@@ -450,7 +448,7 @@ export default function UserInfoModal({
 
       {previewImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          className="fixed inset-0 bg:black bg-opacity-80 flex items:center justify-center z-50"
           onClick={() => setPreviewImage(null)}
         >
           <button
@@ -468,7 +466,7 @@ export default function UserInfoModal({
           <img
             src={previewImage}
             alt="Preview"
-            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+            className="max-h:[90vh] max-w:[90vw] rounded-lg shadow-lg"
             onClick={(e) => e.stopPropagation()}
           />
         </div>
@@ -482,7 +480,7 @@ type CategoryModalProps = {
   onClose: () => void;
   messages: MessageWithReactions[];
   pinnedMessages: MessageWithReactions[];
-  onPreviewImage: (url: string) => void; 
+  onPreviewImage: (url: string) => void;
 };
 
 function CategoryModal({
@@ -554,11 +552,11 @@ function CategoryModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items:center justify-center z-60 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[#0d1117] rounded-lg w-full max-w-3xl p-6 flex flex-col gap-4 relative max-h-[80vh] overflow-y-auto"
+        className="bg-white dark:bg-[#0d1117] rounded-lg w-full max-w-3xl p-6 flex flex-col gap-4 relative max-h:[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -569,7 +567,7 @@ function CategoryModal({
           <X className="w-6 h-6" />
         </button>
 
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 capitalize">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text:white mb-4 capitalize">
           {category}
         </h3>
 
@@ -579,7 +577,7 @@ function CategoryModal({
           </p>
         )}
 
-        <div className="overflow-y-auto max-h-[60vh]">
+        <div className="overflow-y-auto max-h:[60vh]">
           {category === "savedMessages" ? (
             <ul className="space-y-3">
               {items.map((item, idx) => (
@@ -612,7 +610,7 @@ function CategoryModal({
                     <video
                       key={idx}
                       src={item.url}
-                      className="w-full h-28 object-cover rounded-md cursor-pointer"
+                      className="w-full h-28 object-cover rounded-md cursor:pointer"
                       controls
                     />
                   );
@@ -634,7 +632,7 @@ function CategoryModal({
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full h-20 flex items-center justify-center bg-gray-200 dark:bg-gray-800 text-xs text-blue-500 dark:text-blue-400 rounded-md underline truncate px-2"
+                      className="w-full h-20 flex items:center justify-center bg-gray-200 dark:bg-gray-800 text-xs text-blue-500 dark:text-blue-400 rounded-md underline truncate px-2"
                       title={item.name || item.url}
                     >
                       {item.name || item.url}

@@ -11,8 +11,10 @@ type Props = {
   replyTo?: Message | null;
   onCancelReply?: () => void;
 
+
   inputText?: string; 
   setInputText?: (text: string) => void; 
+
 };
 
 export default function ChatInput({
@@ -60,7 +62,7 @@ export default function ChatInput({
   };
 
   const handleSend = () => {
-    if (!text.trim() && files.length === 0 && !location) return;
+    if (!text.trim() && files.length === 0 && !location) return;  
 
     onSend(text.trim(), files, location ?? undefined);
 
@@ -77,13 +79,17 @@ export default function ChatInput({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
+
       setFiles((prev) => [...prev, ...Array.from(e.target.files as FileList)]);
+
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
+
       setFiles((prev) => [...prev, ...Array.from(e.target.files as FileList)]);
+
     }
   };
 
@@ -116,7 +122,6 @@ export default function ChatInput({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
-
       if (
         showAttachmentMenu &&
         attachmentMenuRef.current &&
@@ -126,7 +131,6 @@ export default function ChatInput({
       ) {
         setShowAttachmentMenu(false);
       }
-
       if (
         showEmoji &&
         emojiPickerRef.current &&
@@ -141,8 +145,10 @@ export default function ChatInput({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAttachmentMenu, showEmoji]);
 
+
   const trimReplyText = (val: string, max = 60) =>
     val.length > max ? val.slice(0, max) + "..." : val;
+
 
 
   return (
@@ -205,7 +211,7 @@ export default function ChatInput({
         </div>
       )}
 
-      {/* нижняя панель без внешних сдвигов, всё держится ровно */}
+
       <div className="flex items-center gap-2">
         <button
           ref={emojiButtonRef}
@@ -258,7 +264,7 @@ export default function ChatInput({
           </div>
         )}
 
-        {/* Инпут (сужен на мобиле) + Кнопка отправки ВНУТРИ */}
+
         <div className="flex items-center flex-1 min-w-0">
           <div className="flex items-center bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 rounded-full px-3 py-1.5 flex-1 min-w-0 max-w-[80%] sm:max-w-full">
             <input
@@ -266,13 +272,16 @@ export default function ChatInput({
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
-                if (setInputText) setInputText(e.target.value);
+
+                if (setInputText) {
+                  setInputText(e.target.value);
+                }
               }}
-              onKeyDown={handleKeyDown}
               placeholder="Type your message..."
               className="flex-1 min-w-0 bg-transparent text-sm focus:outline-none"
+              onKeyDown={handleKeyDown}
             />
-            {/* SEND ВНУТРИ ИНПУТА */}
+
             <button
               onClick={handleSend}
               className="ml-2 p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex-shrink-0"
@@ -284,9 +293,12 @@ export default function ChatInput({
           </div>
         </div>
 
-        {/* скрытые инпуты файлов */}
+
+       
         <input type="file" hidden multiple ref={fileInputRef} onChange={handleFileChange} />
         <input type="file" hidden accept="image/*" multiple ref={imageInputRef} onChange={handleImageChange} />
+
+
       </div>
     </div>
   );
