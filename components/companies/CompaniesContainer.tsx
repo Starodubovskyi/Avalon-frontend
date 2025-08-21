@@ -1,4 +1,3 @@
-// components/companies/CompaniesContainer.tsx
 "use client";
 
 import { useState, useEffect } from "react";

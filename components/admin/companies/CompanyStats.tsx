@@ -17,7 +17,7 @@ interface CompanyStatsProps {
   currentCompaniesData: AdminCompany[]
 }
 
-const COLORS = ["#10B981", "#EF4444"] // green, red
+const COLORS = ["#10B981", "#EF4444"] 
 
 const CompanyStats: React.FC<CompanyStatsProps> = ({ currentCompaniesData }) => {
   const total = currentCompaniesData.length
@@ -69,7 +69,6 @@ const CompanyStats: React.FC<CompanyStatsProps> = ({ currentCompaniesData }) => 
         </CardContent>
       </Card>
 
-      {/* Pie Chart */}
       <Card className="col-span-5 md:col-span-2 rounded-2xl shadow-md dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
         <CardHeader className="flex items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Status Distribution</CardTitle>
