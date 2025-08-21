@@ -47,7 +47,6 @@ export default function PortsPage({
 
   return (
     <div className="w-full">
-      {/* sticky header */}
       <div
         className="sticky top-0 z-20 backdrop-blur 
                    supports-[backdrop-filter]:bg-white/60 

@@ -1,6 +1,7 @@
 "use client";
 
-import type { Billing } from "./types";
+import { type Plan, type Billing, PLANS, getPlanById } from "@/components/types/billing/plan";
+
 
 export default function BillingToggle({
   billing,

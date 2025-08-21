@@ -74,7 +74,6 @@ export default function VesselsActions({
             value={q}
             onChange={(e) => {
               setQ(e.target.value);
-              // мгновенный поиск по вводу (оставляю, но сабмит тоже работает)
               onSearch(e.target.value);
             }}
             placeholder="Search vessels..."

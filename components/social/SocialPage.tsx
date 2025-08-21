@@ -38,7 +38,6 @@ const SocialPage: React.FC = () => {
     };
   }, [leftOpen, rightOpen]);
 
-  // --- свайпы ---
   useEffect(() => {
     let startX = 0;
     let currentX = 0;
@@ -60,17 +59,14 @@ const SocialPage: React.FC = () => {
       if (!touching) return;
       const diffX = currentX - startX;
 
-      // свайп вправо с левого края
       if (startX < 20 && diffX > 80 && !leftOpen && !rightOpen) {
         setLeftOpen(true);
       }
 
-      // свайп влево с правого края
       if (startX > window.innerWidth - 20 && diffX < -80 && !leftOpen && !rightOpen) {
         setRightOpen(true);
       }
 
-      // закрытие свайпом
       if (leftOpen && diffX < -80) {
         setLeftOpen(false);
       }
@@ -133,7 +129,6 @@ const SocialPage: React.FC = () => {
         onCloseAll={closeAll}
       />
 
-      {/* Десктоп */}
       <div className="px-4 lg:px-8 pt-4 lg:pt-8 flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
         <LeftSidebar user={userForSidebar} />
         <div className="flex-1 lg:w-3/5">
@@ -142,7 +137,6 @@ const SocialPage: React.FC = () => {
         <RightSidebar />
       </div>
 
-      {/* Overlay */}
       {(leftOpen || rightOpen) && (
         <div
           className="fixed inset-0 z-[90] bg-black/55 backdrop-blur-[1px] lg:hidden"
@@ -150,7 +144,6 @@ const SocialPage: React.FC = () => {
         />
       )}
 
-      {/* Left drawer */}
       <aside
         className={`fixed inset-y-0 left-0 z-[100] lg:hidden w-[88%] max-w-[360px] h-full
           bg-white dark:bg-[#0b1220] shadow-2xl border-r border-gray-200 dark:border-white/10
@@ -165,7 +158,6 @@ const SocialPage: React.FC = () => {
         </div>
       </aside>
 
-      {/* Right drawer */}
       <aside
         className={`fixed inset-y-0 right-0 z-[100] lg:hidden w-[88%] max-w-[360px] h-full
           bg-white dark:bg-[#0b1220] shadow-2xl border-l border-gray-200 dark:border-white/10

@@ -8,16 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-/** Универсальный тип колонки (ключ — дженерик T) */
 type SimpleColumn<T extends string = string> = { key: T; label: string };
 
-/**
- * ДВА РЕЖИМА РАБОТЫ:
- * 1) С TanStack Table — передаём `table`, всё как раньше.
- * 2) Простой режим — передаём список колонок, видимость и onToggle с ТЕМ ЖЕ типом ключей, что и у таблицы.
- */
+
 type ColumnsDropdownPropsTable = {
-  table: any; // TanStack Table instance
+  table: any; 
   className?: string;
   label?: string;
 };
@@ -40,7 +35,6 @@ export default function ColumnsDropdown<T extends string = string>(
 ) {
   const label = (props as any).label ?? "Columns";
 
-  // ===== РЕЖИМ 1: с TanStack Table =====
   if ("table" in props && props.table) {
     const { table, className } = props as ColumnsDropdownPropsTable;
 
@@ -86,7 +80,6 @@ export default function ColumnsDropdown<T extends string = string>(
     );
   }
 
-  // ===== РЕЖИМ 2: простой (дженерик по ключам колонок) =====
   const { allColumns, visible, onToggle, className } =
     props as ColumnsDropdownPropsSimple<T>;
 

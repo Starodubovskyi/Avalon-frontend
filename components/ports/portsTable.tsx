@@ -12,14 +12,14 @@ type ColumnKey =
   | "port"
   | "unlocode"
   | "photoUrl"
-  | "timezone" // Local time
-  | "vessels" // Vessels in port
-  | "arrivals" // Arrivals (last 24hrs)
+  | "timezone" 
+  | "vessels" 
+  | "arrivals" 
   | "departures"
   | "expectedArrivals"
-  | "anchorage" // Related anchorage
-  | "geoArea1" // Area global
-  | "geoArea2" // Area local
+  | "anchorage" 
+  | "geoArea1" 
+  | "geoArea2" 
   | "coverage";
 
 export interface PortsTableProps {
@@ -125,7 +125,6 @@ export default function PortsTable({
 
   const exportCSV = () => {
     const rowsCsv = filtered.map((r) => ({
-      // country не показываем колонкой, но используем для флага
       flagCode: toAlpha2(r.country)?.toUpperCase() || "",
       port: r.port || "",
       unlocode: r.unlocode || "",
@@ -338,7 +337,6 @@ export default function PortsTable({
 
   const DesktopTable = () => (
     <div className="hidden md:block rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 shadow overflow-hidden">
-      {/* Toolbar */}
       <div className="flex items-center justify-between p-3 border-b border-slate-200 dark:border-white/10">
         <ColumnsDropdown
           allColumns={ALL_COLUMNS}

@@ -72,11 +72,11 @@ export default function CreateGroupModal({
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-      onClick={onCancel} // при клике на фон вызываем закрытие
+      onClick={onCancel} 
     >
       <div
         className="bg-white dark:bg-[#0d1117] rounded-lg w-full max-w-md p-6 flex flex-col gap-6 relative"
-        onClick={(e) => e.stopPropagation()} // клики по окну не распространяются
+        onClick={(e) => e.stopPropagation()} 
       >
         <button
           onClick={onCancel}

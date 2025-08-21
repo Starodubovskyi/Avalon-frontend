@@ -1,4 +1,3 @@
-// components/ports/portsMapper.ts
 import countries from "i18n-iso-countries";
 import en from "i18n-iso-countries/langs/en.json";
 countries.registerLocale(en as any);
@@ -13,7 +12,6 @@ const toAlpha2 = (val?: string) => {
 const flagUrl = (a2: string) =>
   a2 ? `https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/flags/4x3/${a2}.svg` : "";
 
-/** Вход — объект из API; выход — строка для нашей таблицы */
 export function mapMarineTrafficPort(row: any) {
   const a2 = toAlpha2(row?.flag || row?.country);
   return {
@@ -36,7 +34,6 @@ export function mapMarineTrafficPort(row: any) {
   };
 }
 
-/** Массив */
 export function mapMarineTrafficPorts(rows: any[] = []) {
   return rows.map(mapMarineTrafficPort);
 }

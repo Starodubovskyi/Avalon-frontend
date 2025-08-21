@@ -51,6 +51,7 @@
     "react-select": "^5.10.2",
     "recharts": "^2.15.4",
     "sharp": "^0.34.3",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
     "tooltip": "^1.6.1",

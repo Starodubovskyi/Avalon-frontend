@@ -1,7 +1,8 @@
 "use client";
 
 import PayNowButton from "./PayNowButton";
-import type { Billing, Plan } from "./types";
+import { type Plan, type Billing, PLANS, getPlanById } from "@/components/types/billing/plan";
+
 
 export default function CurrentPlanBar({
   plans,
@@ -16,6 +17,9 @@ export default function CurrentPlanBar({
 }) {
   const currentPlan = plans.find((p) => p.id === currentPlanId) || null;
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) || null;
+
+  const selectedAmount =
+    selectedPlan && (billing === "monthly" ? selectedPlan.monthly : selectedPlan.yearly);
 
   return (
     <div
@@ -32,18 +36,29 @@ export default function CurrentPlanBar({
       <div className="flex flex-wrap items-center gap-2">
         <span>
           Current plan:{" "}
-          <span className="font-semibold">{currentPlan?.name}</span>
+          <span className="font-semibold">
+            {currentPlan?.name ?? "—"}
+          </span>
+        </span>
+
+        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-white/10 dark:text-gray-200">
+          {billing === "monthly" ? "Monthly" : "Yearly"}
         </span>
 
         {selectedPlan && selectedPlan.id !== currentPlanId && (
-          <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-500">
+          <span className="inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-500">
             Selected: {selectedPlan.name}
+            {typeof selectedAmount === "number" && selectedAmount > 0 && (
+              <span className="ml-1 text-[11px] font-medium text-amber-400">
+                ${selectedAmount.toFixed(2)}
+              </span>
+            )}
           </span>
         )}
       </div>
 
       <PayNowButton
-        selectedPlan={selectedPlan}
+        selectedPlan={selectedPlan && selectedPlan.id !== currentPlanId ? selectedPlan : null}
         currentPlanId={currentPlanId}
         billing={billing}
       />

@@ -42,10 +42,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import AuthModalContent from "@/components/auth/AuthModalContent";
 import LogoSideBar from "@/components/ui/LogoSideBar";
 
-/* ---------- TYPES ---------- */
 type TablerIcon = React.ComponentType<Partial<IconProps>>;
 
-/* --------- DATA --------- */
 const navItems = [
   { label: "Home", href: "/", icon: IconHome2 },
   { label: "Map", href: "/maps", icon: IconMap2 },
@@ -76,7 +74,6 @@ const Sidebar = () => {
   const [mobileAnimVisible, setMobileAnimVisible] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
 
-  // Notifications slide-over
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifOverlayVisible, setNotifOverlayVisible] = useState(false);
   const [notifAnimVisible, setNotifAnimVisible] = useState(false);
@@ -307,7 +304,6 @@ const Sidebar = () => {
     setTimeout(() => setIsMobileOpen(false), 300);
   }
 
-  // Notifications slide-over controls
   function openNotifications() {
     setNotifTab("general");
     setIsNotificationsOpen(true);
@@ -419,7 +415,6 @@ const Sidebar = () => {
               </Row>
             </Link>
 
-            {/* Notifications opens right slide-over */}
             <button
               type="button"
               onClick={openNotifications}
@@ -546,7 +541,6 @@ const Sidebar = () => {
           )}
         />
 
-        {/* FAB open mobile menu */}
         <button
           className="fixed bottom-4 right-4 z-[60] bg-blue-600 text-white p-2 rounded-full shadow-md lg:hidden hover:bg-blue-700"
           onClick={openMobile}
@@ -555,7 +549,6 @@ const Sidebar = () => {
           <IconMenu2 size={24} />
         </button>
 
-        {/* Mobile drawer with animation */}
         {isMobileOpen && (
           <div className="fixed inset-0 z-[70] flex lg:hidden">
             <div
@@ -640,7 +633,6 @@ const Sidebar = () => {
                   active={pathname === "/support"}
                 />
 
-                {/* Notifications trigger on mobile */}
                 <button
                   onClick={() => {
                     openNotifications();
@@ -719,7 +711,6 @@ const Sidebar = () => {
         )}
       </div>
 
-      {/* Notifications Slide-over (right) */}
       {isNotificationsOpen && (
         <div className="fixed inset-0 z-[80]">
           <div

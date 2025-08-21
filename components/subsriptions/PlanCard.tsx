@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Billing, Plan } from "./types";
+import { type Plan, type Billing } from "@/components/types/billing/plan";
 import PriceBlock from "./PriceBlock";
 import FeatureList from "./FeatureList";
 
@@ -19,6 +19,7 @@ export default function PlanCard({
   onSelect: (id: string) => void;
 }) {
   const isFree = plan.monthly === 0 && plan.yearly === 0;
+  const Icon = plan.icon; // ✅ компонент
 
   return (
     <motion.div
@@ -60,7 +61,7 @@ export default function PlanCard({
       <div className="relative flex h-full flex-col p-5">
         <div className="flex items-center gap-2">
           <div className="rounded-xl bg-muted dark:bg-neutral-800 p-2">
-            {plan.icon}
+            <Icon className="h-5 w-5 text-primary" /> {/* ✅ FIX */}
           </div>
           <h3 className="text-lg font-semibold">{plan.name}</h3>
         </div>

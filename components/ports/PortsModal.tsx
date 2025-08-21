@@ -9,11 +9,10 @@ export interface PortFormData {
   id?: string;
   port?: string;
   unlocode?: string;
-  country?: string; // название страны EN или ISO-2
-  countryFlag?: string; // svg url
+  country?: string; 
+  countryFlag?: string; 
   timezone?: string;
-  photoUrl?: string; // DataURL или URL
-  // любые другие ваши поля — не трогаю
+  photoUrl?: string; 
 }
 
 export default function PortsModal({
@@ -68,7 +67,6 @@ export default function PortsModal({
       ? `https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/flags/4x3/${alpha2}.svg`
       : "";
 
-  // при выборе страны — ставим и флаг
   const setCountry = (countryNameOrCode: string) => {
     const a2 = toAlpha2(countryNameOrCode);
     setForm((p) => ({
@@ -174,10 +172,8 @@ export default function PortsModal({
           "max-h-[90vh] flex flex-col",
         ].join(" ")}
       >
-        {/* drag handle */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
 
-        {/* header */}
         <div className="sticky top-0 z-10 bg-white/70 dark:bg-neutral-900/70 backdrop-blur border-b border-gray-200 dark:border-gray-700 px-5 py-4 flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-semibold">
             {initialData ? "Edit Port" : "Add Port"}
@@ -191,7 +187,6 @@ export default function PortsModal({
           </button>
         </div>
 
-        {/* content */}
         <div className="px-5 py-4 overflow-y-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Field
@@ -209,7 +204,6 @@ export default function PortsModal({
               }
             />
 
-            {/* Country select */}
             <div className="space-y-1">
               <label className="text-xs text-gray-500 dark:text-gray-400">
                 Country
@@ -238,7 +232,6 @@ export default function PortsModal({
               {requiredInvalid("country") && (
                 <p className="text-xs text-red-500">This field is required.</p>
               )}
-              {/* флаг превью */}
               {form.countryFlag ? (
                 <div className="mt-2 flex items-center gap-2">
                   <img
@@ -261,7 +254,6 @@ export default function PortsModal({
               onChange={(v) => setForm((p) => ({ ...p, timezone: v }))}
             />
 
-            {/* Photo upload */}
             <div className="sm:col-span-2 space-y-2">
               <label className="text-xs text-gray-500 dark:text-gray-400">
                 Photo
@@ -318,7 +310,6 @@ export default function PortsModal({
           </div>
         </div>
 
-        {/* footer */}
         <div className="sticky bottom-0 z-10 bg-white/70 dark:bg-neutral-900/70 backdrop-blur border-t border-gray-200 dark:border-gray-700 px-5 py-4 flex flex-col sm:flex-row justify-end gap-2">
           <button
             onClick={onClose}

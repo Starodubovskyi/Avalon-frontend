@@ -80,7 +80,6 @@ export default function PortsHeader({
 
   return (
     <div className="space-y-3">
-      {/* Top row — title + Add */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
@@ -98,7 +97,6 @@ export default function PortsHeader({
         </button>
       </div>
 
-      {/* Tabs row + badges */}
       <div className="flex items-end justify-between gap-2">
         <div className="min-w-0 flex-1 overflow-hidden">
           <PortsTabs value={tab} onChange={onTabChange} />
@@ -113,7 +111,6 @@ export default function PortsHeader({
         </div>
       </div>
 
-      {/* Search + Filters + Delete */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 flex items-center gap-2 rounded-2xl border border-gray-300 dark:border-white/10 bg-gray-100 dark:bg-black/30 px-3 py-2">
           <svg

@@ -10,8 +10,8 @@ type Props = {
   onReactToLastMessage?: (reaction: string) => void;
   replyTo?: Message | null;
   onCancelReply?: () => void;
-  inputText?: string; // новый пропс
-  setInputText?: (text: string) => void; // новый пропс
+  inputText?: string; 
+  setInputText?: (text: string) => void; 
 };
 
 export default function ChatInput({
@@ -22,10 +22,8 @@ export default function ChatInput({
   inputText = "",
   setInputText,
 }: Props) {
-  // Инициализация из контролируемого пропса inputText
   const [text, setText] = useState(inputText);
 
-  // Синхронизируем внутренний state с внешним при изменении inputText
   useEffect(() => {
     setText(inputText);
   }, [inputText]);
@@ -48,7 +46,6 @@ export default function ChatInput({
       onReactToLastMessage(emoji.emoji);
       setShowEmoji(false);
     } else {
-      // Добавляем emoji в контролируемый или локальный state
       if (setInputText) {
         setInputText(text + emoji.emoji);
       } else {
@@ -62,7 +59,6 @@ export default function ChatInput({
 
     onSend(text.trim(), files, location ?? undefined);
 
-    // Очищаем локальный и контролируемый inputText
     if (setInputText) {
       setInputText("");
     } else {
@@ -137,7 +133,6 @@ export default function ChatInput({
     };
   }, [showAttachmentMenu, showEmoji]);
 
-  // Функция обрезки текста цитаты, максимум 60 символов с "..."
   const trimReplyText = (text: string, maxLength = 60) =>
     text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 
@@ -184,7 +179,6 @@ export default function ChatInput({
         </div>
       )}
 
-      {/* --- Цитируемое сообщение сверху поля ввода --- */}
       {replyTo && (
         <div className="mb-2 flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2">
           <div className="flex-1 min-w-0">

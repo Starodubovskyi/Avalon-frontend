@@ -20,6 +20,13 @@ import imageCompression from "browser-image-compression";
 import ProfileHeader from "./ProfileHeader";
 import Gallery from "./Gallery";
 
+// ⬇️ импортируем утилиты биллинга для синхронизации Membership
+import { getCurrentSubscription } from "@/components/types/billing/subscription";
+import {
+  getPlanById,
+  type Billing as BillingType,
+} from "@/components/types/billing/plan";
+
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en"));
 
@@ -81,10 +88,17 @@ export default function UserProfile() {
   const [birthDateObj, setBirthDateObj] = useState<Date | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
 
+  // ⬇️ локальный ключ для задач
   const tasksKey = useMemo(
     () => `profileTasks:${formData.email || "anon"}`,
     [formData.email]
   );
+
+  // ⬇️ состояние текущей подписки из Billing
+  const [subscription, setSubscription] = useState<{
+    planName: string;
+    billing: BillingType;
+  } | null>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("currentUser");
@@ -117,6 +131,7 @@ export default function UserProfile() {
     }
   }, []);
 
+  // ⬇️ загрузка/инициализация задач
   useEffect(() => {
     const t = localStorage.getItem(tasksKey);
     if (t) {
@@ -147,8 +162,27 @@ export default function UserProfile() {
     }
   }, [tasksKey]);
 
+  // ⬇️ читаем текущую подписку и слушаем изменения (синхронизация с /billing)
+  useEffect(() => {
+    const refresh = () => {
+      const sub = getCurrentSubscription();
+      if (sub) {
+        const p = getPlanById(sub.planId);
+        if (p) {
+          setSubscription({ planName: p.name, billing: sub.billing });
+          return;
+        }
+      }
+      setSubscription(null);
+    };
+
+    refresh();
+    window.addEventListener("storage", refresh);
+    return () => window.removeEventListener("storage", refresh);
+  }, []);
+
   function generateFakeActivity() {
-    const arr = [];
+    const arr: { date: string; value: number }[] = [];
     const today = new Date();
     for (let i = 9; i >= 0; i--) {
       const d = new Date(today);
@@ -482,27 +516,56 @@ export default function UserProfile() {
             </a>
           )}
 
+          {/* ===== Membership synced with Billing ===== */}
           <div className="mt-4 overflow-hidden rounded-3xl border border-gray-200/70 dark:border-white/10">
             <div className="p-4 bg-white/95 dark:bg-neutral-900/60">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Membership
               </h3>
-              <div className="mt-3 text-sm text-gray-700 dark:text-gray-300">
-                Member Level:
-                <span className="ml-2 inline-flex items-center rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                  {(formData.membership?.plan || "Basic").toUpperCase()}
+
+              <div className="mt-3 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <span className="opacity-80">Current plan:</span>
+                <span className="inline-flex items-center rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                  {(subscription?.planName ||
+                    formData.membership?.plan ||
+                    "Basic")
+                    .toString()
+                    .toUpperCase()}
                 </span>
+                {subscription && (
+                  <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-700 dark:bg-white/10 dark:text-gray-200">
+                    {subscription.billing === "monthly" ? "MONTHLY" : "YEARLY"}
+                  </span>
+                )}
               </div>
+
               <div className="mt-3 h-12 rounded-xl border border-gray-100 bg-gray-50 dark:border-white/10 dark:bg-white/5" />
+              {!subscription && (
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  No active subscription from Billing. You can upgrade to unlock
+                  more features.
+                </p>
+              )}
             </div>
-            <div className="bg-gray-50 p-4 dark:bg-white/5">
-              <button
-                type="button"
-                onClick={goUpgrade}
-                className="w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 py-2 text-sm font-semibold text-white shadow hover:opacity-90 active:scale-[.98] transition dark:from-blue-500 dark:to-indigo-600"
-              >
-                Upgrade
-              </button>
+
+            <div className="bg-gray-50 p-4 flex gap-2 dark:bg-white/5">
+              {subscription ? (
+                <button
+                  type="button"
+                  onClick={() => router.push("/billing")}
+                  className="w-full rounded-full bg-gray-900 py-2 text-sm font-semibold text-white shadow hover:opacity-90 active:scale-[.98] transition dark:bg-white dark:text-black"
+                >
+                  Manage in Billing
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={goUpgrade}
+                  className="w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 py-2 text-sm font-semibold text-white shadow hover:opacity-90 active:scale-[.98] transition dark:from-blue-500 dark:to-indigo-600"
+                >
+                  Upgrade
+                </button>
+              )}
             </div>
           </div>
         </div>

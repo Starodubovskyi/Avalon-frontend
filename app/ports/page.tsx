@@ -11,17 +11,17 @@ const mockPorts = [
     id: "1",
     port: "Port of Constanta",
     unlocode: "ROCND",
-    country: "Romania", // нужно для флага (alpha-2 вычислим из страны)
+    country: "Romania", 
     photoUrl:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Constanta_Port.jpg/320px-Constanta_Port.jpg",
-    vessels: 45, // Vessels in port
-    arrivals: 12, // Arrivals (last 24hrs)
+    vessels: 45, 
+    arrivals: 12, 
     departures: 8,
     expectedArrivals: 14,
-    timezone: "UTC+02:00", // Local time
-    anchorage: "Outer Anchorage Constanta", // Related anchorage
-    geoArea1: "Europe", // Area global
-    geoArea2: "Black Sea", // Area local
+    timezone: "UTC+02:00", 
+    anchorage: "Outer Anchorage Constanta", 
+    geoArea1: "Europe", 
+    geoArea2: "Black Sea", 
     coverage: "High",
   },
   {
@@ -55,7 +55,6 @@ export default function PortsRoutePage() {
           "
         >
           <div className="p-4 sm:p-6 lg:p-8">
-            {/* ВАЖНО: передаем initialRows, не rows */}
             <PortsPage initialRows={mockPorts} />
           </div>
         </div>

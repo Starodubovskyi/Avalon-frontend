@@ -46,7 +46,7 @@ const iconMap: Record<CategoryKey, JSX.Element> = {
 };
 
 type MemberWithRole = User & {
-  role?: string; // например "owner", "admin"
+  role?: string; 
 };
 
 type Props = {
@@ -119,7 +119,6 @@ export default function GroupInfoModal({
     externalSetNotificationsEnabled(notificationsEnabled);
   }, [notificationsEnabled, externalSetNotificationsEnabled]);
 
-  // Подсчет количества по категориям
   const counts = {
     photos: messages.reduce(
       (acc, msg) =>
@@ -143,10 +142,10 @@ export default function GroupInfoModal({
         ).length || 0),
       0
     ),
-    audioFiles: 0, // Можно добавить, если есть
+    audioFiles: 0, 
     sharedLinks: messages.reduce((acc, msg) => acc + (msg.location ? 1 : 0), 0),
     voiceMessages: 0,
-    gifs: 1008, // как в скрине, или по данным
+    gifs: 1008, 
   };
 
   const categories: { key: CategoryKey; label: string }[] = [
@@ -223,7 +222,6 @@ export default function GroupInfoModal({
           <X className="w-6 h-6" />
         </button>
 
-        {/* Header с аватаром и названием */}
         <div className="flex items-center gap-4">
           {group.avatar ? (
             <img
@@ -246,18 +244,15 @@ export default function GroupInfoModal({
           </div>
         </div>
 
-        {/* Description block */}
         <div className="flex items-start gap-3 text-gray-700 dark:text-gray-400 text-sm border-b border-gray-300 dark:border-gray-700 pb-3">
           <Info className="w-5 h-5 mt-1" />
           <div className="flex flex-wrap gap-1">
-            {/* Заменить на реальный description или категории */}
             <span>Вопросы</span>|<span>Общение</span>|<span>Знакомства</span>|
             <span>Помощь</span>|<span>Мероприятия</span>|
             <span className="text-gray-400 italic">Description</span>
           </div>
         </div>
 
-        {/* Notifications toggle */}
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             {notificationsEnabled ? (
@@ -286,7 +281,6 @@ export default function GroupInfoModal({
           </button>
         </div>
 
-        {/* Categories list */}
         <ul className="space-y-1 border-b border-gray-300 dark:border-gray-700 pb-4">
           {categories.map(({ key, label }) => (
             <li key={key}>
@@ -303,7 +297,6 @@ export default function GroupInfoModal({
           ))}
         </ul>
 
-        {/* Members search and list */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 uppercase">
@@ -315,7 +308,6 @@ export default function GroupInfoModal({
               aria-label="Search members"
               className="text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               onClick={() => {
-                // Можно добавить фокус на поиск
               }}
             >
               <Search className="w-5 h-5" />
@@ -377,7 +369,6 @@ export default function GroupInfoModal({
           </div>
         </div>
 
-        {/* Модальные окна и диалоги с уведомлениями можно добавить, если нужно */}
       </div>
     </div>
   );
