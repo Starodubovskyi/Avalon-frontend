@@ -577,12 +577,14 @@ export default function ChatMessage({
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
           onClick={() => setPreviewImage(null)}
+
         >
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               setPreviewImage(null);
+
             }}
             aria-label="Close preview"
             className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition z-60"
@@ -608,6 +610,7 @@ export default function ChatMessage({
             alt="Preview"
             className="max-h/[90vh] max-w/[90vw] rounded-lg shadow-lg"
             onClick={(e) => e.stopPropagation()}
+
           />
         </div>
       )}

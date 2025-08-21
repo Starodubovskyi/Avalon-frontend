@@ -172,12 +172,11 @@ export default function UserInfoModal({
     setActiveCategory(null);
   };
 
-
   const openPreviewImage = (url: string) => {
     setPreviewImage(url);
   };
 
- 
+
   const counts = {
     savedMessages: pinnedMessages.length,
     photos: messages.reduce(

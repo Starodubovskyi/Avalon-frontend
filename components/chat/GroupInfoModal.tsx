@@ -119,7 +119,6 @@ export default function GroupInfoModal({
     externalSetNotificationsEnabled(notificationsEnabled);
   }, [notificationsEnabled, externalSetNotificationsEnabled]);
 
- 
   const counts = {
     photos: messages.reduce(
       (acc, msg) =>

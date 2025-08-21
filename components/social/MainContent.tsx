@@ -59,7 +59,6 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser }) => {
 
   return (
     <div className="flex-1 space-y-4 sm:space-y-6">
-      {/* Create Post */}
       <div className="bg-white dark:bg-[#1a233b] rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white mb-3 sm:mb-4">
           Create Post
@@ -80,7 +79,6 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser }) => {
           />
         </div>
 
-        {/* Actions: на мобиле в столбик, на ширине ≥sm — в строку */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-gray-500 dark:text-gray-400">
           <div className="flex flex-wrap gap-4">
             <button aria-label="Add image"><Image size={20} /></button>
@@ -100,14 +98,12 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser }) => {
         </div>
       </div>
 
-      {/* Popular Channels (заглушка секции) */}
       <div className="bg-white dark:bg-[#1a233b] rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white">
           Popular Channels
         </h3>
       </div>
 
-      {/* Posts */}
       <div className="space-y-4 sm:space-y-6">
         {posts.map((post, i) => (
           <PostCard key={i} post={post} />

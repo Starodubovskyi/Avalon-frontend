@@ -72,7 +72,6 @@ export default function ChatBot({ initialOpen = false }: { initialOpen?: boolean
         ]);
       }, 350);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const getFakeBotReply = (text: string): Omit<Message, "id"> => {

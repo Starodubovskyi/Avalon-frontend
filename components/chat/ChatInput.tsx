@@ -10,8 +10,9 @@ type Props = {
   onReactToLastMessage?: (reaction: string) => void;
   replyTo?: Message | null;
   onCancelReply?: () => void;
-  inputText?: string;
-  setInputText?: (text: string) => void;
+
+  inputText?: string; 
+  setInputText?: (text: string) => void; 
 };
 
 export default function ChatInput({
@@ -23,6 +24,13 @@ export default function ChatInput({
   setInputText,
 }: Props) {
   const [text, setText] = useState(inputText);
+
+
+  useEffect(() => {
+    setText(inputText);
+  }, [inputText]);
+
+
   const [showEmoji, setShowEmoji] = useState(false);
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -47,6 +55,7 @@ export default function ChatInput({
     } else {
       if (setInputText) setInputText(text + emoji.emoji);
       setText((prev) => prev + emoji.emoji);
+
     }
   };
 
@@ -55,8 +64,13 @@ export default function ChatInput({
 
     onSend(text.trim(), files, location ?? undefined);
 
-    if (setInputText) setInputText("");
-    setText("");
+
+    if (setInputText) {
+      setInputText("");
+    } else {
+      setText("");
+    }
+
     setFiles([]);
     setLocation(null);
   };
@@ -129,6 +143,7 @@ export default function ChatInput({
 
   const trimReplyText = (val: string, max = 60) =>
     val.length > max ? val.slice(0, max) + "..." : val;
+
 
   return (
     <div className="relative z-20 border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-[#0d1117]">
