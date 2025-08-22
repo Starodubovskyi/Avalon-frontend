@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import PortsHeader from "./PortsHeader";
-import PortsModal, { PortFormData } from "./PortsModal";
-import PortsTable from "./portsTable";
-import { PortsTabKey } from "./PortsTabs";
+import PortsHeader from "@/components/ports/PortsHeader";
+import PortsModal, { PortFormData } from "@/components/ports/PortsModal";
+import PortsTable from "@/components/ports/portsTable";
+import { PortsTabKey } from "@/components/ports/PortsTabs";
 
 type FilterKey =
   | "flag"
@@ -46,34 +46,24 @@ export default function PortsPage({
     setRows((p) => p.filter((r) => r.id !== id));
 
   return (
-    <div className="w-full">
-      <div
-        className="sticky top-0 z-20 backdrop-blur 
-                   supports-[backdrop-filter]:bg-white/60 
-                   dark:supports-[backdrop-filter]:bg-black/40
-                   bg-white dark:bg-black 
-                   px-3 sm:px-6 pt-4 sm:pt-6 pb-3 
-                   border-b border-gray-200 dark:border-white/10 
-                   overflow-hidden"
-      >
-        <PortsHeader
-          tab={tab}
-          onTabChange={setTab}
-          onAdd={() => setIsOpen(true)}
-          onDeleteSelected={() => {
-            setRows((p) => p.filter((r) => !selectedIds.includes(r.id)));
-            setSelectedIds([]);
-          }}
-          onSearch={setQ}
-          total={rows.length}
-          selected={selectedIds.length}
-          filters={filters}
-          onSetFilter={setFilter}
-          onClearFilters={clearFilters}
-        />
-      </div>
+    <div className="min-h-[100dvh] w-full px-4 sm:px-6 lg:px-8 py-6">
+      <PortsHeader
+        tab={tab}
+        onTabChange={setTab}
+        onAdd={() => setIsOpen(true)}
+        onDeleteSelected={() => {
+          setRows((p) => p.filter((r) => !selectedIds.includes(r.id)));
+          setSelectedIds([]);
+        }}
+        onSearch={setQ}
+        total={rows.length}
+        selected={selectedIds.length}
+        filters={filters}
+        onSetFilter={setFilter}
+        onClearFilters={clearFilters}
+      />
 
-      <div className="px-3 sm:px-6 py-4 sm:py-6">
+      <div className="mt-6">
         {tab === "ports" ? (
           <PortsTable
             rows={rows}
@@ -91,6 +81,7 @@ export default function PortsPage({
         )}
       </div>
 
+      {/* Модалки */}
       {isOpen && (
         <PortsModal onClose={() => setIsOpen(false)} onSubmit={handleAdd} />
       )}

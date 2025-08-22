@@ -32,14 +32,8 @@ const filterKeyMap: Record<string, string> = {
 
 const PRESETS_KEY = "vessels:filter-presets";
 
-interface VesselsPageProps {
-  className?: string;
-}
-
-const VesselsPage: React.FC<VesselsPageProps> = ({ className }) => {
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
-    {}
-  );
+const VesselsPage: React.FC = () => {
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [vessels, setVessels] = useState(mockVesselsData);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -64,21 +58,6 @@ const VesselsPage: React.FC<VesselsPageProps> = ({ className }) => {
     try {
       localStorage.setItem(PRESETS_KEY, JSON.stringify(next));
     } catch {}
-  };
-
-  const createPreset = () => {
-    const name = prompt("Preset name?");
-    if (!name) return;
-    const next = [...presets, { name, filters: activeFilters }];
-    savePresets(next);
-  };
-
-  const applyPreset = (p: { name: string; filters: Record<string, string> }) =>
-    setActiveFilters(p.filters || {});
-
-  const removePreset = (name: string) => {
-    const next = presets.filter((p) => p.name !== name);
-    savePresets(next);
   };
 
   const handleAddVessel = (vessel: any) =>
@@ -124,83 +103,69 @@ const VesselsPage: React.FC<VesselsPageProps> = ({ className }) => {
   );
 
   return (
-    <div className={`min-h-[100dvh] w-full ${className || ""}`}>
-      <div className="w-full">
-        {/* header + filters */}
-        <div className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-black/40 bg-white dark:bg-black px-3 sm:px-6 pt-3 sm:pt-6 pb-3 border-b border-gray-200 dark:border-white/10">
-          <VesselsHeader
-            onAdd={() => setIsAddOpen(true)}
-            onDeleteSelected={handleDeleteSelected}
-            hasSelected={selectedIds.length > 0}
-          />
-          <div className="flex items-center justify-between mb-2">
-            <VesselsTabs />
-            <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-              <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-white/10">
-                Total: {counters.total}
-              </span>
-              <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-white/10">
-                Filters: {counters.active}
-              </span>
-            </div>
-          </div>
+    <div className="min-h-[100dvh] w-full px-4 sm:px-6 lg:px-8 py-6">
+      <VesselsHeader
+        onAdd={() => setIsAddOpen(true)}
+        onDeleteSelected={handleDeleteSelected}
+        hasSelected={selectedIds.length > 0}
+      />
 
-          <VesselsActions
-            onAddFilter={handleAddFilter}
-            onSearch={setSearchQuery}
-            className="mt-2"
-          />
+      <div className="mt-4">
+        <VesselsTabs />
+      </div>
 
-          {Object.keys(activeFilters).length > 0 && (
-            <div className="flex items-center gap-2 sm:gap-3 mt-3 flex-wrap">
-              {Object.entries(activeFilters).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-xl border border-gray-200 dark:border-gray-700"
-                >
-                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
-                    {renderFilterName(key)}:
-                  </span>
-                  <input
-                    type="text"
-                    value={value}
-                    onChange={(e) =>
-                      handleUpdateFilterValue(key, e.target.value)
-                    }
-                    placeholder="Value"
-                    className="w-24 sm:w-32 bg-transparent text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none"
-                  />
-                  <button
-                    onClick={() => handleRemoveFilter(key)}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                    aria-label="Remove filter"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
+      <div className="mt-4">
+        <VesselsActions
+          onAddFilter={handleAddFilter}
+          onSearch={setSearchQuery}
+        />
+      </div>
+
+      {Object.keys(activeFilters).length > 0 && (
+        <div className="flex items-center gap-2 sm:gap-3 mt-3 flex-wrap">
+          {Object.entries(activeFilters).map(([key, value]) => (
+            <div
+              key={key}
+              className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-xl border border-gray-200 dark:border-gray-700"
+            >
+              <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
+                {renderFilterName(key)}:
+              </span>
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => handleUpdateFilterValue(key, e.target.value)}
+                placeholder="Value"
+                className="w-24 sm:w-32 bg-transparent text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none"
+              />
               <button
-                onClick={resetAll}
-                className="text-xs sm:text-sm px-2 py-1 rounded-lg bg-gray-100 dark:bg:white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-200/80 dark:hover:bg-white/15 transition"
+                onClick={() => handleRemoveFilter(key)}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                aria-label="Remove filter"
               >
-                Reset
+                <X size={14} />
               </button>
             </div>
-          )}
+          ))}
+          <button
+            onClick={resetAll}
+            className="text-xs sm:text-sm px-2 py-1 rounded-lg bg-gray-100 dark:bg:white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-200/80 dark:hover:bg-white/15 transition"
+          >
+            Reset
+          </button>
         </div>
+      )}
 
-        {/* Content */}
-        <div className="px-3 sm:px-6 py-3 sm:py-6">
-          <VesselsTable
-            filters={activeFilters}
-            searchQuery={searchQuery}
-            vessels={vessels}
-            selectedIds={selectedIds}
-            setSelectedIds={setSelectedIds}
-            onEdit={setEditVessel}
-            onDelete={handleDeleteVessel}
-          />
-        </div>
+      <div className="mt-6">
+        <VesselsTable
+          filters={activeFilters}
+          searchQuery={searchQuery}
+          vessels={vessels}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+          onEdit={setEditVessel}
+          onDelete={handleDeleteVessel}
+        />
       </div>
 
       {isAddOpen && (

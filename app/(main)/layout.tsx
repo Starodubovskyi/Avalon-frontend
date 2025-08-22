@@ -1,19 +1,19 @@
-import Bot from "@/components/Bot/ChatBot";
-import Navbar from "@/components/Navbar";
-import React from "react";
-
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-teal-400 to-blue-950 dark:from-teal-800 dark:to-blue-950 flex flex-col items-center">
-      <div className="p-0 w-auto md:max-w-auto mx-auto bg-stone-100 dark:bg-gray-900 rounded-1xl shadow-lg px-6 md:auto lg:auto mt-auto mb-auto relative">
-        <Navbar />
-        <Bot />
-        <div className="flex-1 w-full pt-0">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default MainLayout;
+"use client"; 
+import React from "react"; 
+import { motion } from "framer-motion"; 
+import Bot from "@/components/Bot/ChatBot"; 
+import Navbar from "@/components/main/Navbar";
+const MainLayout = ({ children }: { children: React.ReactNode }) => { 
+  return ( 
+  <div className="relative min-h-screen flex flex-col items-center text-white"> 
+   <div className="relative z-10 w-full max-w-[1600px] flex flex-col px-4 md:px-8 lg:px-10 py-6"> 
+    <Navbar /> 
+    <Bot /> 
+    <main className="flex-1 w-full">{children}
+      </main> 
+      </div> 
+      </div> 
+      ); 
+    }; 
+    export default MainLayout; 
+   

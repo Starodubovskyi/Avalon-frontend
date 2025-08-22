@@ -25,6 +25,8 @@ import {
   IconHelpCircle,
   IconPinned,
   IconPinnedOff,
+  IconChevronRight,
+  IconSettings,
 } from "@tabler/icons-react";
 import type { IconProps } from "@tabler/icons-react";
 import clsx from "clsx";
@@ -74,17 +76,15 @@ const Sidebar = () => {
   const [mobileAnimVisible, setMobileAnimVisible] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
 
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifOverlayVisible, setNotifOverlayVisible] = useState(false);
-  const [notifAnimVisible, setNotifAnimVisible] = useState(false);
-  const [notifTab, setNotifTab] = useState<"general" | "mine">("general");
-
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+
   const [currentUser, setCurrentUser] = useState<{
     name?: string;
     lastName?: string;
     avatar?: string | null;
+    email?: string | null;
   } | null>(null);
 
   const W_NARROW = "w-[76px]";
@@ -98,6 +98,7 @@ const Sidebar = () => {
         name: u.name,
         lastName: u.lastName,
         avatar: u.profileImage || null,
+        email: u.email || null,
       });
     } else setCurrentUser(null);
   }, []);
@@ -111,6 +112,7 @@ const Sidebar = () => {
           name: u.name,
           lastName: u.lastName,
           avatar: u.profileImage || null,
+          email: u.email || null,
         });
       } else setCurrentUser(null);
     };
@@ -119,8 +121,8 @@ const Sidebar = () => {
   }, []);
 
   useEffect(() => {
-    if (isMenuOpen || isAuthModalOpen) setExpanded(true);
-  }, [isMenuOpen, isAuthModalOpen]);
+    if (isMenuOpen || isAuthModalOpen || isNotifOpen) setExpanded(true);
+  }, [isMenuOpen, isAuthModalOpen, isNotifOpen]);
 
   useEffect(() => {
     if (!expanded) setShowApps(false);
@@ -157,39 +159,29 @@ const Sidebar = () => {
     </span>
   );
 
-  const Row = ({
-    active,
-    children,
-    className,
-  }: {
-    active?: boolean;
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <div
-      className={clsx(
-        "flex items-center gap-3 min-h-[44px] px-3 rounded-lg",
-        active
-          ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
-          : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10",
-        "transition-colors",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
+const Row = ({
+  active,
+  children,
+  className,
+}: {
+  active?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div
+    className={clsx(
+      "flex items-center min-h-[44px] rounded-lg transition-colors",
+      expanded ? "gap-3 px-3 justify-start" : "px-0 justify-center",
+      active
+        ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
+        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10",
+      className
+    )}
+  >
+    {children}
+  </div>
+);
 
-  const Dot = ({ n }: { n?: number }) => (
-    <span
-      className={clsx(
-        "ml-auto inline-flex items-center justify-center rounded-full text-[11px] px-1.5 min-w-[16px]",
-        n ? "bg-red-600 text-white" : "bg-gray-300 text-gray-700"
-      )}
-    >
-      {n ?? 0}
-    </span>
-  );
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -304,19 +296,7 @@ const Sidebar = () => {
     setTimeout(() => setIsMobileOpen(false), 300);
   }
 
-  function openNotifications() {
-    setNotifTab("general");
-    setIsNotificationsOpen(true);
-    requestAnimationFrame(() => {
-      setNotifOverlayVisible(true);
-      setNotifAnimVisible(true);
-    });
-  }
-  function closeNotifications() {
-    setNotifOverlayVisible(false);
-    setNotifAnimVisible(false);
-    setTimeout(() => setIsNotificationsOpen(false), 300);
-  }
+  const preventCollapse = pinned || isMenuOpen || isNotifOpen || isAuthModalOpen;
 
   return (
     <div className="bg-gray-100 dark:bg-black">
@@ -330,7 +310,9 @@ const Sidebar = () => {
             "dark:bg-black/40 dark:border-white/10 dark:shadow-[0_1px_20px_rgba(255,255,255,0.05)]"
           )}
           onMouseEnter={() => !pinned && setExpanded(true)}
-          onMouseLeave={() => !pinned && setExpanded(false)}
+          onMouseLeave={() => {
+            if (!preventCollapse) setExpanded(false);
+          }}
         >
           <div>
             <div className="flex items-center justify-between px-5 pt-3 pb-2">
@@ -415,19 +397,51 @@ const Sidebar = () => {
               </Row>
             </Link>
 
-            <button
-              type="button"
-              onClick={openNotifications}
-              className="w-full text-left"
-            >
-              <Row active={false}>
-                <IconCell>
-                  <IconBell size={20} />
-                </IconCell>
-                {expanded && <Label>Notifications</Label>}
-                {expanded && <Dot n={3} />}
-              </Row>
-            </button>
+            <DropdownMenu onOpenChange={(open) => setIsNotifOpen(open)}>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full text-left">
+                  <Row active={false}>
+                    <IconCell>
+                      <IconBell size={20} />
+                    </IconCell>
+                    {expanded && <Label>Notifications</Label>}
+                  </Row>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="right"
+                align="start"
+                sideOffset={8}
+                className="w-80 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-2"
+              >
+                <div className="px-2 pb-2">
+                  <div className="text-sm font-semibold mb-2">Notifications</div>
+                  <div className="space-y-2">
+                    <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3">
+                      <div className="text-sm font-medium">You're all caught up!</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Check back later for new announcements.
+                      </div>
+                    </div>
+                    <Link
+                      href="/notifications"
+                      className="block text-center text-sm rounded-lg border border-gray-200 dark:border-white/10 px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5"
+                    >
+                      Open notifications
+                    </Link>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link href="/settings">
+  <Row active={pathname === "/settings"}>
+    <IconCell>
+      <IconSettings size={20} />
+    </IconCell>
+    {expanded && <Label>Settings</Label>}
+  </Row>
+</Link>
 
             <div className="my-2 h-px bg-gray-200 dark:bg-white/10" />
 
@@ -468,32 +482,57 @@ const Sidebar = () => {
                 }}
               >
                 <DropdownMenuTrigger asChild>
-                  <button className="w-full">
-                    <Row>
-                      <IconCell>
-                        {currentUser.avatar ? (
-                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                            <img
-                              src={currentUser.avatar || ""}
-                              alt="Avatar"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <IconUserCircle size={24} />
-                        )}
-                      </IconCell>
-                      {expanded && (
-                        <div className="flex flex-col">
-                          <Label>
-                            {currentUser.name} {currentUser.lastName}
-                          </Label>
-                          <Secondary>My account</Secondary>
-                        </div>
-                      )}
-                    </Row>
-                  </button>
-                </DropdownMenuTrigger>
+  <button className="w-full">
+    <div
+      className={clsx(
+        "w-full rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-white/5 dark:border-white/10",
+        expanded
+          ? "flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/10"
+          : "grid place-items-center p-2"
+      )}
+    >
+      <div
+        className={clsx(
+          "relative flex-shrink-0",
+          expanded ? "w-8 h-8" : "w-7 h-7"
+        )}
+      >
+        <div className="w-full h-full rounded-full overflow-hidden">
+          {currentUser.avatar ? (
+            <img
+              src={currentUser.avatar}
+              alt="Avatar"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/10">
+              <IconUserCircle size={expanded ? 22 : 20} />
+            </div>
+          )}
+        </div>
+        {expanded && (
+          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 ring-2 ring-white dark:ring-black" />
+        )}
+      </div>
+
+      {expanded && (
+        <>
+          <div className="min-w-0 flex-1 text-left">
+            <div className="text-[14px] font-semibold leading-5 truncate">
+              {currentUser.name} {currentUser.lastName}
+            </div>
+            <div className="text-[12px] text-gray-500 dark:text-gray-400 truncate">
+              {currentUser.email || "My account"}
+            </div>
+          </div>
+          <IconChevronRight size={16} className="opacity-60" />
+        </>
+      )}
+    </div>
+  </button>
+</DropdownMenuTrigger>
+
+
                 <DropdownMenuContent
                   side="right"
                   align="start"
@@ -633,30 +672,21 @@ const Sidebar = () => {
                   active={pathname === "/support"}
                 />
 
-                <button
-                  onClick={() => {
-                    openNotifications();
-                    closeMobile();
-                  }}
-                  className="w-full text-left"
-                >
-                  <div
-                    className={clsx(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg",
-                      pathname === "/notifications"
-                        ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
-                        : "text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"
-                    )}
-                  >
-                    <IconBell size={20} />
-                    <span className="text-[14px]">Notifications</span>
-                    <span className="ml-auto inline-flex items-center justify-center rounded-full text-[11px] px-1.5 min-w-[16px] bg-red-600 text-white">
-                      3
-                    </span>
-                  </div>
-                </button>
+                <MobileRow
+                  href="/notifications"
+                  label="Notifications"
+                  Icon={IconBell}
+                  active={pathname === "/notifications"}
+                />
 
                 <div className="h-px bg-gray-200 dark:bg-white/10 my-2" />
+
+                <MobileRow
+                  href="/settings"
+                  label="Settings"
+                  Icon={IconSettings}
+                  active={pathname === "/settings"}
+                />
 
                 {!currentUser ? (
                   <button
@@ -679,12 +709,15 @@ const Sidebar = () => {
                 ) : (
                   <div className="flex items-center gap-3 px-4 py-3">
                     {currentUser.avatar ? (
-                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                        <img
-                          src={currentUser.avatar || ""}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="relative w-8 h-8">
+                        <div className="w-full h-full rounded-full overflow-hidden">
+                          <img
+                            src={currentUser.avatar || ""}
+                            alt="Avatar"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 ring-2 ring-white dark:ring-black translate-x-1/4 translate-y-1/4" />
                       </div>
                     ) : (
                       <IconUserCircle size={22} />
@@ -694,7 +727,7 @@ const Sidebar = () => {
                         {currentUser.name} {currentUser.lastName}
                       </span>
                       <span className="text-[12px] text-gray-500 dark:text-gray-400">
-                        My account
+                        {currentUser.email || "My account"}
                       </span>
                     </div>
                     <button
@@ -710,89 +743,6 @@ const Sidebar = () => {
           </div>
         )}
       </div>
-
-      {isNotificationsOpen && (
-        <div className="fixed inset-0 z-[80]">
-          <div
-            className={clsx(
-              "absolute inset-0 transition-opacity duration-300",
-              notifOverlayVisible
-                ? "bg-black/50 opacity-100"
-                : "bg-black/50 opacity-0"
-            )}
-            onClick={closeNotifications}
-          />
-          <aside
-            className={clsx(
-              "absolute right-0 top-0 bottom-0 w-full sm:w-[420px] bg-white dark:bg-[#0b0b0b] border-l border-gray-200 dark:border-white/10 shadow-xl flex flex-col transform transition-transform duration-300 ease-out",
-              notifAnimVisible ? "translate-x-0" : "translate-x-full"
-            )}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Notifications"
-          >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
-              <span className="text-[16px] font-semibold">Notifications</span>
-              <button
-                onClick={closeNotifications}
-                aria-label="Close notifications"
-              >
-                <IconX size={20} />
-              </button>
-            </div>
-
-            <div className="px-4 pt-3">
-              <div className="flex border-b border-gray-200 dark:border-white/10">
-                <button
-                  className={clsx(
-                    "px-3 py-2 text-sm",
-                    notifTab === "general"
-                      ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                      : "text-gray-600 dark:text-gray-300"
-                  )}
-                  onClick={() => setNotifTab("general")}
-                >
-                  General
-                </button>
-                <button
-                  className={clsx(
-                    "px-3 py-2 text-sm",
-                    notifTab === "mine"
-                      ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                      : "text-gray-600 dark:text-gray-300"
-                  )}
-                  onClick={() => setNotifTab("mine")}
-                >
-                  My Notifications
-                </button>
-              </div>
-            </div>
-
-            <div className="px-4 py-8 flex-1 overflow-y-auto">
-              {notifTab === "general" && (
-                <div className="text-center">
-                  <p className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
-                    You're all caught up!
-                  </p>
-                  <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-1">
-                    Check back later for new Announcements.
-                  </p>
-                </div>
-              )}
-              {notifTab === "mine" && (
-                <div className="text-center">
-                  <p className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
-                    No notifications yet
-                  </p>
-                  <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-1">
-                    When you have updates, they'll show up here.
-                  </p>
-                </div>
-              )}
-            </div>
-          </aside>
-        </div>
-      )}
     </div>
   );
 };
