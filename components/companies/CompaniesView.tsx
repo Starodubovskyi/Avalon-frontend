@@ -3,7 +3,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Footer } from "@/components/ui/footer";
 import { motion } from "framer-motion";
 import { Search, Globe, Building2 } from "lucide-react";
 import MainLayout from "../layout/MainLayout";
@@ -197,8 +196,6 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
           </div>
         </div>
       </div>
-
-      <Footer />
     </MainLayout>
   );
 };

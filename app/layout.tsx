@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import SmoothScroll from "@/components/ui/SmoothScroll";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,14 +20,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="lenis">
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem={true}
           storageKey="dashboard-theme"
-          >
+        >
+          <SmoothScroll />
           {children}
           <Toaster />
         </ThemeProvider>
