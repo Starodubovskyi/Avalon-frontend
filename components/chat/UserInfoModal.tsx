@@ -87,7 +87,6 @@ export default function UserInfoModal({
   const [activeCategory, setActiveCategory] = useState<CategoryKey | null>(
     null
   );
-
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -174,6 +173,7 @@ export default function UserInfoModal({
   const openPreviewImage = (url: string) => {
     setPreviewImage(url);
   };
+
 
   const counts = {
     savedMessages: pinnedMessages.length,

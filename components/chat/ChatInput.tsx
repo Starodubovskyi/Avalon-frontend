@@ -10,8 +10,11 @@ type Props = {
   onReactToLastMessage?: (reaction: string) => void;
   replyTo?: Message | null;
   onCancelReply?: () => void;
-  inputText?: string;
-  setInputText?: (text: string) => void;
+
+
+  inputText?: string; 
+  setInputText?: (text: string) => void; 
+
 };
 
 export default function ChatInput({
@@ -24,9 +27,11 @@ export default function ChatInput({
 }: Props) {
   const [text, setText] = useState(inputText);
 
+
   useEffect(() => {
     setText(inputText);
   }, [inputText]);
+
 
   const [showEmoji, setShowEmoji] = useState(false);
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
@@ -41,16 +46,18 @@ export default function ChatInput({
   const attachmentButtonRef = useRef<HTMLButtonElement>(null);
   const attachmentMenuRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    setText(inputText);
+  }, [inputText]);
+
   const handleEmojiClick = (emoji: EmojiClickData) => {
     if (onReactToLastMessage) {
       onReactToLastMessage(emoji.emoji);
       setShowEmoji(false);
     } else {
-      if (setInputText) {
-        setInputText(text + emoji.emoji);
-      } else {
-        setText((prev) => prev + emoji.emoji);
-      }
+      if (setInputText) setInputText(text + emoji.emoji);
+      setText((prev) => prev + emoji.emoji);
+
     }
   };
 
@@ -58,6 +65,7 @@ export default function ChatInput({
     if (!text.trim() && files.length === 0 && !location) return;  
 
     onSend(text.trim(), files, location ?? undefined);
+
 
     if (setInputText) {
       setInputText("");
@@ -71,13 +79,17 @@ export default function ChatInput({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+
+      setFiles((prev) => [...prev, ...Array.from(e.target.files as FileList)]);
+
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+
+      setFiles((prev) => [...prev, ...Array.from(e.target.files as FileList)]);
+
     }
   };
 
@@ -133,9 +145,11 @@ export default function ChatInput({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAttachmentMenu, showEmoji]);
 
-  // Helper to truncate reply text for display
-  const trimReplyText = (text: string, maxLength = 60) =>
-    text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+
+  const trimReplyText = (val: string, max = 60) =>
+    val.length > max ? val.slice(0, max) + "..." : val;
+
+
 
   return (
     <div className="relative z-20 border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-[#0d1117]">
@@ -147,7 +161,7 @@ export default function ChatInput({
 
       {(files.length > 0 || location) && (
         <div className="mb-2 flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
-          {files.map((file, idx) => (
+          {files.map((file: File, idx: number) => (
             <div
               key={`${file.name}-${idx}`}
               className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded flex items-center gap-1"
@@ -196,6 +210,7 @@ export default function ChatInput({
           )}
         </div>
       )}
+
 
       <div className="flex items-center gap-2">
         <button
@@ -249,6 +264,7 @@ export default function ChatInput({
           </div>
         )}
 
+
         <div className="flex items-center flex-1 min-w-0">
           <div className="flex items-center bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 rounded-full px-3 py-1.5 flex-1 min-w-0 max-w-[80%] sm:max-w-full">
             <input
@@ -256,6 +272,7 @@ export default function ChatInput({
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
+
                 if (setInputText) {
                   setInputText(e.target.value);
                 }
@@ -264,6 +281,7 @@ export default function ChatInput({
               className="flex-1 min-w-0 bg-transparent text-sm focus:outline-none"
               onKeyDown={handleKeyDown}
             />
+
             <button
               onClick={handleSend}
               className="ml-2 p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex-shrink-0"
@@ -275,21 +293,12 @@ export default function ChatInput({
           </div>
         </div>
 
-        <input 
-          type="file" 
-          hidden 
-          multiple 
-          ref={fileInputRef} 
-          onChange={handleFileChange} 
-        />
-        <input 
-          type="file" 
-          hidden 
-          accept="image/*" 
-          multiple 
-          ref={imageInputRef} 
-          onChange={handleImageChange} 
-        />
+
+       
+        <input type="file" hidden multiple ref={fileInputRef} onChange={handleFileChange} />
+        <input type="file" hidden accept="image/*" multiple ref={imageInputRef} onChange={handleImageChange} />
+
+
       </div>
     </div>
   );

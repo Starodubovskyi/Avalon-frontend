@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence, easeOut } from "framer-motion";
-import { responses } from "./responses"; 
+import { responses } from "./responses";
+import type { BotResponse } from "./responses";
 
 type Message = {
   id: string;
@@ -39,8 +40,8 @@ function TypingIndicator() {
   );
 }
 
-export default function ChatBot() {
-  const [open, setOpen] = useState(false);
+export default function ChatBot({ initialOpen = false }: { initialOpen?: boolean }) {
+  const [open, setOpen] = useState<boolean>(initialOpen);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -144,7 +145,6 @@ export default function ChatBot() {
             aria-label="Close"
             onClick={toggleChat}
             className="text-gray-400 hover:text-red-500 text-xl transition ml-4"
-            tabIndex={open ? 0 : -1}
           >
             <svg viewBox="0 0 20 20" width="24" height="24" fill="none">
               <path d="M6 6l8 8M6 14L14 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -279,13 +279,11 @@ export default function ChatBot() {
             placeholder="Type something..."
             onKeyDown={handleKeyDown}
             autoComplete="off"
-            tabIndex={open ? 0 : -1}
           />
           <button
             type="submit"
             disabled={loading}
             className="ml-2 sm:ml-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-colors"
-            tabIndex={open ? 0 : -1}
           >
             ➤
           </button>
