@@ -74,6 +74,20 @@ export default function ChatBot({ initialOpen = false }: { initialOpen?: boolean
     }
   }, [open]);
 
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    const onClose = () => setOpen(false);
+    const onToggle = () => setOpen((v) => !v);
+    window.addEventListener("chatbot:open", onOpen);
+    window.addEventListener("chatbot:close", onClose);
+    window.addEventListener("chatbot:toggle", onToggle);
+    return () => {
+      window.removeEventListener("chatbot:open", onOpen);
+      window.removeEventListener("chatbot:close", onClose);
+      window.removeEventListener("chatbot:toggle", onToggle);
+    };
+  }, []);
+
   const getFakeBotReply = (text: string): Omit<Message, "id"> => {
     const lower = text.toLowerCase();
     const match = responses.find((r) =>
@@ -88,12 +102,10 @@ export default function ChatBot({ initialOpen = false }: { initialOpen?: boolean
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return;
-
     const userMessage: Message = { id: uid(), role: "user", content: text };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
-
     setTimeout(() => {
       const botCore = getFakeBotReply(text);
       const botMessage: Message = { id: uid(), ...botCore };

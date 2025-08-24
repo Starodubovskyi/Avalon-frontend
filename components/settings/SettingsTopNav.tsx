@@ -17,7 +17,6 @@ export const TABS: { key: SettingsTabKey; label: string }[] = [
   { key: "appearance", label: "Appearance" },
   { key: "privacy", label: "Privacy" },
   { key: "integrations", label: "Integrations" },
-  { key: "support", label: "Support / Help" },
   { key: "danger", label: "Danger Zone" },
 ];
 

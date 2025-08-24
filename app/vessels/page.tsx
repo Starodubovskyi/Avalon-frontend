@@ -8,6 +8,9 @@ const VesselsPage = dynamic(() => import("@/components/vessels/VesselsPage"), {
   ssr: false,
 });
 
+
+
+
 export default function Page() {
   return (
     <MainLayout>

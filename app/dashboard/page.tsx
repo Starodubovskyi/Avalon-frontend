@@ -18,6 +18,11 @@ import { IconFilter, IconSearch } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import clsx from "clsx";
 import dynamic from "next/dynamic";
+import type { Metadata } from "next";
+
+// export const metadata: Metadata = {
+//   title: "Dashboard",
+// };
 
 export default function Page() {
   const {
