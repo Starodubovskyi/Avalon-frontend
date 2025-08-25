@@ -7,7 +7,6 @@ import Notifications from "@/components/settings/Notifications";
 import Appearance from "@/components/settings/Appearance";
 import Privacy from "@/components/settings/Privacy";
 import Integrations from "@/components/settings/Integrations";
-import SupportHelp from "@/components/settings/SupportHelp";
 import DangerZone from "@/components/settings/DangerZone";
 import MainLayout from "@/components/layout/MainLayout";
 
@@ -37,8 +36,6 @@ export default function SettingsPage() {
         return <Privacy />;
       case "integrations":
         return <Integrations />;
-      case "support":
-        return <SupportHelp />;
       case "danger":
         return <DangerZone />;
       default:

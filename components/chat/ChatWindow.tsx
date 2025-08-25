@@ -558,8 +558,10 @@ export default function ChatWindow({ otherUserId, users }: Props) {
 
   return (
     <>
-      <div className="flex flex-col flex-1 h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
-        <div className="relative flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      {/* Основной контейнер — фон, как у карточки */}
+      <div className="flex flex-col flex-1 h-full bg-white dark:bg-white/5 text-gray-900 dark:text-white">
+        {/* Хедер — тот же фон и ослабленный бордер в тёмной теме */}
+        <div className="relative flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-white/5">
           <button
             type="button"
             onClick={() =>
@@ -680,7 +682,7 @@ export default function ChatWindow({ otherUserId, users }: Props) {
         </div>
 
         {pinnedMessages.length > 0 && (
-          <div className="flex items-center px-4 py-2 border-b border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#161b22] h-14 select-none">
+          <div className="flex items-center px-4 py-2 border-b border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-white/5 h-14 select-none">
             <div
               className="flex flex-col items-center justify-center gap-1"
               style={{ height: 24, width: 8 }}

@@ -1,5 +1,12 @@
 import MainLayout from "@/components/layout/MainLayout";
 
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Ports", 
+};
+
 export default function PortsLayout({
   children,
 }: {
