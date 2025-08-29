@@ -8,6 +8,7 @@ import { Search, Globe, Building2 } from "lucide-react";
 import MainLayout from "../layout/MainLayout";
 
 interface Company {
+  id?: string;
   name: string;
   category: string;
   country: string;
@@ -30,6 +31,7 @@ interface CompaniesViewProps {
   resetFilters: () => void;
   filteredCompanies: Company[];
   businessSectors: BusinessSectorGroup[];
+  onCompanyClick: (id?: string) => void; // ⬅️ новый проп
 }
 
 const CompaniesView: React.FC<CompaniesViewProps> = ({
@@ -42,6 +44,7 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
   resetFilters,
   filteredCompanies,
   businessSectors,
+  onCompanyClick,
 }) => {
   return (
     <MainLayout>
@@ -122,12 +125,23 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({
                   ) : (
                     filteredCompanies.map((company, idx) => (
                       <motion.div
-                        key={idx}
+                        key={company.id ?? idx}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
+                        transition={{ delay: idx * 0.06 }}
+                        role="button"
+                        tabIndex={0}
+                        data-company-id={company.id}
+                        onClick={() => onCompanyClick(company.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            onCompanyClick(company.id);
+                          }
+                        }}
+                        className="cursor-pointer"
+                        aria-label={`Open ${company.name} profile`}
                       >
-                        <Card className="rounded-2xl shadow-md dark:shadow-lg bg-white dark:bg-[#1a1a1a] transition-colors duration-300 hover:scale-[1.02] hover:shadow-lg">
+                        <Card className="rounded-2xl shadow-md dark:shadow-lg bg-white dark:bg-[#1a1a1a] transition-[transform,box-shadow] duration-300 hover:scale-[1.02] hover:shadow-lg">
                           <CardContent className="p-5 flex items-center gap-4">
                             {company.logoUrl ? (
                               <img

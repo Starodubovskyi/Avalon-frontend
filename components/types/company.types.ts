@@ -1,27 +1,34 @@
-export interface Company {
-  id?: string;
-  logoUrl?: string;
-  bannerUrl?: string;
-  pinUrl?: string;
-  legalName: string;
+export type Company = {
+  id: string;
   businessName: string;
-  activity: string;
-  employees: string;
-  founded: string;
-  email: string;
-  website: string;
-  telephone: string;
-  fax: string;
-  address: string;
-  servicedPorts?: string; 
-  city: string;
-  state?: string; 
-  postalCode: string;
-  country: string;
-  poBox?: string; 
-  tagline?: string; 
-  description: string;
+  legalName?: string;
+  activity?: string;
+  tagline?: string;
+
+  bannerUrl?: string;
+  logoUrl?: string;
+  pinUrl?: string; // иконка/пин для карты
+
+  description?: string;
+  website?: string;
+  email?: string;
+  founded?: string;
+  employees?: string | number;
+  servicedPorts?: string;
+
+  country?: string;
+  state?: string;
+  city?: string;
+  address?: string;
+  postalCode?: string;
+
   lat: number;
   lng: number;
-  checkbox?: boolean;
-}
+
+  telephone?: string;
+  fax?: string;
+  poBox?: string;
+
+  category?: string;
+  status?: string;
+};

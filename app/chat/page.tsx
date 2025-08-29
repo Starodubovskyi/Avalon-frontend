@@ -55,13 +55,20 @@ export default function Page() {
                       stroke="currentColor"
                       strokeWidth="2"
                     >
-                      <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M15 18l-6-6 6-6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </button>
                 )}
 
                 {selectedUserId ? (
-                  <ChatWindow otherUserId={selectedUserId} users={users as any} />
+                  <ChatWindow
+                    otherUserId={selectedUserId}
+                    users={users as any}
+                  />
                 ) : (
                   <div className="hidden md:flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">
                     Select a chat to start messaging

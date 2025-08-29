@@ -24,7 +24,6 @@ const filterKeyMap: Record<string, string> = {
   "Current Port": "currentPort",
   "Last Port": "lastPort",
   "Reported ETA": "reportedETA",
-  // новые
   "Map Icon": "mapIcon",
   "Latest Position Time": "latestPositionTime",
   Latitude: "latitude",

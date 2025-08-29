@@ -13,7 +13,7 @@ const mockPorts = [
     unlocode: "ROCND",
     country: "Romania",
     photoUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Constanta_Port.jpg/320px-Constanta_Port.jpg",
+      "https://moya-planeta.ru/upload/images/xl/a7/d0/a7d0eaa500beb2a1098e8212e53286fbeb037996.jpg",
     vessels: 45,
     arrivals: 12,
     departures: 8,
@@ -30,7 +30,7 @@ const mockPorts = [
     unlocode: "NLRTM",
     country: "Netherlands",
     photoUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Rotterdam_Harbor.jpg/320px-Rotterdam_Harbor.jpg",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPMC9WsvIDC6MOs37gKDx1CZ77PfEvbS-4uw&s",
     vessels: 210,
     arrivals: 32,
     departures: 40,

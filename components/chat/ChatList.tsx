@@ -85,18 +85,17 @@ export default function ChatList({
   return (
     <div
       className={clsx(
-        "flex flex-col h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white border-r dark:border-gray-700",
-        
+        "flex flex-col h-full bg-white dark:bg-white/5 text-gray-900 dark:text-white border-r border-gray-200 dark:border-white/10",
         selectedUserId ? "hidden md:flex md:w-80" : "flex w-full md:w-80"
       )}
     >
-      <div className="p-4 border-b dark:border-gray-700 flex flex-col gap-2">
+      <div className="p-4 border-b border-gray-200 dark:border-white/10 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-lg">Chats</h2>
           <button
             onClick={() => setShowCreateGroup(true)}
             title="New Group"
-            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/10"
             aria-label="Create new group chat"
             type="button"
           >
@@ -121,7 +120,7 @@ export default function ChatList({
         </div>
         <input
           placeholder="Search For Contacts or Messages"
-          className="w-full mt-2 px-3 py-2 rounded-md bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 text-sm"
+          className="w-full mt-2 px-3 py-2 rounded-md bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/10 text-sm"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -140,7 +139,7 @@ export default function ChatList({
               "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition",
               user.id === selectedUserId
                 ? "bg-emerald-100 dark:bg-emerald-800/40"
-                : "bg-gray-100 dark:bg-[#1a1f2b] hover:bg-gray-200 dark:hover:bg-[#1f2733]"
+                : "bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20"
             )}
           >
             <div className="flex items-center gap-3 min-w-0">

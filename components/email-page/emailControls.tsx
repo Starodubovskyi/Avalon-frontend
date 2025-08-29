@@ -31,39 +31,50 @@ const EmailControls: React.FC<EmailControlsProps> = ({
           onChange={(e) => setQuery(e.target.value)}
           type="text"
           placeholder="Search email"
-          className="w-full sm:w-64 pl-9 pr-3 py-2 rounded-lg border border-gray-300 bg-gray-100 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="w-full sm:w-64 pl-9 pr-3 py-2 rounded-lg border border-gray-300 bg-gray-100
+                     dark:bg-white/10 dark:text-gray-100 dark:border-white/10
+                     focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
         />
       </div>
 
       <div className="hidden sm:block relative">
         <button
           onClick={() => setIsSortMenuOpen((v) => !v)}
-          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
           aria-label="Sort"
+          type="button"
         >
           <FaFilter className="text-gray-600 dark:text-gray-300" />
         </button>
 
         {isSortMenuOpen && (
-          <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-lg z-20 py-2 ring-1 ring-black/5">
-            <h4 className="px-4 py-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
+          <div
+            className="absolute top-full right-0 mt-2 w-56 rounded-2xl border border-gray-200 bg-white
+                       shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+                       dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+                       z-20 py-2"
+          >
+            <h4 className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
               Sorted by
             </h4>
             <button
               onClick={() => handleSortOptionClick("recent")}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
+              type="button"
             >
               Recent messages
             </button>
             <button
               onClick={() => handleSortOptionClick("unread")}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
+              type="button"
             >
               Unread
             </button>
             <button
               onClick={() => handleSortOptionClick("all")}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
+              type="button"
             >
               All
             </button>
@@ -73,8 +84,9 @@ const EmailControls: React.FC<EmailControlsProps> = ({
 
       <button
         onClick={onRefreshClick}
-        className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors hidden sm:inline-flex"
+        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors hidden sm:inline-flex"
         aria-label="Refresh"
+        type="button"
       >
         <FaSync className="text-gray-600 dark:text-gray-300" />
       </button>
@@ -82,39 +94,52 @@ const EmailControls: React.FC<EmailControlsProps> = ({
       <div className="sm:hidden relative">
         <button
           onClick={() => setIsMoreOpen((v) => !v)}
-          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
           aria-label="More"
+          type="button"
         >
           <FaEllipsisV className="text-gray-600 dark:text-gray-300" />
         </button>
         {isMoreOpen && (
-          <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-lg z-20 py-2 ring-1 ring-black/5">
+          <div
+            className="absolute top-full right-0 mt-2 w-56 rounded-2xl border border-gray-200 bg-white
+                       shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+                       dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+                       z-20 py-2"
+          >
             <button
               onClick={() => handleSortOptionClick("recent")}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
+              type="button"
             >
               Sort: Recent
             </button>
             <button
               onClick={() => handleSortOptionClick("unread")}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
+              type="button"
             >
               Sort: Unread
             </button>
             <button
               onClick={() => handleSortOptionClick("all")}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
+              type="button"
             >
               Sort: All
             </button>
-            <div className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
+            <div className="my-1 h-px bg-gray-200 dark:bg-white/10" />
             <button
               onClick={onRefreshClick}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
+              type="button"
             >
               Refresh
             </button>
-            <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+            <button
+              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
+              type="button"
+            >
               Settings
             </button>
           </div>
@@ -122,8 +147,9 @@ const EmailControls: React.FC<EmailControlsProps> = ({
       </div>
 
       <button
-        className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors hidden sm:inline-flex"
+        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors hidden sm:inline-flex"
         aria-label="Settings"
+        type="button"
       >
         <FaCog className="text-gray-600 dark:text-gray-300" />
       </button>

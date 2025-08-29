@@ -59,20 +59,17 @@ const SocialPage: React.FC = () => {
       if (!touching) return;
       const diffX = currentX - startX;
 
-      if (startX < 20 && diffX > 80 && !leftOpen && !rightOpen) {
+      if (startX < 20 && diffX > 80 && !leftOpen && !rightOpen)
         setLeftOpen(true);
-      }
-
-      if (startX > window.innerWidth - 20 && diffX < -80 && !leftOpen && !rightOpen) {
+      if (
+        startX > window.innerWidth - 20 &&
+        diffX < -80 &&
+        !leftOpen &&
+        !rightOpen
+      )
         setRightOpen(true);
-      }
-
-      if (leftOpen && diffX < -80) {
-        setLeftOpen(false);
-      }
-      if (rightOpen && diffX > 80) {
-        setRightOpen(false);
-      }
+      if (leftOpen && diffX < -80) setLeftOpen(false);
+      if (rightOpen && diffX > 80) setRightOpen(false);
 
       touching = false;
     }
@@ -144,13 +141,16 @@ const SocialPage: React.FC = () => {
         />
       )}
 
+      {/* Left drawer */}
       <aside
         className={`fixed inset-y-0 left-0 z-[100] lg:hidden w-[88%] max-w-[360px] h-full
-          bg-white dark:bg-[#0b1220] shadow-2xl border-r border-gray-200 dark:border-white/10
+          rounded-r-2xl border-r border-gray-200 dark:border-white/10
+          bg-white dark:bg-white/5
+          shadow-[0_16px_40px_rgba(2,6,23,0.18)] dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
           transform transition-transform duration-300
           ${leftOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="sticky top-0 px-4 py-3 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0b1220]">
+        <div className="sticky top-0 px-4 py-3 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-tr-2xl">
           <span className="font-medium">Menu</span>
         </div>
         <div className="h-[calc(100%-48px)] overflow-y-auto p-4 pr-3">
@@ -158,13 +158,16 @@ const SocialPage: React.FC = () => {
         </div>
       </aside>
 
+      {/* Right drawer */}
       <aside
         className={`fixed inset-y-0 right-0 z-[100] lg:hidden w-[88%] max-w-[360px] h-full
-          bg-white dark:bg-[#0b1220] shadow-2xl border-l border-gray-200 dark:border-white/10
+          rounded-l-2xl border-l border-gray-200 dark:border-white/10
+          bg-white dark:bg-white/5
+          shadow-[0_16px_40px_rgba(2,6,23,0.18)] dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
           transform transition-transform duration-300
           ${rightOpen ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="sticky top-0 px-4 py-3 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0b1220]">
+        <div className="sticky top-0 px-4 py-3 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-tl-2xl">
           <span className="font-medium">People</span>
         </div>
         <div className="h-[calc(100%-48px)] overflow-y-auto p-4 pl-3">

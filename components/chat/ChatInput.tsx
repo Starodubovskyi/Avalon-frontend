@@ -10,11 +10,8 @@ type Props = {
   onReactToLastMessage?: (reaction: string) => void;
   replyTo?: Message | null;
   onCancelReply?: () => void;
-
-
-  inputText?: string; 
-  setInputText?: (text: string) => void; 
-
+  inputText?: string;
+  setInputText?: (text: string) => void;
 };
 
 export default function ChatInput({
@@ -27,11 +24,9 @@ export default function ChatInput({
 }: Props) {
   const [text, setText] = useState(inputText);
 
-
   useEffect(() => {
     setText(inputText);
   }, [inputText]);
-
 
   const [showEmoji, setShowEmoji] = useState(false);
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
@@ -57,39 +52,30 @@ export default function ChatInput({
     } else {
       if (setInputText) setInputText(text + emoji.emoji);
       setText((prev) => prev + emoji.emoji);
-
     }
   };
 
   const handleSend = () => {
-    if (!text.trim() && files.length === 0 && !location) return;  
-
+    if (!text.trim() && files.length === 0 && !location) return;
     onSend(text.trim(), files, location ?? undefined);
-
-
     if (setInputText) {
       setInputText("");
     } else {
       setText("");
     }
-
     setFiles([]);
     setLocation(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-
       setFiles((prev) => [...prev, ...Array.from(e.target.files as FileList)]);
-
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-
       setFiles((prev) => [...prev, ...Array.from(e.target.files as FileList)]);
-
     }
   };
 
@@ -145,14 +131,11 @@ export default function ChatInput({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showAttachmentMenu, showEmoji]);
 
-
   const trimReplyText = (val: string, max = 60) =>
     val.length > max ? val.slice(0, max) + "..." : val;
 
-
-
   return (
-    <div className="relative z-20 border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-white dark:bg-[#0d1117]">
+    <div className="relative z-20 border-t border-gray-200 dark:border-white/10 px-4 py-3 bg-white dark:bg-white/5">
       {showEmoji && (
         <div ref={emojiPickerRef} className="absolute bottom-16 left-4 z-50">
           <EmojiPicker onEmojiClick={handleEmojiClick} theme={Theme.DARK} />
@@ -164,28 +147,38 @@ export default function ChatInput({
           {files.map((file: File, idx: number) => (
             <div
               key={`${file.name}-${idx}`}
-              className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded flex items-center gap-1"
+              className="bg-gray-100 dark:bg-white/10 px-2 py-1 rounded flex items-center gap-1"
             >
               <span className="truncate max-w-[120px]">{file.name}</span>
               <X
                 className="w-4 h-4 cursor-pointer"
-                onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                onClick={() =>
+                  setFiles((prev) => prev.filter((_, i) => i !== idx))
+                }
               />
             </div>
           ))}
           {location && (
-            <div className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded flex items-center gap-1">
-              <a href={location} target="_blank" rel="noopener noreferrer" className="underline">
+            <div className="bg-gray-100 dark:bg-white/10 px-2 py-1 rounded flex items-center gap-1">
+              <a
+                href={location}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
                 Location
               </a>
-              <X className="w-4 h-4 cursor-pointer" onClick={() => setLocation(null)} />
+              <X
+                className="w-4 h-4 cursor-pointer"
+                onClick={() => setLocation(null)}
+              />
             </div>
           )}
         </div>
       )}
 
       {replyTo && (
-        <div className="mb-2 flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2">
+        <div className="mb-2 flex items-center justify-between bg-gray-100 dark:bg-white/10 rounded-md px-3 py-2">
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold truncate">Replying to:</p>
             <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
@@ -211,7 +204,6 @@ export default function ChatInput({
         </div>
       )}
 
-
       <div className="flex items-center gap-2">
         <button
           ref={emojiButtonRef}
@@ -235,11 +227,11 @@ export default function ChatInput({
         {showAttachmentMenu && (
           <div
             ref={attachmentMenuRef}
-            className="absolute bottom-full mb-2 left-12 z-50 w-44 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-md shadow-lg p-2 flex flex-col gap-2"
+            className="absolute bottom-full mb-2 left-12 z-50 w-44 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-md shadow-lg p-2 flex flex-col gap-2"
           >
             <button
               onClick={onClickPhotoVideo}
-              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10 text-sm"
               type="button"
             >
               <ImageIcon className="w-5 h-5 text-pink-500" />
@@ -247,7 +239,7 @@ export default function ChatInput({
             </button>
             <button
               onClick={onClickFile}
-              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10 text-sm"
               type="button"
             >
               <Paperclip className="w-5 h-5 text-blue-500" />
@@ -255,7 +247,7 @@ export default function ChatInput({
             </button>
             <button
               onClick={handleLocation}
-              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+              className="flex items-center gap-2 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10 text-sm"
               type="button"
             >
               <MapPin className="w-5 h-5 text-indigo-500" />
@@ -264,15 +256,13 @@ export default function ChatInput({
           </div>
         )}
 
-
         <div className="flex items-center flex-1 min-w-0">
-          <div className="flex items-center bg-gray-100 dark:bg-[#1a1f2b] border border-gray-300 dark:border-gray-600 rounded-full px-3 py-1.5 flex-1 min-w-0 max-w-[80%] sm:max-w-full">
+          <div className="flex items-center bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/10 rounded-full px-3 py-1.5 flex-1 min-w-0 max-w-[80%] sm:max-w-full">
             <input
               type="text"
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
-
                 if (setInputText) {
                   setInputText(e.target.value);
                 }
@@ -293,12 +283,21 @@ export default function ChatInput({
           </div>
         </div>
 
-
-       
-        <input type="file" hidden multiple ref={fileInputRef} onChange={handleFileChange} />
-        <input type="file" hidden accept="image/*" multiple ref={imageInputRef} onChange={handleImageChange} />
-
-
+        <input
+          type="file"
+          hidden
+          multiple
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
+        <input
+          type="file"
+          hidden
+          accept="image/*"
+          multiple
+          ref={imageInputRef}
+          onChange={handleImageChange}
+        />
       </div>
     </div>
   );

@@ -5,10 +5,10 @@ export const MOCK_PORTS = [
     port: "Odessa",
     unlocode: "UAODS",
     photoUrl:
-      "https://images.unsplash.com/photo-1516426122078-c23e76319801?q=80&w=600",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsAlBK-lir5N6icGFw_YiexL0XwJA7HmB85A&s",
     timezone: "UTC+02:00",
     vessels: 28,
-    arrivals: 9, // last 24h
+    arrivals: 9,
     departures: 7,
     expectedArrivals: 11,
     anchorage: "Odessa Anchorage",

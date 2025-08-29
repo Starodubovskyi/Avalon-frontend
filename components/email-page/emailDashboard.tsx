@@ -101,20 +101,33 @@ const EmailDashboard: React.FC<{ currentUser: CurrentUser }> = ({
   const refreshEmails = () => setEmails([...initialEmails]);
 
   return (
-    <div className="flex h-[100dvh] bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 overflow-hidden">
-      <EmailSidebar
-        currentUser={currentUser}
-        activeFolder={activeFolder}
-        onFolderSelect={(f) => setActiveFolder(f)}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-      <EmailMain
-        emails={visibleEmails}
-        onSortClick={handleSortClick}
-        onRefreshClick={refreshEmails}
-        onMenuClick={() => setSidebarOpen(true)}
-      />
+    <div className="min-h-[100dvh] bg-gray-100 dark:bg-black">
+      <div className="px-1 sm:px-2 lg:px-2 py-1">
+        <div
+          className="
+            w-full h-[100dvh]
+            rounded-3xl border border-gray-200 bg-white shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+            dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+            overflow-hidden
+          "
+        >
+          <div className="flex h-full text-gray-800 dark:text-gray-100">
+            <EmailSidebar
+              currentUser={currentUser}
+              activeFolder={activeFolder}
+              onFolderSelect={(f) => setActiveFolder(f)}
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
+            <EmailMain
+              emails={visibleEmails}
+              onSortClick={handleSortClick}
+              onRefreshClick={refreshEmails}
+              onMenuClick={() => setSidebarOpen(true)}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
