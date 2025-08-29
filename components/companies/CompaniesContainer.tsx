@@ -1,40 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import CompaniesView from "./CompaniesView"; 
+import CompaniesView from "./CompaniesView";
 
+import { useAdminCompaniesStore } from "@/components/admin/companies/store/adminCompaniesStore";
+import { adminCompaniesMock } from "@/components/admin/companies/mock";
 
-const companiesData = [
-  {
-    name: "AVS Global Ship Supply",
-    category: "Ship Services / Suppliers",
-    country: "🇹🇷",
-    city: "Istanbul",
-    logoUrl: "/logos/avs.png",
-  },
-  {
-    name: "ASCA MARITIME FZE",
-    category: "Ship Chandlers",
-    country: "🇦🇪",
-    city: "Al Hamriyah",
-    logoUrl: "/logos/asca.png",
-  },
-  {
-    name: "The Web Factory",
-    category: "Software / Technology",
-    country: "🇺🇸",
-    city: "Dover",
-    logoUrl: "",
-  },
-  {
-    name: "Qbecus",
-    category: "Software / Technology",
-    country: "🇺🇸",
-    city: "Boulder",
-    logoUrl: "",
-  },
-];
+type Company = {
+  id?: string;
+  name: string;
+  category: string;
+  country: string;
+  city: string;
+  logoUrl: string;
+};
+
+const VISIBLE_STATUSES = new Set(["published"] as const);
 
 const businessSectors = [
   {
@@ -48,25 +30,49 @@ const businessSectors = [
   { letter: "O", sectors: ["Offshore Services", "Oil and Gas"] },
 ];
 
-const CompaniesContainer = () => {
+export default function CompaniesContainer() {
+  const router = useRouter();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const router = useRouter();
+  const adminItems = useAdminCompaniesStore((s) => s.items);
+  const source = adminItems.length > 0 ? adminItems : adminCompaniesMock;
 
-  const filteredCompanies = companiesData.filter((company) => {
-    const matchesSearch =
-      company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCountry = selectedCountry
-      ? company.country === selectedCountry
-      : true;
-    const matchesCategory = selectedCategory
-      ? company.category === selectedCategory
-      : true;
-    return matchesSearch && matchesCountry && matchesCategory;
-  });
+  const companiesData: Company[] = useMemo(() => {
+    return source
+      .filter((it) => VISIBLE_STATUSES.has(it.status as any))
+      .map(({ id, name, category, country, city, logoUrl }) => ({
+        id,
+        name,
+        category,
+        country,
+        city,
+        logoUrl,
+      }));
+  }, [source]);
+
+  const filteredCompanies = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim();
+
+    return companiesData.filter((company) => {
+      const matchesSearch =
+        !q ||
+        company.name.toLowerCase().includes(q) ||
+        company.category.toLowerCase().includes(q) ||
+        company.city.toLowerCase().includes(q);
+
+      const matchesCountry = selectedCountry
+        ? company.country === selectedCountry
+        : true;
+      const matchesCategory = selectedCategory
+        ? company.category === selectedCategory
+        : true;
+
+      return matchesSearch && matchesCountry && matchesCategory;
+    });
+  }, [companiesData, searchTerm, selectedCountry, selectedCategory]);
 
   const resetFilters = () => {
     setSearchTerm("");
@@ -74,8 +80,9 @@ const CompaniesContainer = () => {
     setSelectedCategory("");
   };
 
-  const handleBackClick = () => {
-    router.back();
+  const onCompanyClick = (id?: string) => {
+    if (!id) return;
+    router.push(`/companies/${encodeURIComponent(id)}`);
   };
 
   return (
@@ -89,8 +96,7 @@ const CompaniesContainer = () => {
       resetFilters={resetFilters}
       filteredCompanies={filteredCompanies}
       businessSectors={businessSectors}
+      onCompanyClick={onCompanyClick}
     />
   );
-};
-
-export default CompaniesContainer; 
+}

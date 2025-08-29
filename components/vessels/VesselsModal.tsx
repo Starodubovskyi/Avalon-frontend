@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useId } from "react";
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 
@@ -22,7 +22,7 @@ type FormShape = {
   reportedDestination: string;
   currentPort: string;
   country: string;
-  photoUrl: string; 
+  photoUrl: string;
 };
 
 const REQUIRED_FIELDS: (keyof FormShape)[] = [
@@ -92,17 +92,35 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
   });
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const firstInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Блокируем скролл фона и включаем анимацию появления
   useEffect(() => {
     setMounted(true);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, []);
 
+  // Заполняем initialData один раз
   useEffect(() => {
     if (initialData && !initializedRef.current) {
       setFormData((p) => ({ ...p, ...initialData }));
       initializedRef.current = true;
     }
   }, [initialData]);
+
+  // Автофокус на первое поле при открытии
+  useEffect(() => {
+    if (mounted) firstInputRef.current?.focus();
+  }, [mounted]);
+
+  const stopAll = (e: React.SyntheticEvent) => {
+    // Ключевое: не даём событиям уйти в глобальные хоткеи/хендлеры
+    e.stopPropagation();
+  };
 
   const markTouched = (name: keyof FormShape) =>
     setTouched((t) => ({ ...t, [name]: true }));
@@ -153,35 +171,57 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
     label,
     placeholder,
     type = "text",
+    autoFocus,
+    inputRef,
   }: {
     name: keyof FormShape;
     label: string;
     placeholder?: string;
     type?: React.HTMLInputTypeAttribute;
-  }) => (
-    <div className="space-y-1">
-      <label className="text-xs text-gray-500 dark:text-gray-400">
-        {label}
-      </label>
-      <input
-        type={type}
-        value={String(formData[name] ?? "")}
-        onChange={onChange(name)}
-        onBlur={() => markTouched(name)}
-        placeholder={placeholder || label}
-        className={[
-          "w-full p-2 rounded-xl text-sm",
-          "border bg-white/70 dark:bg-black/30",
-          "border-gray-300 dark:border-white/15",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500",
-          isFieldInvalid(name) ? "border-red-500 focus:ring-red-500" : "",
-        ].join(" ")}
-      />
-      {isFieldInvalid(name) ? (
-        <p className="text-xs text-red-500">This field is required.</p>
-      ) : null}
-    </div>
-  );
+    autoFocus?: boolean;
+    inputRef?: React.RefObject<HTMLInputElement>;
+  }) => {
+    const id = useId();
+    return (
+      <div
+        className="space-y-1"
+        onKeyDownCapture={stopAll}
+        onKeyUpCapture={stopAll}
+        onKeyPressCapture={stopAll}
+      >
+        <label
+          htmlFor={id}
+          className="text-xs text-gray-500 dark:text-gray-400"
+        >
+          {label}
+        </label>
+        <input
+          id={id}
+          ref={inputRef}
+          autoFocus={autoFocus}
+          type={type}
+          autoComplete="off"
+          value={String(formData[name] ?? "")}
+          onChange={onChange(name)}
+          onBlur={() => markTouched(name)}
+          onKeyDown={stopAll}
+          onKeyUp={stopAll}
+          onKeyPress={stopAll}
+          placeholder={placeholder || label}
+          className={[
+            "w-full p-2 rounded-xl text-sm",
+            "border bg-white/70 dark:bg-black/30",
+            "border-gray-300 dark:border-white/15",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500",
+            isFieldInvalid(name) ? "border-red-500 focus:ring-red-500" : "",
+          ].join(" ")}
+        />
+        {isFieldInvalid(name) ? (
+          <p className="text-xs text-red-500">This field is required.</p>
+        ) : null}
+      </div>
+    );
+  };
 
   const FieldSelect = ({
     name,
@@ -193,35 +233,52 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
     label: string;
     options: { value: string; label: string }[];
     placeholder?: string;
-  }) => (
-    <div className="space-y-1">
-      <label className="text-xs text-gray-500 dark:text-gray-400">
-        {label}
-      </label>
-      <select
-        value={String(formData[name] ?? "")}
-        onChange={(e) => setFormData((p) => ({ ...p, [name]: e.target.value }))}
-        onBlur={() => markTouched(name)}
-        className={[
-          "w-full p-2 rounded-xl text-sm",
-          "border bg-white/70 dark:bg-black/30",
-          "border-gray-300 dark:border-white/15",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500",
-          isFieldInvalid(name) ? "border-red-500 focus:ring-red-500" : "",
-        ].join(" ")}
+  }) => {
+    const id = useId();
+    return (
+      <div
+        className="space-y-1"
+        onKeyDownCapture={stopAll}
+        onKeyUpCapture={stopAll}
+        onKeyPressCapture={stopAll}
       >
-        <option value="">{placeholder || "Select..."}</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      {isFieldInvalid(name) ? (
-        <p className="text-xs text-red-500">This field is required.</p>
-      ) : null}
-    </div>
-  );
+        <label
+          htmlFor={id}
+          className="text-xs text-gray-500 dark:text-gray-400"
+        >
+          {label}
+        </label>
+        <select
+          id={id}
+          value={String(formData[name] ?? "")}
+          onChange={(e) =>
+            setFormData((p) => ({ ...p, [name]: e.target.value }))
+          }
+          onBlur={() => markTouched(name)}
+          onKeyDown={stopAll}
+          onKeyUp={stopAll}
+          onKeyPress={stopAll}
+          className={[
+            "w-full p-2 rounded-xl text-sm",
+            "border bg-white/70 dark:bg-black/30",
+            "border-gray-300 dark:border-white/15",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500",
+            isFieldInvalid(name) ? "border-red-500 focus:ring-red-500" : "",
+          ].join(" ")}
+        >
+          <option value="">{placeholder || "Select..."}</option>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        {isFieldInvalid(name) ? (
+          <p className="text-xs text-red-500">This field is required.</p>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <div
@@ -232,6 +289,12 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
       ].join(" ")}
       aria-modal="true"
       role="dialog"
+      // Гасим события на оверлее
+      onKeyDownCapture={stopAll}
+      onKeyUpCapture={stopAll}
+      onKeyPressCapture={stopAll}
+      onMouseDownCapture={stopAll}
+      onTouchStartCapture={stopAll}
     >
       <div
         className={[
@@ -242,6 +305,12 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
           mounted ? "opacity-100 scale-100" : "opacity-0 scale-95",
           "max-h-[90vh] flex flex-col",
         ].join(" ")}
+        // И на самом диалоге гасим, на случай если родитель слушает на фазе bubble
+        onKeyDownCapture={stopAll}
+        onKeyUpCapture={stopAll}
+        onKeyPressCapture={stopAll}
+        onMouseDownCapture={stopAll}
+        onTouchStartCapture={stopAll}
       >
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
 
@@ -260,7 +329,12 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
 
         <div className="px-5 py-4 overflow-y-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <Field name="name" label="Name" />
+            <Field
+              name="name"
+              label="Name"
+              inputRef={firstInputRef}
+              autoFocus
+            />
             <Field name="imo" label="IMO" />
             <FieldSelect
               name="vesselType"
@@ -272,7 +346,6 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
             <Field name="reportedETA" label="Reported ETA" />
             <Field name="reportedDestination" label="Reported Destination" />
             <Field name="currentPort" label="Current Port" />
-
             <FieldSelect
               name="country"
               label="Country"
@@ -283,7 +356,12 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
               }))}
             />
 
-            <div className="sm:col-span-2 space-y-2">
+            <div
+              className="sm:col-span-2 space-y-2"
+              onKeyDownCapture={stopAll}
+              onKeyUpCapture={stopAll}
+              onKeyPressCapture={stopAll}
+            >
               <label className="text-xs text-gray-500 dark:text-gray-400">
                 Photo
               </label>
@@ -322,6 +400,10 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
                     type="text"
                     value={formData.photoUrl}
                     onChange={onChange("photoUrl")}
+                    onBlur={() => markTouched("photoUrl")}
+                    onKeyDown={stopAll}
+                    onKeyUp={stopAll}
+                    onKeyPress={stopAll}
                     placeholder="Photo URL (optional)"
                     className="flex-1 p-2 rounded-xl text-sm border border-gray-300 dark:border-white/15 dark:bg-black/30 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -342,7 +424,7 @@ const VesselsModal: React.FC<VesselsModalProps> = ({
         <div className="sticky bottom-0 z-10 bg-white/70 dark:bg-neutral-900/70 backdrop-blur border-t border-gray-200 dark:border-gray-700 px-5 py-4 flex flex-col sm:flex-row justify-end gap-2">
           <button
             onClick={onClose}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20 active:scale-[0.98] transition"
+            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg白/10 dark:text-gray-300 dark:hover:bg-white/20 active:scale-[0.98] transition"
           >
             Cancel
           </button>

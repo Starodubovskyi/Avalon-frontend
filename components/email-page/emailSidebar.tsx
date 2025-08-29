@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   FaInbox,
@@ -9,11 +11,12 @@ import {
   FaPlus,
   FaTimes,
 } from "react-icons/fa";
+import type { AppUser } from "@/lib/useUserFromQueryAndStorage";
 
 type FolderType = "inbox" | "starred" | "sent" | "drafts" | "deleted" | "spam";
 
 type SidebarProps = {
-  currentUser: { name: string; email: string };
+  currentUser: AppUser;
   activeFolder: FolderType;
   onFolderSelect: (folder: FolderType) => void;
   isOpen?: boolean;
@@ -35,66 +38,88 @@ const labels = [
   { name: "External", color: "bg-red-500" },
 ];
 
-const Panel: React.FC<SidebarProps> = ({
-  currentUser,
+const Panel: React.FC<SidebarProps & { user: AppUser }> = ({
+  user,
   activeFolder,
   onFolderSelect,
-  isOpen,
   onClose,
 }) => {
+  const avatar = user.avatar || user.photo || "https://via.placeholder.com/48";
+  const displayEmail =
+    user.email ||
+    (user.handle?.startsWith("@")
+      ? `${user.handle.slice(1)}@example.com`
+      : user.handle) ||
+    "user@example.com";
+  const displayName = user.name || "User";
+
   return (
     <aside
-      className="w-72 bg-white dark:bg-gray-800 p-6 flex flex-col shadow-lg h-full"
       role="navigation"
+      className="
+        w-72 h-full flex flex-col p-6
+        bg-white dark:bg-white/5
+        border-r border-gray-200 dark:border-white/10
+        shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+        dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+      "
     >
       <div className="flex items-center mb-6">
         <img
-          src="https://via.placeholder.com/48"
+          src={avatar}
           alt="User Avatar"
-          className="w-12 h-12 rounded-full mr-3"
+          className="w-12 h-12 rounded-full mr-3 object-cover"
         />
         <div>
           <div className="font-semibold text-gray-800 dark:text-gray-100">
-            {currentUser.name || "User"}
+            {displayName}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {currentUser.email || "user@example.com"}
+            {displayEmail}
           </div>
         </div>
         <button
           onClick={onClose}
-          className="ml-auto p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 sm:hidden"
+          className="ml-auto p-2 rounded-md hover:bg-gray-100 dark:hover:bg-white/10 sm:hidden"
           aria-label="Close sidebar"
+          type="button"
         >
           <FaTimes />
         </button>
       </div>
 
-      <button className="flex items-center justify-center bg-orange-500 text-white p-3 rounded-lg w-full mb-6 font-semibold shadow-md hover:bg-orange-600 transition-colors">
+      <button
+        type="button"
+        className="flex items-center justify-center bg-orange-500 text-white p-3 rounded-lg w-full mb-6 font-semibold shadow-md hover:bg-orange-600 transition-colors"
+      >
         <FaPlus className="mr-2" />
         Compose
       </button>
 
       <nav className="space-y-1">
-        {sidebarNavItems.map((item, index) => (
-          <div
-            key={index}
-            className={`flex justify-between items-center p-3 rounded-lg cursor-pointer ${
-              activeFolder === (item.type as FolderType)
-                ? "bg-gray-200 text-blue-600 dark:bg-gray-700 dark:text-blue-400 font-semibold"
-                : "hover:bg-gray-100 dark:hover:bg-gray-700"
-            }`}
-            onClick={() => {
-              onFolderSelect(item.type as FolderType);
-              onClose?.();
-            }}
-          >
-            <div className="flex items-center">
-              {item.icon}
-              <span className="ml-3">{item.name}</span>
+        {sidebarNavItems.map((item, index) => {
+          const active = activeFolder === (item.type as FolderType);
+          return (
+            <div
+              key={index}
+              className={`flex justify-between items-center p-3 rounded-lg cursor-pointer transition
+                ${
+                  active
+                    ? "bg-gray-200 text-blue-600 dark:bg-white/10 dark:text-blue-400 font-semibold"
+                    : "hover:bg-gray-100 dark:hover:bg-white/10"
+                }`}
+              onClick={() => {
+                onFolderSelect(item.type as FolderType);
+                onClose?.();
+              }}
+            >
+              <div className="flex items-center">
+                {item.icon}
+                <span className="ml-3">{item.name}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       <div className="mt-8">
@@ -118,10 +143,12 @@ const Panel: React.FC<SidebarProps> = ({
 };
 
 const EmailSidebar: React.FC<SidebarProps> = (props) => {
+  const user = props.currentUser;
+
   return (
     <>
       <div className="hidden sm:block h-full">
-        <Panel {...props} />
+        <Panel {...props} user={user} />
       </div>
 
       <div
@@ -136,13 +163,15 @@ const EmailSidebar: React.FC<SidebarProps> = (props) => {
             props.isOpen ? "opacity-100" : "opacity-0"
           }`}
         />
-
         <div
-          className={`absolute left-0 top-0 h-full w-80 max-w-[85%] bg-white dark:bg-gray-800 transform transition-transform ${
-            props.isOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`
+            absolute left-0 top-0 h-full w-80 max-w-[85%]
+            transform transition-transform ${
+              props.isOpen ? "translate-x-0" : "-translate-x-full"
+            }
+          `}
         >
-          <Panel {...props} />
+          <Panel {...props} user={user} />
         </div>
       </div>
     </>

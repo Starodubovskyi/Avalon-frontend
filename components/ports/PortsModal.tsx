@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useId } from "react";
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 countries.registerLocale(enLocale);
@@ -9,10 +9,10 @@ export interface PortFormData {
   id?: string;
   port?: string;
   unlocode?: string;
-  country?: string; 
-  countryFlag?: string; 
+  country?: string;
+  countryFlag?: string;
   timezone?: string;
-  photoUrl?: string; 
+  photoUrl?: string;
 }
 
 export default function PortsModal({
@@ -35,17 +35,35 @@ export default function PortsModal({
     photoUrl: "",
     ...(initialData || {}),
   });
+
   const touchedRef = useRef<Record<string, boolean>>({});
   const fileRef = useRef<HTMLInputElement | null>(null);
   const initedRef = useRef(false);
+  const firstInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   useEffect(() => {
     if (initialData && !initedRef.current) {
       setForm((p) => ({ ...p, ...(initialData || {}) }));
       initedRef.current = true;
     }
   }, [initialData]);
+
+  useEffect(() => {
+    if (mounted) firstInputRef.current?.focus();
+  }, [mounted]);
+
+  const stopAll = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+  };
 
   const COUNTRIES = useMemo(
     () =>
@@ -120,6 +138,8 @@ export default function PortsModal({
     placeholder,
     value,
     onChange,
+    inputRef,
+    autoFocus,
   }: {
     name: keyof PortFormData;
     label: string;
@@ -127,30 +147,50 @@ export default function PortsModal({
     placeholder?: string;
     value: string;
     onChange: (v: string) => void;
-  }) => (
-    <div className="space-y-1">
-      <label className="text-xs text-gray-500 dark:text-gray-400">
-        {label}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={() => markTouched(name)}
-        placeholder={placeholder || label}
-        className={[
-          "w-full p-2 rounded-xl text-sm",
-          "border bg-white/70 dark:bg-black/30",
-          "border-gray-300 dark:border-white/15",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500",
-          requiredInvalid(name) ? "border-red-500 focus:ring-red-500" : "",
-        ].join(" ")}
-      />
-      {requiredInvalid(name) && (
-        <p className="text-xs text-red-500">This field is required.</p>
-      )}
-    </div>
-  );
+    inputRef?: React.RefObject<HTMLInputElement>;
+    autoFocus?: boolean;
+  }) => {
+    const id = useId();
+    return (
+      <div
+        className="space-y-1"
+        onKeyDownCapture={stopAll}
+        onKeyUpCapture={stopAll}
+        onKeyPressCapture={stopAll}
+      >
+        <label
+          htmlFor={id}
+          className="text-xs text-gray-500 dark:text-gray-400"
+        >
+          {label}
+        </label>
+        <input
+          id={id}
+          ref={inputRef}
+          autoFocus={autoFocus}
+          type={type}
+          value={value}
+          autoComplete="off"
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={() => markTouched(name)}
+          onKeyDown={stopAll}
+          onKeyUp={stopAll}
+          onKeyPress={stopAll}
+          placeholder={placeholder || label}
+          className={[
+            "w-full p-2 rounded-xl text-sm",
+            "border bg-white/70 dark:bg-black/30",
+            "border-gray-300 dark:border-white/15",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500",
+            requiredInvalid(name) ? "border-red-500 focus:ring-red-500" : "",
+          ].join(" ")}
+        />
+        {requiredInvalid(name) && (
+          <p className="text-xs text-red-500">This field is required.</p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div
@@ -161,6 +201,11 @@ export default function PortsModal({
       ].join(" ")}
       role="dialog"
       aria-modal="true"
+      onKeyDownCapture={stopAll}
+      onKeyUpCapture={stopAll}
+      onKeyPressCapture={stopAll}
+      onMouseDownCapture={stopAll}
+      onTouchStartCapture={stopAll}
     >
       <div
         className={[
@@ -171,6 +216,11 @@ export default function PortsModal({
           mounted ? "opacity-100 scale-100" : "opacity-0 scale-95",
           "max-h-[90vh] flex flex-col",
         ].join(" ")}
+        onKeyDownCapture={stopAll}
+        onKeyUpCapture={stopAll}
+        onKeyPressCapture={stopAll}
+        onMouseDownCapture={stopAll}
+        onTouchStartCapture={stopAll}
       >
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
 
@@ -194,6 +244,8 @@ export default function PortsModal({
               label="Port"
               value={form.port || ""}
               onChange={(v) => setForm((p) => ({ ...p, port: v }))}
+              inputRef={firstInputRef}
+              autoFocus
             />
             <Field
               name="unlocode"
@@ -204,7 +256,12 @@ export default function PortsModal({
               }
             />
 
-            <div className="space-y-1">
+            <div
+              className="space-y-1"
+              onKeyDownCapture={stopAll}
+              onKeyUpCapture={stopAll}
+              onKeyPressCapture={stopAll}
+            >
               <label className="text-xs text-gray-500 dark:text-gray-400">
                 Country
               </label>
@@ -212,6 +269,9 @@ export default function PortsModal({
                 value={form.country || ""}
                 onChange={(e) => setCountry(e.target.value)}
                 onBlur={() => markTouched("country")}
+                onKeyDown={stopAll}
+                onKeyUp={stopAll}
+                onKeyPress={stopAll}
                 className={[
                   "w-full p-2 rounded-xl text-sm",
                   "border bg-white/70 dark:bg-black/30",
@@ -254,7 +314,12 @@ export default function PortsModal({
               onChange={(v) => setForm((p) => ({ ...p, timezone: v }))}
             />
 
-            <div className="sm:col-span-2 space-y-2">
+            <div
+              className="sm:col-span-2 space-y-2"
+              onKeyDownCapture={stopAll}
+              onKeyUpCapture={stopAll}
+              onKeyPressCapture={stopAll}
+            >
               <label className="text-xs text-gray-500 dark:text-gray-400">
                 Photo
               </label>
@@ -267,7 +332,7 @@ export default function PortsModal({
                   />
                   <div className="flex flex-wrap gap-2">
                     <button
-                      onClick={() => fileRef.current?.click()}
+                      onClick={pickFile}
                       className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-white/10 text-sm hover:bg-gray-200 dark:hover:bg-white/20"
                     >
                       Replace
@@ -283,7 +348,7 @@ export default function PortsModal({
               ) : (
                 <div className="flex flex-col sm:flex-row gap-2">
                   <button
-                    onClick={() => fileRef.current?.click()}
+                    onClick={pickFile}
                     className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-white/10 text-sm hover:bg-gray-200 dark:hover:bg-white/20"
                   >
                     Upload photo
@@ -295,6 +360,9 @@ export default function PortsModal({
                     onChange={(e) =>
                       setForm((p) => ({ ...p, photoUrl: e.target.value }))
                     }
+                    onKeyDown={stopAll}
+                    onKeyUp={stopAll}
+                    onKeyPress={stopAll}
                     className="flex-1 p-2 rounded-xl text-sm border border-gray-300 dark:border-white/15 dark:bg-black/30 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>

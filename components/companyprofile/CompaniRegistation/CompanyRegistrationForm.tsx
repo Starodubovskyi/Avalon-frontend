@@ -35,6 +35,10 @@ const BUSINESS_ACTIVITIES = [
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
+type CompanyForm = Omit<Company, "id" | "category" | "status" | "employees"> & {
+  employees?: string;
+};
+
 export default function CompanyRegistrationForm({
   onSubmit,
   initialData,
@@ -49,32 +53,44 @@ export default function CompanyRegistrationForm({
 
   const [step, setStep] = useState<Step>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<Company>(
-    initialData || {
-      legalName: "",
-      businessName: "",
-      employees: "",
-      founded: "",
-      lat: 51.505,
-      lng: -0.09,
-      logoUrl: "",
-      bannerUrl: "",
-      pinUrl: "",
-      activity: "",
-      country: "",
-      city: "",
-      servicedPorts: "",
-      address: "",
-      state: "",
-      postalCode: "",
-      telephone: "",
-      fax: "",
-      email: "",
-      website: "",
-      poBox: "",
-      tagline: "",
-      description: "",
-    }
+
+  const defaultForm: CompanyForm = {
+    legalName: "",
+    businessName: "",
+    employees: "",
+    founded: "",
+    lat: 51.505,
+    lng: -0.09,
+    logoUrl: "",
+    bannerUrl: "",
+    pinUrl: "",
+    activity: "",
+    country: "",
+    city: "",
+    servicedPorts: "",
+    address: "",
+    state: "",
+    postalCode: "",
+    telephone: "",
+    fax: "",
+    email: "",
+    website: "",
+    poBox: "",
+    tagline: "",
+    description: "",
+  };
+
+  const [formData, setFormData] = useState<CompanyForm>(() =>
+    initialData
+      ? {
+          ...defaultForm,
+          ...initialData,
+          employees:
+            initialData.employees !== undefined
+              ? String(initialData.employees)
+              : "",
+        }
+      : defaultForm
   );
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -86,7 +102,19 @@ export default function CompanyRegistrationForm({
     setLogo(null);
     setBanner(null);
     setPin(null);
-  }, [initialData]);
+    if (initialData) {
+      setFormData({
+        ...defaultForm,
+        ...initialData,
+        employees:
+          initialData.employees !== undefined
+            ? String(initialData.employees)
+            : "",
+      });
+    } else {
+      setFormData(defaultForm);
+    }
+  }, [initialData]); 
 
   const inputBase =
     "w-full mt-2 rounded-xl border bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-200 dark:border-neutral-700 text-sm";
@@ -143,12 +171,45 @@ export default function CompanyRegistrationForm({
         : formData.bannerUrl || "";
       const finalPinUrl = pin ? await toBase64(pin) : formData.pinUrl || "";
 
-      onSubmit({
-        ...(formData as Company),
-        logoUrl: finalLogoUrl,
-        bannerUrl: finalBannerUrl,
-        pinUrl: finalPinUrl,
-      });
+      const payload: Company = {
+        id: initialData?.id ?? "",
+        businessName: formData.businessName || "",
+        legalName: formData.legalName || undefined,
+        activity: formData.activity || undefined,
+        tagline: formData.tagline || undefined,
+
+        bannerUrl: finalBannerUrl || undefined,
+        logoUrl: finalLogoUrl || undefined,
+        pinUrl: finalPinUrl || undefined,
+
+        description: formData.description || undefined,
+        website: formData.website || undefined,
+        email: formData.email || undefined,
+        founded: formData.founded || undefined,
+        employees:
+          formData.employees !== undefined && formData.employees !== ""
+            ? formData.employees
+            : undefined,
+        servicedPorts: formData.servicedPorts || undefined,
+
+        country: formData.country || undefined,
+        state: formData.state || undefined,
+        city: formData.city || undefined,
+        address: formData.address || undefined,
+        postalCode: formData.postalCode || undefined,
+
+        lat: formData.lat,
+        lng: formData.lng,
+
+        telephone: formData.telephone || undefined,
+        fax: formData.fax || undefined,
+        poBox: formData.poBox || undefined,
+
+        category: initialData?.category,
+        status: initialData?.status,
+      };
+
+      onSubmit(payload);
     } finally {
       setIsSubmitting(false);
     }
@@ -258,7 +319,7 @@ export default function CompanyRegistrationForm({
                 className={`${inputBase} ${
                   errors.legalName ? "border-red-500" : ""
                 }`}
-                value={formData.legalName}
+                value={formData.legalName ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, legalName: e.target.value })
                 }
@@ -274,7 +335,7 @@ export default function CompanyRegistrationForm({
                 className={`${inputBase} ${
                   errors.businessName ? "border-red-500" : ""
                 }`}
-                value={formData.businessName}
+                value={formData.businessName ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, businessName: e.target.value })
                 }
@@ -316,7 +377,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>Number of Employees</label>
               <input
                 className={inputBase}
-                value={formData.employees}
+                value={formData.employees ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, employees: e.target.value })
                 }
@@ -328,7 +389,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>Founded (Year)</label>
               <input
                 className={inputBase}
-                value={formData.founded}
+                value={formData.founded ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, founded: e.target.value })
                 }
@@ -342,7 +403,6 @@ export default function CompanyRegistrationForm({
       {step === 2 && (
         <div className={section}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* Logo */}
             <div className="border-2 border-dashed rounded-xl p-4 dark:border-neutral-700/80">
               <div className="flex items-center justify-between">
                 <span className={labelBase}>Company Logo</span>
@@ -532,7 +592,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>State/Province</label>
               <input
                 className={inputBase}
-                value={formData.state}
+                value={formData.state ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, state: e.target.value })
                 }
@@ -543,7 +603,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>City</label>
               <input
                 className={inputBase}
-                value={formData.city}
+                value={formData.city ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, city: e.target.value })
                 }
@@ -557,7 +617,7 @@ export default function CompanyRegistrationForm({
                 className={`${inputBase} ${
                   errors.address ? "border-red-500" : ""
                 }`}
-                value={formData.address}
+                value={formData.address ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
@@ -572,7 +632,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>Postal Code</label>
               <input
                 className={inputBase}
-                value={formData.postalCode}
+                value={formData.postalCode ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, postalCode: e.target.value })
                 }
@@ -584,7 +644,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>Serviced Ports (up to 1)</label>
               <input
                 className={inputBase}
-                value={formData.servicedPorts}
+                value={formData.servicedPorts ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, servicedPorts: e.target.value })
                 }
@@ -596,14 +656,14 @@ export default function CompanyRegistrationForm({
           <div className="mt-6">
             <div className="w-full h-72 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-sm">
               <MapContainer
-                center={[formData.lat!, formData.lng!]}
+                center={[formData.lat, formData.lng]}
                 zoom={13}
                 scrollWheelZoom={false}
                 className="w-full h-full"
               >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <Marker
-                  position={[formData.lat!, formData.lng!]}
+                  position={[formData.lat, formData.lng]}
                   icon={L.icon({
                     iconUrl: pin
                       ? URL.createObjectURL(pin)
@@ -631,7 +691,7 @@ export default function CompanyRegistrationForm({
                 className={`${inputBase} ${
                   errors.email ? "border-red-500" : ""
                 }`}
-                value={formData.email}
+                value={formData.email ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
@@ -647,7 +707,7 @@ export default function CompanyRegistrationForm({
                 className={`${inputBase} ${
                   errors.website ? "border-red-500" : ""
                 }`}
-                value={formData.website}
+                value={formData.website ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, website: e.target.value })
                 }
@@ -661,7 +721,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>Telephone</label>
               <input
                 className={inputBase}
-                value={formData.telephone}
+                value={formData.telephone ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, telephone: e.target.value })
                 }
@@ -672,7 +732,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>Fax</label>
               <input
                 className={inputBase}
-                value={formData.fax}
+                value={formData.fax ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, fax: e.target.value })
                 }
@@ -683,7 +743,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>P.O. Box</label>
               <input
                 className={inputBase}
-                value={formData.poBox}
+                value={formData.poBox ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, poBox: e.target.value })
                 }
@@ -701,7 +761,7 @@ export default function CompanyRegistrationForm({
               <label className={labelBase}>Tagline</label>
               <input
                 className={inputBase}
-                value={formData.tagline}
+                value={formData.tagline ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, tagline: e.target.value })
                 }
@@ -713,7 +773,7 @@ export default function CompanyRegistrationForm({
               <div className="relative">
                 <textarea
                   className={`${inputBase} h-48 resize-none`}
-                  value={formData.description}
+                  value={formData.description ?? ""}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }

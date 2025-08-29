@@ -163,17 +163,9 @@ export default function UserInfoModal({
     setMuteDuration(null);
   };
 
-  const openCategoryModal = (key: CategoryKey) => {
-    setActiveCategory(key);
-  };
-  const closeCategoryModal = () => {
-    setActiveCategory(null);
-  };
-
-  const openPreviewImage = (url: string) => {
-    setPreviewImage(url);
-  };
-
+  const openCategoryModal = (key: CategoryKey) => setActiveCategory(key);
+  const closeCategoryModal = () => setActiveCategory(null);
+  const openPreviewImage = (url: string) => setPreviewImage(url);
 
   const counts = {
     savedMessages: pinnedMessages.length,
@@ -195,7 +187,10 @@ export default function UserInfoModal({
       (acc, msg) =>
         acc +
         (msg.attachments?.filter(
-          (a) => !a.type.startsWith("image") && !a.type.startsWith("video")
+          (a) =>
+            !a.type.startsWith("image") &&
+            !a.type.startsWith("video") &&
+            !a.type.startsWith("audio")
         ).length || 0),
       0
     ),
@@ -219,19 +214,26 @@ export default function UserInfoModal({
   return (
     <>
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-white dark:bg-[#0d1117] rounded-lg w-full max-w-md p-6 flex flex-col gap-6 relative max-h-[80vh] overflow-y-auto"
+          className="
+            relative w-full max-w-md max-h-[80vh] overflow-y-auto
+            rounded-2xl border border-gray-200 bg-white
+            shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+            dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+            p-6 flex flex-col gap-6
+          "
         >
           <button
             onClick={onClose}
             aria-label="Close"
-            className="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-red-500"
+            className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300"
+            type="button"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
 
           <div className="flex items-center gap-4">
@@ -247,7 +249,7 @@ export default function UserInfoModal({
               </div>
             )}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text:white">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {user.name}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -256,8 +258,8 @@ export default function UserInfoModal({
             </div>
           </div>
 
-          <div className="space-y-3 border-b border-gray-300 dark:border-gray-700 pb-4">
-            <div className="flex items-center gap-3 text-gray-700 dark:text-gray-400 text-sm">
+          <div className="space-y-3 border-b border-gray-200 dark:border-white/10 pb-4">
+            <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300 text-sm">
               <Info className="w-5 h-5" />
               <div>
                 <div>{contactInfo.phone}</div>
@@ -273,7 +275,7 @@ export default function UserInfoModal({
           </div>
 
           <div className="mb-4 flex items-center justify-between relative">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text:white flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               {notificationsEnabled ? (
                 <Bell className="w-5 h-5" />
               ) : mutedForever ? (
@@ -307,23 +309,23 @@ export default function UserInfoModal({
 
             {showMenu && notificationsEnabled && (
               <div
-                className="absolute top-10 right-0 w-48 bg-[#0d1117] border border-gray-700 rounded shadow-lg z-50 text-white"
+                className="absolute top-10 right-0 w-48 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-md shadow-lg z-50 text-gray-800 dark:text-white"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
-                  className="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-gray-700"
+                  className="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-gray-100 dark:hover:bg-white/10"
                   onClick={handleMuteForever}
                   type="button"
                 >
-                  <BellOff className="w-4 h-4 text-red-400" />
+                  <BellOff className="w-4 h-4 text-red-500" />
                   Mute forever
                 </button>
                 <button
-                  className="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-gray-700"
+                  className="flex items-center gap-2 px-4 py-2 text-sm w-full hover:bg-gray-100 dark:hover:bg-white/10"
                   onClick={handleMuteFor}
                   type="button"
                 >
-                  <Moon className="w-4 h-4 text-gray-300" />
+                  <Moon className="w-4 h-4" />
                   Mute for...
                 </button>
               </div>
@@ -331,9 +333,9 @@ export default function UserInfoModal({
           </div>
 
           {showMuteDurationDialog && (
-            <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-40">
-              <div className="bg-[#0d1117] rounded-lg p-6 w-72 max-w-full text:white">
-                <h3 className="text-lg font-semibold mb-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+              <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 p-6 w-72 max-w-full">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                   Mute notifications for...
                 </h3>
                 <div className="flex flex-col gap-3">
@@ -347,10 +349,10 @@ export default function UserInfoModal({
                       onClick={() => setMuteDuration(value)}
                       type="button"
                       className={clsx(
-                        "w-full py-2 rounded",
+                        "w-full py-2 rounded-md border border-transparent",
                         muteDuration === value
-                          ? "bg-emerald-500"
-                          : "hover:bg-gray-700"
+                          ? "bg-emerald-500 text-white"
+                          : "hover:bg-gray-100 dark:hover:bg-white/10"
                       )}
                     >
                       {label}
@@ -361,7 +363,7 @@ export default function UserInfoModal({
                   <button
                     onClick={handleCancelMuteDuration}
                     type="button"
-                    className="text-blue-500 hover:underline"
+                    className="text-blue-600 hover:underline"
                   >
                     Cancel
                   </button>
@@ -369,7 +371,7 @@ export default function UserInfoModal({
                     onClick={handleConfirmMuteDuration}
                     type="button"
                     disabled={muteDuration === null}
-                    className="px-4 py-2 rounded bg-emerald-500 text:white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-md bg-emerald-500 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Mute
                   </button>
@@ -380,7 +382,7 @@ export default function UserInfoModal({
 
           <button
             type="button"
-            className="text-blue-500 hover:underline mb-6"
+            className="text-blue-600 hover:underline mb-6"
             onClick={() => {
               onSendMessageClick();
               onClose();
@@ -390,7 +392,7 @@ export default function UserInfoModal({
           </button>
 
           <div>
-            <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text:white flex items:center gap-2">
+            <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
               Media, Links and Docs
             </h4>
             <ul className="space-y-1">
@@ -398,9 +400,12 @@ export default function UserInfoModal({
                 <li key={key}>
                   <button
                     onClick={() => openCategoryModal(key)}
-                    className="flex items-center gap-3 w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                    className="flex items-center gap-3 w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-white/10"
+                    type="button"
                   >
-                    <span className="text-gray-500">{iconMap[key]}</span>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {iconMap[key]}
+                    </span>
                     <span className="capitalize">
                       {counts[key]} {label}
                     </span>
@@ -420,7 +425,7 @@ export default function UserInfoModal({
             />
           )}
 
-          <div className="border-t border-gray-300 dark:border-gray-700 mt-4 pt-4 flex flex-col gap-2">
+          <div className="border-t border-gray-200 dark:border-white/10 mt-4 pt-4 flex flex-col gap-2">
             <button
               type="button"
               className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
@@ -430,14 +435,14 @@ export default function UserInfoModal({
             </button>
             <button
               type="button"
-              className="flex items:center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
+              className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600"
             >
               <Edit className="w-5 h-5" />
               Edit contact
             </button>
             <button
               type="button"
-              className="flex items:center gap-2 text-red-600 hover:text-red-700"
+              className="flex items-center gap-2 text-red-600 hover:text-red-700"
             >
               <Trash2 className="w-5 h-5" />
               Delete contact
@@ -448,7 +453,7 @@ export default function UserInfoModal({
 
       {previewImage && (
         <div
-          className="fixed inset-0 bg:black bg-opacity-80 flex items:center justify-center z-50"
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
           onClick={() => setPreviewImage(null)}
         >
           <button
@@ -458,7 +463,7 @@ export default function UserInfoModal({
               setPreviewImage(null);
             }}
             aria-label="Close preview"
-            className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition z-60"
+            className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/70 transition"
           >
             <X className="w-6 h-6" />
           </button>
@@ -466,7 +471,7 @@ export default function UserInfoModal({
           <img
             src={previewImage}
             alt="Preview"
-            className="max-h:[90vh] max-w:[90vw] rounded-lg shadow-lg"
+            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
             onClick={(e) => e.stopPropagation()}
           />
         </div>
@@ -500,74 +505,72 @@ function CategoryModal({
         text: msg.text || "",
       }));
       break;
-
     case "photos":
-      items = messages.flatMap(
-        (msg) =>
-          msg.attachments
-            ?.filter((a) => a.type.startsWith("image"))
-            .map((a) => ({
-              url: a.url,
-              name: a.name,
-            })) || []
-      );
+      items =
+        messages.flatMap(
+          (msg) =>
+            msg.attachments
+              ?.filter((a) => a.type.startsWith("image"))
+              .map((a) => ({ url: a.url, name: a.name })) || []
+        ) || [];
       break;
-
     case "videos":
-      items = messages.flatMap(
-        (msg) =>
-          msg.attachments
-            ?.filter((a) => a.type.startsWith("video"))
-            .map((a) => ({
-              url: a.url,
-              name: a.name,
-            })) || []
-      );
+      items =
+        messages.flatMap(
+          (msg) =>
+            msg.attachments
+              ?.filter((a) => a.type.startsWith("video"))
+              .map((a) => ({ url: a.url, name: a.name })) || []
+        ) || [];
       break;
-
     case "files":
-      items = messages.flatMap(
-        (msg) =>
-          msg.attachments
-            ?.filter(
-              (a) => !a.type.startsWith("image") && !a.type.startsWith("video")
-            )
-            .map((a) => ({
-              url: a.url,
-              name: a.name,
-              type: a.type,
-            })) || []
-      );
+      items =
+        messages.flatMap(
+          (msg) =>
+            msg.attachments
+              ?.filter(
+                (a) =>
+                  !a.type.startsWith("image") &&
+                  !a.type.startsWith("video") &&
+                  !a.type.startsWith("audio")
+              )
+              .map((a) => ({ url: a.url, name: a.name, type: a.type })) || []
+        ) || [];
       break;
-
     case "sharedLinks":
       items = messages
         .filter((msg) => msg.location)
         .map((msg) => ({ url: msg.location!, name: "Location" }));
       break;
-
     default:
       items = [];
   }
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items:center justify-center z-60 p-4"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[#0d1117] rounded-lg w-full max-w-3xl p-6 flex flex-col gap-4 relative max-h:[80vh] overflow-y-auto"
+        className="
+          relative w-full max-w-3xl max-h-[80vh] overflow-y-auto
+          rounded-2xl border border-gray-200 bg-white
+          shadow-[0_16px_40px_rgba(2,6,23,0.08)]
+          dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
+          p-6 flex flex-col gap-4
+        "
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-red-500"
+          className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300"
+          type="button"
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-lg font-semibold text-gray-900 dark:text:white mb-4 capitalize">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 capitalize">
           {category}
         </h3>
 
@@ -577,13 +580,13 @@ function CategoryModal({
           </p>
         )}
 
-        <div className="overflow-y-auto max-h:[60vh]">
+        <div className="overflow-y-auto max-h-[60vh]">
           {category === "savedMessages" ? (
             <ul className="space-y-3">
               {items.map((item, idx) => (
                 <li
                   key={idx}
-                  className="p-3 border border-gray-300 dark:border-gray-700 rounded-md cursor-default whitespace-pre-wrap break-words"
+                  className="p-3 border border-gray-200 dark:border-white/10 rounded-md cursor-default whitespace-pre-wrap break-words bg-gray-50 dark:bg-white/5"
                   title={item.text}
                 >
                   {item.text}
@@ -591,7 +594,7 @@ function CategoryModal({
               ))}
             </ul>
           ) : (
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {items.map((item, idx) => {
                 if (!item.url) return null;
 
@@ -601,8 +604,8 @@ function CategoryModal({
                       key={idx}
                       src={item.url}
                       alt={item.name || "Image"}
-                      className="w-full h-28 object-cover rounded-md cursor-pointer"
-                      onClick={() => item.url && onPreviewImage(item.url)}
+                      className="w-full h-28 object-cover rounded-md cursor-pointer border border-gray-200 dark:border-white/10"
+                      onClick={() => onPreviewImage(item.url!)}
                     />
                   );
                 if (category === "videos")
@@ -610,7 +613,7 @@ function CategoryModal({
                     <video
                       key={idx}
                       src={item.url}
-                      className="w-full h-28 object-cover rounded-md cursor:pointer"
+                      className="w-full h-28 object-cover rounded-md cursor-pointer border border-gray-200 dark:border-white/10"
                       controls
                     />
                   );
@@ -618,9 +621,9 @@ function CategoryModal({
                   return (
                     <div
                       key={idx}
-                      className="p-2 border border-gray-300 dark:border-gray-700 rounded-md cursor-pointer text-xs truncate"
+                      className="p-2 border border-gray-200 dark:border-white/10 rounded-md cursor-pointer text-xs truncate hover:bg-gray-100 dark:hover:bg-white/10"
                       title={item.name}
-                      onClick={() => window.open(item.url, "_blank")}
+                      onClick={() => window.open(item.url!, "_blank")}
                     >
                       {item.name || "File"}
                     </div>
@@ -632,7 +635,7 @@ function CategoryModal({
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full h-20 flex items:center justify-center bg-gray-200 dark:bg-gray-800 text-xs text-blue-500 dark:text-blue-400 rounded-md underline truncate px-2"
+                      className="w-full h-20 flex items-center justify-center bg-gray-100 dark:bg-white/10 text-xs text-blue-600 dark:text-blue-400 rounded-md underline truncate px-2"
                       title={item.name || item.url}
                     >
                       {item.name || item.url}

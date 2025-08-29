@@ -1,25 +1,29 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link"; // ⬅️ добавил
 import { useToast } from "@/components/ui/use-toast";
 import ColumnsDropdown from "./columnsDropdown";
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 countries.registerLocale(enLocale);
 
+import { getCurrentSubscription } from "@/components/types/billing/subscription";
+import { getPlanById } from "@/components/types/billing/plan";
+
 type ColumnKey =
   | "flag"
   | "port"
   | "unlocode"
   | "photoUrl"
-  | "timezone" 
-  | "vessels" 
-  | "arrivals" 
+  | "timezone"
+  | "vessels"
+  | "arrivals"
   | "departures"
   | "expectedArrivals"
-  | "anchorage" 
-  | "geoArea1" 
-  | "geoArea2" 
+  | "anchorage"
+  | "geoArea1"
+  | "geoArea2"
   | "coverage";
 
 export interface PortsTableProps {
@@ -60,6 +64,20 @@ const toAlpha2 = (val?: string) => {
 const flagUrl = (a2: string) =>
   a2 ? `https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/flags/4x3/${a2}.svg` : "";
 
+// ⬇️ сохраняем порт, чтобы детальная страница могла взять данные из кэша
+function openPortCache(row: any) {
+  try {
+    localStorage.setItem(`port:${row.id}`, JSON.stringify(row));
+    const prev = JSON.parse(localStorage.getItem("public:ports") || "[]");
+    const map = new Map(prev.map((it: any) => [String(it.id), it]));
+    map.set(String(row.id), row);
+    localStorage.setItem(
+      "public:ports",
+      JSON.stringify(Array.from(map.values()))
+    );
+  } catch {}
+}
+
 export default function PortsTable({
   rows,
   search = "",
@@ -72,6 +90,37 @@ export default function PortsTable({
   onExportCsv,
 }: PortsTableProps) {
   const { toast } = useToast();
+
+  const [hasEnterprise, setHasEnterprise] = useState(false);
+  useEffect(() => {
+    const refreshPlan = () => {
+      try {
+        const sub = getCurrentSubscription?.();
+        if (!sub) return setHasEnterprise(false);
+        const plan = getPlanById?.(sub.planId);
+        const name = plan?.name || "";
+        const id = (plan as any)?.id || sub.planId;
+        const slug = (plan as any)?.slug;
+        const enterprise =
+          name === "Maritime Enterprise" ||
+          id === "enterprise" ||
+          slug === "enterprise";
+        setHasEnterprise(Boolean(enterprise));
+      } catch {
+        setHasEnterprise(false);
+      }
+    };
+    refreshPlan();
+    window.addEventListener("storage", refreshPlan);
+    window.addEventListener("billing:change", refreshPlan as EventListener);
+    return () => {
+      window.removeEventListener("storage", refreshPlan);
+      window.removeEventListener(
+        "billing:change",
+        refreshPlan as EventListener
+      );
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     let data = [...rows];
@@ -160,7 +209,7 @@ export default function PortsTable({
     }
   };
 
-  const Kebab = ({ row }: { row: any }) => {
+  const Kebab = ({ row, enterprise }: { row: any; enterprise: boolean }) => {
     const fire = (msg: string) => toast({ title: msg });
     return (
       <div className="relative">
@@ -188,7 +237,7 @@ export default function PortsTable({
               Details
             </button>
             <button
-              className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg:white/10"
+              className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/10"
               onClick={() => fire("Duplicate clicked")}
             >
               Duplicate
@@ -196,12 +245,14 @@ export default function PortsTable({
             <button className="w-full text-left px-3 py-2 opacity-50 cursor-not-allowed">
               Archive 🔒
             </button>
-            <button
-              className="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600"
-              onClick={() => onDelete(row.id)}
-            >
-              Delete
-            </button>
+            {enterprise && (
+              <button
+                className="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600"
+                onClick={() => onDelete(row.id)}
+              >
+                Delete
+              </button>
+            )}
           </div>
         </details>
       </div>
@@ -251,10 +302,18 @@ export default function PortsTable({
                       ) : (
                         <span className="text-xs text-gray-400">-</span>
                       )}
-                      <h3 className="font-semibold truncate">{r.port}</h3>
+                      {/* ⬇️ кликабельное имя порта */}
+                      <Link
+                        href={`/ports/${r.id}`}
+                        onClick={() => openPortCache(r)}
+                        className="font-semibold truncate hover:underline text-gray-900 dark:text-white"
+                        title="Open port profile"
+                      >
+                        {r.port}
+                      </Link>
                     </div>
                   </div>
-                  <Kebab row={r} />
+                  <Kebab row={r} enterprise={hasEnterprise} />
                 </div>
 
                 <div className="mt-2 text-xs text-gray-600 dark:text-gray-300 space-y-1">
@@ -310,20 +369,22 @@ export default function PortsTable({
                   ) : null}
                 </div>
 
-                <div className="mt-3 flex gap-2">
-                  <button
-                    onClick={() => onEdit(r)}
-                    className="flex-1 px-3 py-2 rounded-xl bg-blue-600 text-white text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(r.id)}
-                    className="flex-1 px-3 py-2 rounded-xl bg-red-600 text-white text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {hasEnterprise && (
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => onEdit(r)}
+                      className="flex-1 px-3 py-2 rounded-xl bg-blue-600 text-white text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onDelete(r.id)}
+                      className="flex-1 px-3 py-2 rounded-xl bg-red-600 text-white text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -432,13 +493,21 @@ export default function PortsTable({
                       );
                     }
                     if (key === "port") {
+                      // ⬅️ кликабельный порт
                       return (
                         <th
                           key={key}
                           scope="row"
                           className="px-4 py-3 font-medium whitespace-nowrap"
                         >
-                          {r.port}
+                          <Link
+                            href={`/ports/${r.id}`}
+                            onClick={() => openPortCache(r)}
+                            className="hover:underline text-slate-900 dark:text-white"
+                            title="Open port profile"
+                          >
+                            {r.port}
+                          </Link>
                         </th>
                       );
                     }
@@ -450,19 +519,23 @@ export default function PortsTable({
                   })}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => onEdit(r)}
-                        className="px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete(r.id)}
-                        className="px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                      <Kebab row={r} />
+                      {hasEnterprise && (
+                        <>
+                          <button
+                            onClick={() => onEdit(r)}
+                            className="px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => onDelete(r.id)}
+                            className="px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                      <Kebab row={r} enterprise={hasEnterprise} />
                     </div>
                   </td>
                 </tr>
