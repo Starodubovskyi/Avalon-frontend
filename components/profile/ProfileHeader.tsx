@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useState } from "react";
 import { FaUserCircle, FaPlus, FaTimes } from "react-icons/fa";
 
@@ -50,7 +52,11 @@ export default function ProfileHeader({
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-5xl text-gray-600 dark:text-gray-400 overflow-hidden relative">
           {profileImage ? (
-            <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <FaUserCircle />
           )}
@@ -120,7 +126,9 @@ export default function ProfileHeader({
             <input
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+              onKeyDown={(e) =>
+                e.key === "Enter" && (e.preventDefault(), addTag())
+              }
               placeholder="Add tag"
               className="outline-none bg-transparent w-24 text-gray-900 dark:text-gray-200"
             />

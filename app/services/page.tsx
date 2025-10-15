@@ -1,8 +1,17 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import MainLayout from "@/components/layout/MainLayout";
-import TopProfileNavbar from "@/components/profile/TopProfileNavbar";
-import MyOnlineServices from "@/components/onlineServices/MyOnlineServices";
+
+const TopProfileNavbar = dynamic(
+  () => import("@/components/profile/TopProfileNavbar"),
+  { ssr: false }
+);
+
+const MyOnlineServices = dynamic(
+  () => import("@/components/onlineServices/MyOnlineServices"),
+  { ssr: false }
+);
 
 export default function ServicesPage() {
   return (

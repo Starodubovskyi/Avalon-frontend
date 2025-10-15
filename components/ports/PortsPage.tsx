@@ -5,6 +5,7 @@ import PortsHeader from "@/components/ports/PortsHeader";
 import PortsModal, { PortFormData } from "@/components/ports/PortsModal";
 import PortsTable from "@/components/ports/portsTable";
 import { PortsTabKey } from "@/components/ports/PortsTabs";
+import { PortsApi, PortStatus } from "@/lib/api/ports";
 
 type FilterKey =
   | "flag"
@@ -34,16 +35,76 @@ export default function PortsPage({
   const [tab, setTab] = useState<PortsTabKey>("ports");
 
   const [filters, setFilters] = useState<Record<string, string>>({});
-
   const setFilter = (key: FilterKey, value: string) =>
     setFilters((p) => ({ ...p, [key]: value }));
   const clearFilters = () => setFilters({});
 
-  const handleAdd = (data: PortFormData) => setRows((p) => [...p, data]);
-  const handleEdit = (data: PortFormData) =>
-    setRows((p) => p.map((r) => (r.id === data.id ? { ...r, ...data } : r)));
-  const handleDelete = (id: string) =>
-    setRows((p) => p.filter((r) => r.id !== id));
+  const handleAdd = async (data: PortFormData) => {
+    try {
+      const status = ((data as any).status as PortStatus | undefined) ?? "Open";
+
+      const name =
+        (data as any).port ||
+        (data as any).portname ||
+        data.unlocode ||
+        "Unnamed";
+
+      const created = await PortsApi.create({
+        name,
+        unlocode: data.unlocode || "",
+        country: data.country,
+        status,
+        timezone: (data as any).timezone,
+      });
+
+      const newId =
+        created?.id ||
+        (created as any)?._id ||
+        (data as any)?.id ||
+        data.unlocode ||
+        (typeof crypto !== "undefined" && (crypto as any).randomUUID
+          ? (crypto as any).randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`);
+
+      setRows((p) => [...p, { ...data, id: newId }]);
+      setIsOpen(false);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleEdit = async (data: PortFormData) => {
+    try {
+      if (!data.id) return;
+
+      const patch: any = {
+        name:
+          (data as any).port ||
+          (data as any).portname ||
+          data.unlocode ||
+          undefined,
+        unlocode: data.unlocode,
+        country: data.country,
+      };
+      if ((data as any).status) patch.status = (data as any).status;
+      if ((data as any).timezone) patch.timezone = (data as any).timezone;
+
+      await PortsApi.update(String(data.id), patch);
+
+      setRows((p) => p.map((r) => (r.id === data.id ? { ...r, ...data } : r)));
+      setEditRow(null);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await PortsApi.remove(String(id)).catch(() => null);
+    } finally {
+      setRows((p) => p.filter((r) => r.id !== id));
+    }
+  };
 
   return (
     <div className="min-h-[100dvh] w-full px-4 sm:px-6 lg:px-8 py-6">
@@ -51,7 +112,16 @@ export default function PortsPage({
         tab={tab}
         onTabChange={setTab}
         onAdd={() => setIsOpen(true)}
-        onDeleteSelected={() => {
+        onDeleteSelected={async () => {
+          try {
+            await Promise.all(
+              selectedIds.map((id) =>
+                PortsApi.remove(String(id)).catch(() => null)
+              )
+            );
+          } catch (e) {
+            console.error(e);
+          }
           setRows((p) => p.filter((r) => !selectedIds.includes(r.id)));
           setSelectedIds([]);
         }}
@@ -81,7 +151,6 @@ export default function PortsPage({
         )}
       </div>
 
-      {/* Модалки */}
       {isOpen && (
         <PortsModal onClose={() => setIsOpen(false)} onSubmit={handleAdd} />
       )}
