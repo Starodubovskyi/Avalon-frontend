@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PanelSide } from "./positioning";
 
 export type VesselInfo = {
@@ -13,8 +13,8 @@ export type VesselInfo = {
   flagEmoji: string;
   photoUrl: string;
   departurePort: string;
-  atd: string;         
-  reportedEta: string; 
+  atd: string;
+  reportedEta: string;
   status: string;
   speed: number;
   loadCondition: string;
@@ -48,8 +48,8 @@ export default function VesselInfoPanel({
   pastTrackActive: boolean;
   routeActive: boolean;
   distanceNm?: number | null;
-  voyageProgressPct: number;       
-  voyageProgressLabel?: string;    
+  voyageProgressPct: number;
+  voyageProgressLabel?: string;
   onClose: () => void;
   onToggleFleet: (id: string) => void;
   onPastTrackToggle: (id: string) => void;
@@ -57,26 +57,44 @@ export default function VesselInfoPanel({
   onDetails: (id: string) => void;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => panelRef.current?.focus(), []);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const computedMode: "floating" | "sheet" = isMobile ? "sheet" : mode;
 
   const basePanel =
     "rounded-xl border bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-900 text-sm overflow-hidden";
   const widthClass =
-    mode === "sheet"
+    computedMode === "sheet"
       ? "w-full max-w-none"
       : "w-[min(92vw,480px)] md:w-[380px] lg:w-[420px] xl:w-[460px]";
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[1000]">
+      {computedMode === "sheet" && (
+        <div
+          className="pointer-events-auto absolute inset-0 bg-black/40"
+          onClick={onClose}
+          aria-hidden
+        />
+      )}
+
       <div
         role="dialog"
         aria-label={`${vessel.name} info`}
         tabIndex={-1}
         ref={panelRef}
-        style={mode === "floating" ? style : undefined}
+        style={computedMode === "floating" ? style : undefined}
         className={`pointer-events-auto ${basePanel} ${widthClass} ${
-          mode === "sheet"
-            ? "fixed inset-x-0 bottom-0 max-h-[84vh]"
+          computedMode === "sheet"
+            ? "fixed inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl"
             : "absolute max-h-[calc(100vh-1.5rem)]"
         }`}
       >
@@ -92,14 +110,18 @@ export default function VesselInfoPanel({
           </div>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-200"
+            className="rounded-md p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-200"
             aria-label="Close"
           >
             ✕
           </button>
         </div>
 
-        <div className="w-full">
+        {computedMode === "sheet" && (
+          <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-zinc-300/80 dark:bg-white/15" />
+        )}
+
+        <div className="mt-2 w-full">
           <div className="aspect-[16/9] w-full bg-black/5 dark:bg-white/5">
             <img
               src={vessel.photoUrl}
@@ -108,11 +130,11 @@ export default function VesselInfoPanel({
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 p-3">
+          <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
             <button
               aria-pressed={inFleet}
               onClick={() => onToggleFleet(vessel.id)}
-              className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium dark:border-white/10 ${
+              className={`inline-flex items-center justify-center gap-2 rounded-md border px-4 py-2.5 text-sm font-medium dark:border-white/10 sm:flex-1 ${
                 inFleet
                   ? "bg-emerald-600 text-white hover:bg-emerald-700"
                   : "hover:bg-zinc-50 dark:hover:bg-white/5"
@@ -124,30 +146,32 @@ export default function VesselInfoPanel({
 
             <button
               onClick={() => onDetails(vessel.id)}
-              className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 sm:flex-1"
             >
               Vessel details
             </button>
           </div>
 
           <div className="px-4">
-            <div className="flex items-baseline justify-between">
-              <div className="truncate text-lg font-semibold tracking-tight">
+            <div className="flex items-baseline justify-between gap-3">
+              <div className="truncate text-base sm:text-lg font-semibold tracking-tight">
                 {vessel.departurePort}
               </div>
-              <div className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              <div className="text-[11px] sm:text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 FOR ORDERS
               </div>
             </div>
 
-            <div className="mt-2 grid grid-cols-2 gap-4 text-[13px]">
+            <div className="mt-2 grid grid-cols-2 gap-3 text-[13px]">
               <div>
                 <div className="text-zinc-500 dark:text-zinc-400">ATD</div>
-                <div className="font-medium">{vessel.atd}</div>
+                <div className="font-medium">{vessel.atd || "—"}</div>
               </div>
               <div>
-                <div className="text-zinc-500 dark:text-zinc-400">Reported ETA</div>
-                <div className="font-medium">{vessel.reportedEta}</div>
+                <div className="text-zinc-500 dark:text-zinc-400">
+                  Reported ETA
+                </div>
+                <div className="font-medium">{vessel.reportedEta || "—"}</div>
               </div>
             </div>
 
@@ -155,18 +179,22 @@ export default function VesselInfoPanel({
               <div className="h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-700">
                 <div
                   className="h-2 rounded-full bg-blue-600 dark:bg-blue-500"
-                  style={{ width: `${Math.max(0, Math.min(100, voyageProgressPct))}%` }}
+                  style={{
+                    width: `${Math.max(0, Math.min(100, voyageProgressPct))}%`,
+                  }}
                 />
               </div>
-              <div className="mt-1 text-[12px] text-zinc-600 dark:text-zinc-300">
-                {voyageProgressLabel}
-              </div>
+              {!!voyageProgressLabel && (
+                <div className="mt-1 text-[12px] text-zinc-600 dark:text-zinc-300">
+                  {voyageProgressLabel}
+                </div>
+              )}
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
               <button
                 onClick={() => onPastTrackToggle(vessel.id)}
-                className={`rounded-md px-3 py-2 text-sm font-medium border dark:border-white/10 ${
+                className={`rounded-md px-4 py-2 text-sm font-medium border dark:border-white/10 sm:flex-none ${
                   pastTrackActive
                     ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
                     : "hover:bg-zinc-50 dark:hover:bg-white/5"
@@ -174,9 +202,10 @@ export default function VesselInfoPanel({
               >
                 ◀ Past track
               </button>
+
               <button
                 onClick={() => onRouteToggle(vessel.id)}
-                className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium dark:border-white/10 ${
+                className={`inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium dark:border-white/10 sm:flex-none ${
                   routeActive
                     ? "bg-indigo-600 text-white hover:bg-indigo-700"
                     : "hover:bg-zinc-50 dark:hover:bg-white/5"
@@ -185,26 +214,33 @@ export default function VesselInfoPanel({
                 <span>⛯</span>
                 <span>{routeActive ? "Route tool: ON" : "Use route tool"}</span>
               </button>
+
               {typeof distanceNm === "number" && (
-                <div className="ml-auto text-xs text-zinc-600 dark:text-zinc-300">
+                <div className="sm:ml-auto text-xs text-zinc-600 dark:text-zinc-300">
                   Route: {distanceNm.toFixed(1)} nm
                 </div>
               )}
             </div>
 
-            <div className="mt-4 grid grid-cols-3 gap-3 text-[13px]">
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 text-[13px]">
               <div className="rounded-lg border p-3 leading-tight dark:border-white/10">
-                <div className="text-zinc-500 dark:text-zinc-400">Navigational status</div>
+                <div className="text-zinc-500 dark:text-zinc-400">
+                  Navigational status
+                </div>
                 <div className="mt-1 font-medium">{vessel.status}</div>
               </div>
               <div className="rounded-lg border p-3 leading-tight dark:border-white/10">
-                <div className="text-zinc-500 dark:text-zinc-400">Speed/Course</div>
+                <div className="text-zinc-500 dark:text-zinc-400">
+                  Speed/Course
+                </div>
                 <div className="mt-1 font-medium">
                   {vessel.speed.toFixed(1)} kn / {Math.round(vessel.course)}°
                 </div>
               </div>
               <div className="rounded-lg border p-3 leading-tight dark:border-white/10">
-                <div className="text-zinc-500 dark:text-zinc-400">Load condition</div>
+                <div className="text-zinc-500 dark:text-zinc-400">
+                  Load condition
+                </div>
                 <div className="mt-1 font-medium">{vessel.loadCondition}</div>
               </div>
             </div>
@@ -212,11 +248,18 @@ export default function VesselInfoPanel({
             <div className="my-4 text-[12px] text-zinc-500 dark:text-zinc-400">
               Received: {vessel.receivedAgo}
             </div>
+
+            {computedMode === "sheet" && (
+              <div
+                className="h-3"
+                style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+              />
+            )}
           </div>
         </div>
       </div>
 
-      {mode === "floating" && anchorPx && (
+      {computedMode === "floating" && anchorPx && (
         <div
           className="pointer-events-none absolute"
           style={{

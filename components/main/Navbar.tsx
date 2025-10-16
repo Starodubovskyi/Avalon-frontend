@@ -19,12 +19,16 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import AuthModalContent from "../auth/AuthModalContent";
 import ResponsiveDialogContent from "../ui/ResponsiveDialogContent";
 import { useReducedMotion } from "framer-motion";
+import { AuthApi } from "@/lib/api/auth";
+import { ensureAccessToken, getAccessToken } from "@/lib/api/client";
 
 const DialogOverlay = () => (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" aria-hidden="true" />
+  <div
+    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+    aria-hidden="true"
+  />
 );
 
-/* Типы */
 type NavLinkId = "home" | "how-it-works" | "for-ship-owners" | "for-inspectors";
 type NavLink = { id: NavLinkId; label: string };
 
@@ -36,10 +40,10 @@ const NAV_IDS_SET = new Set<NavLinkId>([
 ]);
 
 const navLinks: NavLink[] = [
-  { id: "home",            label: "Home" },
-  { id: "how-it-works",    label: "How It Works" },
+  { id: "home", label: "Home" },
+  { id: "how-it-works", label: "How It Works" },
   { id: "for-ship-owners", label: "For Ship Owners" },
-  { id: "for-inspectors",  label: "For Inspectors" },
+  { id: "for-inspectors", label: "For Inspectors" },
 ];
 
 function isNavLinkId(v: string): v is NavLinkId {
@@ -65,12 +69,29 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScrollFlag);
   }, []);
 
-  const checkLoginStatus = () => {
-    const loggedInStatus = localStorage.getItem("isAuthenticated") === "true";
-    setIsLoggedIn(loggedInStatus);
-    const userData = localStorage.getItem("currentUser");
-    setCurrentUser(userData ? JSON.parse(userData) : null);
+  const checkLoginStatus = async () => {
+    try {
+      const token = await ensureAccessToken();
+      if (!token && !getAccessToken()) {
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+        return;
+      }
+
+      const me = await AuthApi.me().catch(() => null);
+      if (me) {
+        setIsLoggedIn(true);
+        setCurrentUser(me);
+      } else {
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+      }
+    } catch {
+      setIsLoggedIn(false);
+      setCurrentUser(null);
+    }
   };
+
   useEffect(() => {
     checkLoginStatus();
     const onStorage = () => checkLoginStatus();
@@ -83,7 +104,6 @@ const Navbar = () => {
     };
   }, []);
 
-  // Жёсткая блокировка фон-скролла для мобильного меню/модалки
   useEffect(() => {
     const lock = isMobileMenuOpen || isLoginModalOpen;
     if (lock) {
@@ -114,13 +134,17 @@ const Navbar = () => {
     if (!el) return;
     const headerH = headerRef.current?.offsetHeight ?? 0;
     const safeTop =
-      Number(getComputedStyle(document.documentElement).getPropertyValue("--sat").replace("px", "")) || 0;
-    const y = el.getBoundingClientRect().top + window.scrollY - headerH - safeTop - 4;
+      Number(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--sat")
+          .replace("px", "")
+      ) || 0;
+    const y =
+      el.getBoundingClientRect().top + window.scrollY - headerH - safeTop - 4;
     window.scrollTo({ top: y < 0 ? 0 : y, behavior: "smooth" });
     setIsMobileMenuOpen(false);
   };
 
-  // rAF-троттлинг: активная секция переключается без лагов и не блокирует клики
   useEffect(() => {
     const sections = [
       "home",
@@ -172,15 +196,20 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("currentUser");
-    setIsLoggedIn(false);
-    setCurrentUser(null);
-    toast({ title: "Logged Out", description: "You have successfully logged out." });
-    setIsMobileMenuOpen(false);
-    window.dispatchEvent(new Event("authchange"));
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await AuthApi.logout();
+    } finally {
+      setIsLoggedIn(false);
+      setCurrentUser(null);
+      setIsMobileMenuOpen(false);
+      window.dispatchEvent(new Event("authchange"));
+      toast({
+        title: "Logged Out",
+        description: "You have successfully logged out.",
+      });
+      router.push("/");
+    }
   };
 
   const handleGetStartedClick = () => {
@@ -189,9 +218,12 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const chipBase = "px-5 py-2 rounded-full font-semibold border text-sm transition-all duration-300";
-  const chipGhost = "border-white/10 bg-white/5 text-white hover:bg-white/12 backdrop-blur-xl";
-  const chipActive = "border-white/20 bg-white/16 text-white shadow-[0_6px_24px_rgba(255,255,255,0.12)]";
+  const chipBase =
+    "px-5 py-2 rounded-full font-semibold border text-sm transition-all duration-300";
+  const chipGhost =
+    "border-white/10 bg-white/5 text-white hover:bg-white/12 backdrop-blur-xl";
+  const chipActive =
+    "border-white/20 bg-white/16 text-white shadow-[0_6px_24px_rgba(255,255,255,0.12)]";
   const getStartedClass =
     "group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-4 py-3 font-semibold border border-white/15 bg-white/10 text-white backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,.25)] transition-all duration-300 hover:bg-white/20";
 
@@ -200,10 +232,10 @@ const Navbar = () => {
       `sticky top-[max(env(safe-area-inset-top),0px)]
        w-full relative z-[1000] isolate pointer-events-auto
        transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/6 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
-          : "bg-transparent"
-      }`,
+         isScrolled
+           ? "bg-white/6 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
+           : "bg-transparent"
+       }`,
     [isScrolled]
   );
 
@@ -213,10 +245,12 @@ const Navbar = () => {
       className={barClass}
       style={{
         ["--sat" as any]: "env(safe-area-inset-top)",
-        WebkitBackdropFilter: isScrolled ? "saturate(180%) blur(12px)" : undefined,
+        WebkitBackdropFilter: isScrolled
+          ? "saturate(180%) blur(12px)"
+          : undefined,
         transform: "translateZ(0)",
         willChange: "transform",
-        contain: "paint", // изоляция слоя — меньше артефактов хит-теста
+        contain: "paint",
       }}
     >
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -239,7 +273,9 @@ const Navbar = () => {
                 <button
                   key={link.id}
                   aria-current={active ? "page" : undefined}
-                  className={`${chipBase} ${active ? chipActive : chipGhost} pointer-events-auto`}
+                  className={`${chipBase} ${
+                    active ? chipActive : chipGhost
+                  } pointer-events-auto`}
                   style={{ touchAction: "manipulation" }}
                   onClick={() => scrollTo(link.id)}
                 >
@@ -250,14 +286,18 @@ const Navbar = () => {
           </nav>
 
           <div className="hidden md:flex items-center gap-2 pointer-events-auto">
-            <ThemeToggler
-              className="p-2 rounded-full border border-white/15 bg-white/5 text-white backdrop-blur-xl hover:bg-white/10 transition-all"
-            />
+            <ThemeToggler className="p-2 rounded-full border border-white/15 bg-white/5 text-white backdrop-blur-xl hover:bg-white/10 transition-all" />
 
             {!isLoggedIn ? (
-              <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
+              <Dialog
+                open={isLoginModalOpen}
+                onOpenChange={setIsLoginModalOpen}
+              >
                 <DialogTrigger asChild>
-                  <button className={`${chipBase} ${chipGhost}`} style={{ touchAction: "manipulation" }}>
+                  <button
+                    className={`${chipBase} ${chipGhost}`}
+                    style={{ touchAction: "manipulation" }}
+                  >
                     Log In
                   </button>
                 </DialogTrigger>
@@ -265,18 +305,31 @@ const Navbar = () => {
                   <>
                     <DialogOverlay />
                     <ResponsiveDialogContent className="z-50">
-                      <AuthModalContent onCloseModal={() => setIsLoginModalOpen(false)} />
+                      <AuthModalContent
+                        onCloseModal={() => setIsLoginModalOpen(false)}
+                      />
                     </ResponsiveDialogContent>
                   </>
                 )}
               </Dialog>
             ) : (
               <DropdownMenu>
-                <DropdownMenuTrigger className="focus:outline-none" style={{ touchAction: "manipulation" }}>
+                <DropdownMenuTrigger
+                  className="focus:outline-none"
+                  style={{ touchAction: "manipulation" }}
+                >
                   <Avatar className="w-9 h-9">
-                    <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
+                    <AvatarImage
+                      src={currentUser?.profileImage}
+                      alt={currentUser?.name || "User"}
+                    />
                     <AvatarFallback className="text-white bg-white/10">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full p-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-full h-full p-1"
+                      >
                         <path
                           fillRule="evenodd"
                           d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.795 0-5.419-.305-7.85-2.07a.75.75 0 01-.438-.695z"
@@ -286,32 +339,59 @@ const Navbar = () => {
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="backdrop-blur-xl bg-white/10 text-white border border-white/15">
+                <DropdownMenuContent
+                  align="end"
+                  className="backdrop-blur-xl bg-white/10 text-white border border-white/15"
+                >
                   <DropdownMenuLabel className="text-white">
                     My Account
-                    {currentUser?.email && <div className="text-xs text-white/70">{currentUser.email}</div>}
+                    {currentUser?.email && (
+                      <div className="text-xs text-white/70">
+                        {currentUser.email}
+                      </div>
+                    )}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem asChild className="hover:bg-white/10">
                     <Link href="/profile">Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="hover:bg-white/10">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="hover:bg-white/10"
+                  >
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
 
-            <button onClick={handleGetStartedClick} className={getStartedClass} style={{ touchAction: "manipulation" }}>
+            <button
+              onClick={handleGetStartedClick}
+              className={getStartedClass}
+              style={{ touchAction: "manipulation" }}
+            >
               <span className="relative block overflow-hidden h-6">
-                <span className="block transition-transform duration-300 group-hover:-translate-y-full">Get Started</span>
+                <span className="block transition-transform duration-300 group-hover:-translate-y-full">
+                  Get Started
+                </span>
                 <span className="absolute inset-0 transition-transform duration-300 translate-y-full group-hover:translate-y-0">
                   Right Now
                 </span>
               </span>
               <span className="flex items-center justify-center w-6 h-6 bg-white text-black rounded-full transition-transform duration-300 group-hover:rotate-45">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 16.5L16.5 7.5M16.5 7.5H10.5M16.5 7.5V13.5" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M7.5 16.5L16.5 7.5M16.5 7.5H10.5M16.5 7.5V13.5"
+                  />
                 </svg>
               </span>
             </button>
@@ -325,11 +405,26 @@ const Navbar = () => {
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-menu"
           >
-            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-7 h-7 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               {isMobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                />
               )}
             </svg>
           </button>
@@ -358,13 +453,17 @@ const Navbar = () => {
           >
             <div className="mx-auto h-1.5 w-12 rounded-full bg-white/25 mb-2" />
             <nav className="flex flex-col gap-2.5">
-              {navLinks.map((link: NavLink)=> {
+              {navLinks.map((link: NavLink) => {
                 const active = activeSection === link.id;
                 return (
                   <button
                     key={link.id}
                     className={`w-full text-base sm:text-lg py-3.5 rounded-xl font-semibold border text-white transition-colors duration-200
-                      ${active ? "border-white/20 bg-white/16" : "border-white/10 bg-white/5 hover:bg-white/12"}`}
+                      ${
+                        active
+                          ? "border-white/20 bg-white/16"
+                          : "border-white/10 bg-white/5 hover:bg-white/12"
+                      }`}
                     style={{ touchAction: "manipulation" }}
                     onClick={() => scrollTo(link.id)}
                   >
@@ -390,9 +489,17 @@ const Navbar = () => {
               ) : (
                 <div className="flex items-center gap-3 flex-1">
                   <Avatar className="w-10 h-10">
-                    <AvatarImage src={currentUser?.profileImage} alt={currentUser?.name || "User"} />
+                    <AvatarImage
+                      src={currentUser?.profileImage}
+                      alt={currentUser?.name || "User"}
+                    />
                     <AvatarFallback className="text-white bg-white/10">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full p-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-full h-full p-1"
+                      >
                         <path
                           fillRule="evenodd"
                           d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.795 0-5.419-.305-7.85-2.07a.75.75 0 01-.438-.695z"
@@ -402,8 +509,14 @@ const Navbar = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col min-w-0">
-                    <span className="font-semibold text-white truncate">{currentUser?.name || "User"}</span>
-                    {currentUser?.email && <span className="text-xs text-white/70 truncate">{currentUser.email}</span>}
+                    <span className="font-semibold text-white truncate">
+                      {currentUser?.name || "User"}
+                    </span>
+                    {currentUser?.email && (
+                      <span className="text-xs text-white/70 truncate">
+                        {currentUser.email}
+                      </span>
+                    )}
                   </div>
                   <button
                     className="ml-auto px-3 py-2 rounded-lg text-sm border border-white/10 bg-white/5 text-white hover:bg-red-500 hover:border-red-500 transition-colors"
@@ -422,7 +535,9 @@ const Navbar = () => {
               style={{ touchAction: "manipulation" }}
             >
               <span className="relative block overflow-hidden h-6">
-                <span className="block transition-transform duration-300 group-hover:-translate-y-full">Get Started</span>
+                <span className="block transition-transform duration-300 group-hover:-translate-y-full">
+                  Get Started
+                </span>
                 <span className="absolute inset-0 transition-transform duration-300 translate-y-full group-hover:translate-y-0">
                   Right Now
                 </span>
@@ -443,11 +558,16 @@ const Navbar = () => {
 
       <style jsx global>{`
         @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+          from {
+            transform: translateY(100%);
+          }
+          to {
+            transform: translateY(0);
+          }
         }
         .animate-slideUp {
-          animation: slideUp ${prefersReducedMotion ? "0s" : "0.35s"} cubic-bezier(.4,2,.4,1) both;
+          animation: slideUp ${prefersReducedMotion ? "0s" : "0.35s"}
+            cubic-bezier(0.4, 2, 0.4, 1) both;
         }
         body.menu-open {
           overscroll-behavior: none;

@@ -1,8 +1,9 @@
-'use client';
+"use client";
+import { AuthApi } from "@/lib/api/auth";
 
-import * as z from 'zod';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -10,40 +11,42 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
-import SocialAuthButtons from '../SocialAuthButtons';
-import Select from 'react-select';
-import countries from 'i18n-iso-countries';
-import enLocale from 'i18n-iso-countries/langs/en.json';
-import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import SocialAuthButtons from "../SocialAuthButtons";
+import Select from "react-select";
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 
 countries.registerLocale(enLocale);
 
 const schema = z
   .object({
-    name: z.string().min(1, { message: 'Name is required' }),
-    lastName: z.string().min(1, { message: 'Last name is required' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-    confirmPassword: z.string().min(1, { message: 'Confirm your password' }),
-    country: z.string().min(1, { message: 'Country is required' }),
-    accountType: z.enum(['private', 'business'], {
-      required_error: 'Account type is required',
+    name: z.string().min(1, { message: "Name is required" }),
+    lastName: z.string().min(1, { message: "Last name is required" }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    confirmPassword: z.string().min(1, { message: "Confirm your password" }),
+    country: z.string().min(1, { message: "Country is required" }),
+    accountType: z.enum(["private", "business"], {
+      required_error: "Account type is required",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
 
 type FormData = z.infer<typeof schema>;
@@ -57,7 +60,7 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
   const router = useRouter();
 
   const countryOptions = useMemo(() => {
-    const names = countries.getNames('en', { select: 'official' });
+    const names = countries.getNames("en", { select: "official" });
     return Object.entries(names).map(([code, name]) => ({
       value: code,
       label: name,
@@ -67,28 +70,16 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: '',
-      lastName: '',
-      password: '',
-      confirmPassword: '',
-      country: '',
-      accountType: 'private',
+      name: "",
+      lastName: "",
+      password: "",
+      confirmPassword: "",
+      country: "",
+      accountType: "private",
     },
   });
 
-  const handleSubmit = (data: FormData) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const emailExists = users.some((user: any) => user.email === email);
-
-    if (emailExists) {
-      toast({
-        title: 'Registration Error',
-        description: 'An account with this email already exists.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+  const handleSubmit = async (data: FormData) => {
     const newUser = {
       name: data.name,
       lastName: data.lastName,
@@ -98,17 +89,33 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
       password: data.password,
     };
 
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('currentUser', JSON.stringify(newUser));
-    localStorage.setItem('isAuthenticated', 'true');
+    try {
+      await AuthApi.register({
+        email: newUser.email,
+        password: newUser.password,
+        firstName: newUser.name,
+        lastName: newUser.lastName,
+      });
 
-    toast({
-      title: 'Registration Successful',
-      description: 'Your account has been created.',
-    });
+      toast({
+        title: "Registration Successful",
+        description: "Your account has been created.",
+      });
 
-    router.push('/profile');
+      router.push("/profile");
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.errors?.email ??
+        e?.response?.data?.errors?.password ??
+        e?.response?.data?.message ??
+        "Registration failed";
+
+      toast({
+        title: "Registration Error",
+        description: String(msg),
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -194,7 +201,9 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
                       className="text-sm"
                       classNamePrefix="react-select"
                       onChange={(val) => field.onChange(val?.value)}
-                      value={countryOptions.find((opt) => opt.value === field.value)}
+                      value={countryOptions.find(
+                        (opt) => opt.value === field.value
+                      )}
                       placeholder="Select your country"
                     />
                   </FormControl>
@@ -217,8 +226,8 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
                         <input
                           type="radio"
                           value="private"
-                          checked={field.value === 'private'}
-                          onChange={() => field.onChange('private')}
+                          checked={field.value === "private"}
+                          onChange={() => field.onChange("private")}
                         />
                         Private
                       </label>
@@ -226,8 +235,8 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
                         <input
                           type="radio"
                           value="business"
-                          checked={field.value === 'business'}
-                          onChange={() => field.onChange('business')}
+                          checked={field.value === "business"}
+                          onChange={() => field.onChange("business")}
                         />
                         Business
                       </label>

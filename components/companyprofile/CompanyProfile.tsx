@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import CompanyRegistrationForm from "./CompaniRegistation/CompanyRegistrationForm";
+import CompanyRegistrationForm from "./CompaniRegistation/form/CompanyRegistrationForm";
 import CompanyCard from "./CompanyCard";
 import { Company } from "@/components/types/company.types";
 
@@ -26,6 +26,11 @@ export default function CompanyProfile() {
     localStorage.setItem("company", JSON.stringify(data));
     setShowForm(false);
     setEditMode(false);
+  };
+
+  const handleUpdateCompany = (next: Company) => {
+    setCompany(next);
+    localStorage.setItem("company", JSON.stringify(next));
   };
 
   const handleDelete = () => {
@@ -78,50 +83,19 @@ export default function CompanyProfile() {
                    text-white font-semibold shadow-lg 
                    hover:opacity-90 active:scale-[.98] transition"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
               Create Business Account
             </button>
           </div>
-
-          <style jsx>{`
-            .animate-fade-up {
-              animation: fadeUp 500ms ease-out both;
-            }
-            @keyframes fadeUp {
-              from {
-                opacity: 0;
-                transform: translateY(12px);
-              }
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              .animate-fade-up {
-                animation: none;
-              }
-            }
-          `}</style>
         </div>
       )}
 
       {company && !showForm && !editMode && (
         <div className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
-          <CompanyCard company={company} />
+          <CompanyCard
+            company={company}
+            canManage={true}
+            onUpdateCompany={handleUpdateCompany}
+          />
           <div className="flex gap-3 justify-end">
             <button
               onClick={() => setEditMode(true)}

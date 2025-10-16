@@ -1,5 +1,7 @@
 "use client";
 
+import { AuthApi } from "@/lib/api/auth";
+
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,30 +49,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onCloseModal }) => {
     },
   });
 
-  const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find(
-      (u: any) => u.email === data.email && u.password === data.password
-    );
-
-    if (user) {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("currentUser", JSON.stringify(user));
-      localStorage.setItem("rememberMe", String(rememberMe));
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${user.name}!`,
-      });
-      onCloseModal();
-      router.push("/dashboard");
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid email or password.",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+  try {
+    await AuthApi.login({ email: data.email, password: data.password });
+    toast({ title: "Signed in", description: "You are now logged in." });
+    onCloseModal();
+  } catch (e: any) {
+    toast({ title: "Login failed", description: e?.message || "Check your credentials.", variant: "destructive" });
+  }
+};
 
   return (
     <Card className="w-full max-w-xl p-4 mx-auto border-none shadow-none bg-transparent">

@@ -3,13 +3,16 @@
 import L from "leaflet";
 import type { VesselInfo } from "../VesselInfoPanel";
 
+/* --- единый тип отписки --- */
+export type Unsubscribe = () => void;
+
 export interface MapAdapter {
   getContainer(): HTMLElement;
   project(lat: number, lon: number): { x: number; y: number };
-  onMove(handler: () => void): () => void;
 
-  onMapClick(handler: (lat: number, lon: number) => void): () => void;
-  onMarkerSelect(handler: (vessel: VesselInfo) => void): void;
+  onMove(handler: () => void): Unsubscribe;
+  onMapClick(handler: (lat: number, lon: number) => void): Unsubscribe;
+  onMarkerSelect(handler: (vessel: VesselInfo) => void): Unsubscribe;
 
   highlightMarker(vesselId: string, selected: boolean): void;
 
@@ -21,14 +24,11 @@ export interface MapAdapter {
 
   getVesselById(id: string): VesselInfo | null;
 
-  /** Горячая замена набора судов */
   setVessels(vessels: VesselInfo[]): void;
 
-  /** Базовая карта и оверлеи */
   setBasemap(style: "osm" | "light" | "dark" | "sat"): void;
   toggleLayer(name: "ports" | "anchorages" | "routes", on: boolean): void;
 
-  /** Сервисные штуки */
   getVisibleCount(): number;
   fitToVisible(): void;
   refresh(): void;
@@ -46,7 +46,10 @@ export class LeafletAdapter implements MapAdapter {
   private routeLayer: L.Polyline | null = null;
 
   private selectedId: string | null = null;
-  private onSelect?: (v: VesselInfo) => void;
+
+  /* поддержка нескольких подписчиков на выбор маркера */
+  private selectHandlers = new Set<(v: VesselInfo) => void>();
+
   private moveTimer: number | null = null;
 
   private routeOn = false;
@@ -55,26 +58,23 @@ export class LeafletAdapter implements MapAdapter {
 
   private vessels: VesselInfo[] = [];
 
-  // доп. слои
   private overlayPorts: L.LayerGroup | null = null;
   private overlayAnchorages: L.LayerGroup | null = null;
   private overlayRoutes: L.LayerGroup | null = null;
 
   constructor(map: L.Map) {
     this.map = map;
-    // если кто-то уже добавил tileLayer — запомним как baseLayer
     this.map.eachLayer((ly) => {
-      if ((ly as any) instanceof L.TileLayer) this.baseLayer = ly as L.TileLayer;
+      if ((ly as any) instanceof L.TileLayer)
+        this.baseLayer = ly as L.TileLayer;
     });
   }
 
-  // === БАЗОВАЯ РАБОТА С ВЕССЕЛАМИ ===
   public loadVessels(vessels: VesselInfo[]) {
     this.setVessels(vessels);
   }
 
   public setVessels(vessels: VesselInfo[]) {
-    // очистка старого
     this.tracks.forEach((t) => t.remove());
     this.tracks.clear();
     if (this.routeLayer) {
@@ -92,14 +92,19 @@ export class LeafletAdapter implements MapAdapter {
     }
     if (this.routeOn) this.disableRouteTool();
 
-    // загрузка нового
     this.vessels = vessels;
     vessels.forEach((v) => {
       const m = L.marker([v.lat, v.lon], {
         icon: this.shipIcon(v.course, false),
         title: v.name,
       });
-      m.on("click", () => this.onSelect?.(v));
+      m.on("click", () => {
+        this.selectHandlers.forEach((fn) => {
+          try {
+            fn(v);
+          } catch {}
+        });
+      });
       m.addTo(this.map);
       this.markers.set(v.id, m);
       this.histories.set(v.id, [L.latLng(v.lat, v.lon)]);
@@ -134,7 +139,9 @@ export class LeafletAdapter implements MapAdapter {
   private shipIcon(courseDeg: number, selected: boolean) {
     const size = selected ? 28 : 22;
     const fill = selected ? "#1d4ed8" : "#0f172a";
-    const glow = selected ? "filter: drop-shadow(0 0 8px rgba(29,78,216,0.9));" : "";
+    const glow = selected
+      ? "filter: drop-shadow(0 0 8px rgba(29,78,216,0.9));"
+      : "";
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="-12 -12 24 24" style="transform: rotate(${courseDeg}deg); ${glow}">
         <g>
@@ -146,34 +153,33 @@ export class LeafletAdapter implements MapAdapter {
     return L.divIcon({ html: svg, iconSize: [size, size], className: "" });
   }
 
-  // === БАЗОВАЯ КАРТА / ОВЕРЛЕИ ===
   public setBasemap(style: "osm" | "light" | "dark" | "sat") {
     const styles = {
       osm: {
         url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        attribution: '&copy; OpenStreetMap contributors',
+        attribution: "&copy; OpenStreetMap contributors",
       },
       light: {
         url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        attribution: '&copy; OSM &copy; CARTO',
+        attribution: "&copy; OSM &copy; CARTO",
       },
       dark: {
         url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        attribution: '&copy; OSM &copy; CARTO',
+        attribution: "&copy; OSM &copy; CARTO",
       },
       sat: {
         url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        attribution: '&copy; Esri & contributors',
+        attribution: "&copy; Esri & contributors",
       },
     } as const;
 
     const s = styles[style];
     if (!s) return;
 
-    // удалить старый baseLayer (или обнаружить, если он был добавлен снаружи)
     if (!this.baseLayer) {
       this.map.eachLayer((ly) => {
-        if ((ly as any) instanceof L.TileLayer) this.baseLayer = ly as L.TileLayer;
+        if ((ly as any) instanceof L.TileLayer)
+          this.baseLayer = ly as L.TileLayer;
       });
     }
     if (this.baseLayer) this.map.removeLayer(this.baseLayer);
@@ -185,30 +191,36 @@ export class LeafletAdapter implements MapAdapter {
   public toggleLayer(name: "ports" | "anchorages" | "routes", on: boolean) {
     if (name === "ports") {
       if (!this.overlayPorts) this.overlayPorts = this.makePortsLayer();
-      on ? this.overlayPorts.addTo(this.map) : this.map.removeLayer(this.overlayPorts);
+      on
+        ? this.overlayPorts.addTo(this.map)
+        : this.map.removeLayer(this.overlayPorts);
     }
     if (name === "anchorages") {
-      if (!this.overlayAnchorages) this.overlayAnchorages = this.makeAnchoragesLayer();
-      on ? this.overlayAnchorages.addTo(this.map) : this.map.removeLayer(this.overlayAnchorages);
+      if (!this.overlayAnchorages)
+        this.overlayAnchorages = this.makeAnchoragesLayer();
+      on
+        ? this.overlayAnchorages.addTo(this.map)
+        : this.map.removeLayer(this.overlayAnchorages);
     }
     if (name === "routes") {
       if (!this.overlayRoutes) this.overlayRoutes = this.makeRoutesLayer();
-      on ? this.overlayRoutes.addTo(this.map) : this.map.removeLayer(this.overlayRoutes);
+      on
+        ? this.overlayRoutes.addTo(this.map)
+        : this.map.removeLayer(this.overlayRoutes);
     }
   }
 
   private makePortsLayer() {
     const g = L.layerGroup();
-    // демо-точки портов
     const pts = [
-      [51.505, -0.09], // London
-      [37.77, -122.43], // SF
-      [35.68, 139.69], // Tokyo
-      [31.23, 121.47], // Shanghai
-      [22.30, 114.17], // HK
-      [25.27, 55.30], // Jebel Ali
-      [52.37, 4.90], // Amsterdam
-      [43.32, 5.37], // Marseille
+      [51.505, -0.09],
+      [37.77, -122.43],
+      [35.68, 139.69],
+      [31.23, 121.47],
+      [22.3, 114.17],
+      [25.27, 55.3],
+      [52.37, 4.9],
+      [43.32, 5.37],
     ];
     pts.forEach(([lat, lon]) =>
       L.circleMarker([lat, lon], {
@@ -225,10 +237,10 @@ export class LeafletAdapter implements MapAdapter {
   private makeAnchoragesLayer() {
     const g = L.layerGroup();
     const pts = [
-      [1.25, 103.8], // Singapore
-      [34.0, 24.0], // Med
-      [29.5, 32.5], // Suez
-      [-33.9, 18.4], // Cape Town
+      [1.25, 103.8],
+      [34.0, 24.0],
+      [29.5, 32.5],
+      [-33.9, 18.4],
     ];
     pts.forEach(([lat, lon]) =>
       L.circleMarker([lat, lon], {
@@ -245,17 +257,30 @@ export class LeafletAdapter implements MapAdapter {
   private makeRoutesLayer() {
     const g = L.layerGroup();
     const lines: [L.LatLngExpression, L.LatLngExpression][] = [
-      [[1.25, 103.8], [29.5, 32.5]], // Singapore -> Suez
-      [[29.5, 32.5], [36.1, -5.36]], // Suez -> Gibraltar
-      [[36.1, -5.36], [40.4, -3.7]], // Gibraltar -> Iberia (условно)
+      [
+        [1.25, 103.8],
+        [29.5, 32.5],
+      ],
+      [
+        [29.5, 32.5],
+        [36.1, -5.36],
+      ],
+      [
+        [36.1, -5.36],
+        [40.4, -3.7],
+      ],
     ];
     lines.forEach(([a, b]) =>
-      L.polyline([a, b], { color: "#22c55e", weight: 2, opacity: 0.8, dashArray: "6,4" }).addTo(g)
+      L.polyline([a, b], {
+        color: "#22c55e",
+        weight: 2,
+        opacity: 0.8,
+        dashArray: "6,4",
+      }).addTo(g)
     );
     return g;
   }
 
-  // === SERVICE ===
   public getVisibleCount() {
     const b = this.map.getBounds();
     let n = 0;
@@ -273,11 +298,9 @@ export class LeafletAdapter implements MapAdapter {
   }
 
   public refresh() {
-    // простое "обновление": пересоздать маркеры и перезапустить симуляцию
     this.setVessels(this.vessels.slice());
   }
 
-  // === Мосты для модалки/роутов/треков ===
   public getContainer(): HTMLElement {
     return this.map.getContainer();
   }
@@ -287,20 +310,23 @@ export class LeafletAdapter implements MapAdapter {
     return { x: p.x, y: p.y };
   }
 
-  public onMove(handler: () => void) {
+  public onMove(handler: () => void): Unsubscribe {
     const fn = () => handler();
     this.map.on("move zoom", fn as any);
     return () => this.map.off("move zoom", fn as any);
   }
 
-  public onMapClick(handler: (lat: number, lon: number) => void) {
+  public onMapClick(handler: (lat: number, lon: number) => void): Unsubscribe {
     const fn = (e: L.LeafletMouseEvent) => handler(e.latlng.lat, e.latlng.lng);
     this.map.on("click", fn as any);
     return () => this.map.off("click", fn as any);
   }
 
-  public onMarkerSelect(handler: (vessel: VesselInfo) => void) {
-    this.onSelect = handler;
+  public onMarkerSelect(handler: (vessel: VesselInfo) => void): Unsubscribe {
+    this.selectHandlers.add(handler);
+    return () => {
+      this.selectHandlers.delete(handler);
+    };
   }
 
   public highlightMarker(vesselId: string, selected: boolean) {

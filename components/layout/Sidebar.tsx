@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  IconHome2,
+  IconTrendingUp,
   IconMap2,
   IconBuildingSkyscraper,
   IconShip,
@@ -48,6 +48,9 @@ import ContactModal from "@/components/support/ContactModal";
 import { getCurrentSubscription } from "@/components/types/billing/subscription";
 import { getPlanById } from "@/components/types/billing/plan";
 
+import { MOCK_USERS } from "@/components/companyprofile/CompaniRegistation/data/mockUsers";
+import { useProfile } from "@/components/tasks/hooks/useProfile";
+
 type TablerIcon = React.ComponentType<Partial<IconProps>>;
 
 type SearchItem =
@@ -56,21 +59,142 @@ type SearchItem =
   | { kind: "port"; id: string; label: string; subtitle?: string }
   | { kind: "company"; id: string; label: string; subtitle?: string };
 
-function safeParse<T = any>(json?: string | null, fallback: T = [] as any): T {
-  try {
-    return json ? (JSON.parse(json) as T) : fallback;
-  } catch {
-    return fallback;
-  }
+type Friend = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  username: string;
+  profileUrl: string;
+  avatarUrl?: string;
+};
+
+function FriendsDrawer({
+  open,
+  onClose,
+  friends,
+}: {
+  open: boolean;
+  onClose: () => void;
+  friends: Friend[];
+}) {
+  const [anim, setAnim] = useState(false);
+
+  useEffect(() => {
+    if (open) requestAnimationFrame(() => setAnim(true));
+    else setAnim(false);
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[80]">
+      <div
+        onClick={onClose}
+        className={clsx(
+          "absolute inset-0 transition-opacity duration-300 backdrop-blur-[2px]",
+          anim ? "bg-black/40 opacity-100" : "bg-black/0 opacity-0"
+        )}
+      />
+      <aside
+        className={clsx(
+          "absolute right-0 top-0 h-full w-[92%] max-w-[420px]",
+          "bg-white/95 dark:bg-black/90 text-gray-900 dark:text-gray-100",
+          "shadow-xl ring-1 ring-gray-100 dark:ring-white/10 backdrop-blur-md",
+          "rounded-l-2xl flex flex-col",
+          "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          anim ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
+          <div className="flex items-center gap-2">
+            <IconUsers size={20} />
+            <span className="text-lg font-semibold">Friends</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full border border-gray-200 dark:border-white/10 w-8 h-8 inline-grid place-items-center hover:bg-gray-50 dark:hover:bg-white/10"
+            aria-label="Close friends"
+          >
+            <IconX size={18} />
+          </button>
+        </header>
+
+        <div className="p-4">
+          <div className="flex items-center gap-2 min-h-[44px] px-3 rounded-full bg-white/90 ring-1 ring-gray-100 shadow-sm backdrop-blur-sm dark:bg-white/5 dark:ring-white/10">
+            <IconSearch
+              size={18}
+              className="text-gray-500 dark:text-gray-400"
+            />
+            <input
+              className="flex-1 bg-transparent outline-none text-[14px] placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
+              placeholder="Search friends…"
+              onChange={(e) => {
+                const q = e.target.value.toLowerCase().trim();
+                const wrap = document.getElementById("friends-list");
+                if (!wrap) return;
+                Array.from(
+                  wrap.querySelectorAll<HTMLDivElement>("[data-name]")
+                ).forEach((el) => {
+                  const name = (el.dataset.name || "").toLowerCase();
+                  el.style.display = !q || name.includes(q) ? "" : "none";
+                });
+              }}
+            />
+          </div>
+        </div>
+
+        <div
+          id="friends-list"
+          className="flex-1 overflow-y-auto px-4 pb-6 space-y-2"
+        >
+          {friends.map((u) => (
+            <div
+              key={u.id}
+              data-name={`${u.firstName} ${u.lastName} ${u.username}`}
+              className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white/80 hover:bg-white transition dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+            >
+              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 ring-1 ring-black/5 dark:ring-white/10">
+                {u.avatarUrl ? (
+                  <img
+                    src={u.avatarUrl}
+                    alt={`${u.firstName} ${u.lastName}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full grid place-items-center text-xs bg-gray-200 dark:bg-neutral-800">
+                    {u.firstName[0]}
+                    {u.lastName[0]}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium truncate">
+                  {u.firstName} {u.lastName}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {u.role}
+                </div>
+              </div>
+              <Link
+                href={u.profileUrl || "#"}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/10"
+              >
+                View
+              </Link>
+            </div>
+          ))}
+        </div>
+      </aside>
+    </div>
+  );
 }
-const norm = (s: string) => s.toLowerCase().trim();
-const isIMO = (q: string) => /^(\s*imo\s*)?\d{7,8}$/i.test(q);
-const extractIMO = (q: string) => q.match(/\d{7,8}/)?.[0] ?? "";
-const isUNLOCODE = (q: string) => /^[A-Z]{5}$/i.test(q);
 
 const navItems = [
-  { label: "Home", href: "/", icon: IconHome2 },
   { label: "Map", href: "/maps", icon: IconMap2 },
+  { label: "LineUp", href: "/lineup", icon: IconTrendingUp },
   { label: "Dashboard", href: "/dashboard", icon: IconLayoutDashboard },
   { label: "Ports", href: "/ports", icon: IconAnchor },
   { label: "Vessels", href: "/vessels", icon: IconShip },
@@ -122,45 +246,18 @@ export default function Sidebar() {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
-  const [currentUser, setCurrentUser] = useState<{
-    name?: string;
-    lastName?: string;
-    avatar?: string | null;
-    email?: string | null;
-  } | null>(null);
+  const [isFriendsOpen, setIsFriendsOpen] = useState(false);
+  const { user, name, email, photoUrl, isLoading } = useProfile();
 
-  const W_NARROW = "w-[76px]";
-  const W_WIDE = "w-[280px]";
-
-  useEffect(() => {
-    const stored = localStorage.getItem("currentUser");
-    if (stored) {
-      const u = JSON.parse(stored);
-      setCurrentUser({
-        name: u.name,
-        lastName: u.lastName,
-        avatar: u.profileImage || null,
-        email: u.email || null,
-      });
-    } else setCurrentUser(null);
-  }, []);
-
-  useEffect(() => {
-    const onAuthChange = () => {
-      const stored = localStorage.getItem("currentUser");
-      if (stored) {
-        const u = JSON.parse(stored);
-        setCurrentUser({
-          name: u.name,
-          lastName: u.lastName,
-          avatar: u.profileImage || null,
-          email: u.email || null,
-        });
-      } else setCurrentUser(null);
+  const currentUser = useMemo(() => {
+    if (!user) return null;
+    return {
+      name: user.firstName ?? name,
+      lastName: user.lastName ?? "",
+      avatar: photoUrl,
+      email: user.email ?? email,
     };
-    window.addEventListener("authchange", onAuthChange);
-    return () => window.removeEventListener("authchange", onAuthChange);
-  }, []);
+  }, [user, name, photoUrl, email]);
 
   useEffect(() => {
     if (
@@ -207,11 +304,16 @@ export default function Sidebar() {
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+  const handleLogout = async () => {
+    try {
+      /* await api.post("/auth/logout") */
+    } catch {}
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.setItem("auth:ts", String(Date.now()));
     window.dispatchEvent(new Event("authchange"));
-    setCurrentUser(null);
     router.push("/");
+    router.refresh();
   };
 
   const IconCell = ({ children }: { children: React.ReactNode }) => (
@@ -231,10 +333,10 @@ export default function Sidebar() {
   }) => (
     <div
       className={clsx(
-        "flex items-center min-h-[44px] rounded-lg transition-colors gap-3 px-3 justify-start",
+        "flex items-center min-h-[44px] rounded-xl transition-colors gap-3 px-3 justify-start",
         active
-          ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
-          : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10",
+          ? "bg-white/90 text-gray-900 ring-1 ring-gray-100 shadow-sm dark:bg-white/10 dark:text-white dark:ring-white/10"
+          : "text-gray-700 hover:bg-white/80 hover:ring-1 hover:ring-gray-100 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:ring-white/10",
         className
       )}
     >
@@ -268,7 +370,7 @@ export default function Sidebar() {
     const [active, setActive] = useState(0);
 
     useEffect(() => {
-      const query = norm(q);
+      const query = q.toLowerCase().trim();
       if (!query) {
         setItems([]);
         return;
@@ -282,18 +384,22 @@ export default function Sidebar() {
         { label: "Support", href: "/support" },
       ];
       pagePool.forEach((p) => {
-        if (norm(p.label).includes(query))
+        if (p.label.toLowerCase().includes(query))
           results.push({ kind: "page", label: p.label, href: p.href });
       });
 
-      const vessels = safeParse<any[]>(
+      const vessels = (
         typeof window !== "undefined"
           ? localStorage.getItem("public:vessels")
           : "[]"
-      );
-      vessels.forEach((v) => {
-        const nameHit = norm(v.name || "").includes(query);
-        const imoHit = isIMO(q) && String(v.imo || "").includes(extractIMO(q));
+      ) as string;
+      (JSON.parse(vessels || "[]") as any[]).forEach((v) => {
+        const nameHit = String(v.name || "")
+          .toLowerCase()
+          .includes(query);
+        const isIMO = /^(\s*imo\s*)?\d{7,8}$/i.test(q);
+        const extractIMO = q.match(/\d{7,8}/)?.[0] ?? "";
+        const imoHit = isIMO && String(v.imo || "").includes(extractIMO);
         const mmsiHit =
           /\d{8,9}/.test(q) &&
           String(v.mmsi || "").includes(q.replace(/\D/g, ""));
@@ -311,15 +417,18 @@ export default function Sidebar() {
         }
       });
 
-      const ports = safeParse<any[]>(
+      const ports = (
         typeof window !== "undefined"
           ? localStorage.getItem("public:ports")
           : "[]"
-      );
-      ports.forEach((p) => {
-        const nameHit = norm(p.port || p.name || "").includes(query);
+      ) as string;
+      (JSON.parse(ports || "[]") as any[]).forEach((p) => {
+        const nameHit = String(p.port || p.name || "")
+          .toLowerCase()
+          .includes(query);
         const unlo = String(p.unlocode || p.UNLOCODE || "");
-        const unloHit = isUNLOCODE(q) && unlo.toUpperCase() === q.toUpperCase();
+        const unloHit =
+          /^[A-Z]{5}$/i.test(q) && unlo.toUpperCase() === q.toUpperCase();
         if (nameHit || unloHit) {
           results.push({
             kind: "port",
@@ -330,13 +439,17 @@ export default function Sidebar() {
         }
       });
 
-      const companies = safeParse<any[]>(
+      const companies = (
         typeof window !== "undefined"
           ? localStorage.getItem("public:companies")
           : "[]"
-      );
-      companies.forEach((c) => {
-        if (norm(c.name || "").includes(query)) {
+      ) as string;
+      (JSON.parse(companies || "[]") as any[]).forEach((c) => {
+        if (
+          String(c.name || "")
+            .toLowerCase()
+            .includes(query)
+        ) {
           results.push({
             kind: "company",
             id: String(c.id),
@@ -383,7 +496,7 @@ export default function Sidebar() {
     return (
       <div className="relative">
         <div
-          className="flex items-center gap-2 min-h-[44px] px-3 rounded-lg bg-white border border-gray-200 shadow-sm dark:bg-white/5 dark:border-white/10 dark:shadow-white/5"
+          className="flex items-center gap-2 min-h-[44px] px-3 rounded-full bg-white/90 ring-1 ring-gray-100 shadow-sm backdrop-blur-sm dark:bg-white/5 dark:ring-white/10"
           role="search"
           onClick={() => setOpen(true)}
         >
@@ -415,7 +528,7 @@ export default function Sidebar() {
         </div>
 
         {open && expanded && items.length > 0 && (
-          <div className="absolute left-0 right-0 z-50 mt-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-black shadow-lg overflow-hidden">
+          <div className="absolute left-0 right-0 z-50 mt-2 rounded-2xl border border-gray-100 bg-white/95 shadow-xl backdrop-blur-md dark:bg-black/90 dark:border-white/10 overflow-hidden">
             <ul className="max-h-80 overflow-y-auto py-1">
               {items.map((it, idx) => (
                 <li key={`${it.kind}-${(it as any).id || it.label}`}>
@@ -425,7 +538,7 @@ export default function Sidebar() {
                     className={clsx(
                       "w-full text-left px-3 py-2 flex items-center gap-2",
                       idx === active
-                        ? "bg-gray-100 dark:bg-white/10"
+                        ? "bg-gray-50 dark:bg-white/10"
                         : "hover:bg-gray-50 dark:hover:bg-white/5"
                     )}
                   >
@@ -458,7 +571,7 @@ export default function Sidebar() {
   const PinButton = () => (
     <button
       onClick={() => setPinned((p) => !p)}
-      className="flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 h-9 w-9 shadow-sm dark:bg-white/5 dark:text-gray-200 dark:border-white/10 dark:shadow-white/5"
+      className="flex items-center justify-center rounded-xl border border-gray-100 bg-white/90 text-gray-700 h-9 w-9 shadow-sm backdrop-blur-sm hover:bg-white dark:bg-white/5 dark:text-gray-200 dark:border-white/10"
       aria-label="Pin sidebar"
       title={pinned ? "Unpin sidebar" : "Pin sidebar"}
     >
@@ -466,15 +579,13 @@ export default function Sidebar() {
     </button>
   );
 
-  const containerWidth = expanded ? W_WIDE : W_NARROW;
-
   const Container = useMemo(
     () =>
       clsx(
         "hidden lg:flex fixed z-40",
         "top-1 left-1 bottom-1",
         "transition-[width] duration-300 overflow-hidden",
-        expanded ? W_WIDE : W_NARROW
+        expanded ? "w-[288px]" : "w-[76px]"
       ),
     [expanded]
   );
@@ -496,10 +607,10 @@ export default function Sidebar() {
       <Link href={href} onClick={() => closeMobile()}>
         <div
           className={clsx(
-            "flex items-center gap-3 px-4 py-3 rounded-lg",
+            "flex items-center gap-3 px-4 py-3 rounded-xl",
             active
-              ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
-              : "text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"
+              ? "bg-white/90 text-gray-900 ring-1 ring-gray-100 shadow-sm dark:bg-white/10 dark:text-white"
+              : "text-gray-800 hover:bg-white/80 hover:ring-1 hover:ring-gray-100 dark:text-gray-200 dark:hover:bg-white/10"
           )}
         >
           <Icon size={20} />
@@ -508,7 +619,7 @@ export default function Sidebar() {
       </Link>
     ) : (
       <button onClick={onClick} className="w-full">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-800 hover:bg-white/80 hover:ring-1 hover:ring-gray-100 dark:text-gray-200 dark:hover:bg-white/10">
           <Icon size={20} />
           <span className="text-[14px]">{label}</span>
           <span className="ml-auto">
@@ -548,14 +659,14 @@ export default function Sidebar() {
     "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[side=right]:slide-in-from-left-2";
 
   return (
-    <div className="bg-gray-100 dark:bg-black">
-      <div className="fixed top-0 left-0 right-0 h-px bg-gray-200 dark:bg-white/10 z-50" />
+    <div className="bg-gray-50 dark:bg-black">
+      <div className="fixed top-0 left-0 right-0 h-px bg-gray-200/70 dark:bg-white/10 z-50" />
 
       <div className="p-2 lg:p-1">
         <div
           className={clsx(
             Container,
-            "flex flex-col justify-between rounded-3xl border border-gray-200 bg-gray-50 shadow-[0_1px_30px_rgba(0,0,0,0.05)] dark:bg-black/40 dark:border-white/10 dark:shadow-[0_1px_20px_rgba(255,255,255,0.05)]"
+            "flex flex-col justify-between rounded-3xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:bg-black/40 dark:border-white/10 dark:shadow-[0_1px_20px_rgba(255,255,255,0.05)]"
           )}
           onMouseEnter={() => !pinned && setExpanded(true)}
           onMouseLeave={() => {
@@ -574,11 +685,11 @@ export default function Sidebar() {
               {expanded && <PinButton />}
             </div>
 
-            <div className="mx-3 mb-2">
+            <div className="mx-3 mb-3">
               <SearchBar />
             </div>
 
-            <div className="mx-3 mt-2 space-y-1">
+            <div className="mx-3 mt-1 space-y-1">
               {navItems.map(({ label, href, icon: Icon }) => (
                 <Link key={href} href={href}>
                   <Row active={pathname === href}>
@@ -588,7 +699,7 @@ export default function Sidebar() {
                     <Label>{label}</Label>
                   </Row>
                   {label === "Companies" && (
-                    <div className="my-2 h-px bg-gray-200 dark:bg-white/10" />
+                    <div className="my-2 h-px bg-gray-100 dark:bg-white/10" />
                   )}
                 </Link>
               ))}
@@ -627,7 +738,7 @@ export default function Sidebar() {
                         : "max-h-0 opacity-0"
                     )}
                   >
-                    <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gray-200 dark:bg-white/10 pointer-events-none" />
+                    <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gray-100 dark:bg-white/10 pointer-events-none" />
                     <div className="pl-[36px] pr-1 space-y-1 pt-1 pb-2">
                       <Link href="/admin">
                         <Row
@@ -686,7 +797,7 @@ export default function Sidebar() {
                     : "max-h-0 opacity-0"
                 )}
               >
-                <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gray-200 dark:bg-white/10 pointer-events-none" />
+                <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gray-100 dark:bg-white/10 pointer-events-none" />
                 <div className="pl-[36px] pr-1 space-y-1 pt-1 pb-2">
                   {applicationItems.map(({ label, href, icon: Icon }) => (
                     <Link key={href} href={href}>
@@ -725,11 +836,11 @@ export default function Sidebar() {
                 align="start"
                 sideOffset={8}
                 className={clsx(
-                  "w-80 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-3",
+                  "w-80 bg-white/95 dark:bg-black/90 border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-3 backdrop-blur-md",
                   menuAnim
                 )}
               >
-                <div className="rounded-xl p-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white">
+                <div className="rounded-xl p-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white shadow-sm">
                   <div className="flex items-center gap-2">
                     <IconMessageCircle2 size={18} />
                     <span className="text-sm font-semibold">
@@ -751,7 +862,7 @@ export default function Sidebar() {
                   </button>
                 </div>
 
-                <div className="my-3 h-px bg-gray-200 dark:bg-white/10" />
+                <div className="my-3 h-px bg-gray-100 dark:bg-white/10" />
 
                 <div className="space-y-1">
                   <DropdownMenuItem asChild>
@@ -759,7 +870,7 @@ export default function Sidebar() {
                       href="/support"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className="flex items-center justify-between rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <span className="flex items-center gap-2">
                         <IconHelpCircle size={18} />
@@ -774,7 +885,7 @@ export default function Sidebar() {
                       href="/faq"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className="flex items-center justify-between rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <span className="flex items-center gap-2">
                         <IconNotes size={18} />
@@ -790,7 +901,7 @@ export default function Sidebar() {
                       setIsSupportOpen(false);
                       setIsContactOpen(true);
                     }}
-                    className="flex items-center justify-between rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                    className="flex items-center justify-between rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
                       <IconMail size={18} />
@@ -818,7 +929,7 @@ export default function Sidebar() {
                 align="start"
                 sideOffset={8}
                 className={clsx(
-                  "w-80 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-2",
+                  "w-80 bg-white/95 dark:bg-black/90 border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-2 backdrop-blur-md",
                   menuAnim
                 )}
               >
@@ -827,7 +938,7 @@ export default function Sidebar() {
                     Notifications
                   </div>
                   <div className="space-y-2">
-                    <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3">
+                    <div className="rounded-lg border border-gray-100 dark:border-white/10 p-3 bg-white/80 dark:bg-white/5">
                       <div className="text-sm font-medium">
                         You're all caught up!
                       </div>
@@ -837,7 +948,7 @@ export default function Sidebar() {
                     </div>
                     <Link
                       href="/notifications"
-                      className="block text-center text-sm rounded-lg border border-gray-200 dark:border-white/10 px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5"
+                      className="block text-center text-sm rounded-lg border border-gray-100 bg-white/80 px-3 py-2 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
                     >
                       Open notifications
                     </Link>
@@ -855,7 +966,7 @@ export default function Sidebar() {
               </Row>
             </Link>
 
-            <div className="my-2 h-px bg-gray-200 dark:bg-white/10" />
+            <div className="my-2 h-px bg-gray-100 dark:bg-white/10" />
 
             {!currentUser ? (
               <Dialog
@@ -906,9 +1017,9 @@ export default function Sidebar() {
                   <button className="w-full">
                     <div
                       className={clsx(
-                        "h-11 rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-white/5 dark:border-white/10",
+                        "h-11 rounded-2xl border border-gray-100 bg-white/90 shadow-sm backdrop-blur-sm dark:bg-white/5 dark:border-white/10",
                         expanded
-                          ? "w-full flex items-center gap-3 px-3 hover:bg-gray-50 dark:hover:bg-white/10"
+                          ? "w-full flex items-center gap-3 px-3 hover:bg-white"
                           : "mx-auto w-11 p-0 flex items-center justify-center"
                       )}
                     >
@@ -960,7 +1071,7 @@ export default function Sidebar() {
                   align="start"
                   sideOffset={8}
                   className={clsx(
-                    "w-72 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-1",
+                    "w-72 bg-white/95 dark:bg-black/90 border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-1 backdrop-blur-md",
                     menuAnim
                   )}
                 >
@@ -968,7 +1079,7 @@ export default function Sidebar() {
                     onClick={() => router.push("/profile")}
                     className="w-full text-left"
                   >
-                    <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 mx-1 my-1 hover:bg-gray-100 dark:hover:bg-white/10 transition">
+                    <div className="flex items-center gap-3 px-3 py-3 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-100 dark:border-white/10 mx-1 my-1 hover:bg-white">
                       <div className="relative w-10 h-10">
                         <div className="w-10 h-10 rounded-full overflow-hidden">
                           {currentUser.avatar ? (
@@ -998,6 +1109,20 @@ export default function Sidebar() {
 
                   <DropdownMenuSeparator className="dark:bg-white/10" />
 
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setIsMenuOpen(false);
+                      setIsFriendsOpen(true);
+                    }}
+                    className="flex items-center gap-2 rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                  >
+                    <IconUsers size={18} />
+                    Friends
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="dark:bg-white/10" />
+
                   <DropdownMenuItem className="px-2 py-2">
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm">Theme</span>
@@ -1009,7 +1134,7 @@ export default function Sidebar() {
 
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="flex items-center gap-2 rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                    className="flex items-center gap-2 rounded-md px-2 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                   >
                     <IconLogout size={18} />
                     Logout
@@ -1023,7 +1148,7 @@ export default function Sidebar() {
         <div
           className={clsx(
             "hidden lg:block transition-[width] duration-300",
-            expanded ? W_WIDE : W_NARROW
+            expanded ? "w-[288px]" : "w-[76px]"
           )}
         />
 
@@ -1041,7 +1166,7 @@ export default function Sidebar() {
               className={clsx(
                 "fixed inset-0 transition-opacity duration-300 backdrop-blur-[2px]",
                 overlayVisible
-                  ? "bg-black/50 opacity-100"
+                  ? "bg-black/40 opacity-100"
                   : "bg-black/0 opacity-0"
               )}
               onClick={closeMobile}
@@ -1049,14 +1174,14 @@ export default function Sidebar() {
 
             <div
               className={clsx(
-                "ml-auto h-full w-[85%] max-w-[360px] bg-white dark:bg-black text-gray-900 dark:text-gray-100",
-                "shadow-xl relative flex flex-col transform will-change-transform rounded-l-2xl",
+                "ml-auto h-full w-[85%] max-w-[360px] bg-white/95 dark:bg-black/90 text-gray-900 dark:text-gray-100",
+                "shadow-xl relative flex flex-col transform will-change-transform rounded-l-2xl ring-1 ring-gray-100 backdrop-blur-md",
                 "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                 "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
                 mobileAnimVisible ? "translate-x-0" : "translate-x-full"
               )}
             >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
                 <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Menu
                 </span>
@@ -1066,7 +1191,7 @@ export default function Sidebar() {
               </div>
 
               <div className="p-4">
-                <div className="flex items-center gap-2 min-h-[44px] px-3 rounded-lg bg-white border border-gray-200 shadow-sm dark:bg-white/5 dark:border-white/10 dark:shadow-white/5">
+                <div className="flex items-center gap-2 min-h-[44px] px-3 rounded-full bg-white/90 ring-1 ring-gray-100 shadow-sm backdrop-blur-sm dark:bg-white/5 dark:ring-white/10">
                   <IconSearch
                     size={18}
                     className="text-gray-500 dark:text-gray-400"
@@ -1095,7 +1220,7 @@ export default function Sidebar() {
                       onClick={() => setShowAdminMobile((v) => !v)}
                       className="w-full"
                     >
-                      <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10">
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-800 hover:bg-white/80 hover:ring-1 hover:ring-gray-100 dark:text-gray-200 dark:hover:bg-white/10">
                         <IconShield size={20} />
                         <span className="text-[14px]">Admin</span>
                         <span className="ml-auto">
@@ -1115,7 +1240,7 @@ export default function Sidebar() {
                           : "max-h-0 opacity-0"
                       )}
                     >
-                      <div className="absolute left-[26px] top-2 bottom-2 w-px bg-gray-200 dark:bg-white/10 pointer-events-none" />
+                      <div className="absolute left-[26px] top-2 bottom-2 w-px bg-gray-100 dark:bg-white/10 pointer-events-none" />
 
                       <div className="pl-10 pr-1 space-y-1 pt-1 pb-2">
                         <MobileRow
@@ -1164,7 +1289,7 @@ export default function Sidebar() {
                   </div>
                 </div>
 
-                <div className="h-px bg-gray-200 dark:bg-white/10 my-2" />
+                <div className="h-px bg-gray-100 dark:bg-white/10 my-2" />
 
                 <MobileRow
                   href="/support"
@@ -1179,7 +1304,7 @@ export default function Sidebar() {
                   active={pathname === "/notifications"}
                 />
 
-                <div className="h-px bg-gray-200 dark:bg-white/10 my-2" />
+                <div className="h-px bg-gray-100 dark:bg-white/10 my-2" />
 
                 <MobileRow
                   href="/settings"
@@ -1187,7 +1312,7 @@ export default function Sidebar() {
                   Icon={IconSettings}
                   active={pathname === "/settings"}
                 />
-                <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 transition">
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-100 bg-white/80 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 transition">
                   <span className="text-[14px]">Theme</span>
                   <ThemeToggler />
                 </div>
@@ -1199,7 +1324,7 @@ export default function Sidebar() {
                     }}
                     className="w-full text-left"
                   >
-                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10">
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-800 hover:bg-white/80 hover:ring-1 hover:ring-gray-100 dark:text-gray-200 dark:hover:bg-white/10">
                       <IconUserCircle size={20} />
                       <div className="flex flex-col">
                         <span className="text-[14px] font-medium">Sign in</span>
@@ -1242,7 +1367,7 @@ export default function Sidebar() {
                         e.stopPropagation();
                         handleLogout();
                       }}
-                      className="ml-auto text-[13px] px-3 py-1.5 rounded-md border border-gray-200 hover:bg-gray-100 dark:border-white/10 dark:hover:bg-white/10"
+                      className="ml-auto text-[13px] px-3 py-1.5 rounded-md border border-gray-100 bg-white/80 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
                     >
                       Logout
                     </button>
@@ -1252,6 +1377,12 @@ export default function Sidebar() {
             </div>
           </div>
         )}
+
+        <FriendsDrawer
+          open={isFriendsOpen}
+          onClose={() => setIsFriendsOpen(false)}
+          friends={(MOCK_USERS as unknown as Friend[]) || []}
+        />
       </div>
 
       <ContactModal open={isContactOpen} onOpenChange={setIsContactOpen} />

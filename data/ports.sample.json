@@ -1,0 +1,37 @@
+[
+  {
+    "id": "RO-CND",
+    "name": "Constanța",
+    "country": "Romania",
+    "lat": 44.173,
+    "lng": 28.638
+  },
+  {
+    "id": "RO-MSC",
+    "name": "Mangalia",
+    "country": "Romania",
+    "lat": 43.812,
+    "lng": 28.585
+  },
+  {
+    "id": "UA-ODS",
+    "name": "Odesa",
+    "country": "Ukraine",
+    "lat": 46.492,
+    "lng": 30.741
+  },
+  {
+    "id": "TR-IST",
+    "name": "Istanbul",
+    "country": "Turkey",
+    "lat": 41.008,
+    "lng": 28.978
+  },
+  {
+    "id": "GR-PIR",
+    "name": "Piraeus",
+    "country": "Greece",
+    "lat": 37.948,
+    "lng": 23.641
+  }
+]

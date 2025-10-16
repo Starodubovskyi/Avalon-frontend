@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import VesselOverlay from "@/components/map/VesselOverlay";
 import { LeafletAdapter } from "@/components/map/adapters/LeafletAdapter";
 import type { VesselInfo } from "@/components/map/VesselInfoPanel";
 import RightDock from "./map/right-dock/RightDock";
-
 import { mockVesselsData } from "@/components/types/mockData1";
 
 type LL = { lat: number; lon: number };
+type BaseName = "light" | "dark" | "osm" | "sat";
 
 const PORT_COORDS: Record<string, LL> = {
   rotterdam: { lat: 51.95, lon: 4.14 },
@@ -40,7 +41,6 @@ function coordsFor(place?: string): LL | null {
 function toFlagEmoji(country?: string): string {
   if (!country) return "";
   if (/[\uD83C][\uDDE6-\uDDFF]/.test(country)) return country;
-
   const m: Record<string, string> = {
     panama: "🇵🇦",
     "united kingdom": "🇬🇧",
@@ -57,18 +57,18 @@ function toBearing(a: LL, b: LL): number {
   const x =
     Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
   const θ = Math.atan2(y, x);
-  return (θ * 180) / Math.PI + (360 % 360);
+  const deg = (θ * 180) / Math.PI;
+  return (deg + 360) % 360;
 }
 
 function mapMocksToVesselInfo(): VesselInfo[] {
-  return mockVesselsData.map((v, i): VesselInfo => {
+  return mockVesselsData.map((v): VesselInfo => {
     const from = coordsFor(v.currentPort) || { lat: 0, lon: 0 };
     const to = coordsFor(v.destinationPort || v.reportedDestination) || {
       lat: from.lat,
       lon: from.lon + 1,
     };
     const course = toBearing(from, to) || 90;
-
     return {
       id: v.id,
       name: v.name,
@@ -89,12 +89,24 @@ function mapMocksToVesselInfo(): VesselInfo[] {
   });
 }
 
+const STORAGE_KEY = "basemap_v1";
+
 export default function Map() {
   const mapRef = useRef<HTMLDivElement>(null);
   const [adapter, setAdapter] = useState<LeafletAdapter | null>(null);
+  const [currentBase, setCurrentBase] = useState<BaseName>("light");
+  const { resolvedTheme } = useTheme();
 
-  const [allVessels] = useState<VesselInfo[]>(() => mapMocksToVesselInfo());
+  const allVessels = useMemo(() => mapMocksToVesselInfo(), []);
   const [count, setCount] = useState(allVessels.length);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -105,33 +117,109 @@ export default function Map() {
     const map = L.map(container, {
       center: [20, 10],
       zoom: 3,
-      zoomControl: true,
-      scrollWheelZoom: true,
+      minZoom: 2,
+      maxZoom: 14,
+      zoomControl: !isMobile,
+      scrollWheelZoom: !isMobile,
+      touchZoom: true,
+      dragging: true,
       worldCopyJump: true,
+      preferCanvas: true,
+      inertia: true,
+      maxBounds: [
+        [-85, -180],
+        [85, 180],
+      ],
+      maxBoundsViscosity: 0.8,
     });
 
-    const a = new LeafletAdapter(map);
-    const saved =
-      (typeof window !== "undefined" &&
-        (localStorage.getItem("basemap_v1") as any)) ||
-      "dark";
-    a.setBasemap(
-      saved === "light" || saved === "osm" || saved === "sat" ? saved : "dark"
-    );
+    if (isMobile) {
+      L.control
+        .zoom({ position: "bottomright" })
+        // @ts-ignore
+        .addTo(map);
+    }
 
+    const a = new LeafletAdapter(map);
+    a.setBasemap("light");
     a.loadVessels(allVessels);
     setAdapter(a);
     setCount(allVessels.length);
 
+    const bounds = L.latLngBounds(
+      allVessels.map((v) => L.latLng(v.lat, v.lon))
+    );
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, {
+        paddingTopLeft: isMobile ? [16, 32] : [40, 80],
+        paddingBottomRight: isMobile ? [16, 64] : [40, 40],
+        maxZoom: 8,
+      });
+    }
+
+    const invalidate = () => setTimeout(() => map.invalidateSize(), 0);
+    invalidate();
+    window.addEventListener("orientationchange", invalidate);
+    window.addEventListener("resize", invalidate);
+
     return () => {
+      window.removeEventListener("orientationchange", invalidate);
+      window.removeEventListener("resize", invalidate);
       a.destroy();
       map.remove();
     };
-  }, [allVessels]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, allVessels]);
+
+  useEffect(() => {
+    if (!adapter) return;
+
+    const saved = (
+      typeof window !== "undefined"
+        ? (localStorage.getItem(STORAGE_KEY) as BaseName | null)
+        : null
+    ) as BaseName | null;
+
+    const locked = saved === "osm" || saved === "sat";
+    const want: BaseName = locked
+      ? (saved as BaseName)
+      : resolvedTheme === "dark"
+      ? "dark"
+      : "light";
+
+    if (want !== currentBase) {
+      adapter.setBasemap(want);
+      setCurrentBase(want);
+    }
+  }, [adapter, resolvedTheme, currentBase]);
+
+  useEffect(() => {
+    if (!adapter) return;
+    const onChangeVisible = () => {
+      setCount(
+        adapter.getVisibleCount ? adapter.getVisibleCount() : allVessels.length
+      );
+    };
+    // @ts-ignore — если адаптер эмитит события
+    adapter.on?.("visible:change", onChangeVisible);
+    return () => {
+      // @ts-ignore
+      adapter.off?.("visible:change", onChangeVisible);
+    };
+  }, [adapter, allVessels.length]);
 
   return (
-    <div className="relative h-screen w-full">
-      <div ref={mapRef} className="absolute inset-0 z-0" />
+    <div className="relative w-full h-[100svh] sm:h-screen">
+      <div
+        ref={mapRef}
+        className="absolute inset-0 z-0 bg-white dark:bg-black"
+        style={{
+          paddingTop: "env(safe-area-inset-top)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+          paddingLeft: "env(safe-area-inset-left)",
+          paddingRight: "env(safe-area-inset-right)",
+        }}
+      />
       {adapter && (
         <>
           <VesselOverlay
@@ -142,7 +230,7 @@ export default function Map() {
         </>
       )}
 
-      <div className="absolute right-2 bottom-2 z-[1200] rounded-md bg-black/60 px-2 py-1 text-xs text-white">
+      <div className="absolute right-2 bottom-[calc(env(safe-area-inset-bottom)+8px)] z-[1200] rounded-md bg-black/60 px-2 py-1 text-[10px] sm:text-xs text-white">
         {count} visible
       </div>
     </div>
