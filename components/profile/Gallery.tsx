@@ -1,5 +1,8 @@
 import React, { useRef, useState } from "react";
-import { FaPlus, FaTimes } from "react-icons/fa";
+import { Plus, X, Image as ImageIcon } from "lucide-react";
+import clsx from "clsx";
+
+const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 
 interface GalleryProps {
   images: string[];
@@ -7,7 +10,11 @@ interface GalleryProps {
   onRemoveImage: (index: number) => void;
 }
 
-export default function Gallery({ images, onAddImage, onRemoveImage }: GalleryProps) {
+export default function Gallery({
+  images,
+  onAddImage,
+  onRemoveImage,
+}: GalleryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -16,47 +23,57 @@ export default function Gallery({ images, onAddImage, onRemoveImage }: GalleryPr
     if (file) onAddImage(file);
   };
 
-  const openLightbox = (index: number) => setLightboxIndex(index);
-  const closeLightbox = () => setLightboxIndex(null);
-
   return (
     <>
-      <div className="rounded-xl border border-gray-200 dark:border-white/10 p-4 bg-gradient-to-br from-white to-gray-50 dark:from-black/30 dark:to-black/10">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-            Files
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h4 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <ImageIcon size={18} className="text-blue-500" /> Gallery
           </h4>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="text-sm text-blue-700 dark:text-blue-400 hover:underline inline-flex items-center"
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full transition-colors"
             type="button"
           >
-            <FaPlus className="mr-1" /> Add Photo
+            <Plus size={14} /> Add Photo
           </button>
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
         </div>
 
         {images.length === 0 ? (
-          <div className="text-sm text-gray-500">No files yet.</div>
+          <div className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 p-6 flex flex-col items-center justify-center text-gray-400 gap-2">
+            <ImageIcon size={24} className="opacity-50" />
+            <span className="text-sm">No images uploaded yet</span>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {images.map((img, i) => (
               <div
                 key={i}
-                className="relative rounded-xl overflow-hidden shadow border border-gray-200 dark:border-white/10 bg-white/70 dark:bg-black/30 cursor-pointer"
-                onClick={() => openLightbox(i)}
+                className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/5 cursor-pointer"
+                onClick={() => setLightboxIndex(i)}
               >
-                <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-28 object-cover" />
+                <img
+                  src={img}
+                  alt={`Gallery ${i + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemoveImage(i);
                   }}
-                  className="absolute top-1 right-1 bg-red-700 text-white rounded-full p-1 hover:bg-red-800"
+                  className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1.5 hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100"
                   aria-label="Remove image"
-                  type="button"
                 >
-                  <FaTimes size={12} />
+                  <X size={12} />
                 </button>
               </div>
             ))}
@@ -66,22 +83,20 @@ export default function Gallery({ images, onAddImage, onRemoveImage }: GalleryPr
 
       {lightboxIndex !== null && (
         <div
-          onClick={closeLightbox}
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+          onClick={() => setLightboxIndex(null)}
+          className="fixed inset-0 bg-black/95 backdrop-blur-xl flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200"
         >
           <img
             src={images[lightboxIndex]}
-            alt={`Gallery ${lightboxIndex + 1}`}
-            className="max-h-[90vh] max-w-[90vw] rounded"
+            alt="Lightbox"
+            className="max-h-[90vh] max-w-[90vw] rounded-2xl shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
           <button
-            onClick={closeLightbox}
-            className="absolute top-5 right-5 text-white text-3xl font-bold"
-            aria-label="Close lightbox"
-            type="button"
+            onClick={() => setLightboxIndex(null)}
+            className="absolute top-6 right-6 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
           >
-            &times;
+            <X size={32} />
           </button>
         </div>
       )}

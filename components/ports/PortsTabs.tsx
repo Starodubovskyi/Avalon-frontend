@@ -37,10 +37,11 @@ export default function PortsTabs({
           const locked = t.locked;
 
           const base =
-            "whitespace-nowrap px-4 h-9 inline-flex items-center gap-1 rounded-full text-sm transition-all";
+            "whitespace-nowrap px-5 h-9 inline-flex items-center gap-1.5 rounded-full text-sm font-medium transition-all duration-300";
+
           const state = active
-            ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-900/50"
-            : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100";
+            ? "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/20"
+            : "text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-white/10";
 
           return (
             <button
@@ -58,10 +59,17 @@ export default function PortsTabs({
                 }
                 onChange(t.key);
               }}
-              className={[base, state, locked ? "opacity-70" : ""].join(" ")}
+              className={[
+                base,
+                state,
+                locked ? "opacity-70 cursor-not-allowed" : "",
+              ].join(" ")}
             >
               {locked && (
-                <LockClosedIcon className="w-4 h-4 -ml-1" aria-hidden="true" />
+                <LockClosedIcon
+                  className="w-3.5 h-3.5 opacity-70"
+                  aria-hidden="true"
+                />
               )}
               {t.label}
             </button>

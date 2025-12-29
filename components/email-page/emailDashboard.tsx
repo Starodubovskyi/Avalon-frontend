@@ -18,17 +18,24 @@ interface Email {
   folder: FolderType;
 }
 
-type CurrentUser = { name: string; email: string };
+type CurrentUser = {
+  name: string;
+  email: string;
+  avatar?: string;
+  handle?: string;
+  photo?: string;
+};
 
 const initialEmails: Email[] = [
   {
     id: 1,
     sender: "Justin Lapointe",
     avatar: "JL",
-    subject: "Client Dashboard",
-    preview: "It seems that recipients are receiving...",
+    subject: "Client Dashboard Update",
+    preview:
+      "It seems that recipients are receiving the notifications correctly now. Let's check...",
     time: "3:13 PM",
-    tags: ["Projects"],
+    tags: ["Projects", "Work"],
     read: false,
     isRecent: false,
     folder: "inbox",
@@ -37,9 +44,10 @@ const initialEmails: Email[] = [
     id: 2,
     sender: "Rufana",
     avatar: "R",
-    subject: "UI project",
-    preview: "Regardless, you can usually expect an increase",
-    time: "3:13 PM",
+    subject: "UI Project Review",
+    preview:
+      "Regardless, you can usually expect an increase in user engagement after these changes.",
+    time: "2:45 PM",
     tags: ["Applications"],
     read: false,
     isRecent: true,
@@ -49,9 +57,10 @@ const initialEmails: Email[] = [
     id: 3,
     sender: "Cameron Drake",
     avatar: "CD",
-    subject: "You're missing",
-    preview: "Here are a few catchy email subject line examples",
-    time: "3:13 PM",
+    subject: "You're missing out!",
+    preview:
+      "Here are a few catchy email subject line examples that might inspire you.",
+    time: "11:20 AM",
     tags: ["External"],
     read: true,
     isRecent: false,
@@ -61,9 +70,10 @@ const initialEmails: Email[] = [
     id: 4,
     sender: "Sean Hill",
     avatar: "SH",
-    subject: "How Have You Progressed",
-    preview: "You can write effective retargeting subject",
-    time: "3:13 PM",
+    subject: "Progress Report Q3",
+    preview:
+      "You can write effective retargeting subject lines by focusing on value.",
+    time: "Yesterday",
     tags: ["Team Events"],
     read: true,
     isRecent: true,
@@ -83,50 +93,47 @@ const EmailDashboard: React.FC<{ currentUser: CurrentUser }> = ({
   const handleSortClick = (sortType: "recent" | "unread" | "all") => {
     let sorted = [...visibleEmails];
     if (sortType === "unread") {
-      sorted.sort((a, b) => +a.read - +b.read);
+      sorted.sort((a, b) => +a.read - +b.read); // Unread (false) first -> 0 - 1 = -1
     } else if (sortType === "recent") {
+      // Mock logic for 'recent' flag sorting
       sorted.sort((a, b) =>
         a.isRecent === b.isRecent ? 0 : a.isRecent ? -1 : 1
       );
     }
-    setEmails((prev) =>
-      prev.map((email) =>
-        email.folder === activeFolder
-          ? sorted.find((e) => e.id === email.id) || email
-          : email
-      )
-    );
+    // In a real app, you'd fetch sorted data. Here we just update local state view.
+    // Ideally we update the order in the main list, but for filtering logic we just re-set.
+    // For simplicity in this mock, we aren't re-ordering 'emails', just forcing a re-render is usually enough if filtered.
+    // To see effect, let's just reverse visible for demo if 'all'
+    if (sortType === "all") sorted.reverse();
+
+    // Hacky update to force render for demo
+    const newEmails = emails
+      .filter((e) => e.folder !== activeFolder)
+      .concat(sorted);
+    setEmails(newEmails);
   };
 
-  const refreshEmails = () => setEmails([...initialEmails]);
+  const refreshEmails = () => {
+    // Simulate refresh
+    setEmails([...initialEmails]);
+  };
 
   return (
-    <div className="min-h-[100dvh] bg-gray-100 dark:bg-black">
-      <div className="px-1 sm:px-2 lg:px-2 py-1">
-        <div
-          className="
-            w-full h-[100dvh]
-            rounded-3xl border border-gray-200 bg-white shadow-[0_16px_40px_rgba(2,6,23,0.08)]
-            dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
-            overflow-hidden
-          "
-        >
-          <div className="flex h-full text-gray-800 dark:text-gray-100">
-            <EmailSidebar
-              currentUser={currentUser}
-              activeFolder={activeFolder}
-              onFolderSelect={(f) => setActiveFolder(f)}
-              isOpen={sidebarOpen}
-              onClose={() => setSidebarOpen(false)}
-            />
-            <EmailMain
-              emails={visibleEmails}
-              onSortClick={handleSortClick}
-              onRefreshClick={refreshEmails}
-              onMenuClick={() => setSidebarOpen(true)}
-            />
-          </div>
-        </div>
+    <div className="flex h-screen bg-[#f8f9fa] dark:bg-black overflow-hidden font-sans">
+      <EmailSidebar
+        currentUser={currentUser}
+        activeFolder={activeFolder}
+        onFolderSelect={(f) => setActiveFolder(f)}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <div className="flex-1 flex flex-col min-w-0 h-full relative">
+        <EmailMain
+          emails={visibleEmails}
+          onSortClick={handleSortClick}
+          onRefreshClick={refreshEmails}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
       </div>
     </div>
   );

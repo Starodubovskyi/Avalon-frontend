@@ -1,28 +1,34 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 
 export default function AddCardTile({
   surfaceClass,
   fullHeight = false,
 }: {
   surfaceClass: string;
-  fullHeight?: boolean; 
+  fullHeight?: boolean;
 }) {
   const router = useRouter();
 
   return (
-    <div className={`${surfaceClass} bg-transparent p-0`}>
+    <div className={`${surfaceClass} bg-transparent p-0 h-full`}>
       <div
-        className={`rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/15 grid place-content-center ${
-          fullHeight ? "h-48 sm:h-56 md:h-64" : "h-48"
-        }`}
+        className={`
+          rounded-[2rem] border-2 border-dashed border-gray-300 dark:border-white/10 
+          bg-gray-50/50 dark:bg-white/5
+          grid place-content-center transition-colors hover:bg-gray-100/80 dark:hover:bg-white/10
+          ${fullHeight ? "h-48 sm:h-56 md:h-64" : "h-56"}
+        `}
       >
         <button
-          className="inline-flex flex-col items-center gap-2 text-sm font-medium text-gray-700 hover:opacity-80 dark:text-gray-200"
+          className="flex flex-col items-center gap-3 text-sm font-bold text-gray-600 dark:text-gray-300 group"
           onClick={() => router.push("/paynow?flow=add-card")}
         >
-          <span className="grid h-8 w-8 place-content-center rounded-full border border-gray-300 dark:border-white/15">+</span>
+          <div className="grid h-12 w-12 place-content-center rounded-full bg-white dark:bg-black shadow-sm group-hover:scale-110 transition-transform">
+            <Plus className="h-6 w-6 text-blue-500" />
+          </div>
           Add New Card
         </button>
       </div>

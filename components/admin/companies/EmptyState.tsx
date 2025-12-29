@@ -1,22 +1,25 @@
 "use client";
 
-const card =
-  "rounded-3xl border border-gray-200/70 bg-white/95 shadow-[0_8px_30px_rgba(2,6,23,0.06)] backdrop-blur-sm " +
-  "dark:bg-neutral-900/70 dark:border-white/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)]";
+import { SearchX } from "lucide-react";
 
 export default function EmptyState({
-  title = "Nothing here",
-  subtitle = "Try changing filters",
+  title = "No companies found",
+  subtitle = "Try adjusting your filters or search query.",
 }: {
   title?: string;
   subtitle?: string;
 }) {
   return (
-    <div className={card + " p-10 text-center border-dashed"}>
-      <div className="text-lg font-semibold mb-1 text-gray-900 dark:text-gray-100">
-        {title}
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-4">
+        <SearchX className="h-8 w-8 text-gray-400" />
       </div>
-      <div className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</div>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+        {title}
+      </h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
+        {subtitle}
+      </p>
     </div>
   );
 }

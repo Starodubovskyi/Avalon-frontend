@@ -9,7 +9,6 @@ import UsageSummaryCard from "@/components/billing/UsageSummaryCard";
 import BillingHistoryTable from "@/components/billing/BillingHistoryTable";
 import PaymentMethods from "@/components/billing/PaymentMethods";
 
-// 👇 dev-панель (временный режим без бэка)
 import DevSubscriptionPanel from "@/components/billing/DevSubscriptionPanel";
 
 import { usage } from "@/components/types/billing/data";
@@ -25,7 +24,6 @@ import {
   type Billing as BillingType,
 } from "@/components/types/billing/plan";
 
-// карты как SavedCard (с id)
 import { listCards, type SavedCard } from "@/components/types/billing/cards";
 
 export default function Page() {
@@ -97,7 +95,10 @@ export default function Page() {
               </div>
 
               <div className="mt-6">
-                <BillingHistoryTable surfaceClass={surfaceClass} invoices={invoices} />
+                <BillingHistoryTable
+                  surfaceClass={surfaceClass}
+                  invoices={invoices}
+                />
               </div>
 
               <div className="mt-6">

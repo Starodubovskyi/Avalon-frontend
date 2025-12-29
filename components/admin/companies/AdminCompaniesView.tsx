@@ -8,10 +8,11 @@ import HistoryDrawer from "./HistoryDrawer";
 import MergeDialog from "./MergeDialog";
 import { useAdminCompaniesStore } from "./store/adminCompaniesStore";
 import type { AdminCompany, CompanyStatus } from "./types";
+import clsx from "clsx";
 
-const card =
-  "rounded-3xl border border-gray-200/70 bg-white/95 shadow-[0_8px_30px_rgba(2,6,23,0.06)] backdrop-blur-sm " +
-  "dark:bg-neutral-900/70 dark:border-white/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)]";
+const GLASS_CARD =
+  "rounded-[2.5rem] border border-gray-200/50 bg-white/80 shadow-xl shadow-black/5 backdrop-blur-xl " +
+  "dark:bg-[#0d1117]/80 dark:border-white/5 dark:shadow-black/20";
 
 interface Props {
   items: AdminCompany[];
@@ -48,8 +49,13 @@ export default function AdminCompaniesView(props: Props) {
 
   return (
     <div className="w-full">
-      <div className={card + " p-4 sm:p-6 lg:p-8"}>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white text-center mb-6">
+      <div
+        className={clsx(
+          GLASS_CARD,
+          "p-6 sm:p-8 lg:p-10 min-h-[calc(100vh-1rem)]"
+        )}
+      >
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white text-center mb-8 tracking-tight">
           Admin · Companies
         </h1>
 

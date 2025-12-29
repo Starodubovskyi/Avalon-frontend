@@ -76,18 +76,20 @@ export default function AdminCompaniesContainer() {
   ];
 
   return (
-    <AdminCompaniesView
-      items={filtered}
-      filters={filters}
-      setFilter={setFilter}
-      resetFilters={resetFilters}
-      countries={countries}
-      categories={categories}
-      statuses={statuses}
-      selectedIds={selectedIds}
-      allIds={allIds}
-      selectAll={selectAll}
-      clearSelection={clearSelection}
-    />
+    <div className="w-full min-h-screen bg-[#f8f9fa] dark:bg-black px-2 py-2">
+      <AdminCompaniesView
+        items={filtered}
+        filters={filters}
+        setFilter={setFilter}
+        resetFilters={resetFilters}
+        countries={countries}
+        categories={categories}
+        statuses={statuses}
+        selectedIds={selectedIds}
+        allIds={allIds}
+        selectAll={selectAll}
+        clearSelection={clearSelection}
+      />
+    </div>
   );
 }

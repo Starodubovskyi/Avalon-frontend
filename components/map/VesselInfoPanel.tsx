@@ -2,6 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PanelSide } from "./positioning";
+import {
+  IconShip,
+  IconAnchor,
+  IconNavigation,
+  IconClock,
+  IconRuler,
+  IconMapPin,
+  IconArrowRight,
+} from "@tabler/icons-react";
 
 export type VesselInfo = {
   id: string;
@@ -27,6 +36,7 @@ export default function VesselInfoPanel({
   anchorPx,
   style,
   mode,
+  isClosing, // Новый проп для анимации выхода
   inFleet,
   pastTrackActive,
   routeActive,
@@ -44,6 +54,7 @@ export default function VesselInfoPanel({
   anchorPx?: { x: number; y: number } | null;
   style?: React.CSSProperties;
   mode: "floating" | "sheet";
+  isClosing: boolean;
   inFleet: boolean;
   pastTrackActive: boolean;
   routeActive: boolean;
@@ -69,218 +80,288 @@ export default function VesselInfoPanel({
 
   const computedMode: "floating" | "sheet" = isMobile ? "sheet" : mode;
 
-  const basePanel =
-    "rounded-xl border bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-900 text-sm overflow-hidden";
-  const widthClass =
-    computedMode === "sheet"
-      ? "w-full max-w-none"
-      : "w-[min(92vw,480px)] md:w-[380px] lg:w-[420px] xl:w-[460px]";
+  // --- Анимации ---
+  // Mobile Sheet: выезд снизу (translate-y)
+  const mobileAnim = isClosing
+    ? "translate-y-full opacity-0"
+    : "translate-y-0 opacity-100";
+
+  // Desktop Floating: зум + фейд
+  const desktopAnim = isClosing
+    ? "opacity-0 scale-95"
+    : "opacity-100 scale-100";
+
+  const baseClasses =
+    "transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]";
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-[1000]">
-      {computedMode === "sheet" && (
-        <div
-          className="pointer-events-auto absolute inset-0 bg-black/40"
-          onClick={onClose}
-          aria-hidden
-        />
-      )}
-
+    <div className="pointer-events-none absolute inset-0 z-[1000] flex flex-col justify-end md:block">
+      {/* Карточка / Шторка */}
       <div
         role="dialog"
         aria-label={`${vessel.name} info`}
         tabIndex={-1}
         ref={panelRef}
         style={computedMode === "floating" ? style : undefined}
-        className={`pointer-events-auto ${basePanel} ${widthClass} ${
-          computedMode === "sheet"
-            ? "fixed inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl"
-            : "absolute max-h-[calc(100vh-1.5rem)]"
-        }`}
+        className={`
+          pointer-events-auto bg-white dark:bg-zinc-900 text-sm overflow-hidden flex flex-col
+          ${baseClasses}
+          ${
+            computedMode === "sheet"
+              ? `w-full rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.15)] ${mobileAnim}` // Мобильные стили
+              : `absolute w-[380px] lg:w-[420px] rounded-2xl shadow-2xl border border-zinc-200 dark:border-white/10 ${desktopAnim}` // Десктоп стили
+          }
+        `}
       >
-        <div className="flex items-center justify-between border-b px-4 py-3 dark:border-white/10">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-              <span className="text-lg leading-none">{vessel.flagEmoji}</span>
-              <span className="truncate">{vessel.type}</span>
-            </div>
-            <div className="truncate font-semibold text-zinc-900 dark:text-zinc-100">
-              {vessel.name}
-            </div>
+        {/* Mobile Handle (Drag indicator) */}
+        {computedMode === "sheet" && (
+          <div className="flex justify-center pt-3 pb-1" onClick={onClose}>
+            <div className="h-1.5 w-12 rounded-full bg-zinc-300 dark:bg-zinc-700" />
           </div>
+        )}
+
+        {/* --- Header Image & Info --- */}
+        <div className="relative">
+          {/* Кнопка закрытия (на десктопе крестик, на мобильном можно скрыть, так как есть свайп/фон) */}
           <button
             onClick={onClose}
-            className="rounded-md p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-200"
-            aria-label="Close"
+            className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-md hover:bg-black/40 transition"
           >
             ✕
           </button>
-        </div>
 
-        {computedMode === "sheet" && (
-          <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-zinc-300/80 dark:bg-white/15" />
-        )}
-
-        <div className="mt-2 w-full">
-          <div className="aspect-[16/9] w-full bg-black/5 dark:bg-white/5">
+          {/* Картинка судна */}
+          <div className="h-40 w-full bg-zinc-100 dark:bg-zinc-800 relative">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <img
               src={vessel.photoUrl}
               alt={vessel.name}
               className="h-full w-full object-cover"
             />
+            <div className="absolute bottom-3 left-4 text-white">
+              <div className="flex items-center gap-2 text-white/90 text-xs font-medium uppercase tracking-wider mb-1">
+                <span>{vessel.flagEmoji}</span>
+                <span>{vessel.type}</span>
+              </div>
+              <h2 className="text-xl font-bold leading-tight">{vessel.name}</h2>
+            </div>
           </div>
+        </div>
 
-          <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
-            <button
-              aria-pressed={inFleet}
-              onClick={() => onToggleFleet(vessel.id)}
-              className={`inline-flex items-center justify-center gap-2 rounded-md border px-4 py-2.5 text-sm font-medium dark:border-white/10 sm:flex-1 ${
-                inFleet
-                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                  : "hover:bg-zinc-50 dark:hover:bg-white/5"
-              }`}
-            >
-              <span>☰</span>
-              <span>{inFleet ? "In fleet" : "Add to fleet"}</span>
-            </button>
-
-            <button
-              onClick={() => onDetails(vessel.id)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 sm:flex-1"
-            >
-              Vessel details
-            </button>
-          </div>
-
-          <div className="px-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <div className="truncate text-base sm:text-lg font-semibold tracking-tight">
-                {vessel.departurePort}
+        {/* --- Main Content --- */}
+        <div className="p-4 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+          {/* Voyage Info */}
+          <div className="bg-zinc-50 dark:bg-white/5 rounded-xl p-3 border border-zinc-100 dark:border-white/5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                  <IconMapPin size={18} />
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase text-zinc-500 font-bold">
+                    Destination
+                  </div>
+                  <div className="font-semibold text-zinc-900 dark:text-white leading-tight">
+                    {vessel.departurePort}
+                  </div>
+                </div>
               </div>
-              <div className="text-[11px] sm:text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                FOR ORDERS
+              <div className="text-right">
+                <div className="text-[10px] uppercase text-zinc-500 font-bold">
+                  ETA
+                </div>
+                <div className="font-mono font-medium text-zinc-900 dark:text-white">
+                  {vessel.reportedEta
+                    ? new Date(vessel.reportedEta).toLocaleDateString(
+                        undefined,
+                        { month: "short", day: "numeric" }
+                      )
+                    : "—"}
+                </div>
               </div>
             </div>
 
-            <div className="mt-2 grid grid-cols-2 gap-3 text-[13px]">
-              <div>
-                <div className="text-zinc-500 dark:text-zinc-400">ATD</div>
-                <div className="font-medium">{vessel.atd || "—"}</div>
-              </div>
-              <div>
-                <div className="text-zinc-500 dark:text-zinc-400">
-                  Reported ETA
-                </div>
-                <div className="font-medium">{vessel.reportedEta || "—"}</div>
-              </div>
-            </div>
-
-            <div className="mt-4" aria-label="Voyage progress">
-              <div className="h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-700">
-                <div
-                  className="h-2 rounded-full bg-blue-600 dark:bg-blue-500"
-                  style={{
-                    width: `${Math.max(0, Math.min(100, voyageProgressPct))}%`,
-                  }}
-                />
-              </div>
-              {!!voyageProgressLabel && (
-                <div className="mt-1 text-[12px] text-zinc-600 dark:text-zinc-300">
-                  {voyageProgressLabel}
-                </div>
-              )}
-            </div>
-
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-              <button
-                onClick={() => onPastTrackToggle(vessel.id)}
-                className={`rounded-md px-4 py-2 text-sm font-medium border dark:border-white/10 sm:flex-none ${
-                  pastTrackActive
-                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                    : "hover:bg-zinc-50 dark:hover:bg-white/5"
-                }`}
-              >
-                ◀ Past track
-              </button>
-
-              <button
-                onClick={() => onRouteToggle(vessel.id)}
-                className={`inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium dark:border-white/10 sm:flex-none ${
-                  routeActive
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "hover:bg-zinc-50 dark:hover:bg-white/5"
-                }`}
-              >
-                <span>⛯</span>
-                <span>{routeActive ? "Route tool: ON" : "Use route tool"}</span>
-              </button>
-
-              {typeof distanceNm === "number" && (
-                <div className="sm:ml-auto text-xs text-zinc-600 dark:text-zinc-300">
-                  Route: {distanceNm.toFixed(1)} nm
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 text-[13px]">
-              <div className="rounded-lg border p-3 leading-tight dark:border-white/10">
-                <div className="text-zinc-500 dark:text-zinc-400">
-                  Navigational status
-                </div>
-                <div className="mt-1 font-medium">{vessel.status}</div>
-              </div>
-              <div className="rounded-lg border p-3 leading-tight dark:border-white/10">
-                <div className="text-zinc-500 dark:text-zinc-400">
-                  Speed/Course
-                </div>
-                <div className="mt-1 font-medium">
-                  {vessel.speed.toFixed(1)} kn / {Math.round(vessel.course)}°
-                </div>
-              </div>
-              <div className="rounded-lg border p-3 leading-tight dark:border-white/10">
-                <div className="text-zinc-500 dark:text-zinc-400">
-                  Load condition
-                </div>
-                <div className="mt-1 font-medium">{vessel.loadCondition}</div>
-              </div>
-            </div>
-
-            <div className="my-4 text-[12px] text-zinc-500 dark:text-zinc-400">
-              Received: {vessel.receivedAgo}
-            </div>
-
-            {computedMode === "sheet" && (
+            {/* Progress Bar */}
+            <div className="relative h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
               <div
-                className="h-3"
-                style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+                className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                style={{
+                  width: `${Math.max(0, Math.min(100, voyageProgressPct))}%`,
+                }}
               />
-            )}
+            </div>
+            <div className="flex justify-between mt-1.5 text-[11px] font-medium text-zinc-500">
+              <span>{vessel.atd ? "Departed" : "—"}</span>
+              <span>{voyageProgressLabel || "En Route"}</span>
+            </div>
           </div>
+
+          {/* Stats Grid (Bento style) */}
+          <div className="grid grid-cols-2 gap-3">
+            <StatBox
+              icon={<IconNavigation size={16} />}
+              label="Speed / Course"
+              value={`${vessel.speed.toFixed(1)} kn / ${Math.round(
+                vessel.course
+              )}°`}
+            />
+            <StatBox
+              icon={<IconAnchor size={16} />}
+              label="Status"
+              value={vessel.status}
+            />
+            <StatBox
+              icon={<IconShip size={16} />}
+              label="Draft"
+              value={vessel.loadCondition}
+            />
+            <StatBox
+              icon={<IconClock size={16} />}
+              label="Updated"
+              value={vessel.receivedAgo}
+            />
+          </div>
+
+          {/* Action Buttons (Pills) */}
+          <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <ActionButton
+                active={inFleet}
+                onClick={() => onToggleFleet(vessel.id)}
+                icon={inFleet ? "✓" : "+"}
+                label={inFleet ? "In Fleet" : "Add to Fleet"}
+                variant="secondary"
+              />
+              <ActionButton
+                active={false}
+                onClick={() => onDetails(vessel.id)}
+                icon={<IconArrowRight size={16} />}
+                label="Details"
+                variant="primary"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <ActionButton
+                active={pastTrackActive}
+                onClick={() => onPastTrackToggle(vessel.id)}
+                label="Past Track"
+                variant="outline"
+              />
+              <ActionButton
+                active={routeActive}
+                onClick={() => onRouteToggle(vessel.id)}
+                label={routeActive ? "Route: ON" : "Route Tool"}
+                variant="outline"
+              />
+            </div>
+          </div>
+
+          {/* Distance Calc Result */}
+          {typeof distanceNm === "number" && (
+            <div className="flex items-center justify-center gap-2 p-2 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+              <IconRuler size={18} />
+              <span>Measured Distance: {distanceNm.toFixed(1)} nm</span>
+            </div>
+          )}
+
+          {/* Spacer for mobile safe area */}
+          {computedMode === "sheet" && <div className="h-6" />}
         </div>
       </div>
 
+      {/* Floating Arrow (Desktop only) */}
       {computedMode === "floating" && anchorPx && (
         <div
-          className="pointer-events-none absolute"
+          className={`
+            pointer-events-none absolute w-4 h-4 bg-white dark:bg-zinc-900 border-l border-t border-zinc-200 dark:border-white/10 rotate-45 z-[1001]
+            ${
+              isClosing
+                ? "opacity-0"
+                : "opacity-100 transition-opacity duration-300"
+            }
+          `}
           style={{
             left:
               side === "right"
-                ? anchorPx.x + 2
+                ? anchorPx.x + 1
                 : side === "left"
-                ? anchorPx.x - 2
+                ? anchorPx.x - 1
                 : anchorPx.x,
             top: anchorPx.y,
             transform:
               side === "right"
-                ? "translateX(-100%)"
+                ? "translateX(-50%) translateY(-50%) rotate(45deg)"
                 : side === "left"
-                ? "translateX(0)"
-                : "translate(-50%, -100%)",
+                ? "translateX(-50%) translateY(-50%) rotate(-135deg)"
+                : "translate(-50%, -50%) rotate(45deg)", // Simplified positioning for the arrow logic
+            // Note: Exact arrow positioning depends on 'positioning.ts' logic which puts the panel offset.
+            // Usually simpler to just hide the arrow if it complicates the transition.
+            display: "none", // Hiding arrow for cleaner modern look
           }}
-        >
-          <div className="h-3 w-3 rotate-45 border bg-white dark:bg-zinc-900 dark:border-white/10" />
-        </div>
+        />
       )}
     </div>
+  );
+}
+
+// --- Subcomponents for cleaner code ---
+
+function StatBox({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex flex-col p-2.5 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
+      <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-medium mb-1">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <div
+        className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate"
+        title={value}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function ActionButton({
+  label,
+  icon,
+  onClick,
+  active,
+  variant = "outline",
+}: {
+  label: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  active?: boolean;
+  variant?: "primary" | "secondary" | "outline";
+}) {
+  const base =
+    "flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95";
+
+  const variants = {
+    primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
+    secondary: active
+      ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
+      : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20",
+    outline: active
+      ? "bg-zinc-900 text-white dark:bg-white dark:text-black border border-transparent"
+      : "border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5",
+  };
+
+  return (
+    <button onClick={onClick} className={`${base} ${variants[variant]}`}>
+      {icon && <span>{icon}</span>}
+      <span>{label}</span>
+    </button>
   );
 }

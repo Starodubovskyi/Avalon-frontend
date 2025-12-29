@@ -2,16 +2,21 @@
 
 import React from "react";
 import {
-  FaInbox,
-  FaStar,
-  FaRegPaperPlane,
-  FaPen,
-  FaTrashAlt,
-  FaExclamationTriangle,
-  FaPlus,
-  FaTimes,
-} from "react-icons/fa";
+  Inbox,
+  Star,
+  Send,
+  FileEdit,
+  Trash2,
+  AlertOctagon,
+  Plus,
+  X,
+} from "lucide-react";
 import type { AppUser } from "@/lib/useUserFromQueryAndStorage";
+import clsx from "clsx";
+
+// Общий градиент (как в чате)
+const GRADIENT_CLASS =
+  "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 
 type FolderType = "inbox" | "starred" | "sent" | "drafts" | "deleted" | "spam";
 
@@ -24,12 +29,12 @@ type SidebarProps = {
 };
 
 const sidebarNavItems = [
-  { name: "Inbox", icon: <FaInbox />, type: "inbox" },
-  { name: "Starred", icon: <FaStar />, type: "starred" },
-  { name: "Sent", icon: <FaRegPaperPlane />, type: "sent" },
-  { name: "Drafts", icon: <FaPen />, type: "drafts" },
-  { name: "Deleted", icon: <FaTrashAlt />, type: "deleted" },
-  { name: "Spam", icon: <FaExclamationTriangle />, type: "spam" },
+  { name: "Inbox", icon: <Inbox size={20} />, type: "inbox" },
+  { name: "Starred", icon: <Star size={20} />, type: "starred" },
+  { name: "Sent", icon: <Send size={20} />, type: "sent" },
+  { name: "Drafts", icon: <FileEdit size={20} />, type: "drafts" },
+  { name: "Deleted", icon: <Trash2 size={20} />, type: "deleted" },
+  { name: "Spam", icon: <AlertOctagon size={20} />, type: "spam" },
 ];
 
 const labels = [
@@ -44,7 +49,7 @@ const Panel: React.FC<SidebarProps & { user: AppUser }> = ({
   onFolderSelect,
   onClose,
 }) => {
-  const avatar = user.avatar || user.photo || "https://via.placeholder.com/48";
+  const avatar = user.avatar || user.photo || "";
   const displayEmail =
     user.email ||
     (user.handle?.startsWith("@")
@@ -56,122 +61,131 @@ const Panel: React.FC<SidebarProps & { user: AppUser }> = ({
   return (
     <aside
       role="navigation"
-      className="
-        w-72 h-full flex flex-col p-6
-        bg-white dark:bg-white/5
-        border-r border-gray-200 dark:border-white/10
-        shadow-[0_16px_40px_rgba(2,6,23,0.08)]
-        dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
-      "
+      className="w-80 h-full flex flex-col p-6 bg-white dark:bg-[#0d1117] border-r border-gray-100 dark:border-white/5"
     >
-      <div className="flex items-center mb-6">
-        <img
-          src={avatar}
-          alt="User Avatar"
-          className="w-12 h-12 rounded-full mr-3 object-cover"
-        />
-        <div>
-          <div className="font-semibold text-gray-800 dark:text-gray-100">
+      {/* User Info Header */}
+      <div className="flex items-center gap-4 mb-8">
+        <div className="relative shrink-0">
+          {avatar ? (
+            <img
+              src={avatar}
+              alt="User Avatar"
+              className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 dark:ring-white/10"
+            />
+          ) : (
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ${GRADIENT_CLASS}`}
+            >
+              {displayName[0]}
+            </div>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="font-bold text-gray-900 dark:text-white truncate">
             {displayName}
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
             {displayEmail}
           </div>
         </div>
         <button
           onClick={onClose}
-          className="ml-auto p-2 rounded-md hover:bg-gray-100 dark:hover:bg-white/10 sm:hidden"
-          aria-label="Close sidebar"
+          className="ml-auto p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 sm:hidden text-gray-500 transition-colors"
           type="button"
         >
-          <FaTimes />
+          <X size={20} />
         </button>
       </div>
 
+      {/* Compose Button */}
       <button
         type="button"
-        className="flex items-center justify-center bg-orange-500 text-white p-3 rounded-lg w-full mb-6 font-semibold shadow-md hover:bg-orange-600 transition-colors"
+        className={`flex items-center justify-center gap-3 text-white p-3.5 rounded-2xl w-full mb-8 font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all active:scale-95 ${GRADIENT_CLASS}`}
       >
-        <FaPlus className="mr-2" />
-        Compose
+        <Plus size={20} />
+        <span>Compose</span>
       </button>
 
-      <nav className="space-y-1">
+      {/* Navigation */}
+      <nav className="space-y-1 flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-white/10">
         {sidebarNavItems.map((item, index) => {
           const active = activeFolder === (item.type as FolderType);
           return (
-            <div
+            <button
               key={index}
-              className={`flex justify-between items-center p-3 rounded-lg cursor-pointer transition
-                ${
-                  active
-                    ? "bg-gray-200 text-blue-600 dark:bg-white/10 dark:text-blue-400 font-semibold"
-                    : "hover:bg-gray-100 dark:hover:bg-white/10"
-                }`}
               onClick={() => {
                 onFolderSelect(item.type as FolderType);
                 onClose?.();
               }}
+              className={clsx(
+                "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-medium text-sm",
+                active
+                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
+              )}
             >
-              <div className="flex items-center">
+              <span
+                className={clsx(
+                  active ? "text-blue-500" : "text-gray-400 dark:text-gray-500"
+                )}
+              >
                 {item.icon}
-                <span className="ml-3">{item.name}</span>
-              </div>
-            </div>
+              </span>
+              <span>{item.name}</span>
+              {/* Optional: Add unread count badges here if available */}
+            </button>
           );
         })}
-      </nav>
 
-      <div className="mt-8">
-        <h3 className="text-gray-700 dark:text-gray-300 font-medium mb-2">
-          Labels
-        </h3>
-        <div className="space-y-2">
-          {labels.map((label, index) => (
-            <div
-              key={index}
-              className="flex items-center space-x-2 text-gray-600 dark:text-gray-400"
-            >
-              <span className={`w-2.5 h-2.5 rounded-full ${label.color}`} />
-              <span>{label.name}</span>
-            </div>
-          ))}
+        <div className="pt-6 mt-6 border-t border-gray-100 dark:border-white/5">
+          <h3 className="px-3 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
+            Labels
+          </h3>
+          <div className="space-y-1">
+            {labels.map((label, index) => (
+              <button
+                key={index}
+                className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400 text-sm transition-colors"
+              >
+                <span
+                  className={`w-3 h-3 rounded-full ${label.color} shadow-sm`}
+                />
+                <span>{label.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </nav>
     </aside>
   );
 };
 
 const EmailSidebar: React.FC<SidebarProps> = (props) => {
-  const user = props.currentUser;
-
   return (
     <>
       <div className="hidden sm:block h-full">
-        <Panel {...props} user={user} />
+        <Panel {...props} user={props.currentUser} />
       </div>
 
       <div
-        className={`sm:hidden fixed inset-0 z-40 ${
-          props.isOpen ? "pointer-events-auto" : "pointer-events-none"
-        }`}
-        aria-hidden={!props.isOpen}
+        className={clsx(
+          "sm:hidden fixed inset-0 z-50 transition-opacity duration-300",
+          props.isOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
+        )}
       >
         <div
           onClick={props.onClose}
-          className={`absolute inset-0 bg-black/40 transition-opacity ${
-            props.isOpen ? "opacity-100" : "opacity-0"
-          }`}
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         />
         <div
-          className={`
-            absolute left-0 top-0 h-full w-80 max-w-[85%]
-            transform transition-transform ${
-              props.isOpen ? "translate-x-0" : "-translate-x-full"
-            }
-          `}
+          className={clsx(
+            "absolute left-0 top-0 h-full w-80 max-w-[85%] bg-white dark:bg-[#0d1117] transition-transform duration-300 ease-out shadow-2xl",
+            props.isOpen ? "translate-x-0" : "-translate-x-full"
+          )}
         >
-          <Panel {...props} user={user} />
+          <Panel {...props} user={props.currentUser} />
         </div>
       </div>
     </>

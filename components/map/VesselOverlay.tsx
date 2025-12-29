@@ -13,6 +13,11 @@ export default function VesselOverlay({
   detailsHref?: (id: string) => string;
 }) {
   const [active, setActive] = useState<VesselInfo | null>(null);
+  // Состояние для анимации закрытия
+  const [isClosing, setIsClosing] = useState(false);
+  // Храним данные судна даже во время анимации закрытия
+  const [renderData, setRenderData] = useState<VesselInfo | null>(null);
+
   const [panelPos, setPanelPos] = useState<{
     left: number;
     top: number;
@@ -47,6 +52,7 @@ export default function VesselOverlay({
       return new Set();
     }
   });
+
   const saveFleet = useCallback((next: Set<string>) => {
     setFleetIds(new Set(next));
     localStorage.setItem("fleetIds", JSON.stringify(Array.from(next)));
@@ -92,6 +98,7 @@ export default function VesselOverlay({
     [adapter, isMobile]
   );
 
+  // Обработка выбора маркера
   useEffect(() => {
     const offMove = adapter.onMove?.(() => {
       if (!active) return;
@@ -100,7 +107,9 @@ export default function VesselOverlay({
     });
 
     const offSelect = adapter.onMarkerSelect?.((v: VesselInfo) => {
+      setIsClosing(false);
       setActive(v);
+      setRenderData(v); // Сразу обновляем данные для рендера
       adapter.highlightMarker?.(v.id, true);
       recalcPosition(v);
     });
@@ -110,22 +119,21 @@ export default function VesselOverlay({
     window.addEventListener("orientationchange", onResize);
 
     return () => {
-      if (typeof offMove === "function") {
+      if (typeof offMove === "function")
         try {
           offMove();
         } catch {}
-      }
-      if (typeof offSelect === "function") {
+      if (typeof offSelect === "function")
         try {
           offSelect();
         } catch {}
-      }
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
       if (moveTimer.current) clearTimeout(moveTimer.current);
     };
   }, [adapter, active, recalcPosition]);
 
+  // Таймер обновления данных (ETA и т.д.)
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (!active) return;
@@ -134,9 +142,9 @@ export default function VesselOverlay({
   }, [active]);
 
   const { progressPct, progressLabel } = useMemo(() => {
-    if (!active) return { progressPct: 0, progressLabel: "" };
-    const startMs = Date.parse(active.atd);
-    const endMs = Date.parse(active.reportedEta);
+    if (!renderData) return { progressPct: 0, progressLabel: "" };
+    const startMs = Date.parse(renderData.atd);
+    const endMs = Date.parse(renderData.reportedEta);
     if (!isFinite(startMs) || !isFinite(endMs) || endMs <= startMs) {
       return { progressPct: 0, progressLabel: "" };
     }
@@ -152,11 +160,11 @@ export default function VesselOverlay({
       d > 0 ? `${d}d ${h}h left` : h > 0 ? `${h}h ${mm}m left` : `${mm}m left`;
     const label = now >= endMs ? "Arrived" : `${Math.round(pct)}% • ${fmt}`;
     return { progressPct: pct, progressLabel: label };
-  }, [active, tick]);
+  }, [renderData, tick]);
 
   const inFleet = useMemo(
-    () => (active ? fleetIds.has(active.id) : false),
-    [active, fleetIds]
+    () => (renderData ? fleetIds.has(renderData.id) : false),
+    [renderData, fleetIds]
   );
 
   const close = useCallback(() => {
@@ -164,13 +172,22 @@ export default function VesselOverlay({
       adapter.highlightMarker?.(active.id, false);
       if (pastTrackOn) adapter.clearPastTrack?.(active.id);
     }
-    setActive(null);
-    setPastTrackOn(false);
-    if (routeOn) {
-      adapter.disableRouteTool?.();
-      setRouteOn(false);
-      setDistanceNm(null);
-    }
+
+    // Запускаем анимацию закрытия
+    setIsClosing(true);
+
+    // Ждем окончания анимации (300мс соответствует duration-300 в CSS)
+    setTimeout(() => {
+      setActive(null);
+      setRenderData(null);
+      setIsClosing(false);
+      setPastTrackOn(false);
+      if (routeOn) {
+        adapter.disableRouteTool?.();
+        setRouteOn(false);
+        setDistanceNm(null);
+      }
+    }, 300);
   }, [active, adapter, pastTrackOn, routeOn]);
 
   useEffect(() => {
@@ -183,22 +200,38 @@ export default function VesselOverlay({
     }
   }, [active, mode]);
 
-  return active ? (
+  // Рендерим, если есть активное судно ИЛИ идет анимация закрытия
+  const shouldRender = active || (isClosing && renderData);
+
+  return shouldRender && renderData ? (
     <>
+      {/* Backdrop (только для мобильной версии или если нужно блокировать карту) */}
+      {mode === "sheet" && (
+        <div
+          className={`
+            fixed inset-0 z-[900] bg-black/40 backdrop-blur-[2px] transition-opacity duration-300
+            ${isClosing ? "opacity-0" : "opacity-100"}
+          `}
+          onClick={close}
+        />
+      )}
+
       {mode === "floating" && (
         <div className="absolute inset-0 z-[900]" onClick={close} />
       )}
+
       <div className="absolute inset-0 z-[950] pointer-events-none">
         <VesselInfoPanel
-          vessel={active}
+          vessel={renderData}
           side={panelSide}
-          anchorPx={adapter.project(active.lat, active.lon)}
+          anchorPx={adapter.project(renderData.lat, renderData.lon)}
           style={
             mode === "floating"
               ? { left: panelPos?.left, top: panelPos?.top }
               : undefined
           }
           mode={mode}
+          isClosing={isClosing} // Передаем состояние закрытия
           inFleet={inFleet}
           pastTrackActive={pastTrackOn}
           routeActive={routeOn}

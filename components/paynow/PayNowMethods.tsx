@@ -1,95 +1,74 @@
 "use client";
 
-import type { SavedCard } from "@/components/types/billing/cards";
-import PayOtherMethods from "./PayOtherMethods";
+import { FaPaypal, FaApple } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { motion } from "framer-motion";
+import clsx from "clsx";
 
-export default function PayNowMethods({
-  mode,
-  setMode,
-  saved,
-  selectedCardId,
-  onSelect,
-  onChooseOther,
+type Provider = "paypal" | "googlepay" | "applepay";
+
+export default function PayOtherMethods({
+  onChoose,
 }: {
-  mode: "saved" | "new" | "other";
-  setMode: (m: "saved" | "new" | "other") => void;
-  saved: SavedCard[];
-  selectedCardId: string | null;
-  onSelect: (id: string) => void;
-  onChooseOther: (p: "paypal" | "googlepay" | "applepay") => void;
+  onChoose: (p: Provider) => void;
 }) {
+  const items: {
+    id: Provider;
+    label: string;
+    Icon: JSX.Element;
+    bg?: string;
+  }[] = [
+    {
+      id: "paypal",
+      label: "PayPal",
+      Icon: <FaPaypal className="text-xl text-[#003087]" />,
+    },
+    {
+      id: "googlepay",
+      label: "Google Pay",
+      Icon: <FcGoogle className="text-xl" />,
+    },
+    {
+      id: "applepay",
+      label: "Apple Pay",
+      Icon: <FaApple className="text-xl text-black dark:text-white" />,
+    },
+  ];
+
   return (
-    <>
-      {/* Tabs */}
-      <div className="inline-flex rounded-xl border border-gray-200 p-1 dark:border-white/10">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-4"
+    >
+      {items.map(({ id, label, Icon }) => (
         <button
-          onClick={() => setMode("saved")}
-          className={`px-3 py-1.5 text-sm rounded-lg ${
-            mode === "saved"
-              ? "bg-white shadow dark:bg-white/10"
-              : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          Use saved card
-        </button>
-        <button
-          onClick={() => setMode("new")}
-          className={`px-3 py-1.5 text-sm rounded-lg ${
-            mode === "new"
-              ? "bg-white shadow dark:bg-white/10"
-              : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          Add new card
-        </button>
-        <button
-          onClick={() => setMode("other")}
-          className={`px-3 py-1.5 text-sm rounded-lg ${
-            mode === "other"
-              ? "bg-white shadow dark:bg-white/10"
-              : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          Other methods
-        </button>
-      </div>
-
-      {/* Body */}
-      {mode === "saved" && (
-        <div className="mt-4 space-y-3">
-          {saved.length === 0 ? (
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              No saved cards. Use “Add new card”.
-            </div>
-          ) : (
-            saved.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => onSelect(c.id)}
-                className={`w-full rounded-xl border px-4 py-3 text-left text-sm shadow-sm dark:bg-white/5 dark:border-white/10 ${
-                  selectedCardId === c.id
-                    ? "border-gray-900 dark:border-white"
-                    : "border-gray-200 hover:bg-gray-50 dark:hover:bg-white/10"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium uppercase">{c.brand}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {c.mask} • {String(c.expMonth).padStart(2, "0")}/{String(c.expYear).slice(-2)}
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{c.name}</div>
-                </div>
-              </button>
-            ))
+          key={id}
+          onClick={() => onChoose(id)}
+          className={clsx(
+            "group w-full flex items-center justify-between rounded-[1.5rem] border px-6 py-4 transition-all duration-200",
+            "border-gray-200 dark:border-white/10 bg-white dark:bg-white/5",
+            "hover:border-blue-300 dark:hover:border-blue-500/30 hover:shadow-md hover:-translate-y-0.5"
           )}
-        </div>
-      )}
+        >
+          <span className="flex items-center gap-4">
+            <span className="grid h-10 w-10 place-content-center rounded-full bg-gray-50 dark:bg-white/10 group-hover:scale-110 transition-transform">
+              {Icon}
+            </span>
+            <span className="font-bold text-gray-900 dark:text-white">
+              {label}
+            </span>
+          </span>
+          <span className="text-xs font-bold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-wide">
+            Redirect
+          </span>
+        </button>
+      ))}
 
-      {mode === "other" && (
-        <PayOtherMethods onChoose={onChooseOther} />
-      )}
-    </>
+      <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
+        You will be redirected to the provider to complete your payment
+        securely.
+      </p>
+    </motion.div>
   );
 }

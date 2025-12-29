@@ -3,665 +3,485 @@
 import { useEffect, useState } from "react";
 import type { LeafletAdapter } from "@/components/map/adapters/LeafletAdapter";
 
-type Panel = null | "basemap" | "layers" | "route";
+/* --- TYPES --- */
+interface ExtendedAdapter extends LeafletAdapter {
+  flyTo?: (lat: number, lng: number, zoom?: number) => void;
+  getMap?: () => any;
+}
+
+type MenuView = "main" | "layers" | "basemap";
 
 export default function RightDock({
   adapter,
   rightOffsetPx = 0,
 }: {
-  adapter: LeafletAdapter;
+  adapter: ExtendedAdapter;
   rightOffsetPx?: number;
 }) {
-  const [open, setOpen] = useState<Panel>(null);
-  const [visible, setVisible] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-  const [routeOn, setRouteOn] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [fabOpen, setFabOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [view, setView] = useState<MenuView>("main");
+  const [isLocating, setIsLocating] = useState(false);
+  const [vesselCount, setVesselCount] = useState(0);
 
+  // Сброс меню в начало при закрытии
   useEffect(() => {
-    const updateSize = () => setIsMobile(window.innerWidth < 768);
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
+    if (!isOpen) {
+      const t = setTimeout(() => setView("main"), 200); // задержка для анимации
+      return () => clearTimeout(t);
+    }
+  }, [isOpen]);
 
+  // Следим за судами
   useEffect(() => {
     const update = () => {
       try {
-        setVisible(adapter.getVisibleCount());
+        setVesselCount(adapter.getVisibleCount?.() || 0);
       } catch {
-        setVisible(0);
+        setVesselCount(0);
       }
     };
     update();
-    const off = adapter.onMove?.(update);
-    return () => {
-      try {
-        off?.();
-      } catch {}
-    };
+    return adapter.onMove?.(update);
   }, [adapter]);
 
-  useEffect(() => {
-    const id = window.setInterval(() => setSeconds((s) => s + 1), 1000);
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(null);
-        setFabOpen(false);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.clearInterval(id);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, []);
-
-  const toggleFullscreen = async () => {
-    const el = adapter.getContainer();
-    const doc: any = document;
-    if (!document.fullscreenElement) {
-      await (el.requestFullscreen?.() ||
-        (el as any).webkitRequestFullscreen?.());
-    } else {
-      await (doc.exitFullscreen?.() || doc.webkitExitFullscreen?.());
-    }
-  };
-
-  const handleAction = (p: Panel) => {
-    if (p === "route") {
-      if (!routeOn) {
-        adapter.enableRouteTool?.(() => {});
-        setRouteOn(true);
-      } else {
-        adapter.disableRouteTool?.();
-        setRouteOn(false);
-      }
-      setOpen(null);
-      setFabOpen(false);
-      return;
-    }
-    setOpen((prev) => (prev === p ? null : p));
-    if (isMobile) setFabOpen(false);
-  };
-
-  if (!isMobile) {
-    return (
-      <>
-        <div
-          className="
-            pointer-events-auto
-            absolute right-2 top-2 z-[1200]
-            flex flex-col gap-1
-            rounded-xl border border-white/15 bg-zinc-900/70 p-1
-            shadow-xl backdrop-blur
-          "
-          style={{
-            right: `calc(${rightOffsetPx}px + env(safe-area-inset-right))`,
-          }}
-        >
-          <ToolButton
-            title="Basemap"
-            active={open === "basemap"}
-            onClick={() => handleAction("basemap")}
-            icon={Icons.map}
-          />
-          <ToolButton
-            title="Layers"
-            active={open === "layers"}
-            onClick={() => handleAction("layers")}
-            icon={Icons.stack}
-          />
-          <ToolButton
-            title={routeOn ? "Route tool: ON" : "Route tool"}
-            active={routeOn}
-            onClick={() => handleAction("route")}
-            icon={Icons.route}
-          />
-        </div>
-
-        <div
-          className="
-            pointer-events-auto
-            absolute right-2 bottom-2 z-[1200]
-            flex flex-col items-stretch gap-1
-            rounded-xl border border-white/15 bg-zinc-900/70 p-1
-            shadow-xl backdrop-blur
-          "
-          style={{
-            right: `calc(${rightOffsetPx}px + env(safe-area-inset-right))`,
-          }}
-        >
-          <StatBox
-            title="Visible"
-            value={formatK(visible)}
-            icon={Icons.count}
-          />
-          <ClickableStat
-            title="Since update"
-            value={`${seconds}s`}
-            icon={Icons.clock}
-            onClick={() => {
-              adapter.refresh?.();
-              setSeconds(0);
-            }}
-          />
-          <ToolButton
-            title="Fullscreen"
-            onClick={toggleFullscreen}
-            icon={Icons.fullscreen}
-          />
-        </div>
-
-        {open && (
-          <SidePanel
-            title={
-              open === "basemap"
-                ? "Basemap"
-                : open === "layers"
-                ? "Layers"
-                : "Route tool"
-            }
-            onClose={() => setOpen(null)}
-            rightOffsetPx={rightOffsetPx}
-          >
-            {open === "basemap" && (
-              <BasemapPanel
-                onSelect={(s) => {
-                  adapter.setBasemap?.(s);
-                  setOpen(null);
-                }}
-              />
-            )}
-            {open === "layers" && <LayersPanel adapter={adapter} />}
-          </SidePanel>
-        )}
-      </>
+  /* --- ACTIONS --- */
+  const handleLocate = () => {
+    if (!navigator.geolocation) return;
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false);
+        const { latitude, longitude } = pos.coords;
+        if (adapter.flyTo) adapter.flyTo(latitude, longitude, 13);
+        else adapter.getMap?.().flyTo([latitude, longitude], 13);
+        setIsOpen(false);
+      },
+      () => setIsLocating(false)
     );
-  }
-
-  return (
-    <>
-      <div
-        className="
-          absolute z-[1200]
-          rounded-full bg-black/65 text-white text-[11px] font-medium
-          px-3 py-1 shadow-lg
-        "
-        style={{
-          right: `calc(${rightOffsetPx}px + env(safe-area-inset-right) + 12px)`,
-          top: `calc(env(safe-area-inset-top) + 68px)`,
-        }}
-      >
-        {formatK(visible)} visible
-      </div>
-
-      <button
-        onClick={() => setFabOpen((v) => !v)}
-        className="
-          absolute z-[1200]
-          h-12 w-12 rounded-full
-          grid place-items-center
-          shadow-xl border border-white/20
-          bg-zinc-900/80 text-white
-          active:scale-95 transition
-        "
-        style={{
-          right: `calc(${rightOffsetPx}px + env(safe-area-inset-right) + 12px)`,
-          top: `calc(env(safe-area-inset-top) + 12px)`,
-        }}
-        aria-label="Map actions"
-        title="Map actions"
-      >
-        {fabOpen ? Icons.close : Icons.plus}
-      </button>
-
-      {fabOpen && (
-        <div
-          className="absolute z-[1199] flex flex-col gap-2"
-          style={{
-            right: `calc(${rightOffsetPx}px + env(safe-area-inset-right) + 12px)`,
-            top: `calc(env(safe-area-inset-top) + 12px + 56px)`,
-          }}
-        >
-          <MiniAction
-            label={routeOn ? "Route ON" : "Route"}
-            onClick={() => handleAction("route")}
-            icon={Icons.route}
-            active={routeOn}
-          />
-          <MiniAction
-            label="Layers"
-            onClick={() => handleAction("layers")}
-            icon={Icons.stack}
-          />
-          <MiniAction
-            label="Basemap"
-            onClick={() => handleAction("basemap")}
-            icon={Icons.map}
-          />
-          <MiniAction
-            label="Full"
-            onClick={toggleFullscreen}
-            icon={Icons.fullscreen}
-          />
-        </div>
-      )}
-
-      <BottomSheet
-        open={open === "basemap" || open === "layers"}
-        onClose={() => setOpen(null)}
-      >
-        <div className="px-4 py-3">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              {open === "basemap" ? "Basemap" : "Layers"}
-            </div>
-            <button
-              onClick={() => setOpen(null)}
-              className="rounded-md p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-white/10"
-              aria-label="Close"
-              title="Close"
-            >
-              {Icons.close}
-            </button>
-          </div>
-          {open === "basemap" && (
-            <BasemapPanel
-              onSelect={(s) => {
-                adapter.setBasemap?.(s);
-                setOpen(null);
-              }}
-            />
-          )}
-          {open === "layers" && <LayersPanel adapter={adapter} />}
-        </div>
-      </BottomSheet>
-    </>
-  );
-}
-
-function SidePanel({
-  title,
-  onClose,
-  children,
-  rightOffsetPx,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  rightOffsetPx?: number;
-}) {
-  return (
-    <div
-      className="
-        absolute top-2 right-[64px] z-[1200]
-        w-[min(340px,92vw)] max-h-[calc(100%-16px)]
-        overflow-y-auto rounded-xl border
-        bg-white p-0 shadow-2xl
-        dark:border-white/10 dark:bg-zinc-900
-      "
-      role="dialog"
-      aria-modal="true"
-      style={{
-        right: `calc(${
-          (rightOffsetPx || 0) + 64
-        }px + env(safe-area-inset-right))`,
-      }}
-    >
-      <div className="flex items-center justify-between border-b px-3 py-2 dark:border-white/10">
-        <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-          {title}
-        </div>
-        <button
-          onClick={onClose}
-          className="rounded-md p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-white/10"
-          aria-label="Close"
-          title="Close"
-        >
-          {Icons.close}
-        </button>
-      </div>
-      <div className="p-3">{children}</div>
-    </div>
-  );
-}
-
-function BottomSheet({
-  open,
-  onClose,
-  children,
-}: {
-  open: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  if (!open) return null;
-  return (
-    <>
-      <div
-        className="fixed inset-0 z-[1198] bg-black/40"
-        onClick={onClose}
-        aria-hidden
-      />
-      <div
-        className="
-          fixed inset-x-0 bottom-0 z-[1199]
-          rounded-t-2xl border-t border-white/10
-          bg-white dark:bg-zinc-900
-          shadow-2xl
-          max-h-[72vh] overflow-y-auto
-        "
-        style={{
-          paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)",
-        }}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="mx-auto h-5 w-10 rounded-full bg-zinc-300/70 dark:bg-white/15 my-2" />
-        {children}
-      </div>
-    </>
-  );
-}
-
-function BasemapPanel({
-  onSelect,
-}: {
-  onSelect: (s: "osm" | "light" | "dark" | "sat") => void;
-}) {
-  const [cur, setCur] = useState<"osm" | "light" | "dark" | "sat">(
-    ((typeof window !== "undefined" &&
-      localStorage.getItem("basemap_v1")) as any) || "dark"
-  );
-
-  const choose = (s: "osm" | "light" | "dark" | "sat") => {
-    setCur(s);
-    if (typeof window !== "undefined") localStorage.setItem("basemap_v1", s);
-    onSelect(s);
   };
 
-  const Item = ({
-    id,
-    label,
-  }: {
-    id: "osm" | "light" | "dark" | "sat";
-    label: string;
-  }) => (
-    <label className="flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 text-sm hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/10">
-      <span>{label}</span>
-      <input
-        type="radio"
-        className="accent-blue-600"
-        checked={cur === id}
-        onChange={() => choose(id)}
-      />
-    </label>
-  );
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement)
+      document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+    setIsOpen(false);
+  };
 
+  /* --- RENDER --- */
   return (
-    <div className="grid gap-2">
-      <Item id="light" label="Carto Light" />
-      <Item id="dark" label="Carto Dark" />
-      <Item id="osm" label="OpenStreetMap" />
-      <Item id="sat" label="Satellite (Esri)" />
-    </div>
-  );
-}
+    <>
+      {/* ГЛАВНАЯ КНОПКА (TRIGGER) 
+        Позиция: Правый верхний угол
+      */}
+      <div
+        className="fixed z-[1000] flex flex-col items-end gap-4"
+        style={{
+          top: `calc(env(safe-area-inset-top) + 16px)`,
+          right: `calc(${rightOffsetPx}px + env(safe-area-inset-right) + 16px)`,
+        }}
+      >
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`
+            relative flex items-center justify-center w-14 h-14 rounded-full shadow-2xl
+            transition-all duration-300 ease-in-out
+            ${
+              isOpen
+                ? "bg-zinc-900 text-white rotate-90 dark:bg-white dark:text-black"
+                : "bg-white text-zinc-900 dark:bg-black dark:text-white hover:scale-105"
+            }
+          `}
+          aria-label="Menu"
+        >
+          {isOpen ? <Icons.Close /> : <Icons.Plus />}
 
-function LayersPanel({ adapter }: { adapter: LeafletAdapter }) {
-  const [ports, setPorts] = useState<boolean>(
-    () => localStorage.getItem("ly_ports") === "1"
-  );
-  const [anch, setAnch] = useState<boolean>(
-    () => localStorage.getItem("ly_anchorages") === "1"
-  );
-  const [routes, setRoutes] = useState<boolean>(
-    () => localStorage.getItem("ly_routes") === "1"
-  );
+          {/* Бейдж с кол-вом судов (виден только когда меню закрыто) */}
+          {!isOpen && vesselCount > 0 && (
+            <span
+              className="
+              absolute -top-1 -left-1 flex h-5 min-w-[20px] items-center justify-center rounded-full 
+              bg-blue-600 px-1 text-[10px] font-bold text-white shadow-sm
+            "
+            >
+              {formatCount(vesselCount)}
+            </span>
+          )}
+        </button>
 
-  useEffect(() => {
-    adapter.toggleLayer?.("ports", ports);
-    localStorage.setItem("ly_ports", ports ? "1" : "0");
-  }, [ports, adapter]);
+        {/* ВЫПАДАЮЩЕЕ МЕНЮ 
+          Появляется под кнопкой
+        */}
+        <div
+          className={`
+            origin-top-right transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+            w-64 overflow-hidden rounded-2xl shadow-2xl border
+            bg-white/95 backdrop-blur-md dark:bg-zinc-950/95
+            border-zinc-100 dark:border-zinc-800
+            ${
+              isOpen
+                ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+                : "opacity-0 scale-90 -translate-y-4 pointer-events-none h-0"
+            }
+          `}
+        >
+          <div className="p-2">
+            {/* VIEW: MAIN (Главное меню) */}
+            {view === "main" && (
+              <div className="flex flex-col gap-1 animate-in slide-in-from-left-4 fade-in duration-200">
+                <MenuItem
+                  label="Map Style"
+                  icon={<Icons.Map />}
+                  onClick={() => setView("basemap")}
+                  chevron
+                />
+                <MenuItem
+                  label="Data Layers"
+                  icon={<Icons.Layers />}
+                  onClick={() => setView("layers")}
+                  chevron
+                />
+                <div className="my-1 h-[1px] bg-zinc-100 dark:bg-zinc-800" />
+                <MenuItem
+                  label="Find Me"
+                  icon={<Icons.Locate loading={isLocating} />}
+                  onClick={handleLocate}
+                />
+                <MenuItem
+                  label="Fullscreen"
+                  icon={<Icons.Maximize />}
+                  onClick={toggleFullscreen}
+                />
+              </div>
+            )}
 
-  useEffect(() => {
-    adapter.toggleLayer?.("anchorages", anch);
-    localStorage.setItem("ly_anchorages", anch ? "1" : "0");
-  }, [anch, adapter]);
+            {/* VIEW: BASEMAP (Выбор карты) */}
+            {view === "basemap" && (
+              <div className="flex flex-col gap-1 animate-in slide-in-from-right-4 fade-in duration-200">
+                <MenuHeader title="Map Style" onBack={() => setView("main")} />
+                <BasemapList adapter={adapter} />
+              </div>
+            )}
 
-  useEffect(() => {
-    adapter.toggleLayer?.("routes", routes);
-    localStorage.setItem("ly_routes", routes ? "1" : "0");
-  }, [routes, adapter]);
+            {/* VIEW: LAYERS (Слои) */}
+            {view === "layers" && (
+              <div className="flex flex-col gap-1 animate-in slide-in-from-right-4 fade-in duration-200">
+                <MenuHeader title="Layers" onBack={() => setView("main")} />
+                <LayersList adapter={adapter} />
+              </div>
+            )}
+          </div>
 
-  const Row = ({
-    label,
-    checked,
-    onChange,
-  }: {
-    label: string;
-    checked: boolean;
-    onChange: (v: boolean) => void;
-  }) => (
-    <label className="flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 text-sm hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/10">
-      <span>{label}</span>
-      <input
-        type="checkbox"
-        className="accent-blue-600"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-    </label>
-  );
-
-  return (
-    <div className="grid gap-2">
-      <Row label="Ports" checked={ports} onChange={setPorts} />
-      <Row label="Anchorages" checked={anch} onChange={setAnch} />
-      <Row label="Main routes" checked={routes} onChange={setRoutes} />
-      <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-        Tip: toggle layers as needed. They are persisted.
+          {/* Футер статистики */}
+          <div className="bg-zinc-50 px-4 py-3 text-center dark:bg-zinc-900/50">
+            <div className="text-xs font-medium text-zinc-400 uppercase tracking-widest">
+              Ships in view
+            </div>
+            <div className="text-lg font-bold text-zinc-800 dark:text-zinc-200">
+              {formatCount(vesselCount)}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Затемнение фона при открытом меню (опционально, для фокуса) */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[990] bg-transparent" // Прозрачный, чтобы просто ловить клик
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
-function ToolButton({
-  title,
-  onClick,
-  icon,
-  active,
-}: {
-  title?: string;
-  onClick?: () => void;
-  icon: React.ReactNode;
-  active?: boolean;
-}) {
-  return (
-    <button
-      title={title}
-      aria-pressed={!!active}
-      onClick={onClick}
-      className={`grid h-10 w-10 place-items-center rounded-md border transition
-      ${
-        active
-          ? "bg-blue-600 text-white border-blue-500"
-          : "bg-black/55 text-zinc-200 border-white/20 hover:bg-black/65"
-      }`}
-    >
-      {icon}
-    </button>
-  );
-}
+/* ============ INTERNAL COMPONENTS ============ */
 
-function StatBox({
-  title,
-  value,
-  icon,
-}: {
-  title: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="grid place-items-center gap-1 rounded-md border bg-black/60 px-2 py-1 text-white dark:border-white/10">
-      <div className="text-[10px] opacity-75">{title}</div>
-      <div className="flex items-center gap-1 text-xs font-semibold">
-        <span className="opacity-80">{icon}</span>
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function ClickableStat({
-  title,
-  value,
-  icon,
-  onClick,
-}: {
-  title: string;
-  value: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="grid place-items-center gap-1 rounded-md border bg-black/60 px-2 py-1 text-white hover:bg-black/70 dark:border-white/10"
-      title="Refresh now"
-    >
-      <div className="text-[10px] opacity-75">{title}</div>
-      <div className="flex items-center gap-1 text-xs font-semibold">
-        <span className="opacity-80">{icon}</span>
-        {value}
-      </div>
-    </button>
-  );
-}
-
-function MiniAction({
+function MenuItem({
   label,
   icon,
   onClick,
-  active,
+  chevron,
 }: {
   label: string;
   icon: React.ReactNode;
   onClick: () => void;
-  active?: boolean;
+  chevron?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 rounded-full px-3 py-2 shadow-lg border
-        ${
-          active
-            ? "bg-blue-600 text-white border-blue-500"
-            : "bg-zinc-900/85 text-white border-white/20"
-        }
-      `}
+      className="
+        group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left
+        transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800
+      "
     >
-      <span className="grid h-5 w-5 place-items-center">{icon}</span>
-      <span className="text-xs font-medium">{label}</span>
+      <span className="text-zinc-500 group-hover:text-black dark:text-zinc-400 dark:group-hover:text-white transition-colors">
+        {icon}
+      </span>
+      <span className="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-black dark:group-hover:text-white">
+        {label}
+      </span>
+      {chevron && (
+        <span className="text-zinc-300 dark:text-zinc-600">
+          <Icons.ChevronRight />
+        </span>
+      )}
     </button>
   );
 }
 
-function formatK(n: number) {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-  if (n >= 1_000) return Math.round(n / 1_000) + "K";
-  return String(n);
+function MenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
+  return (
+    <button
+      onClick={onBack}
+      className="mb-1 flex w-full items-center gap-2 rounded-xl px-2 py-2 text-zinc-500 hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-800 dark:hover:text-white"
+    >
+      <Icons.ChevronLeft />
+      <span className="text-xs font-bold uppercase tracking-wider">
+        {title}
+      </span>
+    </button>
+  );
 }
 
+function BasemapList({ adapter }: { adapter: any }) {
+  const [active, setActive] = useState("light");
+  const list = [
+    { id: "light", label: "Standard" },
+    { id: "dark", label: "Dark Mode" },
+    { id: "sat", label: "Satellite" },
+  ];
+
+  const select = (id: string) => {
+    setActive(id);
+    adapter.setBasemap?.(id);
+  };
+
+  return (
+    <>
+      {list.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => select(item.id)}
+          className={`
+            flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors
+            ${
+              active === item.id
+                ? "bg-black text-white dark:bg-white dark:text-black"
+                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            }
+          `}
+        >
+          {item.label}
+          {active === item.id && <Icons.Check />}
+        </button>
+      ))}
+    </>
+  );
+}
+
+function LayersList({ adapter }: { adapter: any }) {
+  // Компонент переключателя
+  const ToggleItem = ({ id, label }: { id: string; label: string }) => {
+    const [enabled, setEnabled] = useState(true);
+    const toggle = () => {
+      setEnabled(!enabled);
+      adapter.toggleLayer?.(id, !enabled);
+    };
+
+    return (
+      <div
+        onClick={toggle}
+        className="flex w-full cursor-pointer items-center justify-between rounded-xl px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+      >
+        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+          {label}
+        </span>
+        <div
+          className={`
+          relative h-5 w-9 rounded-full transition-colors duration-200
+          ${enabled ? "bg-green-500" : "bg-zinc-200 dark:bg-zinc-700"}
+        `}
+        >
+          <div
+            className={`
+            absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200
+            ${enabled ? "translate-x-4" : "translate-x-0"}
+          `}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <ToggleItem id="ports" label="Major Ports" />
+      <ToggleItem id="anch" label="Anchorages" />
+      <ToggleItem id="routes" label="Shipping Lanes" />
+    </>
+  );
+}
+
+function formatCount(n: number) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+  if (n >= 1000) return (n / 1000).toFixed(1) + "k";
+  return n.toString();
+}
+
+/* ============ ICONS ============ */
 const Icons = {
-  map: (
+  Plus: () => (
     <svg
-      width="16"
-      height="16"
+      width="24"
+      height="24"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path d="M9 3l6 2 6-2v18l-6 2-6-2-6 2V5l6-2z" strokeWidth="1.6" />
-      <path d="M9 3v18M15 5v18" strokeWidth="1.2" />
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
     </svg>
   ),
-  stack: (
+  Close: () => (
     <svg
-      width="16"
-      height="16"
+      width="24"
+      height="24"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path d="M12 3l9 4.5-9 4.5L3 7.5 12 3z" strokeWidth="1.6" />
-      <path d="M21 12l-9 4.5L3 12" strokeWidth="1.2" />
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
     </svg>
   ),
-  route: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-    >
-      <path d="M4 18c0-3 2-5 5-5h6a5 5 0 000-10" strokeWidth="1.6" />
-      <circle cx="15" cy="3" r="2" fill="currentColor" />
-      <circle cx="4" cy="18" r="2" fill="currentColor" />
-    </svg>
-  ),
-  count: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 3l9 4.5-9 4.5L3 7.5z" />
-    </svg>
-  ),
-  clock: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v6l4 2" />
-    </svg>
-  ),
-  fullscreen: (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-    >
-      <path d="M8 3H3v5M21 8V3h-5M3 16v5h5M21 16v5h-5" />
-    </svg>
-  ),
-  plus: (
+  Map: () => (
     <svg
       width="18"
       height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path d="M12 5v14M5 12h14" strokeWidth="1.8" />
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+      <line x1="8" y1="2" x2="8" y2="18"></line>
+      <line x1="16" y1="6" x2="16" y2="22"></line>
     </svg>
   ),
-  close: (
+  Layers: () => (
     <svg
       width="18"
       height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path d="M6 6l12 12M18 6L6 18" strokeWidth="1.8" strokeLinecap="round" />
+      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+      <polyline points="2 17 12 22 22 17"></polyline>
+      <polyline points="2 12 12 17 22 12"></polyline>
+    </svg>
+  ),
+  Locate: ({ loading }: { loading?: boolean }) =>
+    loading ? (
+      <svg
+        className="animate-spin"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+      </svg>
+    ) : (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+    ),
+  Maximize: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+    </svg>
+  ),
+  ChevronRight: () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  ),
+  ChevronLeft: () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  ),
+  Check: () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="20 6 9 17 4 12"></polyline>
     </svg>
   ),
 };

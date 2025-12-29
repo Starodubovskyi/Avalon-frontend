@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import clsx from "clsx";
+import { Check, Loader2, X } from "lucide-react";
 
+// --- ЛОГИКА ---
 type ProviderKey = "google" | "github" | "facebook";
-
 type Integration = {
   key: ProviderKey;
   name: string;
   connected: boolean;
   lastSynced?: string | null;
 };
-
 const LS_KEY = "avalon.integrations.v1";
-
 const BRAND: Record<
   ProviderKey,
   {
@@ -60,7 +60,6 @@ const BRAND: Record<
     ),
   },
 };
-
 const DEFAULT_ITEMS: Integration[] = [
   { key: "google", name: "Google", connected: false, lastSynced: null },
   {
@@ -71,10 +70,6 @@ const DEFAULT_ITEMS: Integration[] = [
   },
   { key: "facebook", name: "Facebook", connected: false, lastSynced: null },
 ];
-
-function cls(...s: (string | false | undefined)[]) {
-  return s.filter(Boolean).join(" ");
-}
 
 export default function Integrations() {
   const [items, setItems] = useState<Integration[]>(DEFAULT_ITEMS);
@@ -90,27 +85,22 @@ export default function Integrations() {
       if (raw) setItems(JSON.parse(raw) as Integration[]);
     } catch {}
   }, []);
-
   useEffect(() => {
     localStorage.setItem(LS_KEY, JSON.stringify(items));
   }, [items]);
-
   const anyLoading = useMemo(
     () => Object.values(loading).some(Boolean),
     [loading]
   );
-
   function setLoadingFor(k: ProviderKey, v: boolean) {
     setLoading((p) => ({ ...p, [k]: v }));
   }
-
   function nowLabel() {
     const d = new Date();
     const hh = String(d.getHours()).padStart(2, "0");
     const mm = String(d.getMinutes()).padStart(2, "0");
     return `Today, ${hh}:${mm}`;
   }
-
   async function connect(key: ProviderKey) {
     setLoadingFor(key, true);
     await new Promise((r) => setTimeout(r, 700));
@@ -122,7 +112,6 @@ export default function Integrations() {
     setLoadingFor(key, false);
     alert(`Access granted for ${key}.`);
   }
-
   async function disconnect(key: ProviderKey) {
     if (!confirm("Disconnect this integration? You can reconnect later."))
       return;
@@ -136,7 +125,6 @@ export default function Integrations() {
     setLoadingFor(key, false);
     alert("Integration disconnected.");
   }
-
   async function syncNow(key: ProviderKey) {
     setLoadingFor(key, true);
     await new Promise((r) => setTimeout(r, 600));
@@ -146,112 +134,99 @@ export default function Integrations() {
     setLoadingFor(key, false);
     alert("Synced.");
   }
-
   function testLogin(key: ProviderKey) {
     const it = items.find((x) => x.key === key);
     if (!it?.connected) return alert("Connect first.");
     alert(`Logged in via ${it.name} ✓`);
   }
 
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        Connect external accounts to enable login and data sync.
-      </p>
+  const CARD_CLASS =
+    "rounded-[2rem] border border-gray-200/50 bg-white/60 dark:bg-white/5 backdrop-blur-md shadow-sm overflow-hidden";
 
-      <div
-        className={cls(
-          "rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden",
-          anyLoading && "opacity-95"
-        )}
-      >
-        {items.map((i, idx) => {
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Integrations
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Connect external accounts to enable login and data sync.
+        </p>
+      </div>
+
+      <div className="grid gap-4">
+        {items.map((i) => {
           const b = BRAND[i.key];
           const isLoading = loading[i.key];
 
           return (
             <div
               key={i.key}
-              className={cls(
-                "flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between",
-                idx !== items.length - 1 &&
-                  "border-b border-gray-200 dark:border-white/10"
+              className={clsx(
+                CARD_CLASS,
+                "flex flex-col sm:flex-row items-center p-6 gap-6 transition-all",
+                isLoading && "opacity-80 scale-[0.99]"
               )}
             >
-              <div className="flex items-center gap-3">
-                {/* ТЕМА-АВАРЕ: фон и цвет меняются по теме, иконки моно с currentColor */}
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-gray-900 ring-1 ring-gray-200 dark:bg-neutral-900 dark:text-white dark:ring-white/10">
-                  <b.Icon className="h-5 w-5" />
+              {/* Icon & Info */}
+              <div className="flex items-center gap-5 w-full sm:w-auto">
+                <div className="flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-white text-gray-900 shadow-md ring-1 ring-gray-100 dark:bg-[#0d1117] dark:text-white dark:ring-white/10 shrink-0">
+                  <b.Icon className="h-8 w-8" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{i.name}</p>
-                    <span
-                      className={cls(
-                        "rounded-full px-2 py-0.5 text-xs",
-                        i.connected
-                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300"
-                          : "bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300"
-                      )}
-                    >
-                      {i.connected ? "Connected" : "Not connected"}
-                    </span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-lg font-bold">{i.name}</h3>
+                    {i.connected ? (
+                      <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wide dark:bg-green-900/30 dark:text-green-300">
+                        <Check size={10} strokeWidth={4} /> Connected
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-bold uppercase tracking-wide dark:bg-white/10">
+                        Disconnected
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-gray-500 dark:text-gray-400">
-                    <span>Scopes: {b.scopes.join(", ")}</span>
-                    {i.lastSynced && <span>• Last synced: {i.lastSynced}</span>}
+                  <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    {i.lastSynced
+                      ? `Synced: ${i.lastSynced}`
+                      : `Scopes: ${b.scopes.join(", ")}`}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                {i.connected ? (
+              {/* Actions */}
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end ml-auto">
+                {isLoading ? (
+                  <Loader2 className="animate-spin text-gray-400" />
+                ) : i.connected ? (
                   <>
                     <button
                       onClick={() => syncNow(i.key)}
-                      disabled={isLoading}
-                      className={cls(
-                        "rounded-xl border px-3 py-2 text-sm",
-                        "border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5",
-                        isLoading && "opacity-60 cursor-wait"
-                      )}
+                      className="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5 text-sm font-bold transition"
                     >
-                      {isLoading ? "Syncing…" : "Sync now"}
+                      Sync
                     </button>
                     <button
                       onClick={() => testLogin(i.key)}
-                      disabled={isLoading}
-                      className={cls(
-                        "rounded-xl border px-3 py-2 text-sm",
-                        "border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5",
-                        isLoading && "opacity-60 cursor-wait"
-                      )}
+                      className="px-4 py-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-sm font-bold transition"
                     >
-                      Test login
+                      Test
                     </button>
                     <button
                       onClick={() => disconnect(i.key)}
-                      disabled={isLoading}
-                      className={cls(
-                        "rounded-xl border px-3 py-2 text-sm",
-                        "border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900/40 dark:text-red-300 dark:hover:bg-red-900/10",
-                        isLoading && "opacity-60 cursor-wait"
-                      )}
+                      className="p-2 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                      title="Disconnect"
                     >
-                      Disconnect
+                      <X size={20} />
                     </button>
                   </>
                 ) : (
                   <button
                     onClick={() => connect(i.key)}
-                    disabled={isLoading}
-                    className={cls(
-                      "rounded-xl px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90",
-                      isLoading && "opacity-60 cursor-wait"
-                    )}
+                    className="px-6 py-2.5 rounded-full text-white text-sm font-bold shadow-lg hover:opacity-90 active:scale-95 transition-transform"
                     style={{ background: b.color }}
                   >
-                    {isLoading ? "Connecting…" : `Connect ${i.name}`}
+                    Connect {i.name}
                   </button>
                 )}
               </div>

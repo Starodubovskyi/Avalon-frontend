@@ -119,7 +119,7 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
   };
 
   return (
-    <Card className="border-none shadow-none bg-transparent">
+    <Card className="border-none shadow-none bg-transparent w-full max-w-xl mx-auto">
       <CardHeader className="text-center pb-3">
         <CardTitle className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
           Complete Registration
@@ -129,14 +129,14 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="overflow-y-auto max-h-[calc(80vh-100px)] pr-3">
-        <div className="flex justify-between items-center text-sm px-1">
-          <span className="text-gray-700 dark:text-gray-200 font-semibold">
+      <CardContent className="overflow-y-auto max-h-[calc(80vh-100px)] pr-1 custom-scrollbar">
+        <div className="flex justify-between items-center text-sm px-1 mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+          <span className="text-gray-700 dark:text-gray-200 font-medium">
             {email}
           </span>
           <button
             onClick={onEditEmail}
-            className="text-xs text-teal-600 hover:underline font-medium"
+            className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-semibold hover:underline"
           >
             Edit
           </button>
@@ -145,47 +145,49 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-2.5"
+            className="flex flex-col gap-3"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                    First Name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your first name"
-                      className="w-full rounded-full border border-gray-300 py-2 px-3 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-red-500 text-xs mt-0.5" />
-                </FormItem>
-              )}
-            />
+            <div className="flex flex-col sm:flex-row gap-3">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                      First Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="First name"
+                        className="w-full rounded-full border border-gray-300 py-2 px-4 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-indigo-500 focus:outline-none transition-colors"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-500 text-xs mt-0.5" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                    Last Name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your last name"
-                      className="w-full rounded-full border border-gray-300 py-2 px-3 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-red-500 text-xs mt-0.5" />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                      Last Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Last name"
+                        className="w-full rounded-full border border-gray-300 py-2 px-4 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-indigo-500 focus:outline-none transition-colors"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-500 text-xs mt-0.5" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -205,6 +207,27 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
                         (opt) => opt.value === field.value
                       )}
                       placeholder="Select your country"
+                      styles={{
+                        control: (base, state) => ({
+                          ...base,
+                          borderRadius: "9999px",
+                          borderColor: state.isFocused ? "#6366f1" : "#d1d5db", // indigo-500 : gray-300
+                          boxShadow: "none",
+                          paddingLeft: "0.5rem",
+                          paddingRight: "0.5rem",
+                          "&:hover": {
+                            borderColor: state.isFocused
+                              ? "#6366f1"
+                              : "#9ca3af",
+                          },
+                        }),
+                        input: (base) => ({
+                          ...base,
+                          "input:focus": {
+                            boxShadow: "none",
+                          },
+                        }),
+                      }}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500 text-xs mt-0.5" />
@@ -221,20 +244,22 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
                     Account Type
                   </FormLabel>
                   <FormControl>
-                    <div className="flex gap-3 mt-1">
-                      <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                    <div className="flex gap-4 mt-1">
+                      <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
                         <input
                           type="radio"
                           value="private"
+                          className="accent-indigo-500 w-4 h-4"
                           checked={field.value === "private"}
                           onChange={() => field.onChange("private")}
                         />
                         Private
                       </label>
-                      <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                      <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
                         <input
                           type="radio"
                           value="business"
+                          className="accent-indigo-500 w-4 h-4"
                           checked={field.value === "business"}
                           onChange={() => field.onChange("business")}
                         />
@@ -259,7 +284,7 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
                     <Input
                       type="password"
                       placeholder="••••••••"
-                      className="w-full rounded-full border border-gray-300 py-2 px-3 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="w-full rounded-full border border-gray-300 py-2 px-4 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-indigo-500 focus:outline-none transition-colors"
                       {...field}
                     />
                   </FormControl>
@@ -280,7 +305,7 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
                     <Input
                       type="password"
                       placeholder="••••••••"
-                      className="w-full rounded-full border border-gray-300 py-2 px-3 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="w-full rounded-full border border-gray-300 py-2 px-4 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-indigo-500 focus:outline-none transition-colors"
                       {...field}
                     />
                   </FormControl>
@@ -291,16 +316,16 @@ const RegisterStepDetails: React.FC<Props> = ({ email, onEditEmail }) => {
 
             <Button
               type="submit"
-              className="w-full py-2 px-3 text-sm sm:text-base font-semibold rounded-full bg-black text-white hover:bg-gray-900 dark:bg-teal-600 dark:hover:bg-teal-700"
+              className="w-full mt-2 py-2.5 px-4 text-sm sm:text-base font-semibold rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500 hover:from-blue-600 hover:via-indigo-600 hover:to-sky-600 text-white shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all"
             >
               Register
             </Button>
           </form>
         </Form>
 
-        <div className="flex items-center pt-3">
+        <div className="flex items-center py-4">
           <div className="flex-grow border-t border-gray-200 dark:border-gray-600" />
-          <span className="mx-2.5 text-sm text-gray-600 dark:text-gray-300">
+          <span className="mx-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
             Or Register With
           </span>
           <div className="flex-grow border-t border-gray-200 dark:border-gray-600" />

@@ -7,7 +7,7 @@ const DARK_URL =
   "https://image.fonwall.ru/o/pe/sea-ocean-night-ship.jpeg?auto=compress&fit=crop&w=1920&h=1080&domain=img3.fonwall.ru";
 
 const LIGHT_URL =
-  "https://image.fonwall.ru/o/7/korabl_more_okean_volnyi_briz_93.jpg?auto=compress&fit=crop&w=1920&h=1080&domain=img.fonwall.ru";
+  "https://images.pexels.com/photos/35209830/pexels-photo-35209830.jpeg";
 
 export default function BgImage() {
   const { resolvedTheme } = useTheme();
