@@ -12,12 +12,10 @@ import {
   Megaphone,
 } from "lucide-react";
 
-// Стили
 const CARD_CLASS =
   "rounded-[2rem] border border-gray-200/50 bg-white/60 dark:bg-white/5 backdrop-blur-md shadow-sm p-6 sm:p-8";
 const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 
-// --- ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) ---
 type Digest = "instant" | "daily";
 type Prefs = {
   channels: { push: boolean; email: boolean; inApp: boolean };
@@ -123,7 +121,6 @@ export default function Notifications() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Channels */}
       <section className={CARD_CLASS}>
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold">Channels</h2>

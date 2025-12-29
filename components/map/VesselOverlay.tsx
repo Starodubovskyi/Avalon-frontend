@@ -29,12 +29,19 @@ export default function VesselOverlay({
   const [routeOn, setRouteOn] = useState(false);
   const [distanceNm, setDistanceNm] = useState<number | null>(null);
 
+  // Инициализируем как false (desktop), чтобы совпадало с сервером
   const [isMobile, setIsMobile] = useState(false);
   const moveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // --- 1. Исправленная логика ресайза ---
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
+    const onResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Вызываем сразу после монтирования в браузере
     onResize();
+
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
     return () => {
@@ -43,15 +50,19 @@ export default function VesselOverlay({
     };
   }, []);
 
-  const [fleetIds, setFleetIds] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set();
+  // --- 2. Исправленная логика LocalStorage (Hydration Fix) ---
+  const [fleetIds, setFleetIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
     try {
       const raw = localStorage.getItem("fleetIds");
-      return new Set(raw ? (JSON.parse(raw) as string[]) : []);
-    } catch {
-      return new Set();
+      if (raw) {
+        setFleetIds(new Set(JSON.parse(raw) as string[]));
+      }
+    } catch (e) {
+      console.error("Failed to load fleetIds", e);
     }
-  });
+  }, []);
 
   const saveFleet = useCallback((next: Set<string>) => {
     setFleetIds(new Set(next));
@@ -59,11 +70,16 @@ export default function VesselOverlay({
   }, []);
 
   const containerSize = () => {
-    const el = adapter.getContainer();
+    // Проверка на случай, если адаптер еще не готов
+    const el = adapter.getContainer ? adapter.getContainer() : null;
+    if (!el) return { width: 0, height: 0 };
     return { width: el.clientWidth, height: el.clientHeight };
   };
 
   const measurePanel = () => {
+    // Безопасная проверка window
+    if (typeof window === "undefined") return { width: 380, height: 500 };
+
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const baseW = Math.min(vw * 0.92, vw < 768 ? vw : 480);
@@ -75,16 +91,23 @@ export default function VesselOverlay({
   const recalcPosition = useCallback(
     (v: VesselInfo) => {
       if (!v) return;
+
+      // Если определили, что это мобилка - переключаем в режим шторки
       if (isMobile) {
         setMode("sheet");
         setPanelPos(null);
         setPanelSide("right");
         return;
       }
+
       setMode("floating");
       const a = adapter.project(v.lat, v.lon);
       const panelSize = measurePanel();
       const cont = containerSize();
+
+      // Защита от деления на 0 или отсутствия размеров
+      if (cont.width === 0) return;
+
       const { left, top, side } = getAnchorPosition(
         a,
         panelSize,
@@ -119,14 +142,16 @@ export default function VesselOverlay({
     window.addEventListener("orientationchange", onResize);
 
     return () => {
-      if (typeof offMove === "function")
+      if (typeof offMove === "function") {
         try {
           offMove();
         } catch {}
-      if (typeof offSelect === "function")
+      }
+      if (typeof offSelect === "function") {
         try {
           offSelect();
         } catch {}
+      }
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
       if (moveTimer.current) clearTimeout(moveTimer.current);

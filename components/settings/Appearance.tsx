@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import { Monitor, Moon, Sun, Palette } from "lucide-react";
 
-// --- ЛОГИКА ---
 type Theme = "system" | "light" | "dark";
 type Density = "comfortable" | "compact";
 const LS_KEY = "app:appearance";

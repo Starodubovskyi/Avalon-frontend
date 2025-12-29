@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence, easeOut } from "framer-motion";
-import { responses } from "./responses";
+import { responses } from "./responses"; // Убедитесь, что этот файл существует
 import {
   MessageCircle,
   X,
@@ -156,7 +156,14 @@ export default function ChatBot({
       <div
         className={clsx(
           "fixed z-[10000] w-full max-w-[400px] flex flex-col",
-          "sm:right-6 sm:bottom-24 sm:rounded-[2rem]",
+
+          // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+          // Мобильные стили (работают везде, если экран маленький):
+          "bottom-5 left-1/2 -translate-x-1/2",
+
+          // Десктопные стили (sm: переопределяют мобильные):
+          "sm:left-auto sm:translate-x-0 sm:right-6 sm:bottom-24 sm:rounded-[2rem]",
+
           "bg-white/90 dark:bg-[#0d1117]/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/10",
           "shadow-2xl shadow-black/20",
           "transition-all duration-300 origin-bottom-right overflow-hidden",
@@ -165,20 +172,8 @@ export default function ChatBot({
             : "opacity-0 pointer-events-none translate-y-10 scale-95"
         )}
         style={{
-          // Адаптивная высота: на мобильном прижат к низу, на десктопе фиксированная
+          // Убрали отсюда всю логику window.innerWidth
           height: open ? "min(600px, 80vh)" : 0,
-          left:
-            typeof window !== "undefined" && window.innerWidth < 640
-              ? "50%"
-              : "auto",
-          transform:
-            typeof window !== "undefined" && window.innerWidth < 640
-              ? "translateX(-50%)"
-              : "none",
-          bottom:
-            typeof window !== "undefined" && window.innerWidth < 640
-              ? "20px"
-              : undefined,
         }}
       >
         {/* Header */}

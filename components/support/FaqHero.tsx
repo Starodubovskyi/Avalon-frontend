@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 
 type Item = { title: string; href: string };
 
-export default function FaqSection({
+export default function FaqHero({
   title,
   items,
 }: {
