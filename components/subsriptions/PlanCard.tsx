@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import { type Plan, type Billing } from "@/components/types/billing/plan";
 import PriceBlock from "./PriceBlock";
 import FeatureList from "./FeatureList";
+import clsx from "clsx";
+
+const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 
 export default function PlanCard({
   plan,
@@ -19,56 +22,57 @@ export default function PlanCard({
   onSelect: (id: string) => void;
 }) {
   const isFree = plan.monthly === 0 && plan.yearly === 0;
-  const Icon = plan.icon; // ✅ компонент
+  const Icon = plan.icon;
 
   return (
     <motion.div
       layout
-      className={`group relative rounded-2xl 
-        border border-border dark:border-neutral-700/80 
-        bg-white dark:bg-neutral-900 
-        text-card-foreground 
-        shadow-sm dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]
-        transition hover:shadow-md dark:hover:border-neutral-500/70
-        ${plan.highlight ? "border-primary/50 ring-1 ring-primary/20" : ""}
-      `}
+      className={clsx(
+        "group relative flex flex-col h-full rounded-[2.5rem] border p-1 transition-all duration-300",
+        isSelected
+          ? "border-blue-500/50 bg-blue-50/50 dark:border-blue-500/50 dark:bg-blue-900/10 shadow-2xl shadow-blue-500/10"
+          : "border-gray-200 dark:border-white/5 bg-white/60 dark:bg-[#0d1117]/60 hover:border-blue-300 dark:hover:border-white/10 hover:shadow-xl hover:bg-white/80 dark:hover:bg-[#0d1117]/80"
+      )}
     >
-      <motion.span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-2xl"
-        initial={false}
-        animate={
-          isSelected && !isCurrent
-            ? {
-                boxShadow:
-                  "0 0 0 2px rgba(16,185,129,1), 0 0 0 8px rgba(16,185,129,0.20)",
-                backgroundColor: "rgba(16,185,129,0.06)",
-              }
-            : {
-                boxShadow: "0 0 0 0 rgba(0,0,0,0)",
-                backgroundColor: "rgba(0,0,0,0)",
-              }
-        }
-        transition={{ duration: 0.25, ease: "easeOut" }}
-      />
-
+      {/* Popular Badge */}
       {plan.highlight && (
-        <div className="absolute -top-3 right-4 rounded-full border border-primary/60 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        <div
+          className={clsx(
+            "absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg z-10",
+            GRADIENT_BG
+          )}
+        >
           Most Popular
         </div>
       )}
 
-      <div className="relative flex h-full flex-col p-5">
-        <div className="flex items-center gap-2">
-          <div className="rounded-xl bg-muted dark:bg-neutral-800 p-2">
-            <Icon className="h-5 w-5 text-primary" /> {/* ✅ FIX */}
+      <div className="relative flex h-full flex-col rounded-[2.2rem] p-6 sm:p-8 backdrop-blur-md">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-2">
+          <div
+            className={clsx(
+              "flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm",
+              isSelected || plan.highlight
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
+            )}
+          >
+            <Icon className="h-6 w-6" />
           </div>
-          <h3 className="text-lg font-semibold">{plan.name}</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+            {plan.name}
+          </h3>
         </div>
 
-        <p className="mt-1 text-sm text-muted-foreground">{plan.tagline}</p>
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 min-h-[40px]">
+          {plan.tagline}
+        </p>
 
         <PriceBlock plan={plan} billing={billing} />
+
+        <div className="mt-8 flex-1">
+          <FeatureList features={plan.features} />
+        </div>
 
         <motion.button
           whileTap={{ scale: 0.98 }}
@@ -76,17 +80,14 @@ export default function PlanCard({
             if (!isCurrent) onSelect(plan.id);
           }}
           disabled={isCurrent}
-          className={`mt-5 w-full rounded-xl px-4 py-2 text-sm font-semibold transition
-            ${
-              isCurrent
-                ? "bg-muted text-foreground"
-                : isSelected
-                ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                : plan.highlight
-                ? "bg-primary text-primary-foreground hover:opacity-90"
-                : "bg-foreground text-background hover:opacity-90"
-            }
-          `}
+          className={clsx(
+            "mt-8 w-full rounded-full py-3.5 text-sm font-bold shadow-lg transition-all active:scale-95",
+            isCurrent
+              ? "bg-gray-100 text-gray-400 cursor-default dark:bg-white/5 dark:text-gray-500 shadow-none"
+              : isSelected || plan.highlight
+              ? `${GRADIENT_BG} text-white hover:shadow-blue-500/30 hover:scale-[1.02]`
+              : "bg-white text-gray-900 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:border-white/5 dark:text-white dark:hover:bg-white/20"
+          )}
         >
           {isCurrent
             ? "Current Plan"
@@ -96,8 +97,6 @@ export default function PlanCard({
             ? "Start Free"
             : "Choose Plan"}
         </motion.button>
-
-        <FeatureList features={plan.features} />
       </div>
     </motion.div>
   );

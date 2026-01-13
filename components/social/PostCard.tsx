@@ -12,7 +12,7 @@ type CommentItem = {
 
 interface PostCardProps {
   post: {
-    id: string; // важный стабильный идентификатор
+    id: string;
     user: {
       name: string;
       handle: string;

@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import CompanyRegistrationForm from "./CompaniRegistation/form/CompanyRegistrationForm";
 import CompanyCard from "./CompanyCard";
 import { Company } from "@/components/types/company.types";
+import clsx from "clsx";
+
+// Градиент
+const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 
 export default function CompanyProfile() {
   const [company, setCompany] = useState<Company | null>(null);
@@ -46,9 +50,9 @@ export default function CompanyProfile() {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-48 rounded-2xl bg-gray-200 dark:bg-neutral-800" />
-          <div className="h-6 w-1/3 rounded bg-gray-200 dark:bg-neutral-800" />
-          <div className="h-24 rounded-2xl bg-gray-200 dark:bg-neutral-800" />
+          <div className="h-48 rounded-[2rem] bg-gray-200 dark:bg-neutral-800" />
+          <div className="h-6 w-1/3 rounded-full bg-gray-200 dark:bg-neutral-800" />
+          <div className="h-24 rounded-[2rem] bg-gray-200 dark:bg-neutral-800" />
         </div>
       </div>
     );
@@ -59,29 +63,28 @@ export default function CompanyProfile() {
       {!company && !showForm && (
         <div className="flex flex-1 items-center justify-center p-6">
           <div
-            className="max-w-lg w-full text-center space-y-6 p-8 rounded-3xl
-                 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]
-                 dark:bg-gradient-to-b dark:from-neutral-900 dark:to-neutral-800 
-                 dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)]
+            className="max-w-lg w-full text-center space-y-8 p-10 rounded-[2.5rem]
+                 bg-white/80 shadow-2xl
+                 dark:bg-[#0d1117]/80 backdrop-blur-xl border border-gray-100 dark:border-white/5
                  mt-[-70px] animate-fade-up"
           >
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
               You have no company yet
             </h2>
 
-            <p className="text-gray-600 dark:text-neutral-300">
+            <p className="text-gray-600 dark:text-neutral-400 text-lg leading-relaxed">
               Create your business profile to appear in the directory and on the
               map.
             </p>
 
-            <div className="pt-2 border-t border-gray-200 dark:border-white/10" />
+            <div className="pt-4 border-t border-gray-200 dark:border-white/10" />
 
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 
-                   rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 
-                   text-white font-semibold shadow-lg 
-                   hover:opacity-90 active:scale-[.98] transition"
+              className={clsx(
+                "inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 active:scale-95 transition-all text-lg",
+                GRADIENT_BG
+              )}
             >
               Create Business Account
             </button>
@@ -90,22 +93,22 @@ export default function CompanyProfile() {
       )}
 
       {company && !showForm && !editMode && (
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8">
           <CompanyCard
             company={company}
             canManage={true}
             onUpdateCompany={handleUpdateCompany}
           />
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-4 justify-end">
             <button
               onClick={() => setEditMode(true)}
-              className="px-5 py-2 rounded-xl bg-neutral-900 text-white border border-neutral-700/80 hover:bg-neutral-800 transition"
+              className="px-8 py-3 rounded-full bg-gray-900 text-white dark:bg-white dark:text-black font-bold shadow-lg hover:opacity-90 transition active:scale-95"
             >
-              Edit
+              Edit Profile
             </button>
             <button
               onClick={handleDelete}
-              className="px-5 py-2 rounded-xl border border-red-500/60 text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/10 transition"
+              className="px-8 py-3 rounded-full border-2 border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold transition active:scale-95"
             >
               Delete
             </button>

@@ -1,7 +1,7 @@
 "use client";
 
-import { type Plan, type Billing, PLANS, getPlanById } from "@/components/types/billing/plan";
-
+import { type Plan, type Billing } from "@/components/types/billing/plan";
+import clsx from "clsx";
 
 function yearlyMonthly(plan: Plan) {
   return plan.yearly > 0 ? Number((plan.yearly / 12).toFixed(2)) : 0;
@@ -26,34 +26,48 @@ export default function PriceBlock({
   const ym = yearlyMonthly(plan);
 
   if (isFree) {
-    return <div className="mt-5 text-3xl font-bold">Free</div>;
+    return (
+      <div className="mt-6 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+        Free
+      </div>
+    );
   }
 
   if (billing === "monthly") {
     return (
-      <div className="mt-5 flex items-end gap-1">
-        <span className="text-3xl font-bold">${plan.monthly}</span>
-        <span className="text-sm text-muted-foreground">/mo</span>
+      <div className="mt-6 flex items-baseline gap-1">
+        <span className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+          ${plan.monthly}
+        </span>
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          /mo
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="mt-5 space-y-1">
-      <div className="flex items-end gap-1">
-        <span className="text-3xl font-bold">${plan.yearly}</span>
-        <span className="text-sm text-muted-foreground">/yr</span>
+    <div className="mt-6 space-y-2">
+      <div className="flex items-baseline gap-1">
+        <span className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+          ${plan.yearly}
+        </span>
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          /yr
+        </span>
       </div>
       {plan.monthly > 0 && (
-        <div className="flex items-center gap-2 text-sm whitespace-nowrap">
-          <span className="line-through opacity-60">${plan.monthly}</span>
-          <span className="opacity-60">/mo</span>
-          <span className="opacity-60">→</span>
-          <span className="font-semibold">${ym}</span>
-          <span className="opacity-60">/mo</span>
+        <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+          <span className="line-through decoration-gray-400">
+            ${plan.monthly}/mo
+          </span>
+          <span>→</span>
+          <span className="text-gray-900 dark:text-white font-bold">
+            ${ym}/mo
+          </span>
           {pct > 0 && (
-            <span className="ml-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-500">
-              -{pct}%
+            <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-600 dark:bg-green-900/30 dark:text-green-400">
+              SAVE {pct}%
             </span>
           )}
         </div>

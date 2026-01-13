@@ -1,4 +1,3 @@
-// components/types/billing/cards.ts
 import type { CardModel, NewCardInput } from "./types";
 import { detectBrand, last4FromNumber } from "./validate";
 
@@ -8,13 +7,13 @@ export type CardGradient = "goldGreen" | "purpleBlue" | "roseIndigo";
 
 export type CardStyle =
   | { kind: "gradient"; gradient: CardGradient }
-  | { kind: "image"; dataUrl: string }; 
+  | { kind: "image"; dataUrl: string };
 
 export type SavedCard = CardModel & {
   id: string;
   createdAt: number;
   isDefault?: boolean;
-  style?: CardStyle; 
+  style?: CardStyle;
 };
 
 function read(): SavedCard[] {

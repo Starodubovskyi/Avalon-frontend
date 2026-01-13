@@ -27,22 +27,28 @@ export default function VesselProfileContainer() {
 
   if (!hydrated) {
     return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-6 w-40 rounded bg-gray-200 dark:bg-white/10" />
-        <div className="h-48 rounded-2xl bg-gray-200 dark:bg-white/10" />
+      <div className="animate-pulse space-y-6">
+        <div className="h-8 w-64 rounded bg-gray-200 dark:bg-white/10" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 h-96 rounded-2xl bg-gray-200 dark:bg-white/10" />
+          <div className="h-96 rounded-2xl bg-gray-200 dark:bg-white/10" />
+        </div>
       </div>
     );
   }
 
   if (!vessel) {
     return (
-      <div className="rounded-2xl border border-gray-200 dark:border-white/10 p-6">
-        <div className="text-gray-700 dark:text-gray-200">
-          Vessel not found.
-        </div>
+      <div className="rounded-2xl border border-gray-200 dark:border-white/10 p-8 text-center bg-white dark:bg-white/5">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          Vessel not found
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">
+          The vessel you are looking for does not exist or has been removed.
+        </p>
         <button
           onClick={() => router.push("/vessels")}
-          className="mt-3 inline-flex items-center rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/10"
+          className="inline-flex items-center px-5 py-2.5 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500 hover:from-blue-600 hover:via-indigo-600 hover:to-sky-600 text-white font-medium shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all"
         >
           Back to list
         </button>

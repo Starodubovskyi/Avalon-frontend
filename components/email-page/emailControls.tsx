@@ -1,7 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { FaFilter, FaCog, FaSync, FaEllipsisV, FaSearch } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Filter,
+  RefreshCw,
+  MoreVertical,
+  Search,
+  Settings,
+} from "lucide-react";
+import clsx from "clsx";
 
 interface EmailControlsProps {
   onSortClick: (sortType: "recent" | "unread" | "all") => void;
@@ -16,6 +23,27 @@ const EmailControls: React.FC<EmailControlsProps> = ({
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [query, setQuery] = useState("");
 
+  const sortMenuRef = useRef<HTMLDivElement>(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close menus on click outside
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        sortMenuRef.current &&
+        !sortMenuRef.current.contains(e.target as Node)
+      )
+        setIsSortMenuOpen(false);
+      if (
+        moreMenuRef.current &&
+        !moreMenuRef.current.contains(e.target as Node)
+      )
+        setIsMoreOpen(false);
+    };
+    window.addEventListener("mousedown", handleClick);
+    return () => window.removeEventListener("mousedown", handleClick);
+  }, []);
+
   const handleSortOptionClick = (sortType: "recent" | "unread" | "all") => {
     onSortClick(sortType);
     setIsSortMenuOpen(false);
@@ -23,136 +51,102 @@ const EmailControls: React.FC<EmailControlsProps> = ({
   };
 
   return (
-    <div className="relative flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-      <div className="relative flex-1 sm:flex-none">
-        <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+    <div className="flex items-center gap-3 w-full sm:w-auto">
+      {/* Search Input */}
+      <div className="relative flex-1 sm:w-72 group">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors w-4 h-4" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           type="text"
-          placeholder="Search email"
-          className="w-full sm:w-64 pl-9 pr-3 py-2 rounded-lg border border-gray-300 bg-gray-100
-                     dark:bg-white/10 dark:text-gray-100 dark:border-white/10
-                     focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+          placeholder="Search emails..."
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-100/50 dark:bg-white/5 border border-transparent focus:bg-white dark:focus:bg-[#161b22] focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm text-gray-900 dark:text-white outline-none placeholder-gray-500"
         />
       </div>
 
-      <div className="hidden sm:block relative">
+      {/* Desktop Actions */}
+      <div className="hidden sm:flex items-center gap-2">
+        <div className="relative" ref={sortMenuRef}>
+          <button
+            onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
+            className={clsx(
+              "p-2.5 rounded-full transition-all active:scale-95",
+              isSortMenuOpen
+                ? "bg-blue-50 text-blue-600 dark:bg-white/10 dark:text-white"
+                : "hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500"
+            )}
+            title="Filter & Sort"
+          >
+            <Filter size={18} />
+          </button>
+
+          {isSortMenuOpen && (
+            <div className="absolute top-full right-0 mt-2 w-48 rounded-2xl bg-white dark:bg-[#1e2329] border border-gray-100 dark:border-white/5 shadow-xl z-30 p-1.5 animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                Sort by
+              </div>
+              {[
+                { label: "Recent", value: "recent" },
+                { label: "Unread", value: "unread" },
+                { label: "All", value: "all" },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => handleSortOptionClick(opt.value as any)}
+                  className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200 transition-colors"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button
-          onClick={() => setIsSortMenuOpen((v) => !v)}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-          aria-label="Sort"
-          type="button"
+          onClick={onRefreshClick}
+          className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 transition-all active:scale-95 active:rotate-180 duration-500"
+          title="Refresh"
         >
-          <FaFilter className="text-gray-600 dark:text-gray-300" />
+          <RefreshCw size={18} />
         </button>
 
-        {isSortMenuOpen && (
-          <div
-            className="absolute top-full right-0 mt-2 w-56 rounded-2xl border border-gray-200 bg-white
-                       shadow-[0_16px_40px_rgba(2,6,23,0.08)]
-                       dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
-                       z-20 py-2"
-          >
-            <h4 className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-              Sorted by
-            </h4>
-            <button
-              onClick={() => handleSortOptionClick("recent")}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
-              type="button"
-            >
-              Recent messages
-            </button>
-            <button
-              onClick={() => handleSortOptionClick("unread")}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
-              type="button"
-            >
-              Unread
-            </button>
-            <button
-              onClick={() => handleSortOptionClick("all")}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
-              type="button"
-            >
-              All
-            </button>
-          </div>
-        )}
+        <button className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 transition-colors">
+          <Settings size={18} />
+        </button>
       </div>
 
-      <button
-        onClick={onRefreshClick}
-        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors hidden sm:inline-flex"
-        aria-label="Refresh"
-        type="button"
-      >
-        <FaSync className="text-gray-600 dark:text-gray-300" />
-      </button>
-
-      <div className="sm:hidden relative">
+      {/* Mobile Actions */}
+      <div className="sm:hidden relative" ref={moreMenuRef}>
         <button
-          onClick={() => setIsMoreOpen((v) => !v)}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-          aria-label="More"
-          type="button"
+          onClick={() => setIsMoreOpen(!isMoreOpen)}
+          className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500"
         >
-          <FaEllipsisV className="text-gray-600 dark:text-gray-300" />
+          <MoreVertical size={20} />
         </button>
         {isMoreOpen && (
-          <div
-            className="absolute top-full right-0 mt-2 w-56 rounded-2xl border border-gray-200 bg-white
-                       shadow-[0_16px_40px_rgba(2,6,23,0.08)]
-                       dark:bg-white/5 dark:border-white/10 dark:shadow-[0_16px_40px_rgba(255,255,255,0.06)]
-                       z-20 py-2"
-          >
+          <div className="absolute top-full right-0 mt-2 w-48 rounded-2xl bg-white dark:bg-[#1e2329] border border-gray-100 dark:border-white/5 shadow-xl z-30 p-1.5 animate-in slide-in-from-top-2">
             <button
-              onClick={() => handleSortOptionClick("recent")}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
-              type="button"
+              onClick={onRefreshClick}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-white/5"
             >
-              Sort: Recent
+              <RefreshCw size={14} /> Refresh
             </button>
+            <div className="h-px bg-gray-100 dark:bg-white/5 my-1" />
             <button
               onClick={() => handleSortOptionClick("unread")}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
-              type="button"
+              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-white/5"
             >
               Sort: Unread
             </button>
             <button
-              onClick={() => handleSortOptionClick("all")}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
-              type="button"
+              onClick={() => handleSortOptionClick("recent")}
+              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-white/5"
             >
-              Sort: All
-            </button>
-            <div className="my-1 h-px bg-gray-200 dark:bg-white/10" />
-            <button
-              onClick={onRefreshClick}
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
-              type="button"
-            >
-              Refresh
-            </button>
-            <button
-              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
-              type="button"
-            >
-              Settings
+              Sort: Recent
             </button>
           </div>
         )}
       </div>
-
-      <button
-        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors hidden sm:inline-flex"
-        aria-label="Settings"
-        type="button"
-      >
-        <FaCog className="text-gray-600 dark:text-gray-300" />
-      </button>
     </div>
   );
 };

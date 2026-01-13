@@ -168,30 +168,24 @@ export default function Map() {
       a.destroy();
       map.remove();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, allVessels]);
 
   useEffect(() => {
     if (!adapter) return;
 
-    const saved = (
+    const saved =
       typeof window !== "undefined"
         ? (localStorage.getItem(STORAGE_KEY) as BaseName | null)
-        : null
-    ) as BaseName | null;
+        : null;
 
     const locked = saved === "osm" || saved === "sat";
-    const want: BaseName = locked
-      ? (saved as BaseName)
-      : resolvedTheme === "dark"
-      ? "dark"
-      : "light";
+    const want: BaseName = locked ? (saved as BaseName) : "light";
 
     if (want !== currentBase) {
       adapter.setBasemap(want);
       setCurrentBase(want);
     }
-  }, [adapter, resolvedTheme, currentBase]);
+  }, [adapter, currentBase]);
 
   useEffect(() => {
     if (!adapter) return;
@@ -200,7 +194,7 @@ export default function Map() {
         adapter.getVisibleCount ? adapter.getVisibleCount() : allVessels.length
       );
     };
-    // @ts-ignore — если адаптер эмитит события
+    // @ts-ignore
     adapter.on?.("visible:change", onChangeVisible);
     return () => {
       // @ts-ignore

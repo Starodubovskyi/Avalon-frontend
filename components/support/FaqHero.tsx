@@ -1,46 +1,39 @@
-"use client";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
-import { useState } from "react";
-import { IconWorld } from "@tabler/icons-react";
-import SearchBar from "./SearchBar";
+type Item = { title: string; href: string };
 
-export default function FaqHero() {
-  const [langOpen, setLangOpen] = useState(false);
-  const [lang, setLang] = useState("English");
-
+export default function FaqHero({
+  title,
+  items,
+}: {
+  title: string;
+  items: Item[];
+}) {
   return (
-    <div className="bg-sky-700 dark:bg-sky-800">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <div className="flex items-center justify-between">
-          <div className="text-white font-semibold tracking-tight">Avalon Ship</div>
-          <div className="relative">
-            <button onClick={() => setLangOpen((v) => !v)} className="inline-flex items-center gap-2 text-white/90 hover:text-white text-sm">
-              <IconWorld size={18} />
-              {lang}
-            </button>
-            {langOpen && (
-              <div className="absolute right-0 mt-2 w-40 rounded-md border border-white/20 bg-white/10 backdrop-blur shadow-lg text-white text-sm overflow-hidden">
-                {["English", "Українська", "Русский"].map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => {
-                      setLang(l);
-                      setLangOpen(false);
-                    }}
-                    className="block w-full px-3 py-2 hover:bg-white/15 text-left"
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <SearchBar />
-        </div>
-      </div>
-    </div>
+    <section className="rounded-[2rem] border border-gray-200/50 dark:border-white/5 bg-white/60 dark:bg-[#161b22]/60 backdrop-blur-md shadow-sm overflow-hidden">
+      <h3 className="px-8 pt-6 pb-4 text-xl font-bold text-gray-900 dark:text-white">
+        {title}
+      </h3>
+      <div className="border-t border-gray-100 dark:border-white/5" />
+      <ul className="divide-y divide-gray-100 dark:divide-white/5">
+        {items.map((it) => (
+          <li key={it.href}>
+            <Link
+              href={it.href}
+              className="flex items-center justify-between px-8 py-5 text-gray-700 hover:bg-blue-50/50 dark:text-gray-200 dark:hover:bg-white/5 transition-colors group"
+            >
+              <span className="text-sm font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {it.title}
+              </span>
+              <ChevronRight
+                size={16}
+                className="text-gray-300 group-hover:text-blue-500 transition-colors"
+              />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

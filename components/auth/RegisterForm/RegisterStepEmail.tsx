@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import * as z from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -10,20 +10,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import SocialAuthButtons from '../SocialAuthButtons';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import SocialAuthButtons from "../SocialAuthButtons";
 
 const emailSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email'),
+  email: z.string().min(1, "Email is required").email("Invalid email"),
 });
 
 type EmailFormData = z.infer<typeof emailSchema>;
@@ -36,7 +36,7 @@ const RegisterStepEmail: React.FC<Props> = ({ onContinue }) => {
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
-      email: '',
+      email: "",
     },
   });
 
@@ -45,7 +45,7 @@ const RegisterStepEmail: React.FC<Props> = ({ onContinue }) => {
   };
 
   return (
-    <Card className="border-none shadow-none bg-transparent">
+    <Card className="border-none shadow-none bg-transparent w-full max-w-xl mx-auto p-4">
       <CardHeader className="text-center pb-3">
         <CardTitle className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
           Enter your Email
@@ -59,7 +59,7 @@ const RegisterStepEmail: React.FC<Props> = ({ onContinue }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-3"
+            className="flex flex-col gap-4"
           >
             <FormField
               control={form.control}
@@ -73,7 +73,7 @@ const RegisterStepEmail: React.FC<Props> = ({ onContinue }) => {
                     <Input
                       type="email"
                       placeholder="you@example.com"
-                      className="w-full rounded-full border border-gray-300 py-2 px-3 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="w-full rounded-full border border-gray-300 py-2 px-4 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-indigo-500 focus:outline-none transition-colors"
                       {...field}
                     />
                   </FormControl>
@@ -84,16 +84,16 @@ const RegisterStepEmail: React.FC<Props> = ({ onContinue }) => {
 
             <Button
               type="submit"
-              className="w-full py-2 px-3 text-sm sm:text-base font-semibold rounded-full bg-black text-white hover:bg-gray-900 dark:bg-teal-600 dark:hover:bg-teal-700"
+              className="w-full py-2.5 px-4 text-sm sm:text-base font-semibold rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500 hover:from-blue-600 hover:via-indigo-600 hover:to-sky-600 text-white shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all"
             >
               Continue
             </Button>
           </form>
         </Form>
 
-        <div className="flex items-center pt-4">
+        <div className="flex items-center py-4">
           <div className="flex-grow border-t border-gray-200 dark:border-gray-600" />
-          <span className="mx-2.5 text-sm text-gray-600 dark:text-gray-300">
+          <span className="mx-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
             Or Register With
           </span>
           <div className="flex-grow border-t border-gray-200 dark:border-gray-600" />

@@ -2,8 +2,11 @@
 
 import React, { useState } from "react";
 import clsx from "clsx";
-import { Paperclip, CheckCheck } from "lucide-react";
+import { Plus } from "lucide-react"; // Добавил иконку плюса для красоты
 import CreateGroupModal from "./CreateGroupModal";
+
+// Общий класс для градиента
+const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 
 type UserFixed = {
   id: string;
@@ -85,50 +88,34 @@ export default function ChatList({
   return (
     <div
       className={clsx(
-        "flex flex-col h-full bg-white dark:bg-white/5 text-gray-900 dark:text-white border-r border-gray-200 dark:border-white/10",
+        "flex flex-col h-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white border-r border-gray-100 dark:border-white/10",
         selectedUserId ? "hidden md:flex md:w-80" : "flex w-full md:w-80"
       )}
     >
-      <div className="p-4 border-b border-gray-200 dark:border-white/10 flex flex-col gap-2">
+      <div className="p-5 border-b border-gray-100 dark:border-white/10 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-lg">Chats</h2>
+          <h2 className="font-bold text-2xl tracking-tight">Chats</h2>
           <button
             onClick={() => setShowCreateGroup(true)}
             title="New Group"
-            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/10"
+            className={`p-2 rounded-full text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all active:scale-95 ${GRADIENT_BG}`}
             aria-label="Create new group chat"
             type="button"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6 text-emerald-500"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <path d="M16 3.128a4 4 0 0 1 0 7.744" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <circle cx="9" cy="7" r="4" />
-            </svg>
+            <Plus className="w-5 h-5" />
           </button>
         </div>
         <input
-          placeholder="Search For Contacts or Messages"
-          className="w-full mt-2 px-3 py-2 rounded-md bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/10 text-sm"
+          placeholder="Search contacts..."
+          className="w-full px-4 py-2.5 rounded-xl bg-gray-100/50 dark:bg-white/5 border-none focus:ring-2 focus:ring-blue-500/50 text-sm transition-all"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-400/30 scrollbar-track-transparent">
-        <h3 className="text-xs text-gray-500 dark:text-gray-400 px-1">
-          ALL CHATS
+      <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-gray-400/30 scrollbar-track-transparent">
+        <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 px-2 mb-2 uppercase tracking-wider">
+          All Chats
         </h3>
 
         {filteredUsers.map((user) => (
@@ -136,66 +123,65 @@ export default function ChatList({
             key={user.id}
             onClick={() => handleSelectUser(user.id)}
             className={clsx(
-              "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition",
+              "group flex items-center justify-between px-3 py-3 rounded-2xl cursor-pointer transition-all duration-200",
               user.id === selectedUserId
-                ? "bg-emerald-100 dark:bg-emerald-800/40"
-                : "bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20"
+                ? "bg-blue-50 dark:bg-white/10 shadow-sm"
+                : "hover:bg-gray-50 dark:hover:bg-white/5"
             )}
           >
             <div className="flex items-center gap-3 min-w-0">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : user.isGroup ? (
-                <div className="w-10 h-10 rounded-full bg-emerald-500 dark:bg-emerald-700 flex items-center justify-center text-white font-semibold text-lg select-none">
-                  {user.name
-                    .split(", ")
-                    .map((n) => n[0])
-                    .join("")
-                    .slice(0, 2)}
-                </div>
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-gray-600 dark:text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    viewBox="0 0 24 24"
+              <div className="relative">
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-transparent group-hover:ring-blue-100 dark:group-hover:ring-white/10 transition-all"
+                  />
+                ) : (
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg select-none shadow-md ${GRADIENT_BG}`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
-                    />
-                  </svg>
-                </div>
-              )}
+                    {user.name.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+                {user.isOnline && (
+                  <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-[#0d1117] rounded-full" />
+                )}
+              </div>
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium truncate">{user.name}</p>
-                  {user.isOnline && (
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-                  )}
+                  <p
+                    className={clsx(
+                      "font-semibold truncate text-[15px]",
+                      user.id === selectedUserId
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-gray-900 dark:text-gray-100"
+                    )}
+                  >
+                    {user.name}
+                  </p>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                   {user.isTyping ? (
-                    <span className="italic">typing…</span>
+                    <span className="text-blue-500 font-medium animate-pulse">
+                      typing...
+                    </span>
                   ) : user.unreadCount > 0 ? (
-                    <span>{user.unreadCount} new</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-200">
+                      {user.unreadCount} new messages
+                    </span>
                   ) : (
-                    <span>—</span>
+                    <span className="truncate opacity-70">Tap to chat</span>
                   )}
                 </div>
               </div>
             </div>
 
             {user.unreadCount > 0 && (
-              <div className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+              <div
+                className={`text-[10px] font-bold px-2 py-1 min-w-[20px] text-center rounded-full text-white shadow-md ${GRADIENT_BG}`}
+              >
                 {user.unreadCount}
               </div>
             )}

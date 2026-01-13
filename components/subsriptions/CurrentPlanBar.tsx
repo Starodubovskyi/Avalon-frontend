@@ -1,8 +1,8 @@
 "use client";
 
 import PayNowButton from "./PayNowButton";
-import { type Plan, type Billing, PLANS, getPlanById } from "@/components/types/billing/plan";
-
+import { type Plan, type Billing } from "@/components/types/billing/plan";
+import clsx from "clsx";
 
 export default function CurrentPlanBar({
   plans,
@@ -19,46 +19,64 @@ export default function CurrentPlanBar({
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) || null;
 
   const selectedAmount =
-    selectedPlan && (billing === "monthly" ? selectedPlan.monthly : selectedPlan.yearly);
+    selectedPlan &&
+    (billing === "monthly" ? selectedPlan.monthly : selectedPlan.yearly);
 
   return (
     <div
       className="
-        mt-4 flex flex-col gap-3 rounded-xl 
-        border border-border dark:border-neutral-700/80 
-        bg-white dark:bg-neutral-900 
-        text-card-foreground 
-        p-3 text-sm 
-        shadow-sm dark:shadow-[0_0_15px_rgba(255,255,255,0.05)]
+        mt-8 flex flex-col gap-4 rounded-[2rem] 
+        border border-gray-200 dark:border-white/5 
+        bg-white/80 dark:bg-[#0d1117]/80 backdrop-blur-xl 
+        p-5 sm:px-8 sm:py-6 shadow-xl shadow-black/5
         md:flex-row md:items-center md:justify-between
       "
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <span>
-          Current plan:{" "}
-          <span className="font-semibold">
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-gray-500 dark:text-gray-400 font-medium">
+            Current plan:
+          </span>
+          <span className="font-bold text-gray-900 dark:text-white px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10">
             {currentPlan?.name ?? "—"}
           </span>
+        </div>
+
+        <span className="hidden md:inline text-gray-300 dark:text-gray-700">
+          |
         </span>
 
-        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-white/10 dark:text-gray-200">
-          {billing === "monthly" ? "Monthly" : "Yearly"}
+        <span className="font-medium text-gray-500 dark:text-gray-400">
+          Billing:{" "}
+          <span className="text-gray-900 dark:text-white capitalize">
+            {billing}
+          </span>
         </span>
 
         {selectedPlan && selectedPlan.id !== currentPlanId && (
-          <span className="inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-500">
-            Selected: {selectedPlan.name}
-            {typeof selectedAmount === "number" && selectedAmount > 0 && (
-              <span className="ml-1 text-[11px] font-medium text-amber-400">
-                ${selectedAmount.toFixed(2)}
-              </span>
-            )}
-          </span>
+          <>
+            <span className="hidden md:inline text-gray-300 dark:text-gray-700">
+              |
+            </span>
+            <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+              <span className="font-bold">Selected: {selectedPlan.name}</span>
+              {typeof selectedAmount === "number" && selectedAmount > 0 && (
+                <span className="opacity-80 font-medium">
+                  ${selectedAmount.toFixed(2)}/
+                  {billing === "monthly" ? "mo" : "yr"}
+                </span>
+              )}
+            </div>
+          </>
         )}
       </div>
 
       <PayNowButton
-        selectedPlan={selectedPlan && selectedPlan.id !== currentPlanId ? selectedPlan : null}
+        selectedPlan={
+          selectedPlan && selectedPlan.id !== currentPlanId
+            ? selectedPlan
+            : null
+        }
         currentPlanId={currentPlanId}
         billing={billing}
       />

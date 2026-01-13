@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import clsx from "clsx";
+import { Monitor, Moon, Sun, Palette } from "lucide-react";
 
 type Theme = "system" | "light" | "dark";
 type Density = "comfortable" | "compact";
-
 const LS_KEY = "app:appearance";
 const DEFAULTS = {
   theme: "system" as Theme,
   accent: "#2563eb",
   density: "comfortable" as Density,
 };
-
 const ACCENT_PRESETS = [
   "#2563eb",
   "#16a34a",
@@ -20,17 +20,11 @@ const ACCENT_PRESETS = [
   "#8b5cf6",
   "#06b6d4",
 ];
-
-function cls(...s: (string | false | undefined)[]) {
-  return s.filter(Boolean).join(" ");
-}
-
 function setDarkClass(isDark: boolean) {
   const root = document.documentElement;
   root.classList.toggle("dark", isDark);
   (root.style as any).colorScheme = isDark ? "dark" : "light";
 }
-
 function ensureThemeColorMeta(): HTMLMetaElement {
   let el = document.querySelector(
     'meta[name="theme-color"]'
@@ -42,7 +36,6 @@ function ensureThemeColorMeta(): HTMLMetaElement {
   }
   return el;
 }
-
 function getTextOn(bgHex: string) {
   const hex = bgHex.replace("#", "");
   const r = parseInt(hex.slice(0, 2), 16) / 255;
@@ -72,171 +65,190 @@ export default function Appearance() {
       }
     } catch {}
   }, []);
-
   useEffect(() => {
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
-
     const apply = () => {
       if (theme === "dark") setDarkClass(true);
       else if (theme === "light") setDarkClass(false);
       else setDarkClass(mql.matches);
     };
-
     apply();
-
     if (theme === "system") {
       const handler = () => setDarkClass(mql.matches);
       if ("addEventListener" in mql) {
         mql.addEventListener("change", handler);
         return () => mql.removeEventListener("change", handler);
       } else {
-        // @ts-ignore
+        /* @ts-ignore */
         mql.addListener(handler);
         return () => {
-          // @ts-ignore
+          /* @ts-ignore */
           mql.removeListener(handler);
         };
       }
     }
   }, [theme]);
-
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty("--accent", accent);
     const meta = ensureThemeColorMeta();
     meta.content = accent;
   }, [accent]);
-
   useEffect(() => {
     document.documentElement.dataset.density = density;
   }, [density]);
-
   function save() {
     localStorage.setItem(LS_KEY, JSON.stringify({ theme, accent, density }));
     alert("Appearance saved.");
   }
-
   function resetDefaults() {
     setTheme(DEFAULTS.theme);
     setAccent(DEFAULTS.accent);
     setDensity(DEFAULTS.density);
     localStorage.setItem(LS_KEY, JSON.stringify(DEFAULTS));
   }
-
   const accentText = useMemo(() => getTextOn(accent), [accent]);
 
+  const CARD_CLASS =
+    "rounded-[2rem] border border-gray-200/50 bg-white/60 dark:bg-white/5 backdrop-blur-md shadow-sm p-6 sm:p-8";
+  const GRADIENT_BG =
+    "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Theme */}
-      <section className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 p-4 dark:border-white/10">
-          <p className="mb-2 font-medium">Theme</p>
-          <div className="flex gap-2">
-            {(["system", "light", "dark"] as Theme[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTheme(t)}
-                className={cls(
-                  "rounded-xl border px-3 py-2 text-sm capitalize",
-                  theme === t
-                    ? "border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-900/20 dark:text-blue-300"
-                    : "border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
-                )}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          {/* Мини-превью поверхности/кнопки/ссылки */}
-          <div className="mt-4 rounded-lg border border-gray-200 p-3 text-sm dark:border-white/10">
-            <div className="mb-2 font-medium">Preview</div>
-            <div className="flex items-center gap-3">
-              <button
-                className="rounded-md px-3 py-1.5 text-sm"
-                style={{ background: "var(--accent)", color: accentText }}
-              >
-                Button
-              </button>
-              <span className="text-gray-700 underline dark:text-gray-300">
-                Link
-              </span>
-              <span className="rounded-md bg-gray-100 px-2 py-1 text-xs dark:bg-white/10">
-                Badge
-              </span>
-            </div>
-          </div>
+      <section className={CARD_CLASS}>
+        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+          <Monitor className="text-blue-500" /> Theme
+        </h2>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { id: "light", label: "Light", icon: Sun },
+            { id: "dark", label: "Dark", icon: Moon },
+            { id: "system", label: "System", icon: Monitor },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTheme(t.id as Theme)}
+              className={clsx(
+                "flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all",
+                theme === t.id
+                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 shadow-md ring-1 ring-blue-500"
+                  : "border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/10"
+              )}
+            >
+              <t.icon size={24} />
+              <span className="font-bold text-sm">{t.label}</span>
+            </button>
+          ))}
         </div>
+      </section>
 
-        {/* Accent */}
-        <div className="rounded-xl border border-gray-200 p-4 dark:border-white/10">
-          <p className="mb-2 font-medium">Accent color</p>
-          <input
-            type="color"
-            value={accent}
-            onChange={(e) => setAccent(e.target.value)}
-            className="h-10 w-full cursor-pointer rounded-xl"
-            aria-label="Pick accent color"
-          />
-          <div className="mt-3 flex flex-wrap gap-2">
+      {/* Accent & Preview */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <section className={CARD_CLASS}>
+          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <Palette className="text-purple-500" /> Accent
+          </h2>
+          <div className="flex flex-wrap gap-3 mb-6">
             {ACCENT_PRESETS.map((c) => (
               <button
                 key={c}
                 onClick={() => setAccent(c)}
-                title={c}
-                className={cls(
-                  "h-8 w-8 rounded-lg border",
-                  accent === c
-                    ? "ring-2 ring-offset-2 ring-blue-500"
-                    : "hover:opacity-90",
-                  "border-gray-200 dark:border-white/10"
+                className={clsx(
+                  "w-10 h-10 rounded-full shadow-sm transition-transform hover:scale-110",
+                  accent === c &&
+                    "ring-2 ring-offset-2 ring-gray-400 dark:ring-white"
                 )}
                 style={{ backgroundColor: c }}
               />
             ))}
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200 dark:border-white/20">
+              <input
+                type="color"
+                value={accent}
+                onChange={(e) => setAccent(e.target.value)}
+                className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] cursor-pointer"
+              />
+            </div>
           </div>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Used for highlights and buttons.
-          </p>
-        </div>
+
+          <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+              Live Preview
+            </p>
+            <div className="flex gap-3 items-center">
+              <button
+                className="px-4 py-2 rounded-full font-bold text-sm shadow-md transition-transform active:scale-95"
+                style={{ background: accent, color: accentText }}
+              >
+                Button
+              </button>
+              <span
+                className="font-bold underline cursor-pointer"
+                style={{ color: accent }}
+              >
+                Link Text
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-200 dark:bg-white/20">
+                Badge
+              </span>
+            </div>
+          </div>
+        </section>
 
         {/* Density */}
-        <div className="rounded-xl border border-gray-200 p-4 dark:border-white/10">
-          <p className="mb-2 font-medium">Density</p>
-          <div className="flex gap-2">
+        <section className={CARD_CLASS}>
+          <h2 className="text-xl font-bold mb-6">Density</h2>
+          <div className="space-y-3">
             {(["comfortable", "compact"] as Density[]).map((d) => (
               <button
                 key={d}
                 onClick={() => setDensity(d)}
-                className={cls(
-                  "rounded-xl border px-3 py-2 text-sm capitalize",
+                className={clsx(
+                  "w-full text-left px-5 py-3 rounded-2xl border transition-all flex items-center justify-between",
                   density === d
-                    ? "border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-900/20 dark:text-blue-300"
-                    : "border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm"
+                    : "border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5"
                 )}
               >
-                {d}
+                <span
+                  className={clsx(
+                    "font-bold capitalize",
+                    density === d
+                      ? "text-blue-700 dark:text-blue-300"
+                      : "text-gray-700 dark:text-gray-200"
+                  )}
+                >
+                  {d}
+                </span>
+                {density === d && (
+                  <div className="w-3 h-3 rounded-full bg-blue-500" />
+                )}
               </button>
             ))}
           </div>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Compact reduces paddings for dense data tables.
+          <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+            Controls padding in data tables and lists.
           </p>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={save}
-          className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          Save changes
-        </button>
+      <div className="flex justify-end gap-3 pt-4">
         <button
           onClick={resetDefaults}
-          className="rounded-xl border border-gray-200 px-4 py-2 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
+          className="rounded-full border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5 transition"
         >
-          Reset defaults
+          Reset
+        </button>
+        <button
+          onClick={save}
+          className={clsx(
+            "rounded-full px-8 py-2.5 text-sm font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-transform",
+            GRADIENT_BG
+          )}
+        >
+          Save Changes
         </button>
       </div>
     </div>

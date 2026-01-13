@@ -1,6 +1,11 @@
 import React from "react";
 import EmailControls from "./emailControls";
-import { FaBars } from "react-icons/fa";
+import { Menu } from "lucide-react";
+import clsx from "clsx";
+
+// Градиент для непрочитанных
+const UNREAD_BG =
+  "bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-900/10";
 
 interface Email {
   sender: string;
@@ -27,119 +32,126 @@ const EmailMain: React.FC<MainProps> = ({
   onRefreshClick,
   onMenuClick,
 }) => (
-  <div className="flex-1 flex flex-col h-full">
+  <div className="flex-1 flex flex-col h-full bg-[#f8f9fa] dark:bg-[#050505]">
+    {/* Header */}
     <div
       className="
-        sticky top-0 z-10
-        px-3 sm:px-4 py-3
-        flex items-center justify-between
-        border-b border-gray-200 bg-white/90 backdrop-blur
-        dark:border-white/10 dark:bg-white/5
+        sticky top-0 z-10 px-6 py-4
+        flex flex-col sm:flex-row sm:items-center justify-between gap-4
+        border-b border-gray-200 dark:border-white/10
+        bg-white/80 dark:bg-[#0d1117]/80 backdrop-blur-md
       "
     >
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-4">
         <button
-          className="sm:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-white/10"
+          className="sm:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300"
           onClick={onMenuClick}
-          aria-label="Open sidebar"
-          type="button"
+          aria-label="Open menu"
         >
-          <FaBars />
+          <Menu size={24} />
         </button>
-        <div className="flex items-baseline gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
             Inbox
           </h1>
-          <div className="hidden sm:flex text-sm text-gray-500 dark:text-gray-400 gap-2">
-            <span>2345 Emails</span>
-            <span>• 56 Unread</span>
-          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            {emails.length} Messages •{" "}
+            <span className="text-blue-500">
+              {emails.filter((e) => !e.read).length} Unread
+            </span>
+          </p>
         </div>
       </div>
 
-      <div className="w-full sm:w-auto sm:flex-none">
-        <EmailControls
-          onSortClick={onSortClick}
-          onRefreshClick={onRefreshClick}
-        />
-      </div>
+      <EmailControls
+        onSortClick={onSortClick}
+        onRefreshClick={onRefreshClick}
+      />
     </div>
 
-    <main className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
+    {/* Email List */}
+    <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-white/10">
       {emails.map((email) => {
-        const unreadClasses =
-          "border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600";
-        const readClasses =
-          "border-gray-200 bg-white hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10";
-
         return (
           <div
             key={email.id}
-            className={`
-              group flex items-start sm:items-center gap-3 sm:gap-4
-              p-3 sm:p-4 rounded-2xl border transition
-              shadow-[0_8px_24px_rgba(2,6,23,0.06)]
-              dark:shadow-[0_8px_24px_rgba(255,255,255,0.04)]
-              ${email.read ? readClasses : unreadClasses}
-            `}
+            className={clsx(
+              "group relative flex flex-col sm:flex-row sm:items-center gap-4 p-4 sm:px-6 sm:py-5 rounded-2xl cursor-pointer transition-all duration-200",
+              "border border-transparent hover:border-blue-200 dark:hover:border-blue-900", // Hover border
+              email.read
+                ? "bg-white dark:bg-[#161b22] shadow-sm hover:shadow-md"
+                : `${UNREAD_BG} bg-white dark:bg-[#161b22] shadow-md border-l-4 border-l-blue-500` // Unread style
+            )}
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 bg-purple-500">
-              {email.avatar}
+            {/* Avatar */}
+            <div className="flex items-start justify-between sm:w-auto">
+              <div
+                className={clsx(
+                  "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm",
+                  email.read
+                    ? "bg-gray-300 dark:bg-gray-700"
+                    : "bg-gradient-to-br from-blue-500 to-indigo-500"
+                )}
+              >
+                {email.avatar}
+              </div>
+              {/* Time for mobile */}
+              <span className="sm:hidden text-xs font-medium text-gray-400">
+                {email.time}
+              </span>
             </div>
 
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <div className="font-semibold text-gray-900 dark:text-white truncate">
+            {/* Content */}
+            <div className="flex-1 min-w-0 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <h3
+                  className={clsx(
+                    "text-base truncate pr-2",
+                    email.read
+                      ? "font-semibold text-gray-700 dark:text-gray-300"
+                      : "font-bold text-gray-900 dark:text-white"
+                  )}
+                >
                   {email.sender}
-                </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400 sm:hidden">
+                </h3>
+                <span className="hidden sm:block text-xs font-medium text-gray-400 whitespace-nowrap">
                   {email.time}
                 </span>
               </div>
 
-              <div className="text-sm text-gray-700 dark:text-gray-300 truncate">
+              <p
+                className={clsx(
+                  "text-sm truncate",
+                  email.read
+                    ? "text-gray-500 dark:text-gray-400"
+                    : "text-gray-800 dark:text-gray-200 font-medium"
+                )}
+              >
                 {email.subject}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {email.preview}
-              </div>
+              </p>
 
-              <div className="mt-2 flex gap-2 flex-wrap">
-                {(email.tags || []).slice(0, 2).map((tag) => (
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate pr-4">
+                {email.preview}
+              </p>
+
+              {/* Tags */}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(email.tags || []).map((tag, idx) => (
                   <span
-                    key={tag}
-                    className="
-                      px-2 py-0.5 rounded-full text-[10px] sm:text-xs
-                      bg-white dark:bg-white/10
-                      border border-gray-200 dark:border-white/10
-                      text-gray-700 dark:text-gray-200
-                    "
+                    key={idx}
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide uppercase bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/5"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
             </div>
-
-            <div className="hidden sm:flex items-center gap-3 ml-2 text-xs text-gray-600 dark:text-gray-300">
-              {(email.tags || []).map((tag) => (
-                <span
-                  key={tag}
-                  className="
-                    px-2 py-1 rounded-full
-                    bg-white dark:bg-white/10
-                    border border-gray-200 dark:border-white/10
-                    text-gray-700 dark:text-gray-200
-                  "
-                >
-                  {tag}
-                </span>
-              ))}
-              <span>{email.time}</span>
-            </div>
           </div>
         );
       })}
+
+      {/* Empty State spacer */}
+      <div className="h-10" />
     </main>
   </div>
 );

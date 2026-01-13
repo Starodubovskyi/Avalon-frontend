@@ -50,14 +50,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onCloseModal }) => {
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-  try {
-    await AuthApi.login({ email: data.email, password: data.password });
-    toast({ title: "Signed in", description: "You are now logged in." });
-    onCloseModal();
-  } catch (e: any) {
-    toast({ title: "Login failed", description: e?.message || "Check your credentials.", variant: "destructive" });
-  }
-};
+    try {
+      await AuthApi.login({ email: data.email, password: data.password });
+      toast({ title: "Signed in", description: "You are now logged in." });
+      onCloseModal();
+    } catch (e: any) {
+      toast({
+        title: "Login failed",
+        description: e?.message || "Check your credentials.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card className="w-full max-w-xl p-4 mx-auto border-none shadow-none bg-transparent">
@@ -74,7 +78,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onCloseModal }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-2.5"
+            className="flex flex-col gap-3"
           >
             <FormField
               control={form.control}
@@ -85,8 +89,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onCloseModal }) => {
                     Your Email
                   </FormLabel>
                   <FormControl>
+                    {/* Fixed: Removed focus:ring properties and added focus-visible:ring-0 to prevent overflow */}
                     <Input
-                      className="w-full rounded-full border border-gray-300 py-2 px-3 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="w-full rounded-full border border-gray-300 py-2 px-4 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-indigo-500 focus:outline-none transition-colors"
                       placeholder="info@example.com"
                       {...field}
                     />
@@ -105,9 +110,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onCloseModal }) => {
                     Password
                   </FormLabel>
                   <FormControl>
+                    {/* Fixed: Removed focus:ring properties and added focus-visible:ring-0 to prevent overflow */}
                     <Input
                       type="password"
-                      className="w-full rounded-full border border-gray-300 py-2 px-3 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="w-full rounded-full border border-gray-300 py-2 px-4 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-indigo-500 focus:outline-none transition-colors"
                       placeholder="••••••••"
                       {...field}
                     />
@@ -117,25 +123,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onCloseModal }) => {
               )}
             />
 
-            <div className="flex justify-between items-center text-xs mt-2">
-              <label className="flex items-center text-gray-700 dark:text-gray-300">
+            <div className="flex justify-between items-center text-xs mt-1">
+              <label className="flex items-center text-gray-700 dark:text-gray-300 cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  className="mr-1 accent-blue-500"
+                  className="mr-2 accent-indigo-500 w-3.5 h-3.5"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
                 Remember Me
               </label>
               <Link href="/forgot-password">
-                <span className="text-blue-600 font-bold hover:text-black dark:hover:text-white cursor-pointer">
+                <span className="text-indigo-600 font-bold hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 cursor-pointer transition-colors">
                   Forgot Password?
                 </span>
               </Link>
             </div>
 
             <Button
-              className="w-full py-2 px-3 sm:py-2.5 sm:px-4 text-sm sm:text-base font-semibold rounded-full bg-black text-white hover:bg-gray-900 dark:bg-teal-600 dark:hover:bg-teal-700"
+              className="w-full mt-2 py-2.5 px-4 text-sm sm:text-base font-semibold rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500 hover:from-blue-600 hover:via-indigo-600 hover:to-sky-600 text-white shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all"
               type="submit"
             >
               Login
@@ -143,10 +149,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onCloseModal }) => {
           </form>
         </Form>
 
-        <div className="flex items-center pt-3">
+        <div className="flex items-center py-4">
           <div className="flex-grow border-t border-gray-200 dark:border-gray-600" />
-          <span className="mx-2.5 text-sm text-gray-600 dark:text-gray-300">
-            Instan Login
+          <span className="mx-3 text-xs text-gray-500 dark:text-gray-400 font-medium">
+            Instant Login
           </span>
           <div className="flex-grow border-t border-gray-200 dark:border-gray-600" />
         </div>

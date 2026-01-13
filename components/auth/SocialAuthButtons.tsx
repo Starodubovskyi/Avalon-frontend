@@ -9,50 +9,54 @@ const SocialAuthButtons = () => {
   };
 
   const buttonClass =
-    "w-full py-3 px-5 font-semibold rounded-full bg-white text-gray-900 border border-gray-300 shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 flex items-center justify-center gap-2 transition-transform duration-200 transform hover:scale-[1.02]";
+    "w-full py-2.5 px-5 font-medium rounded-full bg-white text-gray-700 border border-gray-200 shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-700 flex items-center justify-center gap-3 transition-all duration-200 transform active:scale-[0.98]";
 
   return (
-    <div className="flex flex-col gap-3 pt-4 overflow-hidden">
+    <div className="flex flex-col gap-3">
       <Button
-        variant="outline"
+        variant="ghost"
         onClick={() => handleSocialLogin("Google")}
-        className={buttonClass + " hover:bg-gray-100 dark:hover:bg-gray-700"}
+        className={
+          buttonClass +
+          " hover:bg-gray-50 hover:border-indigo-200 dark:hover:bg-gray-700/50 dark:hover:border-indigo-500/30"
+        }
       >
         <Image
           src="/icons/google-icon.png"
           alt="Google"
-          width={18}
-          height={18}
+          width={20}
+          height={20}
         />
-        Continue with Google
+        <span className="text-sm">Continue with Google</span>
       </Button>
 
       <Button
-        variant="outline"
+        variant="ghost"
         onClick={() => handleSocialLogin("Facebook")}
-        className={buttonClass + " hover:bg-gray-100 dark:hover:bg-gray-700"}
+        className={
+          buttonClass +
+          " hover:bg-gray-50 hover:border-indigo-200 dark:hover:bg-gray-700/50 dark:hover:border-indigo-500/30"
+        }
       >
         <Image
           src="/icons/facebook-icon.png"
           alt="Facebook"
-          width={18}
-          height={18}
+          width={20}
+          height={20}
         />
-        Continue with Facebook
+        <span className="text-sm">Continue with Facebook</span>
       </Button>
 
       <Button
-        variant="outline"
+        variant="ghost"
         onClick={() => handleSocialLogin("Apple")}
-        className={buttonClass + " hover:bg-gray-100 dark:hover:bg-gray-700"}
+        className={
+          buttonClass +
+          " hover:bg-gray-50 hover:border-indigo-200 dark:hover:bg-gray-700/50 dark:hover:border-indigo-500/30"
+        }
       >
-        <Image
-          src="/icons/apple-icon.png"
-          alt="Apple"
-          width={18}
-          height={18}
-        />
-        Continue with Apple
+        <Image src="/icons/apple-icon.png" alt="Apple" width={20} height={20} />
+        <span className="text-sm">Continue with Apple</span>
       </Button>
     </div>
   );

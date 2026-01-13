@@ -9,7 +9,7 @@ interface LogoSideBarProps {
 
 const LogoSideBar = ({ isSidebarExpanded }: LogoSideBarProps) => {
   return (
-    <Link href="/" className="flex items-center gap-2 group">
+    <Link href="/" className="flex items-center h-8 shrink-0 overflow-hidden">
       <Image
         src={logo}
         alt="Logo"
@@ -19,10 +19,10 @@ const LogoSideBar = ({ isSidebarExpanded }: LogoSideBarProps) => {
       />
       <span
         className={clsx(
-          "text-lg font-bold text-primary whitespace-nowrap transition-opacity duration-300",
+          "text-lg font-bold text-primary whitespace-nowrap transition-all duration-300 ease-in-out",
           isSidebarExpanded
-            ? "opacity-100"
-            : "opacity-0 group-hover:opacity-100"
+            ? "w-auto opacity-100 ml-2 translate-x-0"
+            : "w-0 opacity-0 ml-0 -translate-x-4 overflow-hidden"
         )}
       >
         Avalon

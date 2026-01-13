@@ -1,7 +1,6 @@
 "use client";
 
-import { type Plan, type Billing, PLANS, getPlanById } from "@/components/types/billing/plan";
-
+import { type Plan, type Billing } from "@/components/types/billing/plan";
 import PlanCard from "./PlanCard";
 
 export default function PlanGrid({
@@ -18,7 +17,7 @@ export default function PlanGrid({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-10 grid gap-6 lg:gap-8 sm:grid-cols-2 xl:grid-cols-4">
       {plans.map((plan) => {
         const isCurrent = plan.id === currentPlanId;
         const isSelected = plan.id === selectedPlanId;

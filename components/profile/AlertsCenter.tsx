@@ -2,14 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  FaBell,
-  FaAnchor,
-  FaMapMarkerAlt,
-  FaCreditCard,
-  FaCog,
-  FaClock,
-  FaCheck,
-} from "react-icons/fa";
+  Bell,
+  Anchor,
+  MapPin,
+  CreditCard,
+  Settings,
+  Clock,
+  Check,
+} from "lucide-react";
+import clsx from "clsx";
+
+const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 
 type AlertType = "vessel" | "port" | "billing" | "system";
 type Severity = "critical" | "high" | "info";
@@ -26,16 +29,16 @@ export type AlertItem = {
 };
 
 const typeIcon: Record<AlertType, JSX.Element> = {
-  vessel: <FaAnchor className="text-sm" />,
-  port: <FaMapMarkerAlt className="text-sm" />,
-  billing: <FaCreditCard className="text-sm" />,
-  system: <FaCog className="text-sm" />,
+  vessel: <Anchor size={14} />,
+  port: <MapPin size={14} />,
+  billing: <CreditCard size={14} />,
+  system: <Settings size={14} />,
 };
 
 const sevDot: Record<Severity, string> = {
-  critical: "bg-red-500",
-  high: "bg-amber-500",
-  info: "bg-blue-500",
+  critical: "bg-red-500 shadow-red-500/50",
+  high: "bg-amber-500 shadow-amber-500/50",
+  info: "bg-blue-500 shadow-blue-500/50",
 };
 
 function timeAgo(iso: string) {
@@ -57,47 +60,29 @@ export default function AlertsCenter({ userEmail }: { userEmail?: string }) {
     () => `profileAlerts:${userEmail || "anon"}`,
     [userEmail]
   );
-
   const [filter, setFilter] = useState<AlertType | "all">("all");
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
 
   useEffect(() => {
     const raw = localStorage.getItem(storageKey);
-    if (raw) {
-      setAlerts(JSON.parse(raw));
-    } else {
+    if (raw) setAlerts(JSON.parse(raw));
+    else {
       const seed: AlertItem[] = [
         {
           id: crypto.randomUUID(),
           type: "vessel",
-          title: "VESSEL APL NORWAY ETA to Constanța changed by +6h",
-          meta: "ETA Aug 26, 14:00 → 20:00",
+          title: "VESSEL APL NORWAY ETA changed",
+          meta: "+6h delay expected",
           severity: "high",
-          createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
-        },
-        {
-          id: crypto.randomUUID(),
-          type: "port",
-          title: "Port of Rotterdam congestion increased",
-          meta: "Avg waiting time 9h → 12h",
-          severity: "info",
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+          createdAt: new Date().toISOString(),
         },
         {
           id: crypto.randomUUID(),
           type: "billing",
-          title: "Invoice #INV-1042 is overdue",
-          meta: "Amount: €1,240 — 5 days late",
+          title: "Invoice #INV-1042 overdue",
+          meta: "Amount: €1,240",
           severity: "critical",
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-        },
-        {
-          id: crypto.randomUUID(),
-          type: "system",
-          title: "New version deployed",
-          meta: "Improved search & map layers",
-          severity: "info",
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+          createdAt: new Date().toISOString(),
         },
       ];
       setAlerts(seed);
@@ -109,169 +94,149 @@ export default function AlertsCenter({ userEmail }: { userEmail?: string }) {
     const now = Date.now();
     return alerts.filter((a) => {
       const snoozed = a.snoozedUntil ? new Date(a.snoozedUntil).getTime() : 0;
-      const okType = filter === "all" ? true : a.type === filter;
-      return okType && (snoozed === 0 || snoozed <= now);
+      return (
+        (filter === "all" ? true : a.type === filter) &&
+        (snoozed === 0 || snoozed <= now)
+      );
     });
   }, [alerts, filter]);
-
-  const unreadCount = alerts.filter((a) => !a.read).length;
 
   const persist = (next: AlertItem[]) => {
     setAlerts(next);
     localStorage.setItem(storageKey, JSON.stringify(next));
   };
-
-  const markAllRead = () => {
-    persist(alerts.map((a) => ({ ...a, read: true })));
-  };
-
-  const ack = (id: string) => {
+  const markAllRead = () => persist(alerts.map((a) => ({ ...a, read: true })));
+  const ack = (id: string) =>
     persist(alerts.map((a) => (a.id === id ? { ...a, read: true } : a)));
-  };
-
-  const snooze = (id: string, minutes = 60 * 24) => {
-    const until = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+  const snooze = (id: string) =>
     persist(
-      alerts.map((a) => (a.id === id ? { ...a, snoozedUntil: until } : a))
+      alerts.map((a) =>
+        a.id === id
+          ? {
+              ...a,
+              snoozedUntil: new Date(Date.now() + 86400000).toISOString(),
+            }
+          : a
+      )
     );
-  };
 
   return (
-    <div>
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white">
-            <FaBell />
+        <div className="flex items-center gap-3">
+          <div
+            className={clsx(
+              "w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg",
+              GRADIENT_BG
+            )}
+          >
+            <Bell size={18} />
           </div>
-          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-            Alerts Center
-          </h3>
-          {unreadCount > 0 && (
-            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-              {unreadCount} new
-            </span>
-          )}
+          <div>
+            <h3 className="text-base font-bold text-gray-900 dark:text-white">
+              Alerts Center
+            </h3>
+            <p className="text-xs text-gray-500">
+              {alerts.filter((a) => !a.read).length} unread
+            </p>
+          </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <FilterPill
-            active={filter === "all"}
-            onClick={() => setFilter("all")}
-            label="All"
-          />
-          <FilterPill
-            active={filter === "vessel"}
-            onClick={() => setFilter("vessel")}
-            label="Vessels"
-          />
-          <FilterPill
-            active={filter === "port"}
-            onClick={() => setFilter("port")}
-            label="Ports"
-          />
-          <FilterPill
-            active={filter === "billing"}
-            onClick={() => setFilter("billing")}
-            label="Billing"
-          />
-          <FilterPill
-            active={filter === "system"}
-            onClick={() => setFilter("system")}
-            label="System"
-          />
-          {alerts.length > 0 && (
-            <button
-              onClick={markAllRead}
-              className="ml-2 text-xs rounded-full border px-3 py-1 text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:border-white/15 dark:hover:bg-white/5"
-              type="button"
-            >
-              Mark all read
-            </button>
-          )}
-        </div>
+        {alerts.length > 0 && (
+          <button
+            onClick={markAllRead}
+            className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Mark all read
+          </button>
+        )}
       </div>
 
-      <ul className="mt-4 space-y-2">
+      <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+        {["all", "vessel", "port", "billing", "system"].map((t) => (
+          <button
+            key={t}
+            onClick={() => setFilter(t as any)}
+            className={clsx(
+              "px-4 py-1.5 rounded-full text-xs font-bold capitalize transition-all whitespace-nowrap",
+              filter === t
+                ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-md"
+                : "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20"
+            )}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
+      <ul className="space-y-3">
         {visible.length === 0 ? (
-          <li className="text-sm text-gray-500 dark:text-gray-400">
+          <li className="text-center py-8 text-sm text-gray-400">
             No alerts right now.
           </li>
         ) : (
           visible.map((a) => (
             <li
               key={a.id}
-              className={[
-                "flex items-center gap-3 rounded-2xl border px-3 py-2",
-                "border-gray-200/70 dark:border-white/10",
-                a.read ? "opacity-60" : "",
-              ].join(" ")}
+              className={clsx(
+                "group relative flex items-start gap-4 p-4 rounded-2xl border transition-all",
+                a.read
+                  ? "bg-gray-50/50 dark:bg-white/5 border-transparent opacity-60"
+                  : "bg-white dark:bg-[#161b22] border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md"
+              )}
             >
-              <span className={`h-2 w-2 rounded-full ${sevDot[a.severity]}`} />
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-200">
-                {typeIcon[a.type]}
+              <div className="relative shrink-0 mt-1">
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-300">
+                  {typeIcon[a.type]}
+                </div>
+                <span
+                  className={clsx(
+                    "absolute -top-1 -right-1 w-3 h-3 rounded-full shadow-sm border-2 border-white dark:border-[#161b22]",
+                    sevDot[a.severity]
+                  )}
+                />
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm text-gray-900 dark:text-gray-100">
-                  {a.title}
+
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start">
+                  <h4
+                    className={clsx(
+                      "text-sm font-bold truncate pr-2",
+                      a.read
+                        ? "text-gray-600 dark:text-gray-400"
+                        : "text-gray-900 dark:text-white"
+                    )}
+                  >
+                    {a.title}
+                  </h4>
+                  <span className="text-[10px] font-medium text-gray-400 whitespace-nowrap">
+                    {timeAgo(a.createdAt)}
+                  </span>
                 </div>
                 {a.meta && (
-                  <div className="truncate text-xs text-gray-500 dark:text-gray-400">
-                    {a.meta}
-                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">{a.meta}</p>
                 )}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {timeAgo(a.createdAt)}
-              </div>
-              <div className="flex items-center gap-2 pl-2">
-                {!a.read && (
+
+                <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {!a.read && (
+                    <button
+                      onClick={() => ack(a.id)}
+                      className="flex items-center gap-1 px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300 text-xs font-bold hover:bg-green-100 transition"
+                    >
+                      <Check size={12} /> Ack
+                    </button>
+                  )}
                   <button
-                    onClick={() => ack(a.id)}
-                    className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:border-white/15 dark:hover:bg-white/5"
-                    title="Acknowledge"
-                    type="button"
+                    onClick={() => snooze(a.id)}
+                    className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300 text-xs font-bold hover:bg-gray-200 transition"
                   >
-                    <FaCheck /> Ack
+                    <Clock size={12} /> Snooze
                   </button>
-                )}
-                <button
-                  onClick={() => snooze(a.id)}
-                  className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:border-white/15 dark:hover:bg-white/5"
-                  title="Snooze 1 day"
-                  type="button"
-                >
-                  <FaClock /> Snooze
-                </button>
+                </div>
               </div>
             </li>
           ))
         )}
       </ul>
     </div>
-  );
-}
-
-function FilterPill({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      type="button"
-      className={[
-        "rounded-full px-3 py-1 text-xs border",
-        active
-          ? "bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-black dark:border-white"
-          : "text-gray-700 border-gray-200 hover:bg-gray-50 dark:text-gray-200 dark:border-white/15 dark:hover:bg-white/5",
-      ].join(" ")}
-    >
-      {label}
-    </button>
   );
 }

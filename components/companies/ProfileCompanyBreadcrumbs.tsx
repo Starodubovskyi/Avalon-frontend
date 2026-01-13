@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import clsx from "clsx";
 
 type Crumb = { label: string; href?: string };
 
@@ -14,33 +15,29 @@ export default function ProfileCompanyBreadcrumbs({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={[
-        "mb-4 sm:mb-6",
-        "text-xs sm:text-sm",
-        "text-gray-500 dark:text-gray-400",
-        className,
-      ].join(" ")}
+      className={clsx(
+        "mb-6 flex items-center text-sm font-medium text-gray-500 dark:text-gray-400",
+        className
+      )}
     >
-      <ol className="flex items-center gap-1 sm:gap-2 flex-wrap">
+      <ol className="flex items-center gap-2 flex-wrap">
         {items.map((item, i) => {
           const isLast = i === items.length - 1;
           return (
-            <li key={i} className="flex items-center max-w-full">
+            <li key={i} className="flex items-center">
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="hover:underline hover:text-gray-700 dark:hover:text-gray-200"
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors uppercase tracking-wide text-xs"
                 >
-                  <span className="uppercase tracking-wide">{item.label}</span>
+                  {item.label}
                 </Link>
               ) : (
                 <span
-                  className={[
-                    "uppercase tracking-wide truncate",
-                    isLast
-                      ? "font-semibold text-gray-900 dark:text-gray-100"
-                      : "",
-                  ].join(" ")}
+                  className={clsx(
+                    "uppercase tracking-wide text-xs truncate max-w-[200px]",
+                    isLast ? "font-bold text-gray-900 dark:text-white" : ""
+                  )}
                   title={item.label}
                 >
                   {item.label}
@@ -48,10 +45,7 @@ export default function ProfileCompanyBreadcrumbs({
               )}
 
               {!isLast && (
-                <span
-                  className="px-2 text-gray-400 dark:text-gray-500 select-none"
-                  aria-hidden="true"
-                >
+                <span className="mx-2 text-gray-300 dark:text-gray-600 select-none">
                   /
                 </span>
               )}

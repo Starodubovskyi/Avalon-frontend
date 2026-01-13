@@ -13,16 +13,17 @@ const AuthModalContent: React.FC<AuthModalContentProps> = ({
 }) => {
   return (
     <div className="flex h-full w-full flex-col lg:flex-row">
-      <div className="relative hidden lg:flex flex-[1.2] items-center justify-center overflow-hidden rounded-l-lg">
+      <div className="relative hidden lg:flex flex-[1.2] items-center justify-center overflow-hidden rounded-l-lg bg-gray-900">
         <Image
           src={img}
           alt="Ship"
           layout="fill"
           objectFit="cover"
           quality={100}
-          className="z-0"
+          className="z-0 opacity-90"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 to-transparent"></div>
+        {/* Updated gradient overlay to match the Blue-Indigo-Sky theme */}
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/80 via-blue-900/40 to-transparent"></div>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-start p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto">

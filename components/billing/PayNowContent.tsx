@@ -10,10 +10,20 @@ import AddCardSidebar from "@/components/paynow/AddCardSidebar";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { getInvoices, setInvoiceStatus } from "@/components/types/billing/invoices";
-import { listCards, addCard, type SavedCard } from "@/components/types/billing/cards";
+import {
+  getInvoices,
+  setInvoiceStatus,
+} from "@/components/types/billing/invoices";
+import {
+  listCards,
+  addCard,
+  type SavedCard,
+} from "@/components/types/billing/cards";
 import { type NewCardInput } from "@/components/types/billing/types";
-import { getPlanById, type Billing as BillingType } from "@/components/types/billing/plan";
+import {
+  getPlanById,
+  type Billing as BillingType,
+} from "@/components/types/billing/plan";
 
 export default function PayNowContent() {
   const surfaceClass =
@@ -45,7 +55,8 @@ export default function PayNowContent() {
 
   const invoices = useMemo(() => getInvoices(), []);
   const invoice = useMemo(
-    () => (!planPurchase ? invoices.find((i) => i.id === invoiceId) ?? null : null),
+    () =>
+      !planPurchase ? invoices.find((i) => i.id === invoiceId) ?? null : null,
     [invoices, invoiceId, planPurchase]
   );
 
@@ -60,7 +71,12 @@ export default function PayNowContent() {
   const [saved, setSaved] = useState<SavedCard[]>([]);
   const [mode, setMode] = useState<"saved" | "new" | "other">("new");
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-  const [newCard, setNewCard] = useState<NewCardInput>({ number: "", exp: "", cvc: "", name: "" });
+  const [newCard, setNewCard] = useState<NewCardInput>({
+    number: "",
+    exp: "",
+    cvc: "",
+    name: "",
+  });
   const [canPay, setCanPay] = useState(false);
 
   useEffect(() => {
@@ -84,12 +100,20 @@ export default function PayNowContent() {
 
     if (planPurchase && plan) {
       if (mode === "saved" && selectedCardId) {
-        router.push(`/paynow/success?plan=${encodeURIComponent(plan.id)}&billing=${planPurchase.billing}`);
+        router.push(
+          `/paynow/success?plan=${encodeURIComponent(plan.id)}&billing=${
+            planPurchase.billing
+          }`
+        );
         return;
       }
       if (mode === "new" && canPay) {
         addCard(newCard);
-        router.push(`/paynow/success?plan=${encodeURIComponent(plan.id)}&billing=${planPurchase.billing}`);
+        router.push(
+          `/paynow/success?plan=${encodeURIComponent(plan.id)}&billing=${
+            planPurchase.billing
+          }`
+        );
         return;
       }
       return;
@@ -130,9 +154,12 @@ export default function PayNowContent() {
                 <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-300/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300 dark:border-emerald-500/30">
                   <planPurchase.Icon className="h-4 w-4" />
                   <span className="text-emerald-100">
-                    {planPurchase.name} — {planPurchase.billing === "monthly" ? "Monthly" : "Yearly"}
+                    {planPurchase.name} —{" "}
+                    {planPurchase.billing === "monthly" ? "Monthly" : "Yearly"}
                   </span>
-                  <span className="font-medium text-white">${planPurchase.amount.toFixed(2)}</span>
+                  <span className="font-medium text-white">
+                    ${planPurchase.amount.toFixed(2)}
+                  </span>
                 </div>
               )}
 
@@ -145,7 +172,11 @@ export default function PayNowContent() {
               {isAddCardFlow ? (
                 <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div className={`${surfaceClass} p-5 sm:p-6`}>
-                    <CardForm value={newCard} onChange={setNewCard} onValidChange={setCanPay} />
+                    <CardForm
+                      value={newCard}
+                      onChange={setNewCard}
+                      onValidChange={setCanPay}
+                    />
                     <button
                       disabled={!canPay}
                       onClick={onSubmit}
@@ -163,7 +194,11 @@ export default function PayNowContent() {
                 </div>
               ) : (
                 <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                  <PayNowSummary surfaceClass={surfaceClass} invoice={invoice} planPurchase={planPurchase} />
+                  <PayNowSummary
+                    surfaceClass={surfaceClass}
+                    invoice={invoice}
+                    planPurchase={planPurchase}
+                  />
 
                   <div className={`${surfaceClass} p-5 sm:p-6`}>
                     <PayNowMethods
@@ -175,10 +210,16 @@ export default function PayNowContent() {
                       onChooseOther={(provider) => {
                         if (planPurchase && plan) {
                           router.push(
-                            `/paynow/success?plan=${encodeURIComponent(plan.id)}&billing=${planPurchase.billing}&provider=${provider}`
+                            `/paynow/success?plan=${encodeURIComponent(
+                              plan.id
+                            )}&billing=${
+                              planPurchase.billing
+                            }&provider=${provider}`
                           );
                         } else if (invoice) {
-                          router.push(`/paynow/success?invoiceId=${invoice.id}&provider=${provider}`);
+                          router.push(
+                            `/paynow/success?invoiceId=${invoice.id}&provider=${provider}`
+                          );
                         } else {
                           router.push("/billing");
                         }
@@ -188,7 +229,11 @@ export default function PayNowContent() {
                     {mode === "new" ? (
                       <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="order-2 md:order-1">
-                          <CardForm value={newCard} onChange={setNewCard} onValidChange={setCanPay} />
+                          <CardForm
+                            value={newCard}
+                            onChange={setNewCard}
+                            onValidChange={setCanPay}
+                          />
                           <button
                             disabled={!canPay}
                             onClick={onSubmit}
@@ -225,7 +270,10 @@ export default function PayNowContent() {
               )}
 
               <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                <button onClick={() => router.push("/billing")} className="underline underline-offset-4 hover:opacity-80">
+                <button
+                  onClick={() => router.push("/billing")}
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
                   Back to Billing
                 </button>
               </div>

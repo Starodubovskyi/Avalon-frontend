@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
 import { useDashboardStore } from "./store";
 import type { Vessel as StoreVessel } from "./types";
 import { useTheme } from "next-themes";
+import { IconShip } from "@tabler/icons-react";
 
 import VesselOverlay from "@/components/map/VesselOverlay";
 import { LeafletAdapter } from "@/components/map/adapters/LeafletAdapter";
@@ -60,42 +57,62 @@ export default function FleetMap() {
       : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10">
-      <div className="flex items-center justify-between p-4">
-        <div className="text-sm opacity-70">Live Fleet Map</div>
-        <div className="text-xs opacity-60">{filtered.length} vessels</div>
+    <div className="relative flex flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+            <IconShip size={20} />
+          </div>
+          <h2 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">
+            Live Fleet Map
+          </h2>
+        </div>
+        <div className="flex items-center gap-2 rounded-full bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-600 border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+          </span>
+          {filtered.length} active vessels
+        </div>
       </div>
 
-      {mounted ? (
-        <MapContainer
-          center={[center.lat, center.lon]}
-          zoom={DEFAULT_ZOOM}
-          minZoom={MIN_ZOOM}
-          maxZoom={12}
-          scrollWheelZoom
-          worldCopyJump
-          maxBounds={[[-85, -180], [85, 180]]}
-          maxBoundsViscosity={0.9}
-          className="w-full"
-          style={{ height: "48vh", minHeight: 360 }}
-        >
-          <TileLayer attribution={tileAttrib} url={tileUrl} noWrap />
-
-          <AutoFit
-            points={filtered.map((v) => [v.lat, v.lon] as [number, number])}
+      {/* Map Content */}
+      <div className="relative h-[48vh] min-h-[400px] w-full bg-zinc-50 dark:bg-zinc-900">
+        {mounted ? (
+          <MapContainer
+            center={[center.lat, center.lon]}
+            zoom={DEFAULT_ZOOM}
             minZoom={MIN_ZOOM}
-            singleZoom={SINGLE_VESSEL_ZOOM}
-          />
+            maxZoom={12}
+            scrollWheelZoom
+            worldCopyJump
+            maxBounds={[
+              [-85, -180],
+              [85, 180],
+            ]}
+            maxBoundsViscosity={0.9}
+            className="z-0 h-full w-full outline-none"
+          >
+            <TileLayer attribution={tileAttrib} url={tileUrl} noWrap />
 
-          <VesselOverlayLeafletBridge vessels={filtered} />
-        </MapContainer>
-      ) : (
-        <div className="h-[48vh] min-h-[360px] w-full bg-gray-100 dark:bg-white/5" />
-      )}
+            <AutoFit
+              points={filtered.map((v) => [v.lat, v.lon] as [number, number])}
+              minZoom={MIN_ZOOM}
+              singleZoom={SINGLE_VESSEL_ZOOM}
+            />
+
+            <VesselOverlayLeafletBridge vessels={filtered} />
+          </MapContainer>
+        ) : (
+          <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+            Initializing map engine...
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
 
 function AutoFit({
   points,
@@ -116,7 +133,9 @@ function AutoFit({
       return;
     }
 
-    const bounds = L.latLngBounds(points.map(([lat, lon]) => L.latLng(lat, lon)));
+    const bounds = L.latLngBounds(
+      points.map(([lat, lon]) => L.latLng(lat, lon))
+    );
     map.fitBounds(bounds, { padding: [40, 40], animate: true });
 
     if (map.getZoom() < minZoom) map.setZoom(minZoom);
@@ -124,7 +143,6 @@ function AutoFit({
 
   return null;
 }
-
 
 function VesselOverlayLeafletBridge({ vessels }: { vessels: StoreVessel[] }) {
   const map = useMap();
@@ -148,16 +166,17 @@ function VesselOverlayLeafletBridge({ vessels }: { vessels: StoreVessel[] }) {
   if (!adapter) return null;
 
   return (
-    <VesselOverlay
-      adapter={adapter}
-      detailsHref={(id) => `/vessels/${id}`}
-    />
+    <VesselOverlay adapter={adapter} detailsHref={(id) => `/vessels/${id}`} />
   );
 }
 
 function mapStoreVesselToOverlay(v: StoreVessel): VesselInfo {
-  const eta = v.etaIso ? new Date(v.etaIso) : new Date(Date.now() + 48 * 3600 * 1000);
-  const atd = new Date(eta.getTime() - (72 + Math.floor(Math.random() * 96)) * 3600 * 1000);
+  const eta = v.etaIso
+    ? new Date(v.etaIso)
+    : new Date(Date.now() + 48 * 3600 * 1000);
+  const atd = new Date(
+    eta.getTime() - (72 + Math.floor(Math.random() * 96)) * 3600 * 1000
+  );
 
   return {
     id: String(v.id),

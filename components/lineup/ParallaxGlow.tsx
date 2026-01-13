@@ -5,18 +5,36 @@ import { useEffect, useState } from "react";
 export default function ParallaxGlow() {
   const [mounted, setMounted] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [windowSize, setWindowSize] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
     setMounted(true);
+
+    setWindowSize({
+      w: window.innerWidth,
+      h: window.innerHeight,
+    });
+
     const onMove = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+
+    const onResize = () => {
+      setWindowSize({ w: window.innerWidth, h: window.innerHeight });
+    };
+
     window.addEventListener("mousemove", onMove, { passive: true });
-    return () => window.removeEventListener("mousemove", onMove);
+    window.addEventListener("resize", onResize, { passive: true });
+
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   if (!mounted) return null;
 
-  const cx = window.innerWidth / 2;
-  const cy = window.innerHeight / 2;
+  const cx = windowSize.w / 2;
+  const cy = windowSize.h / 2;
+
   const dx = (pos.x - cx) * 0.03;
   const dy = (pos.y - cy) * 0.03;
 

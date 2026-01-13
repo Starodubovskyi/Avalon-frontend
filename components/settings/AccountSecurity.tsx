@@ -1,7 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Shield,
+  Key,
+  Smartphone,
+  LogOut,
+  RefreshCw,
+  Copy,
+  Download,
+  SmartphoneNfc,
+} from "lucide-react";
+import clsx from "clsx";
 
+// Стили
+const CARD_CLASS =
+  "rounded-[2rem] border border-gray-200/50 bg-white/60 dark:bg-white/5 backdrop-blur-md shadow-sm p-6 sm:p-8";
+const INPUT_CLASS =
+  "w-full rounded-full border-none bg-gray-100/50 dark:bg-white/5 px-5 py-3 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all";
+const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
+
+// --- ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) ---
 const LS_KEYS = {
   pwd: "avalon.auth.passwordHash",
   sessions: "avalon.security.sessions",
@@ -10,7 +29,6 @@ const LS_KEYS = {
   twoFASecret: "avalon.security.twoFA.secret",
   twoFABackups: "avalon.security.twoFA.backups",
 } as const;
-
 type Session = {
   id: string;
   device: string;
@@ -19,11 +37,8 @@ type Session = {
   lastActive: string;
   current?: boolean;
 };
-
 type BackupHash = { hash: string; used?: boolean };
-
 const b32Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
   const { buffer, byteOffset, byteLength } = u8;
   if (buffer instanceof ArrayBuffer) {
@@ -33,7 +48,6 @@ function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
   new Uint8Array(ab).set(u8);
   return ab;
 }
-
 function base32Encode(bytes: Uint8Array) {
   let bits = 0;
   let value = 0;
@@ -50,7 +64,6 @@ function base32Encode(bytes: Uint8Array) {
   while (output.length % 8) output += "=";
   return output;
 }
-
 function base32Decode(b32: string): Uint8Array {
   const clean = b32.toUpperCase().replace(/=+$/g, "");
   let bits = 0;
@@ -68,7 +81,6 @@ function base32Decode(b32: string): Uint8Array {
   }
   return new Uint8Array(out);
 }
-
 async function sha256Hex(s: string) {
   const enc = new TextEncoder().encode(s);
   const buf = await crypto.subtle.digest("SHA-256", toArrayBuffer(enc));
@@ -79,7 +91,6 @@ async function sha256Hex(s: string) {
   }
   return hex;
 }
-
 function toBigEndianCounter(counter: number) {
   const buf = new ArrayBuffer(8);
   const view = new DataView(buf);
@@ -89,7 +100,6 @@ function toBigEndianCounter(counter: number) {
   view.setUint32(4, lo);
   return new Uint8Array(buf);
 }
-
 async function hmacSha1(key: Uint8Array, msg: Uint8Array) {
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
@@ -101,7 +111,6 @@ async function hmacSha1(key: Uint8Array, msg: Uint8Array) {
   const sig = await crypto.subtle.sign("HMAC", cryptoKey, toArrayBuffer(msg));
   return new Uint8Array(sig);
 }
-
 async function totp(secretB32: string, timestamp = Date.now()) {
   const step = 30;
   const counter = Math.floor(timestamp / 1000 / step);
@@ -117,7 +126,6 @@ async function totp(secretB32: string, timestamp = Date.now()) {
   const code = (bin % 1_000_000).toString().padStart(6, "0");
   return code;
 }
-
 function passwordStrength(p: string) {
   let score = 0;
   if (p.length >= 8) score++;
@@ -128,14 +136,12 @@ function passwordStrength(p: string) {
   if (/[^A-Za-z0-9]/.test(p)) score++;
   return Math.min(score, 5);
 }
-
 function fmtNow(): string {
   const d = new Date();
   const hh = d.getHours().toString().padStart(2, "0");
   const mm = d.getMinutes().toString().padStart(2, "0");
   return `Today, ${hh}:${mm}`;
 }
-
 function detectDevice(): string {
   const ua = (
     typeof navigator !== "undefined" ? navigator.userAgent : ""
@@ -172,7 +178,6 @@ function detectDevice(): string {
       : "Browser";
   return `${br} • ${os}`;
 }
-
 function downloadText(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -185,8 +190,6 @@ function downloadText(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-/** ===================== Component ===================== */
-
 export default function AccountSecurity() {
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
   const [twoFASecret, setTwoFASecret] = useState<string | null>(null);
@@ -198,7 +201,6 @@ export default function AccountSecurity() {
   const [freshBackupPlain, setFreshBackupPlain] = useState<string[] | null>(
     null
   );
-
   const [sessions, setSessions] = useState<Session[]>([
     {
       id: "seed-1",
@@ -216,13 +218,11 @@ export default function AccountSecurity() {
       lastActive: "Aug 18, 21:03",
     },
   ]);
-
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [pwdMsg, setPwdMsg] = useState<string | null>(null);
   const [pwdHash, setPwdHash] = useState<string | null>(null);
-
   const currentSessionIdRef = useRef<string>("");
 
   useEffect(() => {
@@ -235,19 +235,16 @@ export default function AccountSecurity() {
         setPwdHash(h);
       });
     }
-
     const enabled = localStorage.getItem(LS_KEYS.twoFAEnabled) === "1";
     const secret = localStorage.getItem(LS_KEYS.twoFASecret);
     const backupsJson = localStorage.getItem(LS_KEYS.twoFABackups);
     setTwoFAEnabled(enabled);
     setTwoFASecret(secret);
     setBackups(backupsJson ? (JSON.parse(backupsJson) as BackupHash[]) : []);
-
     const savedCurrent =
       localStorage.getItem(LS_KEYS.currentSessionId) || crypto.randomUUID();
     currentSessionIdRef.current = savedCurrent;
     localStorage.setItem(LS_KEYS.currentSessionId, savedCurrent);
-
     const stored = localStorage.getItem(LS_KEYS.sessions);
     if (stored) {
       const parsed: Session[] = JSON.parse(stored);
@@ -271,23 +268,18 @@ export default function AccountSecurity() {
       localStorage.setItem(LS_KEYS.sessions, JSON.stringify(init));
     }
   }, []);
-
   useEffect(() => {
     localStorage.setItem(LS_KEYS.twoFAEnabled, twoFAEnabled ? "1" : "0");
   }, [twoFAEnabled]);
-
   useEffect(() => {
     if (twoFASecret) localStorage.setItem(LS_KEYS.twoFASecret, twoFASecret);
   }, [twoFASecret]);
-
   useEffect(() => {
     localStorage.setItem(LS_KEYS.twoFABackups, JSON.stringify(backups));
   }, [backups]);
-
   useEffect(() => {
     localStorage.setItem(LS_KEYS.sessions, JSON.stringify(sessions));
   }, [sessions]);
-
   useEffect(() => {
     const t = setInterval(() => {
       setSessions((prev) =>
@@ -335,7 +327,6 @@ export default function AccountSecurity() {
     },
     [twoFAEnabled]
   );
-
   const verifySetupCode = useCallback(async () => {
     if (!twoFASecret) return;
     const trimsix = setupCode.trim();
@@ -369,7 +360,6 @@ export default function AccountSecurity() {
     setSetupError(null);
     alert("Two-factor authentication enabled.");
   }, [setupCode, twoFASecret]);
-
   const copyBackups = useCallback(async (codes: string[]) => {
     try {
       await navigator.clipboard.writeText(codes.join("\n"));
@@ -378,25 +368,21 @@ export default function AccountSecurity() {
       alert("Copy failed.");
     }
   }, []);
-
   const downloadBackups = useCallback((codes: string[]) => {
     const content = `Your Avalon backup codes (store securely):\n\n${codes.join(
       "\n"
     )}\n`;
     downloadText("avalon-backup-codes.txt", content);
   }, []);
-
   function revokeSession(id: string) {
     setSessions((prev) => prev.filter((s) => s.id !== id));
     alert("Session revoked.");
   }
-
   function revokeAllOthers() {
     const curr = currentSessionIdRef.current;
     setSessions((prev) => prev.filter((s) => s.id === curr));
     alert("All other sessions revoked.");
   }
-
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
     setPwdMsg(null);
@@ -425,7 +411,6 @@ export default function AccountSecurity() {
     setConfirmPass("");
     setPwdMsg("Password changed.");
   }
-
   const strength = useMemo(() => passwordStrength(newPass), [newPass]);
   const strengthLabel = [
     "Very weak",
@@ -437,59 +422,64 @@ export default function AccountSecurity() {
   ][strength];
 
   return (
-    <div className="space-y-8">
-      {/* 2FA */}
-      <section>
-        <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
-          Two-Factor Authentication
+    <div className="space-y-8 max-w-4xl mx-auto">
+      {/* 2FA Section */}
+      <section className={CARD_CLASS}>
+        <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Shield className="text-blue-500" size={24} /> Two-Factor
+          Authentication
         </h2>
 
-        <div className="flex items-center justify-between rounded-xl border border-gray-200 p-4 dark:border-white/10">
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
           <div>
-            <p className="font-medium">Enable 2FA</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="font-bold text-gray-900 dark:text-white">
+              Enable 2FA
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Increase account security with one-time codes.
             </p>
           </div>
 
-          <label className="inline-flex items-center cursor-pointer">
+          <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               className="sr-only peer"
               checked={twoFAEnabled || setupOpen}
               onChange={(e) => handleToggle2FA(e.target.checked)}
             />
-            <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 relative after:content-[''] after:w-5 after:h-5 after:bg-white after:rounded-full after:absolute after:top-0.5 after:left-0.5 peer-checked:after:translate-x-5 after:transition" />
+            <div className="w-14 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
 
         {/* Setup wizard */}
         {setupOpen && twoFASecret && (
-          <div className="mt-4 rounded-xl border border-blue-200/60 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
-            <p className="font-medium mb-2">Set up your authenticator</p>
-            <ol className="list-decimal pl-5 text-sm space-y-2 text-gray-700 dark:text-gray-300">
+          <div className="mt-6 rounded-3xl border border-blue-200/60 bg-blue-50/50 p-6 dark:border-blue-900/30 dark:bg-blue-900/10">
+            <p className="font-bold mb-3 text-blue-900 dark:text-blue-200">
+              Set up your authenticator
+            </p>
+            <ol className="list-decimal pl-5 text-sm space-y-2 text-gray-700 dark:text-gray-300 mb-4">
               <li>
-                Open your authenticator app (Google Authenticator, 1Password,
-                Authy, etc.).
+                Open your authenticator app (Google Authenticator, Authy, etc.).
               </li>
-              <li>Use this secret to add a new account (keep it private):</li>
+              <li>Use this secret to add a new account:</li>
             </ol>
 
-            <div className="mt-3 rounded-lg bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3">
-              <div className="text-xs text-gray-500">Secret</div>
-              <div className="font-mono break-all">{twoFASecret}</div>
+            <div className="grid gap-3">
+              <div className="rounded-xl bg-white/70 dark:bg-black/20 border border-blue-100 dark:border-white/5 p-4">
+                <div className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
+                  Secret Key
+                </div>
+                <div className="font-mono text-sm break-all text-blue-700 dark:text-blue-300 select-all">
+                  {twoFASecret}
+                </div>
+              </div>
             </div>
 
-            <div className="mt-3 rounded-lg bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3">
-              <div className="text-xs text-gray-500">otpauth URI</div>
-              <div className="font-mono break-all text-xs">{otpauthUrl}</div>
-            </div>
-
-            <div className="mt-4 flex items-end gap-3">
-              <div>
-                <label className="text-sm text-gray-600 dark:text-gray-300">
-                  Enter 6-digit code
-                </label>
+            <div className="mt-6">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                Enter 6-digit code
+              </label>
+              <div className="flex gap-3">
                 <input
                   inputMode="numeric"
                   maxLength={6}
@@ -497,97 +487,91 @@ export default function AccountSecurity() {
                   onChange={(e) =>
                     setSetupCode(e.target.value.replace(/\D/g, "").slice(0, 6))
                   }
-                  className="mt-1 rounded-xl border border-gray-200 bg-transparent px-3 py-2 dark:border-white/10"
-                  placeholder="123456"
+                  className={clsx(
+                    INPUT_CLASS,
+                    "font-mono text-center tracking-widest text-lg max-w-[150px]"
+                  )}
+                  placeholder="000000"
                 />
+                <button
+                  onClick={verifySetupCode}
+                  className={clsx(
+                    "rounded-full px-6 py-2 text-sm font-bold text-white shadow-lg active:scale-95 transition-transform",
+                    GRADIENT_BG
+                  )}
+                >
+                  Verify
+                </button>
               </div>
-              <button
-                onClick={verifySetupCode}
-                className="rounded-xl px-4 py-2 bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Verify & enable
-              </button>
             </div>
 
             {setupError && (
-              <p className="mt-2 text-sm text-red-600">{setupError}</p>
+              <p className="mt-3 text-sm text-red-500 font-medium">
+                {setupError}
+              </p>
             )}
           </div>
         )}
 
-        {/* 2FA management */}
+        {/* Backups */}
         {twoFAEnabled && (
-          <div className="mt-4 rounded-xl border border-gray-200 p-4 dark:border-white/10">
-            <p className="font-medium">Backup codes</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Use a backup code if you can’t access your authenticator. Each
-              code can be used once.
-            </p>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                onClick={() => setShowBackups((v) => !v)}
-                className="rounded-xl px-3 py-2 border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
-              >
-                {showBackups ? "Hide codes" : "Show codes"}
-              </button>
-
-              {freshBackupPlain && (
-                <>
-                  <button
-                    onClick={() => copyBackups(freshBackupPlain)}
-                    className="rounded-xl px-3 py-2 border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
-                  >
-                    Copy
-                  </button>
-                  <button
-                    onClick={() => downloadBackups(freshBackupPlain)}
-                    className="rounded-xl px-3 py-2 border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
-                  >
-                    Download .txt
-                  </button>
-                </>
-              )}
-              {!freshBackupPlain && (
+          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="font-bold text-sm">Backup codes</p>
+                <p className="text-xs text-gray-500">
+                  Use if you lose access to your device.
+                </p>
+              </div>
+              <div className="flex gap-2">
                 <button
-                  onClick={async () => {
-                    const plain = Array.from({ length: 10 }).map(() =>
-                      `${Math.random().toString(36).slice(2, 6)}-${Math.random()
-                        .toString(36)
-                        .slice(2, 6)}`.toUpperCase()
-                    );
-                    const hashes = await Promise.all(
-                      plain.map((c) => sha256Hex(c))
-                    );
-                    setBackups(hashes.map((h) => ({ hash: h, used: false })));
-                    setFreshBackupPlain(plain);
-                    alert("New backup codes generated. Save them securely.");
-                  }}
-                  className="rounded-xl px-3 py-2 border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
+                  onClick={() => setShowBackups((v) => !v)}
+                  className="px-4 py-2 rounded-full text-xs font-bold bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition"
                 >
-                  Regenerate
+                  {showBackups ? "Hide" : "Show"}
                 </button>
-              )}
-
-              <button
-                onClick={async () => {
-                  const ok = window.confirm("Disable 2FA?");
-                  if (!ok) return;
-                  setTwoFAEnabled(false);
-                  setTwoFASecret(null);
-                  setBackups([]);
-                  setFreshBackupPlain(null);
-                  localStorage.removeItem(LS_KEYS.twoFASecret);
-                  localStorage.removeItem(LS_KEYS.twoFABackups);
-                }}
-                className="rounded-xl px-3 py-2 border border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900/40 dark:text-red-300 dark:hover:bg-red-900/10"
-              >
-                Disable 2FA
-              </button>
+                {freshBackupPlain && (
+                  <>
+                    <button
+                      onClick={() => copyBackups(freshBackupPlain)}
+                      className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200"
+                    >
+                      <Copy size={14} />
+                    </button>
+                    <button
+                      onClick={() => downloadBackups(freshBackupPlain)}
+                      className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200"
+                    >
+                      <Download size={14} />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
+            {!freshBackupPlain && (
+              <button
+                onClick={async () => {
+                  const plain = Array.from({ length: 10 }).map(() =>
+                    `${Math.random().toString(36).slice(2, 6)}-${Math.random()
+                      .toString(36)
+                      .slice(2, 6)}`.toUpperCase()
+                  );
+                  const hashes = await Promise.all(
+                    plain.map((c) => sha256Hex(c))
+                  );
+                  setBackups(hashes.map((h) => ({ hash: h, used: false })));
+                  setFreshBackupPlain(plain);
+                  alert("New backup codes generated.");
+                }}
+                className="text-xs text-blue-600 hover:underline flex items-center gap-1 mb-4"
+              >
+                <RefreshCw size={12} /> Generate new codes
+              </button>
+            )}
+
             {showBackups && (
-              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {(
                   freshBackupPlain ??
                   backups.map(
@@ -596,108 +580,176 @@ export default function AccountSecurity() {
                 ).map((c, i) => (
                   <div
                     key={i}
-                    className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-mono dark:border-white/10"
+                    className="rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2 text-center text-xs font-mono dark:border-white/10 dark:bg-white/5"
                   >
                     {c}
                   </div>
                 ))}
               </div>
             )}
+
+            <button
+              onClick={async () => {
+                if (!window.confirm("Disable 2FA?")) return;
+                setTwoFAEnabled(false);
+                setTwoFASecret(null);
+                setBackups([]);
+                setFreshBackupPlain(null);
+                localStorage.removeItem(LS_KEYS.twoFASecret);
+                localStorage.removeItem(LS_KEYS.twoFABackups);
+              }}
+              className="mt-4 text-xs font-bold text-red-500 hover:text-red-600"
+            >
+              Disable 2FA
+            </button>
           </div>
         )}
       </section>
 
-      {/* Change password */}
-      <section>
-        <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
-          Change Password
+      {/* Password Section */}
+      <section className={CARD_CLASS}>
+        <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Key className="text-purple-500" size={24} /> Change Password
         </h2>
-        <form onSubmit={changePassword} className="grid gap-3 sm:grid-cols-3">
-          <input
-            type="password"
-            placeholder="Current password"
-            className="rounded-xl border border-gray-200 bg-transparent px-3 py-2 dark:border-white/10"
-            value={oldPass}
-            onChange={(e) => setOldPass(e.target.value)}
-          />
-          <div className="space-y-2">
-            <input
-              type="password"
-              placeholder="New password"
-              className="w-full rounded-xl border border-gray-200 bg-transparent px-3 py-2 dark:border-white/10"
-              value={newPass}
-              onChange={(e) => setNewPass(e.target.value)}
-            />
-            <div className="h-1 w-full rounded bg-gray-200 dark:bg-white/10 overflow-hidden">
-              <div
-                className="h-full bg-blue-600 transition-all"
-                style={{ width: `${(strength / 5) * 100}%` }}
-              />
+        <form onSubmit={changePassword} className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-3 mb-1 block">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={oldPass}
+                  onChange={(e) => setOldPass(e.target.value)}
+                  className={INPUT_CLASS}
+                  placeholder="••••••••"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-3 mb-1 block">
+                  Confirm New
+                </label>
+                <input
+                  type="password"
+                  value={confirmPass}
+                  onChange={(e) => setConfirmPass(e.target.value)}
+                  className={INPUT_CLASS}
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {strengthLabel}
+
+            <div>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-3 mb-1 block">
+                New Password
+              </label>
+              <input
+                type="password"
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                className={INPUT_CLASS}
+                placeholder="••••••••"
+              />
+
+              <div className="mt-3 px-2">
+                <div className="flex justify-between text-xs mb-1 font-medium">
+                  <span>Strength</span>
+                  <span
+                    className={clsx(
+                      strength < 3 ? "text-red-500" : "text-green-500"
+                    )}
+                  >
+                    {strengthLabel}
+                  </span>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+                  <div
+                    className={clsx(
+                      "h-full transition-all duration-500",
+                      strength < 2
+                        ? "bg-red-500"
+                        : strength < 4
+                        ? "bg-amber-500"
+                        : "bg-green-500"
+                    )}
+                    style={{ width: `${(strength / 5) * 100}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <input
-            type="password"
-            placeholder="Confirm new password"
-            className="rounded-xl border border-gray-200 bg-transparent px-3 py-2 dark:border-white/10"
-            value={confirmPass}
-            onChange={(e) => setConfirmPass(e.target.value)}
-          />
-          <div className="sm:col-span-3">
-            <button
-              type="submit"
-              className="rounded-xl px-4 py-2 bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Save password
-            </button>
+
+          <div className="pt-4 flex items-center justify-between">
             {pwdMsg && (
-              <span className="ml-3 text-sm text-gray-600 dark:text-gray-300">
+              <span className="text-sm font-medium text-blue-600">
                 {pwdMsg}
               </span>
             )}
+            <button
+              type="submit"
+              className={clsx(
+                "ml-auto rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-lg active:scale-95 transition-transform",
+                GRADIENT_BG
+              )}
+            >
+              Update Password
+            </button>
           </div>
         </form>
       </section>
 
-      {/* Sessions */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Active Sessions
+      {/* Sessions Section */}
+      <section className={CARD_CLASS}>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <Smartphone className="text-green-500" size={24} /> Active Sessions
           </h2>
           <button
             onClick={revokeAllOthers}
-            className="rounded-xl px-3 py-2 border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
+            className="text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-1.5 rounded-full transition-colors border border-red-200 dark:border-red-900/30"
           >
-            Revoke all other sessions
+            Revoke Others
           </button>
         </div>
 
-        <div className="divide-y divide-gray-200 rounded-xl border border-gray-200 dark:divide-white/10 dark:border-white/10">
+        <div className="space-y-3">
           {sessions.map((s) => (
-            <div key={s.id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="font-medium">
-                  {s.device}{" "}
-                  {s.current ? (
-                    <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                      current
-                    </span>
-                  ) : null}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  IP {s.ip} • {s.city || "Unknown"} • Last active:{" "}
-                  {s.lastActive}
-                </p>
+            <div
+              key={s.id}
+              className="flex items-center justify-between p-4 rounded-2xl bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-white dark:bg-black/40 flex items-center justify-center text-gray-500 shadow-sm">
+                  {s.device.includes("Phone") ? (
+                    <Smartphone size={20} />
+                  ) : (
+                    <SmartphoneNfc size={20} />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-sm text-gray-900 dark:text-white">
+                      {s.device}
+                    </p>
+                    {s.current && (
+                      <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase">
+                        Current
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {s.ip} • {s.city || "Unknown"} • {s.lastActive}
+                  </p>
+                </div>
               </div>
               {!s.current && (
                 <button
                   onClick={() => revokeSession(s.id)}
-                  className="rounded-xl px-3 py-2 border border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:hover:bg-white/5"
+                  className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                  title="Revoke"
                 >
-                  Revoke
+                  <LogOut size={18} />
                 </button>
               )}
             </div>
