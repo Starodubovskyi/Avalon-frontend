@@ -104,11 +104,11 @@ function vesselToOverlayInfo(v: PublicVessel): VesselInfo {
   const lat =
     typeof v.latitude === "number"
       ? v.latitude
-      : fromPortLL?.lat ?? toPortLL?.lat ?? 0;
+      : (fromPortLL?.lat ?? toPortLL?.lat ?? 0);
   const lon =
     typeof v.longitude === "number"
       ? v.longitude
-      : fromPortLL?.lon ?? toPortLL?.lon ?? 0;
+      : (fromPortLL?.lon ?? toPortLL?.lon ?? 0);
 
   const courseBearing = (() => {
     if (fromPortLL && toPortLL) {
@@ -202,22 +202,22 @@ export default function VesselProfileView({
 
   const arrivalCompanies = pickByPlace(
     adminCompaniesMock,
-    vessel.destinationPort || vessel.reportedDestination
+    vessel.destinationPort || vessel.reportedDestination,
   );
   const nearCompanies = pickByPlace(adminCompaniesMock, vessel.currentPort);
 
   const arrivalBusinesses = mapBusinesses(
     arrivalCompanies.length
       ? arrivalCompanies
-      : fallbackTop(adminCompaniesMock, 6)
+      : fallbackTop(adminCompaniesMock, 6),
   );
   const nearBusinesses = mapBusinesses(
-    nearCompanies.length ? nearCompanies : fallbackTop(adminCompaniesMock, 6)
+    nearCompanies.length ? nearCompanies : fallbackTop(adminCompaniesMock, 6),
   );
 
   const progressPercent = Math.max(
     0,
-    Math.min(1, (vessel as any).progressPercent ?? 0.3)
+    Math.min(1, (vessel as any).progressPercent ?? 0.3),
   );
 
   const mapHostRef = useRef<HTMLDivElement | null>(null);
@@ -245,7 +245,7 @@ export default function VesselProfileView({
         (localStorage.getItem("basemap_v1") as any)) ||
       "dark";
     a.setBasemap(
-      saved === "light" || saved === "osm" || saved === "sat" ? saved : "dark"
+      saved === "light" || saved === "osm" || saved === "sat" ? saved : "dark",
     );
 
     const info = vesselToOverlayInfo(vessel);

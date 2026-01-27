@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { LeafletAdapter } from "@/components/map/adapters/LeafletAdapter";
+import type { MapboxAdapter } from "@/components/map/adapters/MapboxAdapter";
 
 /* --- TYPES --- */
-interface ExtendedAdapter extends LeafletAdapter {
-  flyTo?: (lat: number, lng: number, zoom?: number) => void;
-  getMap?: () => any;
+interface DockProps {
+  adapter: MapboxAdapter;
+  rightOffsetPx?: number;
+  currentBasemap: string;
+  onBasemapChange: (style: "light" | "dark" | "osm" | "sat") => void;
 }
 
 type MenuView = "main" | "layers" | "basemap";
@@ -14,10 +16,9 @@ type MenuView = "main" | "layers" | "basemap";
 export default function RightDock({
   adapter,
   rightOffsetPx = 0,
-}: {
-  adapter: ExtendedAdapter;
-  rightOffsetPx?: number;
-}) {
+  currentBasemap,
+  onBasemapChange,
+}: DockProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<MenuView>("main");
   const [isLocating, setIsLocating] = useState(false);
@@ -26,7 +27,7 @@ export default function RightDock({
   // Сброс меню в начало при закрытии
   useEffect(() => {
     if (!isOpen) {
-      const t = setTimeout(() => setView("main"), 200); // задержка для анимации
+      const t = setTimeout(() => setView("main"), 200);
       return () => clearTimeout(t);
     }
   }, [isOpen]);
@@ -35,13 +36,16 @@ export default function RightDock({
   useEffect(() => {
     const update = () => {
       try {
-        setVesselCount(adapter.getVisibleCount?.() || 0);
+        setVesselCount(adapter.getVisibleCount ? adapter.getVisibleCount() : 0);
       } catch {
         setVesselCount(0);
       }
     };
     update();
-    return adapter.onMove?.(update);
+    if (adapter.on) {
+      adapter.on("visible:change", update);
+      return () => adapter.off("visible:change", update);
+    }
   }, [adapter]);
 
   /* --- ACTIONS --- */
@@ -52,11 +56,11 @@ export default function RightDock({
       (pos) => {
         setIsLocating(false);
         const { latitude, longitude } = pos.coords;
-        if (adapter.flyTo) adapter.flyTo(latitude, longitude, 13);
-        else adapter.getMap?.().flyTo([latitude, longitude], 13);
+        // Используем новый метод адаптера, который ставит точку и летит к ней
+        adapter.showUserLocation(latitude, longitude);
         setIsOpen(false);
       },
-      () => setIsLocating(false)
+      () => setIsLocating(false),
     );
   };
 
@@ -70,9 +74,6 @@ export default function RightDock({
   /* --- RENDER --- */
   return (
     <>
-      {/* ГЛАВНАЯ КНОПКА (TRIGGER) 
-        Позиция: Правый верхний угол
-      */}
       <div
         className="fixed z-[1000] flex flex-col items-end gap-4"
         style={{
@@ -83,24 +84,23 @@ export default function RightDock({
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={`
-            relative flex items-center justify-center w-14 h-14 rounded-full shadow-2xl
-            transition-all duration-300 ease-in-out
+            relative flex items-center justify-center w-12 h-12 rounded-full shadow-lg
+            transition-all duration-300 ease-in-out border border-zinc-200 dark:border-zinc-800
             ${
               isOpen
                 ? "bg-zinc-900 text-white rotate-90 dark:bg-white dark:text-black"
-                : "bg-white text-zinc-900 dark:bg-black dark:text-white hover:scale-105"
+                : "bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white hover:scale-105"
             }
           `}
           aria-label="Menu"
         >
-          {isOpen ? <Icons.Close /> : <Icons.Plus />}
+          {isOpen ? <Icons.Close /> : <Icons.Menu />}
 
-          {/* Бейдж с кол-вом судов (виден только когда меню закрыто) */}
           {!isOpen && vesselCount > 0 && (
             <span
               className="
               absolute -top-1 -left-1 flex h-5 min-w-[20px] items-center justify-center rounded-full 
-              bg-blue-600 px-1 text-[10px] font-bold text-white shadow-sm
+              bg-blue-600 px-1 text-[10px] font-bold text-white shadow-sm border border-white dark:border-zinc-900
             "
             >
               {formatCount(vesselCount)}
@@ -108,15 +108,12 @@ export default function RightDock({
           )}
         </button>
 
-        {/* ВЫПАДАЮЩЕЕ МЕНЮ 
-          Появляется под кнопкой
-        */}
         <div
           className={`
             origin-top-right transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
             w-64 overflow-hidden rounded-2xl shadow-2xl border
-            bg-white/95 backdrop-blur-md dark:bg-zinc-950/95
-            border-zinc-100 dark:border-zinc-800
+            bg-white/90 backdrop-blur-xl dark:bg-zinc-900/90
+            border-zinc-200 dark:border-zinc-800
             ${
               isOpen
                 ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
@@ -125,7 +122,6 @@ export default function RightDock({
           `}
         >
           <div className="p-2">
-            {/* VIEW: MAIN (Главное меню) */}
             {view === "main" && (
               <div className="flex flex-col gap-1 animate-in slide-in-from-left-4 fade-in duration-200">
                 <MenuItem
@@ -140,7 +136,7 @@ export default function RightDock({
                   onClick={() => setView("layers")}
                   chevron
                 />
-                <div className="my-1 h-[1px] bg-zinc-100 dark:bg-zinc-800" />
+                <div className="my-1 h-[1px] bg-zinc-100 dark:bg-zinc-800/50" />
                 <MenuItem
                   label="Find Me"
                   icon={<Icons.Locate loading={isLocating} />}
@@ -154,15 +150,16 @@ export default function RightDock({
               </div>
             )}
 
-            {/* VIEW: BASEMAP (Выбор карты) */}
             {view === "basemap" && (
               <div className="flex flex-col gap-1 animate-in slide-in-from-right-4 fade-in duration-200">
                 <MenuHeader title="Map Style" onBack={() => setView("main")} />
-                <BasemapList adapter={adapter} />
+                <BasemapList
+                  current={currentBasemap}
+                  onChange={onBasemapChange}
+                />
               </div>
             )}
 
-            {/* VIEW: LAYERS (Слои) */}
             {view === "layers" && (
               <div className="flex flex-col gap-1 animate-in slide-in-from-right-4 fade-in duration-200">
                 <MenuHeader title="Layers" onBack={() => setView("main")} />
@@ -171,22 +168,20 @@ export default function RightDock({
             )}
           </div>
 
-          {/* Футер статистики */}
-          <div className="bg-zinc-50 px-4 py-3 text-center dark:bg-zinc-900/50">
-            <div className="text-xs font-medium text-zinc-400 uppercase tracking-widest">
+          <div className="bg-zinc-50/50 px-4 py-3 text-center dark:bg-zinc-800/50 border-t border-zinc-100 dark:border-zinc-800">
+            <div className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">
               Ships in view
             </div>
-            <div className="text-lg font-bold text-zinc-800 dark:text-zinc-200">
+            <div className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">
               {formatCount(vesselCount)}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Затемнение фона при открытом меню (опционально, для фокуса) */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[990] bg-transparent" // Прозрачный, чтобы просто ловить клик
+          className="fixed inset-0 z-[990] bg-transparent"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -211,18 +206,18 @@ function MenuItem({
     <button
       onClick={onClick}
       className="
-        group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left
-        transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800
+        group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left
+        transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-[0.98]
       "
     >
-      <span className="text-zinc-500 group-hover:text-black dark:text-zinc-400 dark:group-hover:text-white transition-colors">
+      <span className="text-zinc-500 group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-100 transition-colors">
         {icon}
       </span>
-      <span className="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-black dark:group-hover:text-white">
+      <span className="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100">
         {label}
       </span>
       {chevron && (
-        <span className="text-zinc-300 dark:text-zinc-600">
+        <span className="text-zinc-300 dark:text-zinc-600 group-hover:translate-x-0.5 transition-transform">
           <Icons.ChevronRight />
         </span>
       )}
@@ -234,7 +229,7 @@ function MenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
   return (
     <button
       onClick={onBack}
-      className="mb-1 flex w-full items-center gap-2 rounded-xl px-2 py-2 text-zinc-500 hover:bg-zinc-100 hover:text-black dark:hover:bg-zinc-800 dark:hover:text-white"
+      className="mb-1 flex w-full items-center gap-2 rounded-xl px-2 py-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 transition-colors"
     >
       <Icons.ChevronLeft />
       <span className="text-xs font-bold uppercase tracking-wider">
@@ -244,68 +239,76 @@ function MenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
   );
 }
 
-function BasemapList({ adapter }: { adapter: any }) {
-  const [active, setActive] = useState("light");
+function BasemapList({
+  current,
+  onChange,
+}: {
+  current: string;
+  onChange: (style: any) => void;
+}) {
   const list = [
-    { id: "light", label: "Standard" },
-    { id: "dark", label: "Dark Mode" },
     { id: "sat", label: "Satellite" },
+    { id: "light", label: "Light" },
+    { id: "dark", label: "Dark" },
+    { id: "osm", label: "Streets" },
   ];
 
-  const select = (id: string) => {
-    setActive(id);
-    adapter.setBasemap?.(id);
-  };
-
   return (
-    <>
+    <div className="space-y-1">
       {list.map((item) => (
         <button
           key={item.id}
-          onClick={() => select(item.id)}
+          onClick={() => onChange(item.id)}
           className={`
-            flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors
+            flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all
             ${
-              active === item.id
-                ? "bg-black text-white dark:bg-white dark:text-black"
-                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              current === item.id
+                ? "bg-zinc-900 text-white dark:bg-white dark:text-black shadow-sm"
+                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
             }
           `}
         >
           {item.label}
-          {active === item.id && <Icons.Check />}
+          {current === item.id && <Icons.Check />}
         </button>
       ))}
-    </>
+    </div>
   );
 }
 
-function LayersList({ adapter }: { adapter: any }) {
-  // Компонент переключателя
-  const ToggleItem = ({ id, label }: { id: string; label: string }) => {
-    const [enabled, setEnabled] = useState(true);
+function LayersList({ adapter }: { adapter: MapboxAdapter }) {
+  const ToggleItem = ({
+    id,
+    label,
+  }: {
+    id: "ports" | "anchorages" | "routes";
+    label: string;
+  }) => {
+    const [enabled, setEnabled] = useState(false);
+
     const toggle = () => {
-      setEnabled(!enabled);
-      adapter.toggleLayer?.(id, !enabled);
+      const newState = !enabled;
+      setEnabled(newState);
+      adapter.toggleLayer(id, newState);
     };
 
     return (
       <div
         onClick={toggle}
-        className="flex w-full cursor-pointer items-center justify-between rounded-xl px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+        className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
       >
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           {label}
         </span>
         <div
           className={`
-          relative h-5 w-9 rounded-full transition-colors duration-200
-          ${enabled ? "bg-green-500" : "bg-zinc-200 dark:bg-zinc-700"}
+          relative h-5 w-9 rounded-full transition-colors duration-200 ease-in-out
+          ${enabled ? "bg-blue-600" : "bg-zinc-200 dark:bg-zinc-700"}
         `}
         >
           <div
             className={`
-            absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200
+            absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out
             ${enabled ? "translate-x-4" : "translate-x-0"}
           `}
           />
@@ -315,11 +318,11 @@ function LayersList({ adapter }: { adapter: any }) {
   };
 
   return (
-    <>
+    <div className="space-y-1">
       <ToggleItem id="ports" label="Major Ports" />
-      <ToggleItem id="anch" label="Anchorages" />
+      <ToggleItem id="anchorages" label="Anchorages" />
       <ToggleItem id="routes" label="Shipping Lanes" />
-    </>
+    </div>
   );
 }
 
@@ -331,10 +334,10 @@ function formatCount(n: number) {
 
 /* ============ ICONS ============ */
 const Icons = {
-  Plus: () => (
+  Menu: () => (
     <svg
-      width="24"
-      height="24"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -342,14 +345,15 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <line x1="12" y1="5" x2="12" y2="19"></line>
-      <line x1="5" y1="12" x2="19" y2="12"></line>
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
     </svg>
   ),
   Close: () => (
     <svg
-      width="24"
-      height="24"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -357,8 +361,8 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
     </svg>
   ),
   Map: () => (
@@ -372,9 +376,9 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-      <line x1="8" y1="2" x2="8" y2="18"></line>
-      <line x1="16" y1="6" x2="16" y2="22"></line>
+      <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+      <line x1="9" x2="9" y1="3" y2="18" />
+      <line x1="15" x2="15" y1="6" y2="21" />
     </svg>
   ),
   Layers: () => (
@@ -388,9 +392,9 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-      <polyline points="2 17 12 22 22 17"></polyline>
-      <polyline points="2 12 12 17 22 12"></polyline>
+      <path d="m12 2 9 4.9-9 4.9-9-4.9 9-4.9Z" />
+      <path d="m2 13 10 5 10-5" />
+      <path d="m2 16 10 5 10-5" />
     </svg>
   ),
   Locate: ({ loading }: { loading?: boolean }) =>
@@ -417,15 +421,11 @@ const Icons = {
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        <circle cx="12" cy="12" r="3"></circle>
+        <line x1="2" x2="5" y1="12" y2="12" />
+        <line x1="19" x2="22" y1="12" y2="12" />
+        <line x1="12" x2="12" y1="2" y2="5" />
+        <line x1="12" x2="12" y1="19" y2="22" />
+        <circle cx="12" cy="12" r="7" />
       </svg>
     ),
   Maximize: () => (
@@ -439,7 +439,10 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      <polyline points="15 3 21 3 21 9" />
+      <polyline points="9 21 3 21 3 15" />
+      <line x1="21" x2="14" y1="3" y2="10" />
+      <line x1="3" x2="10" y1="21" y2="14" />
     </svg>
   ),
   ChevronRight: () => (
@@ -453,7 +456,7 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="9 18 15 12 9 6"></polyline>
+      <path d="m9 18 6-6-6-6" />
     </svg>
   ),
   ChevronLeft: () => (
@@ -467,7 +470,7 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="15 18 9 12 15 6"></polyline>
+      <path d="m15 18-6-6 6-6" />
     </svg>
   ),
   Check: () => (
@@ -481,7 +484,7 @@ const Icons = {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="20 6 9 17 4 12"></polyline>
+      <path d="M20 6 9 17l-5-5" />
     </svg>
   ),
 };

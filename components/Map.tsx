@@ -1,18 +1,30 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+
 import VesselOverlay from "@/components/map/VesselOverlay";
-import { LeafletAdapter } from "@/components/map/adapters/LeafletAdapter";
+import { MapboxAdapter } from "@/components/map/adapters/MapboxAdapter";
 import type { VesselInfo } from "@/components/map/VesselInfoPanel";
 import RightDock from "./map/right-dock/RightDock";
 import { mockVesselsData } from "@/components/types/mockData1";
 
+// --- НОВЫЕ ИМПОРТЫ ---
+import { usePoints } from "./context/PointsContext";
+import CreatePointForm from "@/components/map/CreatePointForm";
+import PointPopup from "@/components/map/PointPopup";
+// ---------------------
+
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+
 type LL = { lat: number; lon: number };
 type BaseName = "light" | "dark" | "osm" | "sat";
 
+// --- Вспомогательные данные и функции ---
 const PORT_COORDS: Record<string, LL> = {
   rotterdam: { lat: 51.95, lon: 4.14 },
   "port of rotterdam": { lat: 51.95, lon: 4.14 },
@@ -91,15 +103,32 @@ function mapMocksToVesselInfo(): VesselInfo[] {
 
 const STORAGE_KEY = "basemap_v1";
 
+
 export default function Map() {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const [adapter, setAdapter] = useState<LeafletAdapter | null>(null);
-  const [currentBase, setCurrentBase] = useState<BaseName>("light");
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<mapboxgl.Map | null>(null);
+  const searchParams = useSearchParams();
+
+  const [adapter, setAdapter] = useState<MapboxAdapter | null>(null);
+  const [currentBase, setCurrentBase] = useState<BaseName>("sat");
   const { resolvedTheme } = useTheme();
 
   const allVessels = useMemo(() => mapMocksToVesselInfo(), []);
   const [count, setCount] = useState(allVessels.length);
   const [isMobile, setIsMobile] = useState(false);
+
+  const { points, addPoint, toggleFavorite, deletePoint } = usePoints();
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [tempCoords, setTempCoords] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
+  const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -109,122 +138,243 @@ export default function Map() {
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (mapInstance.current) return;
+    if (!mapContainer.current) return;
 
-    const container = mapRef.current as any;
-    if (container._leaflet_id) container._leaflet_id = null;
-
-    const map = L.map(container, {
-      center: [20, 10],
-      zoom: 3,
-      minZoom: 2,
-      maxZoom: 14,
-      zoomControl: !isMobile,
-      scrollWheelZoom: !isMobile,
-      touchZoom: true,
-      dragging: true,
-      worldCopyJump: true,
-      preferCanvas: true,
-      inertia: true,
-      maxBounds: [
-        [-85, -180],
-        [85, 180],
-      ],
-      maxBoundsViscosity: 0.8,
-    });
-
-    if (isMobile) {
-      L.control
-        .zoom({ position: "bottomright" })
-        // @ts-ignore
-        .addTo(map);
-    }
-
-    const a = new LeafletAdapter(map);
-    a.setBasemap("light");
-    a.loadVessels(allVessels);
-    setAdapter(a);
-    setCount(allVessels.length);
-
-    const bounds = L.latLngBounds(
-      allVessels.map((v) => L.latLng(v.lat, v.lon))
-    );
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, {
-        paddingTopLeft: isMobile ? [16, 32] : [40, 80],
-        paddingBottomRight: isMobile ? [16, 64] : [40, 40],
-        maxZoom: 8,
+    try {
+      const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/mapbox/satellite-streets-v12",
+        center: [10, 20],
+        zoom: 1.5,
+        projection: "globe" as any,
       });
-    }
 
-    const invalidate = () => setTimeout(() => map.invalidateSize(), 0);
-    invalidate();
-    window.addEventListener("orientationchange", invalidate);
-    window.addEventListener("resize", invalidate);
+      mapInstance.current = map;
+
+      if (!isMobile) {
+        map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+      }
+
+      map.on("style.load", () => {
+        map.setFog({
+          color: "rgb(186, 210, 235)",
+          "high-color": "rgb(36, 92, 223)",
+          "horizon-blend": 0.02,
+          "space-color": "rgb(11, 11, 25)",
+          "star-intensity": 0.6,
+        });
+      });
+
+      map.once("load", () => {
+        const a = new MapboxAdapter(map);
+        a.loadVessels(allVessels);
+        setAdapter(a);
+        setCount(allVessels.length);
+
+        a.onMapClick((lat, lon) => {
+          a.setTempMarker(lat, lon);
+          setTempCoords({ lat, lng: lon });
+          setIsCreating(true);
+          setSelectedPointId(null);
+          setPopupPos(null);
+        });
+
+        setTimeout(() => map.resize(), 200);
+      });
+
+      map.on("error", (e) => console.error("Mapbox error:", e));
+    } catch (error) {
+      console.error("Error initializing map:", error);
+    }
 
     return () => {
-      window.removeEventListener("orientationchange", invalidate);
-      window.removeEventListener("resize", invalidate);
-      a.destroy();
-      map.remove();
+      if (adapter) adapter.destroy();
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
     };
-  }, [isMobile, allVessels]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!mapContainer.current || !mapInstance.current) return;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const resizeObserver = new ResizeObserver(() => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (mapInstance.current) {
+          mapInstance.current.resize();
+        }
+      }, 100);
+    });
+
+    resizeObserver.observe(mapContainer.current);
+
+    return () => {
+      resizeObserver.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [mapInstance.current]);
 
   useEffect(() => {
     if (!adapter) return;
 
+    adapter.renderCustomPoints(points, (id) => {
+      const p = points.find((point) => point.id === id);
+      if (p) {
+        const screenPos = adapter.project(p.lat, p.lng);
+        setPopupPos({ x: screenPos.x, y: screenPos.y });
+        setSelectedPointId(id);
+        setIsCreating(false);
+        adapter.removeTempMarker();
+      }
+    });
+  }, [adapter, points]);
+
+  // --- ФОКУСИРОВКА ИЗ URL (View on Map) ---
+  useEffect(() => {
+    if (!adapter || !mapInstance.current || points.length === 0) return;
+
+    const focusId = searchParams.get("focus");
+    if (focusId) {
+      const pointToFocus = points.find((p) => p.id === focusId);
+
+      if (pointToFocus) {
+        mapInstance.current.flyTo({
+          center: [pointToFocus.lng, pointToFocus.lat],
+          zoom: 6,
+          essential: true,
+          speed: 1.5,
+        });
+
+        setTimeout(() => {
+          const screenPos = adapter.project(pointToFocus.lat, pointToFocus.lng);
+          setPopupPos({ x: screenPos.x, y: screenPos.y });
+          setSelectedPointId(focusId);
+        }, 800);
+      }
+    }
+  }, [adapter, points, searchParams]);
+
+  useEffect(() => {
+    if (!adapter || !selectedPointId) return;
+
+    const p = points.find((point) => point.id === selectedPointId);
+    if (!p) return;
+
+    const updatePosition = () => {
+      const screenPos = adapter.project(p.lat, p.lng);
+      setPopupPos({ x: screenPos.x, y: screenPos.y });
+    };
+
+    const unsubscribe = adapter.onMove(updatePosition);
+    updatePosition();
+
+    return () => unsubscribe();
+  }, [adapter, selectedPointId, points]);
+
+  useEffect(() => {
+    if (!adapter) return;
     const saved =
       typeof window !== "undefined"
         ? (localStorage.getItem(STORAGE_KEY) as BaseName | null)
         : null;
-
-    const locked = saved === "osm" || saved === "sat";
-    const want: BaseName = locked ? (saved as BaseName) : "light";
+    const want: BaseName = saved ? (saved as BaseName) : "sat";
 
     if (want !== currentBase) {
       adapter.setBasemap(want);
       setCurrentBase(want);
     }
-  }, [adapter, currentBase]);
+  }, [adapter]);
 
   useEffect(() => {
     if (!adapter) return;
     const onChangeVisible = () => {
       setCount(
-        adapter.getVisibleCount ? adapter.getVisibleCount() : allVessels.length
+        adapter.getVisibleCount ? adapter.getVisibleCount() : allVessels.length,
       );
     };
-    // @ts-ignore
-    adapter.on?.("visible:change", onChangeVisible);
-    return () => {
-      // @ts-ignore
-      adapter.off?.("visible:change", onChangeVisible);
-    };
+    adapter.on("visible:change", onChangeVisible);
+    return () => adapter.off("visible:change", onChangeVisible);
   }, [adapter, allVessels.length]);
 
+  const handleSavePoint = (data: any) => {
+    if (tempCoords) {
+      addPoint({
+        ...data,
+        lat: tempCoords.lat,
+        lng: tempCoords.lng,
+      });
+      setIsCreating(false);
+      setTempCoords(null);
+      adapter?.removeTempMarker();
+    }
+  };
+
+  const handleCancelCreate = () => {
+    setIsCreating(false);
+    setTempCoords(null);
+    adapter?.removeTempMarker();
+  };
+
+  const selectedPoint = useMemo(
+    () => points.find((p) => p.id === selectedPointId) || null,
+    [points, selectedPointId],
+  );
+
   return (
-    <div className="relative w-full h-[100svh] sm:h-screen">
+    <div className="relative w-full h-[100svh] sm:h-screen bg-gray-900 overflow-hidden">
       <div
-        ref={mapRef}
-        className="absolute inset-0 z-0 bg-white dark:bg-black"
-        style={{
-          paddingTop: "env(safe-area-inset-top)",
-          paddingBottom: "env(safe-area-inset-bottom)",
-          paddingLeft: "env(safe-area-inset-left)",
-          paddingRight: "env(safe-area-inset-right)",
-        }}
+        ref={mapContainer}
+        className="absolute inset-0 z-0 w-full h-full"
+        style={{ outline: "none" }}
       />
+
       {adapter && (
         <>
           <VesselOverlay
-            adapter={adapter}
+            adapter={adapter as any}
             detailsHref={(id) => `/vessels/${id}`}
           />
-          <RightDock adapter={adapter} />
+          <RightDock
+            adapter={adapter as any}
+            currentBasemap={currentBase}
+            onBasemapChange={(style) => {
+              adapter.setBasemap(style);
+              setCurrentBase(style);
+              localStorage.setItem(STORAGE_KEY, style);
+            }}
+          />
         </>
       )}
 
-      <div className="absolute right-2 bottom-[calc(env(safe-area-inset-bottom)+8px)] z-[1200] rounded-md bg-black/60 px-2 py-1 text-[10px] sm:text-xs text-white">
+      {isCreating && tempCoords && (
+        <CreatePointForm
+          lat={tempCoords.lat}
+          lng={tempCoords.lng}
+          onSave={handleSavePoint}
+          onCancel={handleCancelCreate}
+        />
+      )}
+
+      {selectedPoint && popupPos && (
+        <PointPopup
+          point={selectedPoint}
+          position={popupPos}
+          onClose={() => setSelectedPointId(null)}
+          onToggleFavorite={toggleFavorite}
+          onDelete={(id) => {
+            deletePoint(id);
+            setSelectedPointId(null);
+          }}
+        />
+      )}
+
+      <div className="absolute right-2 bottom-[calc(env(safe-area-inset-bottom)+30px)] sm:bottom-[30px] z-[10] rounded-md bg-black/60 px-2 py-1 text-[10px] sm:text-xs text-white backdrop-blur-sm border border-white/10">
         {count} visible
       </div>
     </div>

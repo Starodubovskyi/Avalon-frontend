@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import VesselInfoPanel, { type VesselInfo } from "./VesselInfoPanel";
 import { getAnchorPosition, type PanelSide } from "./positioning";
-import type { MapAdapter } from "@/components/map/adapters/LeafletAdapter";
+import type { MapAdapter } from "@/components/map/adapters/MapboxAdapter";
 
 export default function VesselOverlay({
   adapter,
@@ -113,12 +113,12 @@ export default function VesselOverlay({
         panelSize,
         cont,
         "right",
-        12
+        12,
       );
       setPanelPos({ left, top });
       setPanelSide(side);
     },
-    [adapter, isMobile]
+    [adapter, isMobile],
   );
 
   // Обработка выбора маркера
@@ -189,7 +189,7 @@ export default function VesselOverlay({
 
   const inFleet = useMemo(
     () => (renderData ? fleetIds.has(renderData.id) : false),
-    [renderData, fleetIds]
+    [renderData, fleetIds],
   );
 
   const close = useCallback(() => {

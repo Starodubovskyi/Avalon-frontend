@@ -10,7 +10,7 @@ import { useTheme } from "next-themes";
 import { IconShip } from "@tabler/icons-react";
 
 import VesselOverlay from "@/components/map/VesselOverlay";
-import { LeafletAdapter } from "@/components/map/adapters/LeafletAdapter";
+import { LeafletAdapter } from "@/components/map/adapters/MapboxAdapter";
 import type { VesselInfo } from "@/components/map/VesselInfoPanel";
 
 const MIN_ZOOM = 3;
@@ -134,7 +134,7 @@ function AutoFit({
     }
 
     const bounds = L.latLngBounds(
-      points.map(([lat, lon]) => L.latLng(lat, lon))
+      points.map(([lat, lon]) => L.latLng(lat, lon)),
     );
     map.fitBounds(bounds, { padding: [40, 40], animate: true });
 
@@ -175,7 +175,7 @@ function mapStoreVesselToOverlay(v: StoreVessel): VesselInfo {
     ? new Date(v.etaIso)
     : new Date(Date.now() + 48 * 3600 * 1000);
   const atd = new Date(
-    eta.getTime() - (72 + Math.floor(Math.random() * 96)) * 3600 * 1000
+    eta.getTime() - (72 + Math.floor(Math.random() * 96)) * 3600 * 1000,
   );
 
   return {
