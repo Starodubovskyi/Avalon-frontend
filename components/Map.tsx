@@ -17,7 +17,7 @@ import CreatePointForm from "@/components/map/CreatePointForm";
 import PointPopup from "@/components/map/PointPopup";
 
 mapboxgl.accessToken =
-  {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ"
 
 type LL = { lat: number; lon: number };
 type BaseName = "light" | "dark" | "osm" | "sat";
