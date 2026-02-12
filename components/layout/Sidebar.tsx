@@ -1285,7 +1285,7 @@ export default function Sidebar() {
                   </button>
                 </DialogTrigger>
 
-                <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-2xl">
+                <DialogContent className="p-0 max-w-[1200px] w-full bg-transparent border-none shadow-none outline-none">
                   <AuthModalContent
                     onCloseModal={() => setIsAuthModalOpen(false)}
                   />

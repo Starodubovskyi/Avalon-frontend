@@ -1,28 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import * as L from "leaflet";
+import { useEffect, useMemo, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import { useDashboardStore } from "./store";
 import type { Vessel as StoreVessel } from "./types";
 import { useTheme } from "next-themes";
 import { IconShip } from "@tabler/icons-react";
 
 import VesselOverlay from "@/components/map/VesselOverlay";
-import { LeafletAdapter } from "@/components/map/adapters/MapboxAdapter";
+import { MapboxAdapter } from "@/components/map/adapters/MapboxAdapter"; // Используем Mapbox адаптер
 import type { VesselInfo } from "@/components/map/VesselInfoPanel";
 
-const MIN_ZOOM = 3;
-const DEFAULT_ZOOM = 4;
-const SINGLE_VESSEL_ZOOM = 7;
+// Не забудьте указать токен (или вынести его в env)
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
 
 export default function FleetMap() {
   const { vessels, searchQuery, filters } = useDashboardStore();
   const { resolvedTheme } = useTheme();
+
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<mapboxgl.Map | null>(null);
+  const [adapter, setAdapter] = useState<MapboxAdapter | null>(null);
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => setMounted(true), []);
 
+  // --- 1. Фильтрация данных (осталась без изменений) ---
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return vessels.filter((v) => {
@@ -40,21 +45,92 @@ export default function FleetMap() {
     });
   }, [vessels, searchQuery, filters]);
 
-  const center = useMemo(() => {
-    if (!filtered.length) return { lat: 20, lon: 20 };
-    const lat = filtered.reduce((s, v) => s + v.lat, 0) / filtered.length;
-    const lon = filtered.reduce((s, v) => s + v.lon, 0) / filtered.length;
-    return { lat, lon };
-  }, [filtered]);
+  // --- 2. Инициализация карты ---
+  useEffect(() => {
+    if (!mounted || !mapContainer.current || mapInstance.current) return;
 
-  const tileUrl =
-    resolvedTheme === "dark"
-      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const tileAttrib =
-    resolvedTheme === "dark"
-      ? '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> · © <a href="https://carto.com/attributions">CARTO</a>'
-      : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+    const style =
+      resolvedTheme === "dark"
+        ? "mapbox://styles/mapbox/dark-v11"
+        : "mapbox://styles/mapbox/light-v11";
+
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: style,
+      center: [20, 20], // [lon, lat]
+      zoom: 1.5,
+      projection: "mercator" as any, // Для дэшборда часто удобнее 2D, но можно и 'globe'
+      attributionControl: false,
+    });
+
+    mapInstance.current = map;
+
+    map.on("load", () => {
+      const a = new MapboxAdapter(map);
+      setAdapter(a);
+    });
+
+    return () => {
+      if (adapter) adapter.destroy(); // Гипотетический метод очистки
+      map.remove();
+      mapInstance.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
+
+  // --- 3. Смена темы (Dark/Light) ---
+  useEffect(() => {
+    if (!mapInstance.current) return;
+    const style =
+      resolvedTheme === "dark"
+        ? "mapbox://styles/mapbox/dark-v11"
+        : "mapbox://styles/mapbox/light-v11";
+
+    // Проверяем, чтобы не перезагружать тот же стиль
+    // (Mapbox не дает простого метода узнать URL текущего стиля, но можно оптимизировать)
+    mapInstance.current.setStyle(style);
+
+    // При смене стиля нужно восстановить слои адаптера,
+    // если адаптер зависит от слоев карты.
+    // Обычно MapboxAdapter должен слушать событие 'style.load' внутри себя.
+  }, [resolvedTheme]);
+
+  // --- 4. Обновление судов и Авто-зум (Fit Bounds) ---
+  useEffect(() => {
+    if (!adapter || !mapInstance.current) return;
+
+    // Преобразуем данные
+    const mappedVessels = filtered.map(mapStoreVesselToOverlay);
+
+    // Загружаем в адаптер
+    adapter.loadVessels(mappedVessels);
+
+    // Логика AutoFit
+    if (mappedVessels.length === 0) return;
+
+    if (mappedVessels.length === 1) {
+      // Одно судно
+      const v = mappedVessels[0];
+      mapInstance.current.flyTo({
+        center: [v.lon, v.lat],
+        zoom: 7,
+        essential: true,
+      });
+    } else {
+      // Много судов - вычисляем границы
+      const bounds = new mapboxgl.LngLatBounds();
+      mappedVessels.forEach((v) => {
+        bounds.extend([v.lon, v.lat]);
+      });
+
+      mapInstance.current.fitBounds(bounds, {
+        padding: 50,
+        maxZoom: 10,
+        animate: true,
+        duration: 1000,
+      });
+    }
+  }, [adapter, filtered]);
 
   return (
     <div className="relative flex flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
@@ -79,97 +155,30 @@ export default function FleetMap() {
 
       {/* Map Content */}
       <div className="relative h-[48vh] min-h-[400px] w-full bg-zinc-50 dark:bg-zinc-900">
-        {mounted ? (
-          <MapContainer
-            center={[center.lat, center.lon]}
-            zoom={DEFAULT_ZOOM}
-            minZoom={MIN_ZOOM}
-            maxZoom={12}
-            scrollWheelZoom
-            worldCopyJump
-            maxBounds={[
-              [-85, -180],
-              [85, 180],
-            ]}
-            maxBoundsViscosity={0.9}
-            className="z-0 h-full w-full outline-none"
-          >
-            <TileLayer attribution={tileAttrib} url={tileUrl} noWrap />
+        <div
+          ref={mapContainer}
+          className="absolute inset-0 h-full w-full outline-none"
+        />
 
-            <AutoFit
-              points={filtered.map((v) => [v.lat, v.lon] as [number, number])}
-              minZoom={MIN_ZOOM}
-              singleZoom={SINGLE_VESSEL_ZOOM}
-            />
-
-            <VesselOverlayLeafletBridge vessels={filtered} />
-          </MapContainer>
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+        {!mounted && (
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-zinc-400 bg-zinc-50 dark:bg-zinc-900">
             Initializing map engine...
           </div>
+        )}
+
+        {/* Подключаем Overlay, если он нужен для всплывающих окон/панелей */}
+        {adapter && (
+          <VesselOverlay
+            adapter={adapter}
+            detailsHref={(id) => `/vessels/${id}`}
+          />
         )}
       </div>
     </div>
   );
 }
 
-function AutoFit({
-  points,
-  minZoom,
-  singleZoom = 7,
-}: {
-  points: [number, number][];
-  minZoom: number;
-  singleZoom?: number;
-}) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!points.length) return;
-
-    if (points.length === 1) {
-      map.setView(points[0], singleZoom, { animate: true });
-      return;
-    }
-
-    const bounds = L.latLngBounds(
-      points.map(([lat, lon]) => L.latLng(lat, lon)),
-    );
-    map.fitBounds(bounds, { padding: [40, 40], animate: true });
-
-    if (map.getZoom() < minZoom) map.setZoom(minZoom);
-  }, [points, map, minZoom, singleZoom]);
-
-  return null;
-}
-
-function VesselOverlayLeafletBridge({ vessels }: { vessels: StoreVessel[] }) {
-  const map = useMap();
-  const [adapter, setAdapter] = useState<LeafletAdapter | null>(null);
-
-  useEffect(() => {
-    const a = new LeafletAdapter(map);
-    a.loadVessels(vessels.map(mapStoreVesselToOverlay));
-    setAdapter(a);
-    return () => {
-      a.destroy();
-    };
-  }, [map]);
-
-  useEffect(() => {
-    if (!adapter) return;
-    adapter.destroy();
-    adapter.loadVessels(vessels.map(mapStoreVesselToOverlay));
-  }, [vessels]);
-
-  if (!adapter) return null;
-
-  return (
-    <VesselOverlay adapter={adapter} detailsHref={(id) => `/vessels/${id}`} />
-  );
-}
-
+// --- Helper Function ---
 function mapStoreVesselToOverlay(v: StoreVessel): VesselInfo {
   const eta = v.etaIso
     ? new Date(v.etaIso)

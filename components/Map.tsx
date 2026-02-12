@@ -12,19 +12,16 @@ import type { VesselInfo } from "@/components/map/VesselInfoPanel";
 import RightDock from "./map/right-dock/RightDock";
 import { mockVesselsData } from "@/components/types/mockData1";
 
-// --- НОВЫЕ ИМПОРТЫ ---
 import { usePoints } from "./context/PointsContext";
 import CreatePointForm from "@/components/map/CreatePointForm";
 import PointPopup from "@/components/map/PointPopup";
-// ---------------------
 
 mapboxgl.accessToken =
-  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+  {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
 
 type LL = { lat: number; lon: number };
 type BaseName = "light" | "dark" | "osm" | "sat";
 
-// --- Вспомогательные данные и функции ---
 const PORT_COORDS: Record<string, LL> = {
   rotterdam: { lat: 51.95, lon: 4.14 },
   "port of rotterdam": { lat: 51.95, lon: 4.14 },
@@ -103,6 +100,14 @@ function mapMocksToVesselInfo(): VesselInfo[] {
 
 const STORAGE_KEY = "basemap_v1";
 
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 export default function Map() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -129,6 +134,16 @@ export default function Map() {
   const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(
     null,
   );
+
+  const [projection, setProjection] = useState<"globe" | "mercator">("globe");
+
+  const toggleProjection = () => {
+    if (!mapInstance.current) return;
+    const nextProjection = projection === "globe" ? "mercator" : "globe";
+
+    mapInstance.current.setProjection(nextProjection);
+    setProjection(nextProjection);
+  };
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -195,7 +210,6 @@ export default function Map() {
         mapInstance.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -235,7 +249,6 @@ export default function Map() {
     });
   }, [adapter, points]);
 
-  // --- ФОКУСИРОВКА ИЗ URL (View on Map) ---
   useEffect(() => {
     if (!adapter || !mapInstance.current || points.length === 0) return;
 
@@ -302,10 +315,21 @@ export default function Map() {
     return () => adapter.off("visible:change", onChangeVisible);
   }, [adapter, allVessels.length]);
 
-  const handleSavePoint = (data: any) => {
+  const handleSavePoint = async (data: any) => {
     if (tempCoords) {
+      let photoBase64 = null;
+
+      if (data.photo instanceof File) {
+        try {
+          photoBase64 = await fileToBase64(data.photo);
+        } catch (e) {
+          console.error("Error converting file:", e);
+        }
+      }
+
       addPoint({
         ...data,
+        photo: photoBase64,
         lat: tempCoords.lat,
         lng: tempCoords.lng,
       });
@@ -340,6 +364,7 @@ export default function Map() {
             adapter={adapter as any}
             detailsHref={(id) => `/vessels/${id}`}
           />
+
           <RightDock
             adapter={adapter as any}
             currentBasemap={currentBase}
@@ -347,6 +372,37 @@ export default function Map() {
               adapter.setBasemap(style);
               setCurrentBase(style);
               localStorage.setItem(STORAGE_KEY, style);
+            }}
+            currentProjection={projection}
+            onProjectionChange={(nextProj) => {
+              const map = mapInstance.current;
+              if (!map) return;
+
+              if (nextProj === "globe") {
+                map.setProjection("globe");
+
+                map.flyTo({
+                  center: [0, 20],
+                  zoom: 1.5,
+                  pitch: 45,
+                  bearing: 0,
+                  duration: 2500,
+                  essential: true,
+                });
+              } else {
+                map.setProjection("mercator");
+
+                map.flyTo({
+                  center: [0, 20],
+                  zoom: 2.5,
+                  pitch: 0,
+                  bearing: 0,
+                  duration: 2000,
+                  essential: true,
+                });
+              }
+
+              setProjection(nextProj);
             }}
           />
         </>

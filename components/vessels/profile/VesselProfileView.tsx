@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import type { PublicVessel } from "./publicVessels";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
+import type { PublicVessel } from "./publicVessels";
 import VesselOverlay from "@/components/map/VesselOverlay";
-import { LeafletAdapter } from "@/components/map/adapters/LeafletAdapter";
+// Заменяем адаптер на Mapbox
+import { MapboxAdapter } from "@/components/map/adapters/MapboxAdapter";
 import type { VesselInfo } from "@/components/map/VesselInfoPanel";
 
 import { getCurrentSubscription } from "@/components/types/billing/subscription";
@@ -20,19 +21,13 @@ import {
 import type { AdminCompany } from "@/components/admin/companies/types";
 import { adminCompaniesMock } from "@/components/admin/companies/mock";
 
+// --- Токен Mapbox (используем тот же, что и в вашем Map.tsx) ---
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+
 const Anchor = ({ id }: { id: string }) => (
   <span id={id} className="block -mt-24 pt-24" aria-hidden="true" />
 );
-
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-const DefaultIcon = L.icon({
-  iconUrl: typeof icon === "string" ? icon : icon.src,
-  shadowUrl: typeof iconShadow === "string" ? iconShadow : iconShadow.src,
-});
-if (typeof window !== "undefined") {
-  (L.Marker as any).prototype.options.icon = DefaultIcon;
-}
 
 const dash = (v?: string | number | null) =>
   v === undefined || v === null || v === "" ? "—" : String(v);
@@ -95,6 +90,21 @@ const coordsFor = (place?: string): LL | null => {
   const k = lower(place);
   if (!k) return null;
   return PORT_COORDS[k] || PORT_COORDS[k.replace(/^port of\s+/, "")] || null;
+};
+
+// Функция маппинга стилей
+const getMapStyle = (saved: string) => {
+  switch (saved) {
+    case "light":
+      return "mapbox://styles/mapbox/light-v11";
+    case "sat":
+      return "mapbox://styles/mapbox/satellite-streets-v12";
+    case "osm":
+      return "mapbox://styles/mapbox/streets-v12";
+    case "dark":
+    default:
+      return "mapbox://styles/mapbox/dark-v11";
+  }
 };
 
 function vesselToOverlayInfo(v: PublicVessel): VesselInfo {
@@ -184,6 +194,7 @@ export default function VesselProfileView({
     planName: string;
     billing: BillingType;
   } | null>(null);
+
   useEffect(() => {
     const refresh = () => {
       const sub = getCurrentSubscription();
@@ -198,6 +209,7 @@ export default function VesselProfileView({
     window.addEventListener("storage", refresh);
     return () => window.removeEventListener("storage", refresh);
   }, []);
+
   const hasEnterprise = subscription?.planName === "Maritime Enterprise";
 
   const arrivalCompanies = pickByPlace(
@@ -221,49 +233,88 @@ export default function VesselProfileView({
   );
 
   const mapHostRef = useRef<HTMLDivElement | null>(null);
-  const [adapter, setAdapter] = useState<LeafletAdapter | null>(null);
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null); // Храним инстанс карты
+  const [adapter, setAdapter] = useState<MapboxAdapter | null>(null);
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => setMounted(true), []);
 
+  // --- ИНИЦИАЛИЗАЦИЯ MAPBOX ---
   useEffect(() => {
     if (!mounted || !mapHostRef.current) return;
+    if (mapInstanceRef.current) return; // Защита от двойной инициализации
 
-    const container = mapHostRef.current as any;
-    if (container._leaflet_id) container._leaflet_id = null;
-
-    const map = L.map(container, {
-      center: [lat || 0, lng || 0],
-      zoom: lat || lng ? 6 : 2,
-      zoomControl: false,
-      scrollWheelZoom: false,
-      worldCopyJump: true,
-    });
-
-    const a = new LeafletAdapter(map);
-    const saved =
+    const savedStyle =
       (typeof window !== "undefined" &&
-        (localStorage.getItem("basemap_v1") as any)) ||
+        (localStorage.getItem("basemap_v1") as string)) ||
       "dark";
-    a.setBasemap(
-      saved === "light" || saved === "osm" || saved === "sat" ? saved : "dark",
-    );
+
+    try {
+      const map = new mapboxgl.Map({
+        container: mapHostRef.current,
+        style: getMapStyle(savedStyle),
+        center: [lng || 0, lat || 0], // Важно: [lng, lat]
+        zoom: lat || lng ? 5 : 1, // Зум чуть меньше чем в Leaflet для Mapbox
+        projection: "mercator" as any, // Принудительно 2D
+        attributionControl: false,
+      });
+
+      mapInstanceRef.current = map;
+
+      // Ждем загрузки стиля, чтобы добавить адаптер
+      map.on("load", () => {
+        const a = new MapboxAdapter(map);
+
+        // Передача стиля в адаптер, если он поддерживает этот метод
+        if (a.setBasemap) {
+          a.setBasemap(savedStyle as any);
+        }
+
+        const info = vesselToOverlayInfo(vessel);
+
+        if (info) {
+          a.loadVessels([info]);
+          // FlyTo безопаснее чем setView после инициализации
+          map.flyTo({ center: [info.lon, info.lat], zoom: 5, essential: true });
+        } else {
+          a.loadVessels([]);
+          map.flyTo({ center: [0, 0], zoom: 1 });
+        }
+
+        setAdapter(a);
+      });
+
+      map.on("error", (e) => console.error("Mapbox error:", e));
+    } catch (err) {
+      console.error("Failed to init Mapbox:", err);
+    }
+
+    return () => {
+      if (adapter) {
+        // adapter.destroy(); // Если у вашего MapboxAdapter есть destroy
+      }
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
+
+  // --- ОБНОВЛЕНИЕ ДАННЫХ ПРИ СМЕНЕ СУДНА ---
+  useEffect(() => {
+    if (!adapter || !mapInstanceRef.current) return;
 
     const info = vesselToOverlayInfo(vessel);
     if (info) {
-      a.loadVessels([info]);
-      map.setView([info.lat, info.lon], 6);
-    } else {
-      a.loadVessels([]);
-      map.setView([0, 0], 2);
+      adapter.loadVessels([info]);
+      mapInstanceRef.current.flyTo({
+        center: [info.lon, info.lat],
+        zoom: 5,
+        speed: 1.5,
+      });
     }
-
-    setAdapter(a);
-
-    return () => {
-      a.destroy();
-      map.remove();
-    };
-  }, [mounted, lat, lng, vessel]);
+  }, [vessel, adapter]);
 
   return (
     <div className="w-full space-y-6">
@@ -273,7 +324,13 @@ export default function VesselProfileView({
         <div className="lg:col-span-2 space-y-6">
           <div className={`${card} overflow-hidden`}>
             <div className="relative h-64 w-full">
-              <div ref={mapHostRef} className="absolute inset-0" />
+              {/* Контейнер карты */}
+              <div
+                ref={mapHostRef}
+                className="absolute inset-0 w-full h-full bg-gray-900"
+                style={{ outline: "none" }}
+              />
+
               {!mounted && (
                 <div className="absolute inset-0 bg-gray-100 dark:bg-white/5 animate-pulse rounded" />
               )}
@@ -287,7 +344,7 @@ export default function VesselProfileView({
 
               <Link
                 href={`/map${vessel.mmsi ? `?mmsi=${vessel.mmsi}` : ""}`}
-                className="absolute top-3 right-3 px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-lg border border-gray-200/50 bg-white/95 hover:bg-white hover:text-indigo-600 dark:border-white/10 dark:bg-black/80 dark:hover:bg-black dark:text-gray-200 dark:hover:text-indigo-400 shadow-sm backdrop-blur-sm transition-colors"
+                className="absolute top-3 right-3 px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-lg border border-gray-200/50 bg-white/95 hover:bg-white hover:text-indigo-600 dark:border-white/10 dark:bg-black/80 dark:hover:bg-black dark:text-gray-200 dark:hover:text-indigo-400 shadow-sm backdrop-blur-sm transition-colors z-[10]"
               >
                 View on live map
               </Link>

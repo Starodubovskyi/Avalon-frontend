@@ -1,21 +1,15 @@
-"use client";
+'use client';
 
-import AuthTabs from "@/components/auth/AuthTabs";
-import ThemeToggler from "@/components/ThemeToggler";
+import AuthModalContent from "@/components/auth/AuthModalContent";
+import { useRouter } from "next/navigation"; // 1. Импортируем хук роутера
 
-const AuthPage = () => {
-  const onCloseModal = () => {
-    console.log("Modal close requested from AuthPage (placeholder)");
-  };
+export default function AuthPage() {
+  const router = useRouter(); // 2. Инициализируем роутер
 
   return (
-    <>
-      <AuthTabs onCloseModal={onCloseModal} />
-      <div className="absolute bottom-5 right-0 text-white">
-        <ThemeToggler />
-      </div>
-    </>
+    <main className="min-h-screen w-full flex items-center justify-center bg-gray-900 p-4 overflow-auto">
+      {/* 3. Передаем функцию закрытия (рединрект на главную) */}
+      <AuthModalContent onCloseModal={() => router.push('/')} />
+    </main>
   );
-};
-
-export default AuthPage;
+}
