@@ -43,7 +43,7 @@
     "i18n-iso-countries": "^7.14.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.534.0",
-    "mapbox-gl": "^3.14.0",
+    "mapbox-gl": "^3.18.1",
     "nanoid": "^5.1.5",
     "next": "14.2.5",
     "next-intl": "^4.3.5",
@@ -76,6 +76,7 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.20",
+    "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

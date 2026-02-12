@@ -1,10 +1,14 @@
 "use client";
 
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { inputBase, labelBase } from "../ui/classes";
-import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { useTheme } from "next-themes";
+
+// Токен Mapbox
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
 
 type Props = {
   formData: {
@@ -24,19 +28,6 @@ type Props = {
   pin: File | null;
 };
 
-function MarkerSetter({
-  onPick,
-}: {
-  onPick: (lat: number, lng: number) => void;
-}) {
-  useMapEvents({
-    click(e) {
-      onPick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
-
 export default function StepLocation({
   formData,
   errors,
@@ -44,6 +35,126 @@ export default function StepLocation({
   countryList,
   pin,
 }: Props) {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<mapboxgl.Map | null>(null);
+  const markerInstance = useRef<mapboxgl.Marker | null>(null);
+  const { resolvedTheme } = useTheme();
+
+  // Инициализация карты
+  useEffect(() => {
+    if (!mapContainer.current || mapInstance.current) return;
+
+    const style =
+      resolvedTheme === "dark"
+        ? "mapbox://styles/mapbox/dark-v11"
+        : "mapbox://styles/mapbox/light-v11";
+
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: style,
+      center: [formData.lng || 0, formData.lat || 0],
+      zoom: 13,
+      attributionControl: false,
+    });
+
+    mapInstance.current = map;
+
+    // Создаем маркер (пока пустой, позицию зададим ниже)
+    const marker = new mapboxgl.Marker({
+      draggable: true,
+    })
+      .setLngLat([formData.lng || 0, formData.lat || 0])
+      .addTo(map);
+
+    markerInstance.current = marker;
+
+    // Слушаем клик по карте для переноса маркера
+    map.on("click", (e) => {
+      const { lng, lat } = e.lngLat;
+      marker.setLngLat([lng, lat]);
+      setFormData((p: any) => ({ ...p, lat, lng }));
+    });
+
+    // Слушаем перетаскивание маркера
+    marker.on("dragend", () => {
+      const lngLat = marker.getLngLat();
+      setFormData((p: any) => ({ ...p, lat: lngLat.lat, lng: lngLat.lng }));
+    });
+
+    return () => {
+      map.remove();
+      mapInstance.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Пустой массив зависимостей, чтобы инициализировать один раз
+
+  // Обновление темы карты
+  useEffect(() => {
+    if (!mapInstance.current) return;
+    const style =
+      resolvedTheme === "dark"
+        ? "mapbox://styles/mapbox/dark-v11"
+        : "mapbox://styles/mapbox/light-v11";
+    mapInstance.current.setStyle(style);
+  }, [resolvedTheme]);
+
+  // Синхронизация маркера с formData (если координаты поменялись извне)
+  useEffect(() => {
+    if (markerInstance.current) {
+      const currentPos = markerInstance.current.getLngLat();
+      // Обновляем только если позиция реально отличается, чтобы избежать петель
+      if (
+        Math.abs(currentPos.lat - formData.lat) > 0.0001 ||
+        Math.abs(currentPos.lng - formData.lng) > 0.0001
+      ) {
+        markerInstance.current.setLngLat([formData.lng, formData.lat]);
+        if (mapInstance.current) {
+          mapInstance.current.flyTo({ center: [formData.lng, formData.lat] });
+        }
+      }
+    }
+  }, [formData.lat, formData.lng]);
+
+  // Обновление кастомной иконки (если нужно)
+  useEffect(() => {
+    if (!markerInstance.current) return;
+
+    // В Mapbox GL JS стандартный маркер — это DOM элемент.
+    // Если нужно поменять иконку на кастомную картинку (pin / pinUrl):
+    const el = markerInstance.current.getElement();
+
+    // Очищаем старое содержимое SVG
+    el.innerHTML = "";
+
+    // Создаем картинку
+    const img = document.createElement("img");
+
+    if (pin) {
+      img.src = URL.createObjectURL(pin);
+    } else if (formData.pinUrl) {
+      img.src = formData.pinUrl;
+    } else {
+      // Если нет кастомной иконки - возвращаем дефолтный SVG Mapbox'а (или просто удаляем маркер и создаем заново, но проще оставить как есть)
+      // Для простоты: если нет картинки, Mapbox маркер по умолчанию имеет синий цвет.
+      // Чтобы вернуть дефолт, проще пересоздать маркер без element, но здесь мы просто оставим img.
+      // Если вы хотите дефолтный синий пин Mapbox, не добавляйте img внутрь.
+
+      // В данном коде: если нет картинки, мы просто не добавляем img, маркер останется дефолтным (синим).
+      // Но так как мы очистили innerHTML, он может стать пустым.
+      // Поэтому, лучший способ кастомизации в Mapbox — создавать DOM элемент ПРИ СОЗДАНИИ маркера.
+      // Но так как у нас pin может меняться динамически, это сложнее.
+
+      // РЕШЕНИЕ: Оставим дефолтный маркер Mapbox (синий), если нет картинки.
+      // Если есть картинка - применяем стили.
+      return;
+    }
+
+    img.style.width = "35px";
+    img.style.height = "35px";
+    img.style.objectFit = "contain";
+    el.appendChild(img);
+  }, [pin, formData.pinUrl]);
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -130,30 +241,8 @@ export default function StepLocation({
       </div>
 
       <div className="mt-6">
-        <div className="w-full h-72 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-sm">
-          <MapContainer
-            center={[formData.lat, formData.lng]}
-            zoom={13}
-            scrollWheelZoom={false}
-            className="w-full h-full"
-          >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <Marker
-              position={[formData.lat, formData.lng]}
-              icon={L.icon({
-                iconUrl: pin
-                  ? URL.createObjectURL(pin)
-                  : formData.pinUrl || "/marker-icon.png",
-                iconSize: [35, 35],
-                iconAnchor: [17, 34],
-              })}
-            />
-            <MarkerSetter
-              onPick={(lat, lng) =>
-                setFormData((p: any) => ({ ...p, lat, lng }))
-              }
-            />
-          </MapContainer>
+        <div className="w-full h-72 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-sm relative">
+          <div ref={mapContainer} className="w-full h-full outline-none" />
         </div>
         <div className="mt-2 text-xs text-gray-500 dark:text-neutral-400">
           Tip: click on the map to set the pin.

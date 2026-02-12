@@ -30,6 +30,7 @@ import {
   IconChevronRight as IconArrowRight,
   IconShield,
   IconNotes,
+  IconMapPin,
 } from "@tabler/icons-react";
 
 import type { IconProps } from "@tabler/icons-react";
@@ -119,7 +120,7 @@ function FriendsDrawer({
         className={clsx(
           "absolute inset-0 transition-opacity duration-300 backdrop-blur-[2px]",
 
-          anim ? "bg-black/40 opacity-100" : "bg-black/0 opacity-0"
+          anim ? "bg-black/40 opacity-100" : "bg-black/0 opacity-0",
         )}
       />
 
@@ -135,7 +136,7 @@ function FriendsDrawer({
 
           "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
 
-          anim ? "translate-x-0" : "translate-x-full"
+          anim ? "translate-x-0" : "translate-x-full",
         )}
       >
         <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
@@ -172,7 +173,7 @@ function FriendsDrawer({
                 if (!wrap) return;
 
                 Array.from(
-                  wrap.querySelectorAll<HTMLDivElement>("[data-name]")
+                  wrap.querySelectorAll<HTMLDivElement>("[data-name]"),
                 ).forEach((el) => {
                   const name = (el.dataset.name || "").toLowerCase();
 
@@ -239,6 +240,8 @@ const navItems = [
   { label: "Map", href: "/maps", icon: IconMap2 },
 
   { label: "LineUp", href: "/lineup", icon: IconTrendingUp },
+
+  { label: "My Points", href: "/mypoints", icon: IconMapPin },
 
   { label: "Dashboard", href: "/dashboard", icon: IconLayoutDashboard },
 
@@ -389,7 +392,7 @@ export default function Sidebar() {
       window.removeEventListener(
         "billing:change",
 
-        refreshPlan as EventListener
+        refreshPlan as EventListener,
       );
     };
   }, []);
@@ -426,7 +429,7 @@ export default function Sidebar() {
 
         active
           ? "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500 text-white shadow-sm"
-          : "bg-gray-100/70 text-gray-500 ring-1 ring-transparent group-hover:ring-gray-200 dark:bg-white/5 dark:text-gray-400"
+          : "bg-gray-100/70 text-gray-500 ring-1 ring-transparent group-hover:ring-gray-200 dark:bg-white/5 dark:text-gray-400",
       )}
     >
       {children}
@@ -458,7 +461,7 @@ export default function Sidebar() {
             : "bg-transparent text-gray-100"
           : "bg-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5",
 
-        className
+        className,
       )}
     >
       <span
@@ -469,7 +472,7 @@ export default function Sidebar() {
             ? active
               ? "opacity-100"
               : "opacity-0 group-hover:opacity-60"
-            : "opacity-0"
+            : "opacity-0",
         )}
       />
 
@@ -482,7 +485,7 @@ export default function Sidebar() {
       className={clsx(
         "text-[14px] font-medium tracking-[-0.01em] overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
 
-        expanded ? "opacity-100 max-w-[200px] ml-3" : "opacity-0 max-w-0 ml-0"
+        expanded ? "opacity-100 max-w-[200px] ml-3" : "opacity-0 max-w-0 ml-0",
       )}
     >
       {children}
@@ -565,8 +568,8 @@ export default function Sidebar() {
             subtitle: v.imo
               ? `IMO ${v.imo}`
               : v.mmsi
-              ? `MMSI ${v.mmsi}`
-              : undefined,
+                ? `MMSI ${v.mmsi}`
+                : undefined,
           });
         }
       });
@@ -681,7 +684,7 @@ export default function Sidebar() {
           className={clsx(
             "flex items-center h-[44px] rounded-full bg-white/90 ring-1 ring-gray-100 shadow-sm backdrop-blur-sm dark:bg-white/5 dark:ring-white/10 transition-all duration-300",
 
-            "px-2 justify-start"
+            "px-2 justify-start",
           )}
           role="search"
           onClick={() => setExpanded(true)}
@@ -699,7 +702,7 @@ export default function Sidebar() {
 
               expanded
                 ? "max-w-[200px] opacity-100 ml-2"
-                : "max-w-0 opacity-0 ml-0"
+                : "max-w-0 opacity-0 ml-0",
             )}
           >
             <input
@@ -732,7 +735,7 @@ export default function Sidebar() {
 
                       idx === active
                         ? "bg-gray-50 dark:bg-white/10"
-                        : "hover:bg-gray-50 dark:hover:bg-white/5"
+                        : "hover:bg-gray-50 dark:hover:bg-white/5",
                     )}
                   >
                     <span className="w-5 inline-flex justify-center">
@@ -786,10 +789,10 @@ export default function Sidebar() {
 
         "transition-[width] duration-300 overflow-hidden",
 
-        expanded ? "w-[288px]" : "w-[76px]"
+        expanded ? "w-[288px]" : "w-[76px]",
       ),
 
-    [expanded]
+    [expanded],
   );
 
   const MobileRow = ({
@@ -821,7 +824,7 @@ export default function Sidebar() {
 
             active
               ? "bg-white/90 text-gray-900 ring-1 ring-gray-100 shadow-sm dark:bg-white/10 dark:text-white"
-              : "text-gray-800 hover:bg-white/80 hover:ring-1 hover:ring-gray-100 dark:text-gray-200 dark:hover:bg-white/10"
+              : "text-gray-800 hover:bg-white/80 hover:ring-1 hover:ring-gray-100 dark:text-gray-200 dark:hover:bg-white/10",
           )}
         >
           <Icon size={20} />
@@ -885,7 +888,7 @@ export default function Sidebar() {
           className={clsx(
             Container,
 
-            "flex flex-col justify-between rounded-3xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:bg-black/40 dark:border-white/10 dark:shadow-[0_1px_20px_rgba(255,255,255,0.05)]"
+            "flex flex-col justify-between rounded-3xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:bg-black/40 dark:border-white/10 dark:shadow-[0_1px_20px_rgba(255,255,255,0.05)]",
           )}
           onMouseEnter={() => !pinned && setExpanded(true)}
           onMouseLeave={() => {
@@ -900,7 +903,7 @@ export default function Sidebar() {
                 className={clsx(
                   "ml-auto transition-opacity duration-300",
 
-                  expanded ? "opacity-100" : "opacity-0 pointer-events-none"
+                  expanded ? "opacity-100" : "opacity-0 pointer-events-none",
                 )}
               >
                 <PinButton />
@@ -952,7 +955,7 @@ export default function Sidebar() {
 
                           expanded
                             ? "opacity-100 w-4"
-                            : "opacity-0 w-0 overflow-hidden"
+                            : "opacity-0 w-0 overflow-hidden",
                         )}
                       >
                         {showAdmin ? (
@@ -970,7 +973,7 @@ export default function Sidebar() {
 
                       showAdmin && expanded
                         ? "max-h-96 opacity-100"
-                        : "max-h-0 opacity-0"
+                        : "max-h-0 opacity-0",
                     )}
                   >
                     <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gray-100 dark:bg-white/10 pointer-events-none" />
@@ -1024,7 +1027,7 @@ export default function Sidebar() {
 
                       expanded
                         ? "opacity-100 w-4"
-                        : "opacity-0 w-0 overflow-hidden"
+                        : "opacity-0 w-0 overflow-hidden",
                     )}
                   >
                     {showApps ? (
@@ -1042,7 +1045,7 @@ export default function Sidebar() {
 
                   showApps && expanded
                     ? "max-h-96 opacity-100"
-                    : "max-h-0 opacity-0"
+                    : "max-h-0 opacity-0",
                 )}
               >
                 <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gray-100 dark:bg-white/10 pointer-events-none" />
@@ -1098,7 +1101,7 @@ export default function Sidebar() {
                 className={clsx(
                   "w-80 bg-white/95 dark:bg-black/90 border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-3 backdrop-blur-md",
 
-                  menuAnim
+                  menuAnim,
                 )}
               >
                 <div className="rounded-xl p-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white shadow-sm">
@@ -1203,7 +1206,7 @@ export default function Sidebar() {
                 className={clsx(
                   "w-80 bg-white/95 dark:bg-black/90 border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-2 backdrop-blur-md",
 
-                  menuAnim
+                  menuAnim,
                 )}
               >
                 <div className="px-2 pb-2">
@@ -1267,7 +1270,7 @@ export default function Sidebar() {
 
                           expanded
                             ? "max-w-[200px] opacity-100 ml-3"
-                            : "max-w-0 opacity-0 ml-0"
+                            : "max-w-0 opacity-0 ml-0",
                         )}
                       >
                         <div className="flex flex-col">
@@ -1282,7 +1285,7 @@ export default function Sidebar() {
                   </button>
                 </DialogTrigger>
 
-                <DialogContent className="p-0 max-w-[1200px] h-[800px] flex overflow-hidden rounded-2xl">
+                <DialogContent className="p-0 max-w-[1200px] w-full bg-transparent border-none shadow-none outline-none">
                   <AuthModalContent
                     onCloseModal={() => setIsAuthModalOpen(false)}
                   />
@@ -1323,7 +1326,7 @@ export default function Sidebar() {
 
                           expanded
                             ? "max-w-[200px] opacity-100 ml-3"
-                            : "max-w-0 opacity-0 ml-0"
+                            : "max-w-0 opacity-0 ml-0",
                         )}
                       >
                         <div className="text-[14px] font-semibold leading-5 truncate">
@@ -1342,7 +1345,7 @@ export default function Sidebar() {
 
                           expanded
                             ? "opacity-60 ml-auto w-4"
-                            : "opacity-0 w-0 overflow-hidden"
+                            : "opacity-0 w-0 overflow-hidden",
                         )}
                       />
                     </Row>
@@ -1356,7 +1359,7 @@ export default function Sidebar() {
                   className={clsx(
                     "w-72 bg-white/95 dark:bg-black/90 border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-1 backdrop-blur-md",
 
-                    menuAnim
+                    menuAnim,
                   )}
                 >
                   <button
@@ -1439,7 +1442,7 @@ export default function Sidebar() {
           className={clsx(
             "hidden lg:block transition-[width] duration-300",
 
-            expanded ? "w-[288px]" : "w-[76px]"
+            expanded ? "w-[288px]" : "w-[76px]",
           )}
         />
 
@@ -1459,7 +1462,7 @@ export default function Sidebar() {
 
                 overlayVisible
                   ? "bg-black/40 opacity-100"
-                  : "bg-black/0 opacity-0"
+                  : "bg-black/0 opacity-0",
               )}
               onClick={closeMobile}
             />
@@ -1474,7 +1477,7 @@ export default function Sidebar() {
 
                 "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
 
-                mobileAnimVisible ? "translate-x-0" : "translate-x-full"
+                mobileAnimVisible ? "translate-x-0" : "translate-x-full",
               )}
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
@@ -1539,7 +1542,7 @@ export default function Sidebar() {
 
                         showAdminMobile
                           ? "max-h-96 opacity-100"
-                          : "max-h-0 opacity-0"
+                          : "max-h-0 opacity-0",
                       )}
                     >
                       <div className="absolute left-[26px] top-2 bottom-2 w-px bg-gray-100 dark:bg-white/10 pointer-events-none" />
@@ -1573,14 +1576,14 @@ export default function Sidebar() {
                   className={clsx(
                     "relative ml-3 overflow-hidden transition-all duration-300 ease-out",
 
-                    showApps ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                    showApps ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
                   )}
                 >
                   <div
                     className={clsx(
                       "pl-10 pr-1 space-y-1 pt-1 pb-2 transform transition-transform duration-300",
 
-                      showApps ? "translate-y-0" : "-translate-y-2"
+                      showApps ? "translate-y-0" : "-translate-y-2",
                     )}
                   >
                     {applicationItems.map(({ label, href, icon: Icon }) => (

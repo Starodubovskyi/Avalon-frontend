@@ -12,28 +12,24 @@ import {
   Calendar,
   Users,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { useEffect, useMemo, useRef, useState } from "react";
+import clsx from "clsx";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { useTheme } from "next-themes";
+
 import { Company } from "@/components/types/company.types";
 import { LineUpItem, TeamMember } from "./CompaniRegistation/form/types";
 import ManageTeamModal from "./manage/ManageTeamModal";
 import ManageLineUpModal from "./manage/ManageLineUpModal";
-import { useMemo, useState } from "react";
-import clsx from "clsx";
 
-// Градиент
+// Токен Mapbox
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+
 const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 const GRADIENT_TEXT =
   "bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-600 bg-clip-text text-transparent";
-
-const DefaultIcon = L.icon({
-  iconUrl: typeof icon === "string" ? icon : icon.src,
-  shadowUrl: typeof iconShadow === "string" ? iconShadow : iconShadow.src,
-});
-L.Marker.prototype.options.icon = DefaultIcon;
 
 function initials(first?: string, last?: string) {
   const f = (first || "").trim();
@@ -115,13 +111,60 @@ export default function CompanyCard({
   canManage = false,
   onUpdateCompany,
 }: Props) {
+  const { resolvedTheme } = useTheme();
   const team = (((company as any)?.team as TeamMember[]) || []).filter(Boolean);
   const lineup = (((company as any)?.lineup as LineUpItem[]) || []).filter(
-    Boolean
+    Boolean,
   ) as AnyLineUpItem[];
 
   const [openTeam, setOpenTeam] = useState(false);
   const [openLineup, setOpenLineup] = useState(false);
+
+  // --- Mapbox Logic for Sidebar ---
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
+
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+    if (mapInstanceRef.current) return; // Prevent double init
+
+    const style =
+      resolvedTheme === "dark"
+        ? "mapbox://styles/mapbox/dark-v11"
+        : "mapbox://styles/mapbox/light-v11";
+
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: style,
+      center: [company.lng || 0, company.lat || 0],
+      zoom: 13,
+      interactive: false, // Static map usually fits better in small cards
+      attributionControl: false,
+    });
+
+    // Add Marker
+    new mapboxgl.Marker({ color: "red" })
+      .setLngLat([company.lng || 0, company.lat || 0])
+      .setPopup(new mapboxgl.Popup().setHTML(`<b>${company.businessName}</b>`))
+      .addTo(map);
+
+    mapInstanceRef.current = map;
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, [company.lat, company.lng, company.businessName, resolvedTheme]);
+
+  // Update style on theme change
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const style =
+      resolvedTheme === "dark"
+        ? "mapbox://styles/mapbox/dark-v11"
+        : "mapbox://styles/mapbox/light-v11";
+    mapInstanceRef.current.setStyle(style);
+  }, [resolvedTheme]);
 
   const groups = useMemo(() => {
     const map = new Map<
@@ -177,7 +220,7 @@ export default function CompanyCard({
                 <div
                   className={clsx(
                     "w-full h-full flex items-center justify-center text-white",
-                    GRADIENT_BG
+                    GRADIENT_BG,
                   )}
                 >
                   <Anchor className="w-10 h-10" />
@@ -198,7 +241,7 @@ export default function CompanyCard({
                   <span
                     className={clsx(
                       "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium text-white",
-                      GRADIENT_BG
+                      GRADIENT_BG,
                     )}
                   >
                     {company.tagline}
@@ -305,7 +348,7 @@ export default function CompanyCard({
                         <div
                           className={clsx(
                             "w-full h-full grid place-items-center text-white text-sm font-bold",
-                            GRADIENT_BG
+                            GRADIENT_BG,
                           )}
                         >
                           {initials(m.firstName, m.lastName)}
@@ -461,7 +504,7 @@ export default function CompanyCard({
                                   {g.schema.map((f) => {
                                     const val = formatValueByType(
                                       f.type,
-                                      row.custom?.[f.key]
+                                      row.custom?.[f.key],
                                     );
                                     return (
                                       <td
@@ -517,18 +560,13 @@ export default function CompanyCard({
               {company.city ? `, ${company.city}` : ""}{" "}
               {company.country ? `• ${company.country}` : ""}
             </div>
-            <div className="rounded-[2rem] overflow-hidden border border-gray-200 dark:border-white/10 w-full h-[300px] shadow-inner">
-              <MapContainer
-                center={[company.lat, company.lng]}
-                zoom={13}
-                scrollWheelZoom={false}
-                style={{ width: "100%", height: "100%" }}
-              >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker position={[company.lat, company.lng]}>
-                  <Popup>{company.businessName}</Popup>
-                </Marker>
-              </MapContainer>
+
+            {/* --- Mapbox Container --- */}
+            <div className="rounded-[2rem] overflow-hidden border border-gray-200 dark:border-white/10 w-full h-[300px] shadow-inner relative">
+              <div
+                ref={mapContainerRef}
+                className="absolute inset-0 w-full h-full"
+              />
             </div>
           </div>
         </div>
