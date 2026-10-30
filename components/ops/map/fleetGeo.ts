@@ -2,7 +2,9 @@ import type { FeatureCollection, Point } from "geojson";
 import { PORT_COORDS, SULINA_ROADS, resolvePosition } from "@/lib/vessels/geo";
 import { isPositionStale, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import { DESTINATIONS, DESTINATION_LABEL, type VesselView } from "@/lib/vessels/types";
+import { pointTitle, type PointKind, type TeamPoint } from "@/lib/points/team-points";
 import { iconId, type IconShape, type IconTone } from "./shipIcons";
+import { pointIconId } from "./pointIcons";
 
 export interface VesselFeatureProps {
   id: string;
@@ -41,6 +43,32 @@ export function vesselsToGeoJson(vessels: VesselView[]): FeatureCollection<Point
         },
       };
     }),
+  };
+}
+
+export interface PointFeatureProps {
+  id: string;
+  name: string;
+  kind: PointKind;
+  icon: string;
+}
+
+export function pointsToGeoJson(points: TeamPoint[]): FeatureCollection<Point, PointFeatureProps> {
+  return {
+    type: "FeatureCollection",
+    features: points.map((p) => ({
+      type: "Feature",
+      id: p.id,
+      geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+      properties: { id: p.id, name: pointTitle(p), kind: p.kind, icon: pointIconId(p.kind) },
+    })),
+  };
+}
+
+export function draftGeoJson(at: [number, number] | null): FeatureCollection<Point, Record<string, never>> {
+  return {
+    type: "FeatureCollection",
+    features: at ? [{ type: "Feature", geometry: { type: "Point", coordinates: at }, properties: {} }] : [],
   };
 }
 

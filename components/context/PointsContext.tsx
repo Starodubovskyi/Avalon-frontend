@@ -40,45 +40,6 @@ interface PointsContextType {
 
 const PointsContext = createContext<PointsContextType | undefined>(undefined);
 
-function toCreatePayload(point: MapPoint): CreateMapPointDto {
-  return {
-    lat: point.lat,
-    lng: point.lng,
-    firstName: point.firstName || "Contact",
-    lastName: point.lastName,
-    activity: point.activity,
-    phone: point.phone ?? undefined,
-    email: point.email ?? undefined,
-    address: point.address ?? undefined,
-    photoId: point.photoId ?? undefined,
-  };
-}
-
-async function uploadMissingLocalPoints(
-  local: MapPoint[],
-  remote: MapPoint[],
-  signal: AbortSignal,
-): Promise<MapPoint[]> {
-  const remoteIds = new Set(remote.map((point) => point.id));
-  const uploaded: MapPoint[] = [];
-  for (const point of local) {
-    if (signal.aborted) return uploaded;
-    if (remoteIds.has(point.id)) continue;
-    try {
-      const created = await createMapPoint(toCreatePayload(point), signal);
-      if (point.isFavorite && !created.isFavorite) {
-        uploaded.push(await updateMapPoint(created.id, { isFavorite: true }));
-      } else {
-        uploaded.push(created);
-      }
-    } catch (error) {
-      if (isAbortError(error)) throw error;
-      uploaded.push(point);
-    }
-  }
-  return uploaded;
-}
-
 export function PointsProvider({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const userId = user?.id;
@@ -104,14 +65,13 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
       const local = loadPoints(userId);
       setHydrated(false);
       try {
+        // Map points are team-wide on the server now: it is the only source of truth.
+        // Re-uploading cached points that are missing remotely would resurrect points
+        // a colleague deleted, so the local copy is just a cache and gets replaced.
         const remote = await listMapPoints(ac.signal);
         if (cancelled) return;
-        const extra = await uploadMissingLocalPoints(local, remote, ac.signal);
-        if (cancelled) return;
-        const next = [...remote, ...extra];
-        if (cancelled) return;
-        setPoints(next);
-        savePoints(userId, next);
+        setPoints(remote);
+        savePoints(userId, remote);
         hydratedForUserRef.current = userId;
         setHydrated(true);
       } catch (error) {

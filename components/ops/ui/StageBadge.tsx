@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { STAGE_META } from "@/lib/vessels/status";
 import type { VesselStage } from "@/lib/vessels/types";
 
-const ICONS: Record<VesselStage, typeof Ship> = {
+export const STAGE_ICON: Record<VesselStage, typeof Ship> = {
   expected: Clock3,
   at_roads: Anchor,
   in_port: CircleDot,
@@ -20,11 +20,11 @@ export function StageBadge({
   compact?: boolean;
 }) {
   const meta = STAGE_META[stage];
-  const Icon = ICONS[stage];
+  const Icon = STAGE_ICON[stage];
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-current/15 px-2.5 py-1 text-[11px] font-semibold",
         meta.soft,
         meta.text,
         className,
@@ -40,11 +40,11 @@ export function UnpaidBadge({ days, className }: { days: number | null; classNam
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full bg-stage-unpaid/15 px-2 py-0.5 text-xs font-semibold text-stage-unpaid",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-stage-unpaid px-2.5 py-1 text-[11px] font-bold text-white shadow-[0_4px_12px_-4px_hsl(var(--st-unpaid)/0.8)]",
         className,
       )}
     >
-      <span aria-hidden>●</span>
+      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" aria-hidden />
       Unpaid{days !== null ? ` · ${days}d` : ""}
     </span>
   );

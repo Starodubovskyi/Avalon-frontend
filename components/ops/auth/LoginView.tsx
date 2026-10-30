@@ -7,7 +7,7 @@ import { Anchor, Eye, EyeOff, FileText, History, Map } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthApi, extractAuthError } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth/useAuth";
-import { Field, Spinner, TextInput } from "../ui/primitives";
+import { Field, Spinner, TextInput, btn } from "../ui/primitives";
 
 type Mode = "signin" | "register";
 
@@ -79,29 +79,29 @@ export function LoginView() {
 
   return (
     <div className="grid min-h-full flex-1 overflow-y-auto bg-background lg:grid-cols-[1.05fr_1fr]">
-      <section className="relative hidden overflow-hidden bg-sidebar px-12 py-12 text-sidebar-foreground lg:flex lg:flex-col">
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_10%,hsl(var(--primary)/0.35),transparent_55%),radial-gradient(ellipse_at_90%_90%,hsl(var(--st-roads)/0.18),transparent_50%)]"
-        />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 opacity-[0.07] [background-image:repeating-linear-gradient(170deg,white_0_1px,transparent_1px_22px)]" />
+      <section className="relative m-3 hidden overflow-hidden rounded-3xl bg-sidebar px-12 py-12 text-sidebar-foreground shadow-elevated lg:flex lg:flex-col">
+        <Image src="/brand/hero-sea.webp" alt="" fill priority sizes="55vw" className="object-cover object-[60%_50%]" />
+        <div aria-hidden className="hero-overlay absolute inset-0" />
         <div className="relative flex items-center gap-4">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white p-1 shadow-lg">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white p-1 shadow-[0_0_0_6px_rgba(255,255,255,0.12)]">
             <Image src="/brand/avalon-logo.png" alt="" width={58} height={58} priority />
           </span>
           <div>
-            <p className="text-lg font-semibold tracking-wide text-white">AVALON SHIPPING SRL</p>
-            <p className="text-xs uppercase tracking-[0.22em] text-sidebar-muted">Sulina · Danube · Black Sea</p>
+            <p className="font-display text-lg font-bold tracking-wide text-white">AVALON SHIPPING SRL</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">Sulina · Danube · Black Sea</p>
           </div>
         </div>
-        <div className="relative mt-auto max-w-lg">
-          <h1 className="text-3xl font-semibold leading-tight text-white xl:text-4xl">
+        <div className="relative mt-auto max-w-xl">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur">
+            Operations portal
+          </p>
+          <h1 className="font-display text-4xl font-extrabold leading-[1.1] text-white xl:text-5xl">
             Every vessel, every step — one shared board.
           </h1>
-          <ul className="mt-8 space-y-4">
+          <ul className="mt-8 grid grid-cols-2 gap-3">
             {FEATURES.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-start gap-3 text-sm text-sidebar-foreground">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10">
+              <li key={text} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 text-[13px] leading-snug text-white/90 backdrop-blur-md">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15">
                   <Icon className="h-4 w-4 text-white" aria-hidden />
                 </span>
                 {text}
@@ -123,8 +123,8 @@ export function LoginView() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-semibold tracking-tight">
-            {mode === "signin" ? "Sign in" : "Create a viewer account"}
+          <h2 className="font-display text-3xl font-bold tracking-tight">
+            {mode === "signin" ? "Welcome back" : "Create a viewer account"}
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             {mode === "signin"
@@ -132,7 +132,7 @@ export function LoginView() {
               : "Owners and partners get read-only access to vessel status. Staff accounts are issued by the administrator."}
           </p>
 
-          <div className="mt-6 grid grid-cols-2 rounded-lg bg-muted p-1 text-sm font-medium" role="tablist">
+          <div className="mt-7 grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold" role="tablist">
             {(["signin", "register"] as const).map((m) => (
               <button
                 key={m}
@@ -144,8 +144,8 @@ export function LoginView() {
                   setError(null);
                 }}
                 className={cn(
-                  "rounded-md py-2 transition-colors",
-                  mode === m ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                  "rounded-lg py-2.5 transition-all",
+                  mode === m ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {m === "signin" ? "Sign in" : "Register"}
@@ -204,7 +204,7 @@ export function LoginView() {
             <button
               type="submit"
               disabled={busy || !email || !password || (mode === "register" && (!firstName || !lastName))}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow transition hover:brightness-110 disabled:opacity-50"
+              className={cn(btn.primary, "h-12 w-full text-[15px]")}
             >
               {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : null}
               {mode === "signin" ? "Sign in" : "Create account"}

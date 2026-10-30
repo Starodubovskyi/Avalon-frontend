@@ -68,6 +68,15 @@ const config = {
         },
         ok: "hsl(var(--ok))",
         bad: "hsl(var(--bad))",
+        point: {
+          company: "#7c3aed",
+          person: "#059669",
+          employee: "#ea580c",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

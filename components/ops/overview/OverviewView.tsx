@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
-import { Anchor, CircleDot, Clock3, Ship, TriangleAlert } from "lucide-react";
+import { Anchor, CircleDot, Clock3, Map as MapIcon, Ship, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit, displayName } from "@/lib/auth/roles";
@@ -10,7 +11,7 @@ import { useEventFeed, useVessels } from "@/lib/vessels/hooks";
 import { CHECKLIST, STAGE_META, compareVessels, daysSince, isItemDone, isUnpaidAfterDeparture, pendingCount } from "@/lib/vessels/status";
 import { fmtDateTime, fmtRelative } from "@/lib/vessels/format";
 import { DESTINATIONS, DESTINATION_LABEL, type VesselView } from "@/lib/vessels/types";
-import { EmptyState, ErrorBlock, KpiTile, LoadingBlock, PageHeader, Panel } from "../ui/primitives";
+import { EmptyState, ErrorBlock, KpiTile, LoadingBlock, Panel } from "../ui/primitives";
 import { StageBadge, UnpaidBadge } from "../ui/StageBadge";
 import { HistoryList } from "../vessels/HistoryList";
 
@@ -66,7 +67,28 @@ export function OverviewView() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={`Good day, ${firstName}`} subtitle={`${stats.active.length} vessels in work right now.`} />
+      <section className="relative overflow-hidden rounded-3xl text-white shadow-elevated">
+        <Image src="/brand/hero-sea.webp" alt="" fill priority sizes="(min-width: 1280px) 1400px, 100vw" className="object-cover object-[50%_45%]" />
+        <div aria-hidden className="hero-overlay absolute inset-0" />
+        <div className="relative flex flex-wrap items-end justify-between gap-6 px-6 py-8 sm:px-10 sm:py-10">
+          <div className="max-w-xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">Avalon Shipping · Operations</p>
+            <h1 className="mt-2 font-display text-3xl font-extrabold leading-tight sm:text-4xl">Good day, {firstName}</h1>
+            <p className="mt-2 text-sm text-white/80">
+              {stats.active.length} vessels in work · {stats.arriving.length} arriving in 72 h
+              {staff && stats.unpaid.length ? ` · ${stats.unpaid.length} sailed without payment` : ""}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/maps" className="inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-900 shadow transition hover:bg-white/90">
+              <MapIcon className="h-4 w-4" /> Fleet map
+            </Link>
+            <Link href="/vessels" className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
+              <Ship className="h-4 w-4" /> Vessels board
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <KpiTile label="Expected" value={stats.expected} tone="expected" icon={<Clock3 className="h-4 w-4" />} hint={`${stats.arriving.length} within 72 h`} />

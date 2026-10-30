@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type DragEvent, type FormEvent } from "react";
-import { FileUp, X } from "lucide-react";
+import { CloudUpload, RefreshCw, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -16,11 +16,35 @@ import { extractAuthError } from "@/lib/api/auth";
 import { useVessels } from "@/lib/vessels/hooks";
 import { fmtBytes } from "@/lib/vessels/format";
 import { CATEGORY_LABEL, DOCUMENT_CATEGORIES, type DocumentCategory } from "@/lib/vessels/types";
-import { Field, SelectInput, Spinner, TextArea, TextInput } from "../ui/primitives";
+import { btn, Field, SelectInput, Spinner, TextArea, TextInput } from "../ui/primitives";
+import { fileKind } from "./docMeta";
 import { useRefreshDocuments } from "./useDocuments";
 
 const ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png";
 const MAX_BYTES = 20 * 1024 * 1024;
+
+function SelectedFile({ file, onReplace, onRemove }: { file: File; onReplace: () => void; onRemove: () => void }) {
+  const kind = fileKind(file.type, file.name);
+  const Icon = kind.icon;
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border bg-muted/40 p-3">
+      <span className={cn("flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl ring-1 ring-inset", kind.tile)}>
+        <Icon className="h-5 w-5" aria-hidden />
+        <span className="mt-0.5 text-[9px] font-bold leading-none">{kind.label}</span>
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold" title={file.name}>{file.name}</p>
+        <p className="tabular text-xs text-muted-foreground">{kind.name} · {fmtBytes(file.size)}</p>
+      </div>
+      <button type="button" onClick={onReplace} className={btn.icon} aria-label="Choose another file" title="Replace">
+        <RefreshCw className="h-4 w-4" />
+      </button>
+      <button type="button" onClick={onRemove} className={cn(btn.icon, "hover:bg-bad/10 hover:text-bad")} aria-label="Remove file" title="Remove">
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
 
 export function UploadDocumentDialog({
   open,
@@ -70,6 +94,16 @@ export function UploadDocumentDialog({
     if (!title) setTitle(f.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "));
   }
 
+  function onDragOver(e: DragEvent) {
+    e.preventDefault();
+    setDragging(true);
+  }
+
+  function onDragLeave(e: DragEvent) {
+    if (e.relatedTarget instanceof Node && e.currentTarget.contains(e.relatedTarget)) return;
+    setDragging(false);
+  }
+
   function onDrop(e: DragEvent) {
     e.preventDefault();
     setDragging(false);
@@ -93,85 +127,87 @@ export function UploadDocumentDialog({
     }
   }
 
+  const browse = () => inputRef.current?.click();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92svh] max-w-lg overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Upload document</DialogTitle>
-          <DialogDescription>Visible to Avalon staff only. PDF, Word, Excel, images — up to 20 MB.</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={onDrop}
-            onClick={() => inputRef.current?.click()}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && inputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            className={cn(
-              "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors",
-              dragging ? "border-primary bg-primary/5" : "hover:bg-accent/50",
-            )}
-          >
-            <FileUp className="h-7 w-7 text-muted-foreground" />
-            {file ? (
-              <div className="flex min-w-0 max-w-full items-center gap-2 text-sm">
-                <span className="min-w-0 break-all font-medium">{file.name}</span>
-                <span className="shrink-0 text-muted-foreground">{fmtBytes(file.size)}</span>
+      <DialogContent className="max-h-[92svh] w-[calc(100%-1.5rem)] max-w-lg gap-0 overflow-y-auto rounded-2xl bg-card p-0 shadow-elevated sm:rounded-2xl">
+        <div className="flex items-start gap-3 border-b px-6 pb-4 pt-6">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <CloudUpload className="h-5 w-5" />
+          </span>
+          <DialogHeader className="min-w-0 space-y-1 pr-6 text-left">
+            <DialogTitle className="font-display text-lg font-bold">Upload document</DialogTitle>
+            <DialogDescription>Visible to Avalon staff only. PDF, Word, Excel, images — up to 20 MB.</DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <form onSubmit={onSubmit} noValidate>
+          <div className="space-y-4 px-6 py-5">
+            <div onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+              {file && !dragging ? (
+                <SelectedFile file={file} onReplace={browse} onRemove={() => setFile(null)} />
+              ) : (
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setFile(null);
-                  }}
-                  className="rounded p-0.5 text-muted-foreground hover:bg-accent"
-                  aria-label="Remove file"
+                  onClick={browse}
+                  className={cn(
+                    "group flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-4 py-9 text-center transition",
+                    "bg-gradient-to-b from-primary/[0.04] to-transparent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15",
+                    dragging ? "scale-[1.01] border-primary bg-primary/5" : "border-input hover:border-primary/50 hover:bg-accent/40",
+                  )}
                 >
-                  <X className="h-4 w-4" />
+                  <span
+                    className={cn(
+                      "flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-card transition",
+                      dragging && "-translate-y-0.5 bg-primary text-primary-foreground",
+                    )}
+                  >
+                    <CloudUpload className="h-7 w-7" aria-hidden />
+                  </span>
+                  <span className="text-sm">
+                    <span className="font-semibold">{dragging ? "Release to attach" : "Drop a file here"}</span>
+                    {dragging ? null : <span className="text-muted-foreground"> or <span className="font-semibold text-primary underline-offset-2 group-hover:underline">browse</span></span>}
+                  </span>
+                  <span className="text-xs text-muted-foreground">PDF · DOCX · XLSX · CSV · TXT · JPG · PNG — max 20 MB</span>
                 </button>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Drop a file here or click to choose</p>
-            )}
-            <input ref={inputRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => pick(e.target.files?.[0])} />
+              )}
+              <input ref={inputRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ""; }} />
+            </div>
+
+            <Field label="Title *">
+              <TextInput value={title} onChange={(e) => setTitle(e.target.value)} maxLength={255} placeholder="e.g. PDA — MV Aurora" />
+            </Field>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Category">
+                <SelectInput value={category} onChange={(e) => setCategory(e.target.value as DocumentCategory)}>
+                  {DOCUMENT_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>
+                  ))}
+                </SelectInput>
+              </Field>
+              <Field label="Vessel">
+                <SelectInput value={vessel} onChange={(e) => setVessel(e.target.value)} disabled={!!vesselId}>
+                  <option value="">— none —</option>
+                  {(vessels ?? []).map((v) => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                  ))}
+                </SelectInput>
+              </Field>
+            </div>
+            <Field label="Notes">
+              <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} className="min-h-[72px]" placeholder="Optional — what is it, who needs it" />
+            </Field>
+
+            {error ? <p role="alert" className="rounded-xl border border-bad/30 bg-bad/5 px-3 py-2 text-sm text-bad">{error}</p> : null}
           </div>
 
-          <Field label="Title *">
-            <TextInput value={title} onChange={(e) => setTitle(e.target.value)} maxLength={255} />
-          </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Category">
-              <SelectInput value={category} onChange={(e) => setCategory(e.target.value as DocumentCategory)}>
-                {DOCUMENT_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>
-                ))}
-              </SelectInput>
-            </Field>
-            <Field label="Vessel">
-              <SelectInput value={vessel} onChange={(e) => setVessel(e.target.value)} disabled={!!vesselId}>
-                <option value="">— none —</option>
-                {(vessels ?? []).map((v) => (
-                  <option key={v.id} value={v.id}>{v.name}</option>
-                ))}
-              </SelectInput>
-            </Field>
-          </div>
-          <Field label="Notes">
-            <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} className="min-h-[60px]" />
-          </Field>
-
-          {error ? <p role="alert" className="rounded-lg border border-bad/30 bg-bad/5 px-3 py-2 text-sm text-bad">{error}</p> : null}
-
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => onOpenChange(false)} className="h-10 rounded-lg border px-4 text-sm font-medium hover:bg-accent">
+          <div className="flex flex-col-reverse gap-2 border-t bg-muted/40 px-6 py-4 sm:flex-row sm:justify-end">
+            <button type="button" onClick={() => onOpenChange(false)} className={btn.secondary}>
               Cancel
             </button>
-            <button type="submit" disabled={busy || !file || !title.trim()} className="flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50">
-              {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : null}
+            <button type="submit" disabled={busy || !file || !title.trim()} className={btn.primary}>
+              {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : <CloudUpload className="h-4 w-4" />}
               Upload
             </button>
           </div>

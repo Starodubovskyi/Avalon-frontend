@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/lib/auth/useAuth";
 import { PointsProvider } from "@/components/context/PointsContext";
 import { Toaster } from "sonner";
 
-const inter = Inter({ subsets: ["latin", "latin-ext", "cyrillic"] });
+const sans = Inter({
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const display = Plus_Jakarta_Sans({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-display",
+  weight: ["500", "600", "700", "800"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Avalon Shipping — Operations",
@@ -21,14 +31,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="h-svh overflow-hidden">
-      <body
-        className={`${inter.className} h-svh overflow-hidden flex flex-col min-h-0`}
-      >
+    <html lang="en" suppressHydrationWarning className={`h-svh overflow-hidden ${sans.variable} ${display.variable}`}>
+      <body className="flex h-svh min-h-0 flex-col overflow-hidden font-sans">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <AuthProvider>

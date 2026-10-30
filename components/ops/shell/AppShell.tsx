@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { X } from "lucide-react";
@@ -36,7 +37,10 @@ export function AppShell({ children, title, fill = false, access = "any" }: AppS
 
   if (!user) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-background">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 bg-background">
+        <span className="flex h-14 w-14 animate-pulse items-center justify-center rounded-full bg-white p-1 shadow-elevated">
+          <Image src="/brand/avalon-logo.png" alt="" width={48} height={48} priority />
+        </span>
         <LoadingBlock label="Checking your session…" />
       </div>
     );
@@ -57,7 +61,7 @@ export function AppShell({ children, title, fill = false, access = "any" }: AppS
         aria-hidden={!menuOpen}
       >
         <div
-          className={cn("absolute inset-0 bg-black/50 transition-opacity", menuOpen ? "opacity-100" : "opacity-0")}
+          className={cn("absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity", menuOpen ? "opacity-100" : "opacity-0")}
           onClick={() => setMenuOpen(false)}
         />
         <div
@@ -82,8 +86,8 @@ export function AppShell({ children, title, fill = false, access = "any" }: AppS
         <Topbar title={title} onMenu={() => setMenuOpen(true)} />
         <main className={cn("min-h-0 flex-1", fill ? "relative flex flex-col overflow-hidden" : "overflow-y-auto")}>
           {!allowed ? (
-            <div className="mx-auto max-w-lg p-10 text-center">
-              <p className="text-lg font-semibold">No access</p>
+            <div className="mx-auto mt-10 max-w-lg rounded-2xl border bg-card p-10 text-center shadow-card">
+              <p className="font-display text-lg font-bold">No access</p>
               <p className="mt-2 text-sm text-muted-foreground">
                 This section is available to Avalon staff only. Ask an administrator to change your role.
               </p>
@@ -91,7 +95,9 @@ export function AppShell({ children, title, fill = false, access = "any" }: AppS
           ) : fill ? (
             children
           ) : (
-            <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 sm:py-6">{children}</div>
+            <div key={pathname} className="animate-in-up mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-8 sm:py-8">
+              {children}
+            </div>
           )}
         </main>
       </div>

@@ -4,10 +4,26 @@ import { useState } from "react";
 import { ExternalLink, LocateFixed, Radio } from "lucide-react";
 import { useVesselMutations } from "@/lib/vessels/hooks";
 import { marineTrafficUrl, resolvePosition } from "@/lib/vessels/geo";
-import { isPositionStale } from "@/lib/vessels/status";
+import { isPositionStale, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import { fmtFull, fmtRelative } from "@/lib/vessels/format";
 import type { VesselView } from "@/lib/vessels/types";
 import { Field, TextInput } from "../ui/primitives";
+
+const PIN_COLOR: Record<VesselView["stage"], string> = {
+  expected: "e8a317",
+  at_roads: "10a3b8",
+  in_port: "2f6fd8",
+  departed: "7c8796",
+};
+
+function staticMapUrl(vessel: VesselView, [lng, lat]: [number, number], estimated: boolean): string | null {
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
+  if (!token) return null;
+  const color = isUnpaidAfterDeparture(vessel) ? "d61f8a" : PIN_COLOR[vessel.stage];
+  const zoom = estimated ? 8.5 : 10;
+  const pin = `pin-l-harbor+${color}(${lng.toFixed(4)},${lat.toFixed(4)})`;
+  return `https://api.mapbox.com/styles/v1/mapbox/light-v11/static/${pin}/${lng.toFixed(4)},${lat.toFixed(4)},${zoom},0/640x280@2x?access_token=${encodeURIComponent(token)}`;
+}
 
 export function PositionPanel({ vessel, editable }: { vessel: VesselView; editable: boolean }) {
   const { update } = useVesselMutations();
@@ -34,8 +50,33 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
     }
   }
 
+  const preview = staticMapUrl(vessel, pos.lngLat, pos.estimated);
+
   return (
     <div className="space-y-3 text-sm">
+      {preview ? (
+        <a
+          href={marineTrafficUrl(vessel)}
+          target="_blank"
+          rel="noreferrer"
+          className="group relative block overflow-hidden rounded-xl border"
+          title="Open in MarineTraffic"
+        >
+          {/* external static image (Mapbox Static API); next/image would need a remote domain allowlist */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={preview}
+            alt={`Map around ${vessel.name}`}
+            loading="lazy"
+            className="aspect-[16/7] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+          />
+          {pos.estimated ? (
+            <span className="absolute left-2 top-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur">
+              ≈ estimated
+            </span>
+          ) : null}
+        </a>
+      ) : null}
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
           {vessel.positionSource === "ais" ? <Radio className="h-4 w-4 text-ok" /> : <LocateFixed className="h-4 w-4 text-muted-foreground" />}

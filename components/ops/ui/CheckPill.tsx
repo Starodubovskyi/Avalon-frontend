@@ -24,16 +24,26 @@ export function CheckPill({
   const Icon = busy ? Loader2 : done === null ? Minus : done ? Check : X;
   const state = done === null ? "hidden" : done ? "done" : "pending";
   const classes = cn(
-    "inline-flex items-center gap-1 rounded-md border font-semibold tracking-wide transition-colors",
-    size === "sm" ? "h-6 px-1.5 text-[10px]" : "h-8 px-2.5 text-xs",
-    state === "done" && "border-ok/30 bg-ok/10 text-ok",
-    state === "pending" && "border-bad/30 bg-bad/10 text-bad",
+    "inline-flex items-center gap-1.5 rounded-full border font-semibold tracking-wide transition-all",
+    size === "sm" ? "h-6 pl-1 pr-2 text-[10px]" : "h-9 pl-1.5 pr-3.5 text-xs",
+    state === "done" && "border-ok/25 bg-ok/[0.08] text-ok",
+    state === "pending" && "border-bad/25 bg-bad/[0.07] text-bad",
     state === "hidden" && "border-border bg-muted text-muted-foreground",
-    editable && "cursor-pointer hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    editable &&
+      "cursor-pointer hover:-translate-y-px hover:shadow-card focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 active:translate-y-0",
+  );
+  const dot = cn(
+    "flex shrink-0 items-center justify-center rounded-full text-white",
+    size === "sm" ? "h-4 w-4" : "h-6 w-6",
+    state === "done" && "bg-ok",
+    state === "pending" && "bg-bad",
+    state === "hidden" && "bg-muted-foreground/40",
   );
   const content = (
     <>
-      <Icon className={cn("h-3 w-3 shrink-0", busy && "animate-spin")} aria-hidden />
+      <span className={dot}>
+        <Icon className={cn(size === "sm" ? "h-2.5 w-2.5" : "h-3.5 w-3.5", busy && "animate-spin")} strokeWidth={3} aria-hidden />
+      </span>
       <span className="whitespace-nowrap">{label}</span>
     </>
   );

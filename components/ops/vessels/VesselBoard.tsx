@@ -9,7 +9,7 @@ import { canEdit } from "@/lib/auth/roles";
 import { useVessels } from "@/lib/vessels/hooks";
 import { compareVessels, isUnpaidAfterDeparture, pendingCount } from "@/lib/vessels/status";
 import { DESTINATIONS, DESTINATION_LABEL, type VesselView } from "@/lib/vessels/types";
-import { EmptyState, ErrorBlock, LoadingBlock, PageHeader, SelectInput, TextInput } from "../ui/primitives";
+import { EmptyState, ErrorBlock, LoadingBlock, PageHeader, SelectInput, TextInput, btn } from "../ui/primitives";
 import { VesselTable } from "./VesselTable";
 import { VesselCardList } from "./VesselCardList";
 import { VesselFormDialog } from "./VesselFormDialog";
@@ -72,23 +72,20 @@ export function VesselBoard() {
   return (
     <div className="space-y-5">
       <PageHeader
+        eyebrow="Operations"
         title="Vessels"
-        subtitle={staff ? "Click a red item to mark it done. Everything you change is logged." : "Read-only view of vessels handled by Avalon Shipping."}
+        subtitle={staff ? "Click a red item to mark it done. Everything you change is logged with your name." : "Read-only view of vessels handled by Avalon Shipping."}
         actions={
           staff ? (
-            <button
-              type="button"
-              onClick={() => setFormOpen(true)}
-              className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow hover:brightness-110"
-            >
+            <button type="button" onClick={() => setFormOpen(true)} className={btn.primary}>
               <Plus className="h-4 w-4" /> Add vessel
             </button>
           ) : null
         }
       />
 
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:flex-wrap" role="tablist" aria-label="Filter by status">
+      <div className="flex flex-col gap-3 rounded-2xl border bg-card p-2 shadow-card xl:flex-row xl:items-center xl:justify-between">
+        <div className="no-scrollbar flex gap-1 overflow-x-auto lg:flex-wrap" role="tablist" aria-label="Filter by status">
           {views.map((v) => (
             <button
               key={v.id}
@@ -97,19 +94,24 @@ export function VesselBoard() {
               aria-selected={view === v.id}
               onClick={() => setView(v.id)}
               className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                view === v.id ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-accent",
-                v.id === "unpaid" && counts.unpaid > 0 && view !== v.id && "border-stage-unpaid/40 text-stage-unpaid",
+                "flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all",
+                view === v.id ? "bg-primary text-primary-foreground shadow-[0_6px_16px_-8px_hsl(var(--primary))]" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                v.id === "unpaid" && counts.unpaid > 0 && view !== v.id && "text-stage-unpaid",
               )}
             >
               {v.label}
-              <span className={cn("tabular rounded-full px-1.5 text-[10px]", view === v.id ? "bg-white/20" : "bg-muted")}>
+              <span
+                className={cn(
+                  "tabular min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-[10px] font-bold",
+                  view === v.id ? "bg-white/20" : v.id === "unpaid" && counts.unpaid > 0 ? "bg-stage-unpaid text-white" : "bg-muted text-foreground/70",
+                )}
+              >
                 {counts[v.id]}
               </span>
             </button>
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 p-1 xl:p-0">
           <div className="relative flex-1 xl:w-64">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <TextInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name or IMO" className="pl-9" aria-label="Search vessels" />
@@ -127,7 +129,7 @@ export function VesselBoard() {
       {isLoading && !data ? <LoadingBlock label="Loading vessels…" /> : null}
 
       {data && rows.length === 0 ? (
-        <div className="rounded-xl border bg-card">
+        <div className="rounded-2xl border bg-card shadow-card">
           <EmptyState
             icon={<Ship className="h-8 w-8" />}
             title={all.length ? "No vessels match this filter" : "No vessels yet"}

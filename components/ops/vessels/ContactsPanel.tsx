@@ -21,7 +21,7 @@ function ContactBlock({
 }) {
   const empty = !name && !phone && !email;
   return (
-    <div className="rounded-lg border p-3">
+    <div className="rounded-xl border bg-muted/30 p-4">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {icon}
         {title}
@@ -64,7 +64,7 @@ export function ContactsPanel({ vessel }: { vessel: VesselView }) {
     <div className="grid gap-3 sm:grid-cols-2">
       <ContactBlock icon={<UserRound className="h-3.5 w-3.5" />} title="Master" name={vessel.masterName} phone={vessel.masterPhone} email={vessel.masterEmail} />
       <ContactBlock icon={<Building2 className="h-3.5 w-3.5" />} title="Owner / office" name={vessel.officeName} phone={vessel.officePhone} email={vessel.officeEmail} />
-      <div className="rounded-lg border p-3 sm:col-span-2">
+      <div className="rounded-xl border bg-muted/30 p-4 sm:col-span-2">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <Users className="h-3.5 w-3.5" /> Port agent at destination
         </div>

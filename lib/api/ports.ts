@@ -20,6 +20,9 @@ export interface CreatePortDto {
   country?: string;
   status: PortStatus;
   timezone?: string;
+  /** Backend accepts -90..90 / -180..180; null clears on update */
+  lat?: number | null;
+  lng?: number | null;
   portname?: string;
   portName?: string;
   title?: string;
@@ -68,6 +71,8 @@ function normalizeCreate(dto: CreatePortDto) {
     country,
     timezone,
     status,
+    lat: typeof dto.lat === "number" ? dto.lat : undefined,
+    lng: typeof dto.lng === "number" ? dto.lng : undefined,
 
     portname: name,
     port: name,
@@ -96,6 +101,8 @@ function normalizeUpdate(dto: UpdatePortDto) {
     patch.countryCode = c;
   }
   if (dto.timezone) patch.timezone = dto.timezone.trim();
+  if (dto.lat !== undefined) patch.lat = dto.lat;
+  if (dto.lng !== undefined) patch.lng = dto.lng;
   if (dto.status) {
     const s = mapStatusForServer(dto.status);
     patch.status = s;
