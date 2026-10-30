@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type DragEvent, type FormEvent } from "react";
 import { CloudUpload, RefreshCw, X } from "lucide-react";
+import axios from "axios";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -78,6 +79,20 @@ export function UploadDocumentDialog({
     }
   }, [open, vesselId]);
 
+  /** Server codes → wording an agent can act on */
+  function uploadErrorText(err: unknown): string {
+    const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+    const msg = extractAuthError(err);
+    if (status === 503 || /documentsStorageNotConfigured/.test(msg)) {
+      return "Document storage is not connected on this server yet. Ask the administrator to configure it.";
+    }
+    if (status === 413 || /fileTooLarge/.test(msg)) {
+      return "The file is too large for the server. Try a file under 4 MB or compress the PDF.";
+    }
+    if (/cantUploadFileType/.test(msg)) return "This file type is not allowed.";
+    return msg;
+  }
+
   function pick(f: File | undefined) {
     if (!f) return;
     const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
@@ -121,7 +136,7 @@ export function UploadDocumentDialog({
       toast.success("Document uploaded");
       onOpenChange(false);
     } catch (err) {
-      setError(extractAuthError(err));
+      setError(uploadErrorText(err));
     } finally {
       setBusy(false);
     }
