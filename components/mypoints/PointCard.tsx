@@ -25,6 +25,7 @@ export type PointItem = {
   subtitle: string;
   dateAdded: string;
   notes?: string;
+  isFavorite?: boolean;
 };
 
 // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---

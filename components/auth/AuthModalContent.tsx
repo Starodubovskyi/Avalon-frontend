@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { FaTimes } from 'react-icons/fa'; // Импорт иконки закрытия
+import React, { Suspense, useEffect, useState } from 'react';
+import { FaTimes } from 'react-icons/fa';
 import AuthBanner from './AuthBanner';
 import AuthForm from './AuthForm';
 
 // 1. Объявляем интерфейс
 interface AuthModalContentProps {
   onCloseModal: () => void;
+  initialLoginMode?: boolean;
 }
 
 // 2. Деструктурируем props
-export default function AuthModalContent({ onCloseModal }: AuthModalContentProps) {
+export default function AuthModalContent({ onCloseModal, initialLoginMode }: AuthModalContentProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -36,9 +37,10 @@ export default function AuthModalContent({ onCloseModal }: AuthModalContentProps
       </button>
 
       <AuthBanner />
-      
-      {/* 4. Передаем onClose вниз */}
-      <AuthForm onClose={onCloseModal} />
+
+      <Suspense fallback={<div className="flex-1 bg-white lg:w-[50%]" />}>
+        <AuthForm onClose={onCloseModal} initialLoginMode={initialLoginMode} />
+      </Suspense>
 
       <style jsx global>{`
         @keyframes fade-in {

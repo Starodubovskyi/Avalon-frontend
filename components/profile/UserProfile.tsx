@@ -30,8 +30,7 @@ import {
   getPlanById,
   type Billing as BillingType,
 } from "@/components/types/billing/plan";
-import { AuthApi } from "@/lib/api/auth";
-import { ensureAccessToken } from "@/lib/api/client";
+import api, { ensureAccessToken } from "@/lib/api/client";
 import { CompanyApi } from "@/lib/api/company";
 
 // --- КОНСТАНТЫ СТИЛЯ ---
@@ -194,7 +193,7 @@ export default function UserProfile() {
     (async () => {
       try {
         await ensureAccessToken();
-        const me = await AuthApi.me<any>();
+        const me = await api.get<any>("/auth/me").then((r) => r.data);
         if (!mounted || !me) return;
         setUserId(me.id ?? null);
         const withDefaults: User = {

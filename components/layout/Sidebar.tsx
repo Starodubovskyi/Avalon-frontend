@@ -66,6 +66,7 @@ import { getPlanById } from "@/components/types/billing/plan";
 import { MOCK_USERS } from "@/components/companyprofile/CompaniRegistation/data/mockUsers";
 
 import { useProfile } from "@/components/tasks/hooks/useProfile";
+import { AuthApi } from "@/lib/api/auth";
 
 type TablerIcon = React.ComponentType<Partial<IconProps>>;
 
@@ -398,19 +399,8 @@ export default function Sidebar() {
   }, []);
 
   const handleLogout = async () => {
-    try {
-    } catch {}
-
-    localStorage.removeItem("access_token");
-
-    localStorage.removeItem("refresh_token");
-
-    localStorage.setItem("auth:ts", String(Date.now()));
-
-    window.dispatchEvent(new Event("authchange"));
-
-    router.push("/");
-
+    await AuthApi.logout();
+    router.push("/maps");
     router.refresh();
   };
 
@@ -1288,6 +1278,7 @@ export default function Sidebar() {
                 <DialogContent className="p-0 max-w-[1200px] w-full bg-transparent border-none shadow-none outline-none">
                   <AuthModalContent
                     onCloseModal={() => setIsAuthModalOpen(false)}
+                    initialLoginMode
                   />
                 </DialogContent>
               </Dialog>

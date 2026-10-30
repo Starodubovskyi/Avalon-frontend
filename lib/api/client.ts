@@ -26,13 +26,14 @@ function setAuthHeader(cfg: AxiosRequestConfig, token: string) {
     Authorization: `Bearer ${clean}`,
   };
 }
+
 function setDefaultAuthHeader(token?: string) {
   if (!token) {
-    delete (api.defaults.headers.common as any).Authorization;
+    delete api.defaults.headers.common.Authorization;
     return;
   }
   const clean = token.replace(/^Bearer\s+/i, "");
-  (api.defaults.headers.common as any).Authorization = `Bearer ${clean}`;
+  api.defaults.headers.common.Authorization = `Bearer ${clean}`;
 }
 
 const AUTH_SKIP_RE =
@@ -42,7 +43,12 @@ const shouldSkipAuth = (url?: string) => !!url && AUTH_SKIP_RE.test(url || "");
 const isPublicPage = () => {
   if (typeof window === "undefined") return false;
   const p = window.location.pathname;
-  return p === "/" || /^\/login(\/|$)/.test(p) || /^\/register(\/|$)/.test(p);
+  return (
+    p === "/" ||
+    p === "/auth" ||
+    p.startsWith("/auth/") ||
+    /^\/login(\/|$)/.test(p)
+  );
 };
 
 export function getAccessToken(): string {
@@ -57,7 +63,7 @@ export function getRefreshToken(): string {
 export function setTokens(
   accessToken: string,
   refreshToken?: string,
-  tokenExpires?: number
+  tokenExpires?: number,
 ) {
   if (typeof window === "undefined") return;
 
@@ -70,7 +76,9 @@ export function setTokens(
 
   try {
     localStorage.setItem("auth:ts", String(Date.now()));
-  } catch {}
+  } catch {
+    /* ignore quota */
+  }
   window.dispatchEvent(new Event("authchange"));
 }
 
@@ -81,10 +89,12 @@ export function clearAuth() {
     localStorage.removeItem(LS.expires);
     try {
       localStorage.setItem("auth:ts", String(Date.now()));
-    } catch {}
+    } catch {
+      /* ignore quota */
+    }
+    window.dispatchEvent(new Event("authchange"));
   }
   setDefaultAuthHeader(undefined);
-  window.dispatchEvent(new Event("authchange"));
 }
 
 api.interceptors.request.use((cfg) => {
@@ -103,6 +113,28 @@ function notifyWaiters(token: string | null) {
   waiters = [];
 }
 
+function pickRefreshedAccess(data: unknown): {
+  accessToken: string;
+  refreshToken: string;
+  exp: number | undefined;
+} | null {
+  if (typeof data !== "object" || data === null) return null;
+  const rec = data as Record<string, unknown>;
+  const access =
+    (typeof rec.token === "string" && rec.token) ||
+    (typeof rec.accessToken === "string" && rec.accessToken) ||
+    (typeof rec.access_token === "string" && rec.access_token) ||
+    "";
+  if (!access) return null;
+  const refresh =
+    (typeof rec.refreshToken === "string" && rec.refreshToken) ||
+    (typeof rec.refresh_token === "string" && rec.refresh_token) ||
+    "";
+  const expRaw = rec.tokenExpires ?? rec.expiresIn ?? rec.expires_at;
+  const exp = typeof expRaw === "number" ? expRaw : undefined;
+  return { accessToken: access, refreshToken: refresh, exp };
+}
+
 async function doRefresh(): Promise<string | null> {
   const rt = getRefreshToken();
   if (!rt) return null;
@@ -113,14 +145,18 @@ async function doRefresh(): Promise<string | null> {
       withCredentials: USE_COOKIES,
       validateStatus: () => true,
     });
-    if (data && (data.token || data.accessToken || data.access_token)) {
-      const at = data.token || data.accessToken || data.access_token || "";
-      const newRt = data.refreshToken || data.refresh_token || rt;
-      const exp = data.tokenExpires ?? data.expiresIn ?? data.expires_at;
-      setTokens(at, newRt, exp);
-      return at;
+    const picked = pickRefreshedAccess(data);
+    if (picked) {
+      setTokens(
+        picked.accessToken,
+        picked.refreshToken || rt,
+        picked.exp,
+      );
+      return picked.accessToken;
     }
-  } catch {}
+  } catch {
+    /* try body refresh */
+  }
 
   try {
     const { data } = await axios.post(
@@ -129,16 +165,20 @@ async function doRefresh(): Promise<string | null> {
       {
         withCredentials: USE_COOKIES,
         validateStatus: () => true,
-      }
+      },
     );
-    if (data && (data.token || data.accessToken || data.access_token)) {
-      const at = data.token || data.accessToken || data.access_token || "";
-      const newRt = data.refreshToken || data.refresh_token || rt;
-      const exp = data.tokenExpires ?? data.expiresIn ?? data.expires_at;
-      setTokens(at, newRt, exp);
-      return at;
+    const picked = pickRefreshedAccess(data);
+    if (picked) {
+      setTokens(
+        picked.accessToken,
+        picked.refreshToken || rt,
+        picked.exp,
+      );
+      return picked.accessToken;
     }
-  } catch {}
+  } catch {
+    return null;
+  }
 
   return null;
 }
@@ -173,7 +213,7 @@ api.interceptors.response.use(
 
     if (USE_COOKIES) {
       if (!isPublicPage() && typeof window !== "undefined") {
-        window.location.assign("/login");
+        window.location.assign("/auth");
       }
       return Promise.reject(error);
     }
@@ -186,10 +226,10 @@ api.interceptors.response.use(
 
     clearAuth();
     if (!isPublicPage() && typeof window !== "undefined") {
-      window.location.assign("/login");
+      window.location.assign("/auth");
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export async function ensureAccessToken(): Promise<string | null> {

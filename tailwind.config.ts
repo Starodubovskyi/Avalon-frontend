@@ -6,6 +6,7 @@ const config = {
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
+    "./lib/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
@@ -52,6 +53,30 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          muted: "hsl(var(--sidebar-muted))",
+          accent: "hsl(var(--sidebar-accent))",
+        },
+        stage: {
+          expected: "hsl(var(--st-expected))",
+          roads: "hsl(var(--st-roads))",
+          port: "hsl(var(--st-port))",
+          departed: "hsl(var(--st-departed))",
+          unpaid: "hsl(var(--st-unpaid))",
+        },
+        ok: "hsl(var(--ok))",
+        bad: "hsl(var(--bad))",
+        point: {
+          company: "#7c3aed",
+          person: "#059669",
+          employee: "#ea580c",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

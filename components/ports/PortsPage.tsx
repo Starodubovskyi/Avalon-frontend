@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PortsHeader from "@/components/ports/PortsHeader";
 import PortsModal, { PortFormData } from "@/components/ports/PortsModal";
 import PortsTable from "@/components/ports/portsTable";
 import { PortsTabKey } from "@/components/ports/PortsTabs";
 import { PortsApi, PortStatus } from "@/lib/api/ports";
+import { mapMarineTrafficPort, mapMarineTrafficPorts } from "@/components/ports/portsMapper";
 
 type FilterKey =
   | "flag"
@@ -39,6 +40,10 @@ export default function PortsPage({
     setFilters((p) => ({ ...p, [key]: value }));
   const clearFilters = () => setFilters({});
 
+  useEffect(() => {
+    setRows(mapMarineTrafficPorts(initialRows));
+  }, [initialRows]);
+
   const handleAdd = async (data: PortFormData) => {
     try {
       const status = ((data as any).status as PortStatus | undefined) ?? "Open";
@@ -66,7 +71,10 @@ export default function PortsPage({
           ? (crypto as any).randomUUID()
           : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`);
 
-      setRows((p) => [...p, { ...data, id: newId }]);
+      setRows((p) => [
+        ...p,
+        mapMarineTrafficPort({ ...data, ...created, id: newId }),
+      ]);
       setIsOpen(false);
     } catch (e) {
       console.error(e);
@@ -100,9 +108,10 @@ export default function PortsPage({
 
   const handleDelete = async (id: string) => {
     try {
-      await PortsApi.remove(String(id)).catch(() => null);
-    } finally {
+      await PortsApi.remove(String(id));
       setRows((p) => p.filter((r) => r.id !== id));
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -113,16 +122,18 @@ export default function PortsPage({
         onTabChange={setTab}
         onAdd={() => setIsOpen(true)}
         onDeleteSelected={async () => {
-          try {
-            await Promise.all(
-              selectedIds.map((id) =>
-                PortsApi.remove(String(id)).catch(() => null)
-              )
-            );
-          } catch (e) {
-            console.error(e);
+          const removed: string[] = [];
+          for (const id of selectedIds) {
+            try {
+              await PortsApi.remove(String(id));
+              removed.push(id);
+            } catch (e) {
+              console.error(e);
+            }
           }
-          setRows((p) => p.filter((r) => !selectedIds.includes(r.id)));
+          if (removed.length > 0) {
+            setRows((p) => p.filter((r) => !removed.includes(r.id)));
+          }
           setSelectedIds([]);
         }}
         onSearch={setQ}

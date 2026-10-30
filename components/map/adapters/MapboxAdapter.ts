@@ -31,7 +31,15 @@ export interface MapAdapter {
 
   setTempMarker(lat: number, lon: number): void;
   removeTempMarker(): void;
-  renderCustomPoints(points: any[], onSelect: (id: string) => void): void;
+  renderCustomPoints(
+    points: Array<{
+      id: string;
+      lat: number;
+      lng: number;
+      isFavorite: boolean;
+    }>,
+    onSelect: (id: string) => void,
+  ): void;
 
   // --- НОВЫЕ МЕТОДЫ (которых не хватало) ---
   flyTo(lat: number, lon: number, zoom?: number): void;
@@ -244,7 +252,15 @@ export class MapboxAdapter implements MapAdapter {
     }
   }
 
-  public renderCustomPoints(points: any[], onSelect: (id: string) => void) {
+  public renderCustomPoints(
+    points: Array<{
+      id: string;
+      lat: number;
+      lng: number;
+      isFavorite: boolean;
+    }>,
+    onSelect: (id: string) => void,
+  ) {
     const currentIds = new Set(points.map((p) => p.id));
     const totalCount = points.length;
 

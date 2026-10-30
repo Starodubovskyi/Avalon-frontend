@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useTheme } from "next-themes";
+import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -15,9 +14,15 @@ import { mockVesselsData } from "@/components/types/mockData1";
 import { usePoints } from "./context/PointsContext";
 import CreatePointForm from "@/components/map/CreatePointForm";
 import PointPopup from "@/components/map/PointPopup";
-
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ"
+import { getMapboxToken } from "@/lib/map/getMapboxToken";
+import { useAuth } from "@/lib/auth/useAuth";
+import type { CreateMapPointDto } from "@/lib/domain/map-point";
+import {
+  DEFAULT_KIND_VISIBILITY,
+  type KindVisibility,
+  type MapLayerKind,
+} from "@/lib/domain/map-layer";
+import { useMapKindLayers } from "@/components/map/layers/useMapKindLayers";
 
 type LL = { lat: number; lon: number };
 type BaseName = "light" | "dark" | "osm" | "sat";
@@ -100,23 +105,18 @@ function mapMocksToVesselInfo(): VesselInfo[] {
 
 const STORAGE_KEY = "basemap_v1";
 
-const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-};
-
 export default function Map() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
+  const adapterRef = useRef<MapboxAdapter | null>(null);
+  const isAddModeRef = useRef(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { isAuthed, loading: authLoading } = useAuth();
 
   const [adapter, setAdapter] = useState<MapboxAdapter | null>(null);
   const [currentBase, setCurrentBase] = useState<BaseName>("sat");
-  const { resolvedTheme } = useTheme();
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   const allVessels = useMemo(() => mapMocksToVesselInfo(), []);
   const [count, setCount] = useState(allVessels.length);
@@ -124,6 +124,7 @@ export default function Map() {
 
   const { points, addPoint, toggleFavorite, deletePoint } = usePoints();
 
+  const [isAddMode, setIsAddMode] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [tempCoords, setTempCoords] = useState<{
     lat: number;
@@ -136,14 +137,29 @@ export default function Map() {
   );
 
   const [projection, setProjection] = useState<"globe" | "mercator">("globe");
+  const [kindVisibility, setKindVisibility] = useState<KindVisibility>(
+    DEFAULT_KIND_VISIBILITY,
+  );
 
-  const toggleProjection = () => {
-    if (!mapInstance.current) return;
-    const nextProjection = projection === "globe" ? "mercator" : "globe";
+  useMapKindLayers(adapter ? mapInstance.current : null, kindVisibility);
 
-    mapInstance.current.setProjection(nextProjection);
-    setProjection(nextProjection);
-  };
+  useEffect(() => {
+    isAddModeRef.current = isAddMode;
+  }, [isAddMode]);
+
+  useEffect(() => {
+    adapterRef.current = adapter;
+  }, [adapter]);
+
+  useEffect(() => {
+    if (searchParams.get("intent") !== "add-pin") return;
+    if (authLoading) return;
+    if (!isAuthed) {
+      router.replace("/auth?next=/maps&intent=add-pin");
+      return;
+    }
+    setIsAddMode(true);
+  }, [searchParams, isAuthed, authLoading, router]);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -156,13 +172,27 @@ export default function Map() {
     if (mapInstance.current) return;
     if (!mapContainer.current) return;
 
+    let token: string;
+    try {
+      token = getMapboxToken();
+    } catch (error: unknown) {
+      setTokenError(
+        error instanceof Error
+          ? error.message
+          : "NEXT_PUBLIC_MAPBOX_TOKEN is missing",
+      );
+      return;
+    }
+
+    mapboxgl.accessToken = token;
+
     try {
       const map = new mapboxgl.Map({
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/satellite-streets-v12",
         center: [10, 20],
         zoom: 1.5,
-        projection: "globe" as any,
+        projection: "globe",
       });
 
       mapInstance.current = map;
@@ -184,10 +214,12 @@ export default function Map() {
       map.once("load", () => {
         const a = new MapboxAdapter(map);
         a.loadVessels(allVessels);
+        adapterRef.current = a;
         setAdapter(a);
         setCount(allVessels.length);
 
         a.onMapClick((lat, lon) => {
+          if (!isAddModeRef.current) return;
           a.setTempMarker(lat, lon);
           setTempCoords({ lat, lng: lon });
           setIsCreating(true);
@@ -197,14 +229,15 @@ export default function Map() {
 
         setTimeout(() => map.resize(), 200);
       });
-
-      map.on("error", (e) => console.error("Mapbox error:", e));
-    } catch (error) {
-      console.error("Error initializing map:", error);
+    } catch (error: unknown) {
+      setTokenError(
+        error instanceof Error ? error.message : "Failed to initialize map",
+      );
     }
 
     return () => {
-      if (adapter) adapter.destroy();
+      adapterRef.current?.destroy();
+      adapterRef.current = null;
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
@@ -232,12 +265,14 @@ export default function Map() {
       resizeObserver.disconnect();
       clearTimeout(timeoutId);
     };
-  }, [mapInstance.current]);
+  }, [adapter]);
 
   useEffect(() => {
     if (!adapter) return;
 
-    adapter.renderCustomPoints(points, (id) => {
+    adapter.renderCustomPoints(
+      kindVisibility.person ? points : [],
+      (id) => {
       const p = points.find((point) => point.id === id);
       if (p) {
         const screenPos = adapter.project(p.lat, p.lng);
@@ -247,7 +282,7 @@ export default function Map() {
         adapter.removeTempMarker();
       }
     });
-  }, [adapter, points]);
+  }, [adapter, points, kindVisibility.person]);
 
   useEffect(() => {
     if (!adapter || !mapInstance.current || points.length === 0) return;
@@ -296,13 +331,22 @@ export default function Map() {
       typeof window !== "undefined"
         ? (localStorage.getItem(STORAGE_KEY) as BaseName | null)
         : null;
-    const want: BaseName = saved ? (saved as BaseName) : "sat";
+    const want: BaseName = saved ? saved : "sat";
 
     if (want !== currentBase) {
       adapter.setBasemap(want);
       setCurrentBase(want);
     }
   }, [adapter]);
+
+  useEffect(() => {
+    if (!adapter) return;
+    if (kindVisibility.vessel) {
+      adapter.loadVessels(allVessels);
+    } else {
+      adapter.setVessels([]);
+    }
+  }, [adapter, kindVisibility.vessel, allVessels]);
 
   useEffect(() => {
     if (!adapter) return;
@@ -315,34 +359,37 @@ export default function Map() {
     return () => adapter.off("visible:change", onChangeVisible);
   }, [adapter, allVessels.length]);
 
-  const handleSavePoint = async (data: any) => {
-    if (tempCoords) {
-      let photoBase64 = null;
-
-      if (data.photo instanceof File) {
-        try {
-          photoBase64 = await fileToBase64(data.photo);
-        } catch (e) {
-          console.error("Error converting file:", e);
-        }
-      }
-
-      addPoint({
-        ...data,
-        photo: photoBase64,
-        lat: tempCoords.lat,
-        lng: tempCoords.lng,
-      });
-      setIsCreating(false);
-      setTempCoords(null);
-      adapter?.removeTempMarker();
-    }
-  };
-
-  const handleCancelCreate = () => {
+  const exitAddMode = () => {
+    setIsAddMode(false);
     setIsCreating(false);
     setTempCoords(null);
     adapter?.removeTempMarker();
+  };
+
+  const handleAddPinClick = () => {
+    if (!isAuthed) {
+      router.push("/auth?next=/maps&intent=add-pin");
+      return;
+    }
+    if (isAddMode) {
+      exitAddMode();
+      return;
+    }
+    setIsAddMode(true);
+  };
+
+  const handleSavePoint = (data: Omit<CreateMapPointDto, "lat" | "lng">) => {
+    if (!tempCoords) return;
+    addPoint({
+      ...data,
+      lat: tempCoords.lat,
+      lng: tempCoords.lng,
+    });
+    exitAddMode();
+  };
+
+  const handleCancelCreate = () => {
+    exitAddMode();
   };
 
   const selectedPoint = useMemo(
@@ -351,22 +398,48 @@ export default function Map() {
   );
 
   return (
-    <div className="relative w-full h-[100svh] sm:h-screen bg-gray-900 overflow-hidden">
+    <div className="relative h-full w-full min-h-0 bg-gray-900 overflow-hidden">
       <div
         ref={mapContainer}
         className="absolute inset-0 z-0 w-full h-full"
         style={{ outline: "none" }}
       />
 
+      {tokenError && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-gray-900 px-6 text-center">
+          <p className="max-w-md text-sm text-red-200 sm:text-base">
+            Map cannot start: {tokenError}
+          </p>
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={handleAddPinClick}
+        className={`absolute top-4 left-4 z-[1001] rounded-xl px-4 py-2 text-sm font-semibold shadow-lg backdrop-blur-sm border transition ${
+          isAddMode
+            ? "bg-blue-600 text-white border-blue-400"
+            : "bg-black/60 text-white border-white/10 hover:bg-black/80"
+        }`}
+      >
+        {isAddMode ? "Cancel pin" : "Add pin"}
+      </button>
+
+      {isAddMode && !isCreating && (
+        <div className="absolute top-4 left-32 z-[1001] rounded-xl bg-black/60 px-3 py-2 text-xs text-white backdrop-blur-sm border border-white/10">
+          Click the map to drop a pin
+        </div>
+      )}
+
       {adapter && (
         <>
           <VesselOverlay
-            adapter={adapter as any}
+            adapter={adapter}
             detailsHref={(id) => `/vessels/${id}`}
           />
 
           <RightDock
-            adapter={adapter as any}
+            adapter={adapter}
             currentBasemap={currentBase}
             onBasemapChange={(style) => {
               adapter.setBasemap(style);
@@ -403,6 +476,10 @@ export default function Map() {
               }
 
               setProjection(nextProj);
+            }}
+            kindVisibility={kindVisibility}
+            onKindVisibilityChange={(kind: MapLayerKind, on: boolean) => {
+              setKindVisibility((prev) => ({ ...prev, [kind]: on }));
             }}
           />
         </>

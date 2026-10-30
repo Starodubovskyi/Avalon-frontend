@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap");
 @import "leaflet/dist/leaflet.css";
 
 @tailwind base;
@@ -6,50 +5,88 @@
 @tailwind utilities;
 
 @layer base {
+  /* Avalon Shipping brand: logo blue #2B5DB0 on deep navy */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 220 33% 97%;
+    --foreground: 224 45% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 224 45% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 86.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --popover-foreground: 224 45% 11%;
+    --primary: 219 66% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 30% 95%;
+    --secondary-foreground: 224 45% 15%;
+    --muted: 220 28% 95.5%;
+    --muted-foreground: 220 13% 45%;
+    --accent: 219 60% 96%;
+    --accent-foreground: 219 66% 32%;
+    --destructive: 350 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 22% 90%;
+    --input: 220 20% 86%;
+    --ring: 219 66% 45%;
+    --radius: 0.75rem;
     --grain-opacity: 0.06;
+
+    --sidebar: 224 64% 12%;
+    --sidebar-2: 219 64% 20%;
+    --sidebar-foreground: 216 40% 90%;
+    --sidebar-muted: 218 26% 66%;
+    --sidebar-accent: 219 50% 24%;
+
+    --shadow-color: 222 45% 20%;
+
+    --st-expected: 38 92% 46%;
+    --st-roads: 188 82% 38%;
+    --st-port: 218 75% 52%;
+    --st-departed: 215 14% 52%;
+    --st-unpaid: 326 78% 48%;
+    --ok: 152 62% 36%;
+    --bad: 350 72% 50%;
+  }
+
+  :root {
+    color-scheme: light;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    color-scheme: dark;
+    --background: 223 47% 6%;
+    --foreground: 214 32% 93%;
+    --card: 222 42% 9%;
+    --card-foreground: 214 32% 93%;
+    --popover: 222 42% 10%;
+    --popover-foreground: 214 32% 93%;
+    --primary: 216 85% 60%;
+    --primary-foreground: 223 47% 8%;
+    --secondary: 221 35% 15%;
+    --secondary-foreground: 214 32% 93%;
+    --muted: 221 35% 13%;
+    --muted-foreground: 217 18% 64%;
+    --accent: 221 35% 16%;
+    --accent-foreground: 214 32% 93%;
+    --destructive: 350 75% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 221 30% 17%;
+    --input: 221 30% 20%;
+    --ring: 216 85% 60%;
+
+    --sidebar: 225 55% 5%;
+    --sidebar-2: 221 50% 10%;
+    --sidebar-foreground: 214 32% 88%;
+    --sidebar-muted: 217 18% 60%;
+    --sidebar-accent: 221 40% 15%;
+
+    --shadow-color: 225 60% 2%;
+
+    --st-expected: 38 92% 56%;
+    --st-roads: 186 75% 50%;
+    --st-port: 216 90% 64%;
+    --st-departed: 215 14% 58%;
+    --st-unpaid: 326 85% 64%;
+    --ok: 152 58% 48%;
+    --bad: 352 85% 64%;
   }
 
   * {
@@ -59,9 +96,14 @@
 
   html, body {
     height: 100%;
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-sans), "Inter", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; /* Делает скругления визуально чище */
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+    letter-spacing: -0.015em;
   }
 
   body {
@@ -88,11 +130,64 @@
   }
 }
 
-/* Фикс для идеальных углов модального окна */
-.overflow-hidden {
-  /* Заставляет браузер жестко обрезать контент по радиусу (фикс для Chrome/Safari) */
+/* Rounded-corner clipping for legacy modals only; a global .overflow-hidden mask also hit <html> and the map canvas */
+.modal-wrapper {
   mask-image: -webkit-radial-gradient(white, black);
   -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Elevation used by ops surfaces: soft, layered, tinted to the brand navy */
+.shadow-card {
+  box-shadow:
+    0 1px 2px hsl(var(--shadow-color) / 0.05),
+    0 1px 3px hsl(var(--shadow-color) / 0.06);
+}
+.shadow-elevated {
+  box-shadow:
+    0 2px 4px hsl(var(--shadow-color) / 0.04),
+    0 12px 32px -8px hsl(var(--shadow-color) / 0.18);
+}
+.glass {
+  background: hsl(var(--card) / 0.82);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+.bg-sidebar-gradient {
+  background:
+    radial-gradient(120% 60% at 0% 0%, hsl(var(--primary) / 0.28), transparent 60%),
+    linear-gradient(180deg, hsl(var(--sidebar)) 0%, hsl(var(--sidebar-2)) 100%);
+}
+.hero-overlay {
+  background:
+    linear-gradient(100deg, hsl(224 64% 10% / 0.92) 0%, hsl(222 60% 14% / 0.78) 45%, hsl(222 60% 14% / 0.25) 100%);
+}
+@keyframes ops-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in-up {
+  animation: ops-fade-up 0.35s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-in-up { animation: none; }
+}
+
+/* swipeable chip rows on phones without a chunky Windows scrollbar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.mapboxgl-popup-content {
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border-radius: 10px;
 }
 
 .leaflet-container {

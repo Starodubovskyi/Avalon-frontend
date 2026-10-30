@@ -11,15 +11,53 @@ import {
   IconUser,
   IconBriefcase,
 } from "@tabler/icons-react";
-import type { CustomPoint } from "../context/PointsContext";
-import { useEffect, useRef } from "react";
+import type { MapPoint } from "../context/PointsContext";
+import { useEffect, useRef, useState } from "react";
+import { getCachedFileUrl, getFileMeta, toClientFileUrl } from "@/lib/api/files";
+import { isAbortError } from "@/lib/api/map-points";
 
 interface PointPopupProps {
-  point: CustomPoint;
+  point: MapPoint;
   position: { x: number; y: number };
   onClose: () => void;
   onToggleFavorite: (id: string) => void;
   onDelete: (id: string) => void;
+}
+
+function PointPhoto({ photoId }: { photoId: string | null }) {
+  const [url, setUrl] = useState<string | null>(() =>
+    photoId ? getCachedFileUrl(photoId) : null,
+  );
+
+  useEffect(() => {
+    if (!photoId) {
+      setUrl(null);
+      return;
+    }
+    const cached = getCachedFileUrl(photoId);
+    if (cached) {
+      setUrl(cached);
+      return;
+    }
+    const ac = new AbortController();
+    getFileMeta(photoId, ac.signal)
+      .then((file) => {
+        setUrl(toClientFileUrl(file.path));
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error)) return;
+        setUrl(null);
+      });
+    return () => ac.abort();
+  }, [photoId]);
+
+  if (!url) {
+    return <IconUser size={28} className="text-gray-400" />;
+  }
+
+  return (
+    <img src={url} alt="" className="w-full h-full object-cover" />
+  );
 }
 
 export default function PointPopup({
@@ -99,15 +137,7 @@ export default function PointPopup({
           {/* Аватар */}
           <div className="w-16 h-16 rounded-full p-1 bg-white dark:bg-zinc-800 shadow-md mb-3">
             <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-              {point.photo ? (
-                <img
-                  src={point.photo}
-                  alt={point.firstName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <IconUser size={28} className="text-gray-400" />
-              )}
+              <PointPhoto photoId={point.photoId} />
             </div>
           </div>
 
@@ -116,7 +146,7 @@ export default function PointPopup({
           </h3>
           <div className="flex items-center gap-1.5 mt-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 rounded-full">
             <IconBriefcase size={12} />
-            {point.role || "No Role"}
+            {point.activity || "No activity"}
           </div>
 
           <div className="w-full h-px bg-gray-100 dark:bg-white/5 my-4" />

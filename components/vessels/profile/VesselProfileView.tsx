@@ -20,10 +20,9 @@ import {
 
 import type { AdminCompany } from "@/components/admin/companies/types";
 import { adminCompaniesMock } from "@/components/admin/companies/mock";
+import { getMapboxToken } from "@/lib/map/getMapboxToken";
 
-// --- Токен Mapbox (используем тот же, что и в вашем Map.tsx) ---
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+mapboxgl.accessToken = getMapboxToken();
 
 const Anchor = ({ id }: { id: string }) => (
   <span id={id} className="block -mt-24 pt-24" aria-hidden="true" />

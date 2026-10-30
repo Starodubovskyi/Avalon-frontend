@@ -10,38 +10,40 @@ import {
 } from "@tabler/icons-react";
 import clsx from "clsx";
 import PointCard, { PointItem } from "./PointCard";
-import { usePoints } from "../context/PointsContext"; // Убедитесь, что путь верный (или ../context/...)
+import { usePoints } from "../context/PointsContext";
 import EditPointModal from "./EditPointModal";
+import { useAuth } from "@/lib/auth/useAuth";
+
+function formatAddedDate(iso: string): string {
+  const parsed = Date.parse(iso);
+  if (Number.isNaN(parsed)) return iso;
+  return new Date(parsed).toLocaleDateString();
+}
 
 export default function MyPointsView() {
   const router = useRouter();
-  const { points, deletePoint, updatePoint } = usePoints(); // Получаем методы из контекста
+  const { isAuthed, loading } = useAuth();
+  const { points, deletePoint, updatePoint } = usePoints();
 
   const [activeTab, setActiveTab] = useState<"custom" | "favorites">("custom");
   const [search, setSearch] = useState("");
   const [editingPointId, setEditingPointId] = useState<string | null>(null);
 
-  // Преобразуем данные из контекста в формат для карточек
   const formattedPoints: PointItem[] = points.map((p) => ({
     id: p.id,
     type: "custom",
     title: `${p.firstName} ${p.lastName}`.trim() || "Unnamed Point",
-    subtitle: p.role || `${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`,
-    dateAdded: p.dateAdded,
+    subtitle: p.activity || `${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`,
+    dateAdded: formatAddedDate(p.createdAt),
     notes: [p.email, p.phone].filter(Boolean).join(" • "),
-    // @ts-ignore
     isFavorite: p.isFavorite,
   }));
 
-  // Разделяем на списки
   const customList = formattedPoints;
-  // @ts-ignore
   const favList = formattedPoints.filter((p) => p.isFavorite);
 
-  // Выбираем текущий список
   const currentList = activeTab === "custom" ? customList : favList;
 
-  // Фильтрация по поиску
   const filteredList = currentList.filter(
     (item) =>
       item.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -49,12 +51,45 @@ export default function MyPointsView() {
       (item.notes && item.notes.toLowerCase().includes(search.toLowerCase())),
   );
 
-  // Находим объект точки для редактирования (из исходных данных контекста)
   const editingPointObj = points.find((p) => p.id === editingPointId) || null;
+
+  if (!loading && !isAuthed) {
+    return (
+      <div className="mx-auto max-w-[1600px] p-4 lg:p-8 space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            My Points
+          </h1>
+          <p className="mt-1 text-gray-500 dark:text-gray-400">
+            Sign in to see and manage your map points.
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 dark:bg-white/5 mb-4">
+            <IconMapPin
+              size={32}
+              className="text-gray-300 dark:text-gray-600"
+            />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            No points yet
+          </h3>
+          <p className="mt-1 text-gray-500 dark:text-gray-400 max-w-sm">
+            Log in to create pins on the map and keep them in your account.
+          </p>
+          <button
+            onClick={() => router.push("/auth?next=/mypoints")}
+            className="mt-4 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Log in
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-8 space-y-8">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -66,7 +101,7 @@ export default function MyPointsView() {
         </div>
 
         <button
-          onClick={() => router.push("/maps")}
+          onClick={() => router.push("/maps?intent=add-pin")}
           className="group flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 active:scale-95"
         >
           <IconPlus size={20} />
@@ -74,7 +109,6 @@ export default function MyPointsView() {
         </button>
       </div>
 
-      {/* Tabs & Search */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
         <div className="flex items-center p-1 rounded-2xl bg-gray-100/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 w-fit">
           <button
@@ -124,7 +158,6 @@ export default function MyPointsView() {
         </div>
       </div>
 
-      {/* Grid Content */}
       {filteredList.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredList.map((item) => (
@@ -152,7 +185,7 @@ export default function MyPointsView() {
             filters or create a new point on the Map.
           </p>
           <button
-            onClick={() => router.push("/maps")}
+            onClick={() => router.push("/maps?intent=add-pin")}
             className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-500"
           >
             Go to Map
@@ -160,7 +193,6 @@ export default function MyPointsView() {
         </div>
       )}
 
-      {/* Edit Modal */}
       <EditPointModal
         open={!!editingPointId}
         point={editingPointObj}

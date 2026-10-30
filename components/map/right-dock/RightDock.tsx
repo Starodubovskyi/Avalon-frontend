@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { MapboxAdapter } from "@/components/map/adapters/MapboxAdapter";
+import type { KindVisibility, MapLayerKind } from "@/lib/domain/map-layer";
 
 /* --- TYPES --- */
 interface DockProps {
@@ -12,6 +13,8 @@ interface DockProps {
   // Новые пропсы для 2D/3D
   currentProjection: "globe" | "mercator";
   onProjectionChange: (proj: "globe" | "mercator") => void;
+  kindVisibility: KindVisibility;
+  onKindVisibilityChange: (kind: MapLayerKind, on: boolean) => void;
 }
 
 type MenuView = "main" | "layers" | "basemap";
@@ -23,6 +26,8 @@ export default function RightDock({
   onBasemapChange,
   currentProjection,
   onProjectionChange,
+  kindVisibility,
+  onKindVisibilityChange,
 }: DockProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<MenuView>("main");
@@ -184,7 +189,11 @@ export default function RightDock({
             {view === "layers" && (
               <div className="flex flex-col gap-1 animate-in slide-in-from-right-4 fade-in duration-200">
                 <MenuHeader title="Layers" onBack={() => setView("main")} />
-                <LayersList adapter={adapter} />
+                <LayersList
+                  adapter={adapter}
+                  kindVisibility={kindVisibility}
+                  onKindVisibilityChange={onKindVisibilityChange}
+                />
               </div>
             )}
           </div>
@@ -297,7 +306,15 @@ function BasemapList({
   );
 }
 
-function LayersList({ adapter }: { adapter: MapboxAdapter }) {
+function LayersList({
+  adapter,
+  kindVisibility,
+  onKindVisibilityChange,
+}: {
+  adapter: MapboxAdapter;
+  kindVisibility: KindVisibility;
+  onKindVisibilityChange: (kind: MapLayerKind, on: boolean) => void;
+}) {
   const ToggleItem = ({
     id,
     label,
@@ -314,35 +331,68 @@ function LayersList({ adapter }: { adapter: MapboxAdapter }) {
     };
 
     return (
-      <div
-        onClick={toggle}
-        className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-      >
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          {label}
-        </span>
-        <div
-          className={`
-          relative h-5 w-9 rounded-full transition-colors duration-200 ease-in-out
-          ${enabled ? "bg-blue-600" : "bg-zinc-200 dark:bg-zinc-700"}
-        `}
-        >
-          <div
-            className={`
-            absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out
-            ${enabled ? "translate-x-4" : "translate-x-0"}
-          `}
-          />
-        </div>
-      </div>
+      <SwitchRow label={label} enabled={enabled} onToggle={toggle} />
     );
   };
 
+  const KindToggle = ({
+    id,
+    label,
+  }: {
+    id: MapLayerKind;
+    label: string;
+  }) => (
+    <SwitchRow
+      label={label}
+      enabled={kindVisibility[id]}
+      onToggle={() => onKindVisibilityChange(id, !kindVisibility[id])}
+    />
+  );
+
   return (
     <div className="space-y-1">
+      <KindToggle id="person" label="My contacts" />
+      <KindToggle id="company" label="Companies" />
+      <KindToggle id="vessel" label="Vessels" />
+      <KindToggle id="port" label="Directory ports" />
+      <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800/50" />
       <ToggleItem id="ports" label="Major Ports" />
       <ToggleItem id="anchorages" label="Anchorages" />
       <ToggleItem id="routes" label="Shipping Lanes" />
+    </div>
+  );
+}
+
+function SwitchRow({
+  label,
+  enabled,
+  onToggle,
+}: {
+  label: string;
+  enabled: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div
+      onClick={onToggle}
+      className="flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+    >
+      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        {label}
+      </span>
+      <div
+        className={`
+          relative h-5 w-9 rounded-full transition-colors duration-200 ease-in-out
+          ${enabled ? "bg-blue-600" : "bg-zinc-200 dark:bg-zinc-700"}
+        `}
+      >
+        <div
+          className={`
+            absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out
+            ${enabled ? "translate-x-4" : "translate-x-0"}
+          `}
+        />
+      </div>
     </div>
   );
 }

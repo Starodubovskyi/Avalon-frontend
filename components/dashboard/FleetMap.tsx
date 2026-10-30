@@ -11,10 +11,9 @@ import { IconShip } from "@tabler/icons-react";
 import VesselOverlay from "@/components/map/VesselOverlay";
 import { MapboxAdapter } from "@/components/map/adapters/MapboxAdapter"; // Используем Mapbox адаптер
 import type { VesselInfo } from "@/components/map/VesselInfoPanel";
+import { getMapboxToken } from "@/lib/map/getMapboxToken";
 
-// Не забудьте указать токен (или вынести его в env)
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+mapboxgl.accessToken = getMapboxToken();
 
 export default function FleetMap() {
   const { vessels, searchQuery, filters } = useDashboardStore();
