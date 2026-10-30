@@ -6,50 +6,77 @@
 @tailwind utilities;
 
 @layer base {
+  /* Avalon Shipping brand: logo blue #2B5DB0 on deep navy */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 216 33% 97%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 86.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --popover-foreground: 222 47% 11%;
+    --primary: 218 61% 43%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 30% 93%;
+    --secondary-foreground: 222 47% 15%;
+    --muted: 216 30% 94%;
+    --muted-foreground: 217 15% 42%;
+    --accent: 216 40% 92%;
+    --accent-foreground: 222 47% 15%;
+    --destructive: 350 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 216 25% 87%;
+    --input: 216 25% 85%;
+    --ring: 218 61% 43%;
+    --radius: 0.625rem;
     --grain-opacity: 0.06;
+
+    --sidebar: 222 52% 11%;
+    --sidebar-foreground: 214 32% 86%;
+    --sidebar-muted: 217 22% 62%;
+    --sidebar-accent: 220 45% 18%;
+
+    --st-expected: 38 92% 46%;
+    --st-roads: 188 82% 38%;
+    --st-port: 218 75% 52%;
+    --st-departed: 215 14% 52%;
+    --st-unpaid: 326 78% 48%;
+    --ok: 152 62% 36%;
+    --bad: 350 72% 50%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 223 47% 6%;
+    --foreground: 214 32% 93%;
+    --card: 222 42% 9%;
+    --card-foreground: 214 32% 93%;
+    --popover: 222 42% 10%;
+    --popover-foreground: 214 32% 93%;
+    --primary: 216 85% 60%;
+    --primary-foreground: 223 47% 8%;
+    --secondary: 221 35% 15%;
+    --secondary-foreground: 214 32% 93%;
+    --muted: 221 35% 13%;
+    --muted-foreground: 217 18% 64%;
+    --accent: 221 35% 16%;
+    --accent-foreground: 214 32% 93%;
+    --destructive: 350 75% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 221 30% 17%;
+    --input: 221 30% 20%;
+    --ring: 216 85% 60%;
+
+    --sidebar: 224 50% 5%;
+    --sidebar-foreground: 214 32% 86%;
+    --sidebar-muted: 217 18% 58%;
+    --sidebar-accent: 221 40% 13%;
+
+    --st-expected: 38 92% 56%;
+    --st-roads: 186 75% 50%;
+    --st-port: 216 90% 64%;
+    --st-departed: 215 14% 58%;
+    --st-unpaid: 326 85% 64%;
+    --ok: 152 58% 48%;
+    --bad: 352 85% 64%;
   }
 
   * {
@@ -88,11 +115,28 @@
   }
 }
 
-/* Фикс для идеальных углов модального окна */
-.overflow-hidden {
-  /* Заставляет браузер жестко обрезать контент по радиусу (фикс для Chrome/Safari) */
+/* Rounded-corner clipping for legacy modals only; a global .overflow-hidden mask also hit <html> and the map canvas */
+.modal-wrapper {
   mask-image: -webkit-radial-gradient(white, black);
   -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* swipeable chip rows on phones without a chunky Windows scrollbar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.mapboxgl-popup-content {
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border-radius: 10px;
 }
 
 .leaflet-container {

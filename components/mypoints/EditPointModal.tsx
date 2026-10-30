@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type InputHTMLAttributes } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,26 +14,35 @@ import {
   IconMail,
   IconCheck,
 } from "@tabler/icons-react";
-import type { CustomPoint } from "../context/PointsContext";
+import type { MapPoint } from "../context/PointsContext";
 
 interface EditPointModalProps {
-  point: CustomPoint | null;
+  point: MapPoint | null;
   open: boolean;
   onClose: () => void;
-  onSave: (id: string, data: any) => void;
+  onSave: (
+    id: string,
+    data: Partial<Omit<MapPoint, "id" | "userId">>,
+  ) => void;
 }
 
-const Input = ({ icon: Icon, ...props }: any) => (
-  <div className="relative">
-    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-      <Icon size={16} className="text-gray-400" />
+type FormInputProps = InputHTMLAttributes<HTMLInputElement> & {
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
+};
+
+function FormInput({ icon: Icon, ...props }: FormInputProps) {
+  return (
+    <div className="relative">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <Icon size={16} className="text-gray-400" />
+      </div>
+      <input
+        {...props}
+        className="block w-full pl-10 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition text-gray-900 dark:text-white"
+      />
     </div>
-    <input
-      {...props}
-      className="block w-full pl-10 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition text-gray-900 dark:text-white"
-    />
-  </div>
-);
+  );
+}
 
 export default function EditPointModal({
   point,
@@ -44,18 +53,17 @@ export default function EditPointModal({
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    role: "",
+    activity: "",
     phone: "",
     email: "",
   });
 
-  // Заполняем форму данными при открытии
   useEffect(() => {
     if (point) {
       setFormData({
         firstName: point.firstName || "",
         lastName: point.lastName || "",
-        role: point.role || "",
+        activity: point.activity || "",
         phone: point.phone || "",
         email: point.email || "",
       });
@@ -65,7 +73,13 @@ export default function EditPointModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (point) {
-      onSave(point.id, formData);
+      onSave(point.id, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        activity: formData.activity,
+        phone: formData.phone || null,
+        email: formData.email || null,
+      });
       onClose();
     }
   };
@@ -81,50 +95,50 @@ export default function EditPointModal({
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
           <div className="grid grid-cols-2 gap-3">
-            <Input
+            <FormInput
               icon={IconUser}
               placeholder="First Name"
               required
               value={formData.firstName}
-              onChange={(e: any) =>
+              onChange={(e) =>
                 setFormData({ ...formData, firstName: e.target.value })
               }
             />
-            <Input
+            <FormInput
               icon={IconUser}
               placeholder="Last Name"
               value={formData.lastName}
-              onChange={(e: any) =>
+              onChange={(e) =>
                 setFormData({ ...formData, lastName: e.target.value })
               }
             />
           </div>
 
-          <Input
+          <FormInput
             icon={IconBriefcase}
-            placeholder="Role (e.g. Agent)"
-            value={formData.role}
-            onChange={(e: any) =>
-              setFormData({ ...formData, role: e.target.value })
+            placeholder="Activity"
+            value={formData.activity}
+            onChange={(e) =>
+              setFormData({ ...formData, activity: e.target.value })
             }
           />
 
-          <Input
+          <FormInput
             icon={IconPhone}
             placeholder="Phone"
             type="tel"
             value={formData.phone}
-            onChange={(e: any) =>
+            onChange={(e) =>
               setFormData({ ...formData, phone: e.target.value })
             }
           />
 
-          <Input
+          <FormInput
             icon={IconMail}
             placeholder="Email"
             type="email"
             value={formData.email}
-            onChange={(e: any) =>
+            onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
             }
           />

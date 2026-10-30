@@ -2,15 +2,16 @@
 
 import { useEffect } from "react";
 import useSWR from "swr";
-import api, { ensureAccessToken } from "@/lib/api/client";
-import type { ProfileResponseDto } from "@/lib/api/profile";
+import { ensureAccessToken } from "@/lib/api/client";
+import {
+  ProfileApi,
+  type ProfileResponseDto,
+} from "@/lib/api/profile";
 
-async function fetcher(): Promise<ProfileResponseDto> {
-  await ensureAccessToken();
-  const { data } = await api.get<ProfileResponseDto>("/me/profile", {
-    withCredentials: true,
-  });
-  return data;
+async function fetcher(): Promise<ProfileResponseDto | null> {
+  const token = await ensureAccessToken();
+  if (!token) return null;
+  return ProfileApi.getMyProfile();
 }
 
 export function useProfile() {
@@ -22,9 +23,11 @@ export function useProfile() {
   });
 
   useEffect(() => {
-    const onAuth = () => mutate();
+    const onAuth = () => {
+      void mutate();
+    };
     const onStorage = (e: StorageEvent) => {
-      if (!e.key || e.key === "auth:ts") mutate();
+      if (!e.key || e.key === "auth:ts") void mutate();
     };
     window.addEventListener("authchange", onAuth);
     window.addEventListener("storage", onStorage);

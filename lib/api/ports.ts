@@ -29,7 +29,7 @@ export interface CreatePortDto {
 export interface UpdatePortDto extends Partial<CreatePortDto> {}
 
 function toUpper5(code?: string) {
-  const v = (code || "").toUpperCase().replace(/[^A-Z]/g, "");
+  const v = (code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   return v.slice(0, 5);
 }
 
@@ -111,6 +111,7 @@ export const PortsApi = {
     page?: number;
     limit?: number;
   }): Promise<Port[]> {
+    await ensureAccessToken();
     const { data } = await api.get("/ports", { params });
     const arr = extractArray(data);
     return arr.map(normalizeFromServer);
@@ -119,7 +120,9 @@ export const PortsApi = {
   async create(payload: CreatePortDto): Promise<Port> {
     await ensureAccessToken();
     const u = toUpper5(payload.unlocode);
-    if (u.length !== 5) throw new Error("UN/LOCODE must be 5 letters (A–Z)");
+    if (!/^[A-Z]{2}[A-Z0-9]{3}$/.test(u)) {
+      throw new Error("UN/LOCODE must be 5 characters (AA + 3 letters/digits)");
+    }
     const body = normalizeCreate({ ...payload, unlocode: u });
     const { data } = await api.post("/ports", body, {
       headers: { "Content-Type": "application/json" },
@@ -194,6 +197,8 @@ function normalizeFromServer(p: any) {
   return {
     ...p,
     id: String(_id ?? unloc ?? name),
+    name,
+    port: name,
     portname: name,
     unlocode: toUpper5(unloc),
     flag: country,

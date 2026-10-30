@@ -1,22 +1,15 @@
 "use client";
 
-import React from "react";
-import dynamic from "next/dynamic";
-import MainLayout from "@/components/layout/MainLayout";
+import { Suspense } from "react";
+import { AppShell } from "@/components/ops/shell/AppShell";
+import { VesselBoard } from "@/components/ops/vessels/VesselBoard";
 
-const VesselsPage = dynamic(() => import("@/components/vessels/VesselsPage"), {
-  ssr: false,
-});
-
-
-
-
-export default function Page() {
+export default function VesselsPage() {
   return (
-    <MainLayout>
-      <div className="min-h-[100dvh] bg-gray-100 dark:bg-black">
-        <VesselsPage />
-      </div>
-    </MainLayout>
+    <AppShell title="Vessels board">
+      <Suspense fallback={null}>
+        <VesselBoard />
+      </Suspense>
+    </AppShell>
   );
 }

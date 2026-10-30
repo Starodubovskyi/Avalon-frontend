@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
 import { FaApple, FaFacebook, FaArrowLeft } from 'react-icons/fa';
+import { AuthApi, extractAuthError } from '@/lib/api/auth';
 
 type AccountType = 'business' | 'personal';
 type FocusedField = 'firstName' | 'lastName' | 'businessName' | 'location' | 'email' | 'phone' | 'password' | 'confirmPassword' | null;
@@ -21,13 +23,24 @@ interface FormData {
 // 1. Добавляем интерфейс для пропсов
 interface AuthFormProps {
   onClose?: () => void;
+  initialLoginMode?: boolean;
 }
 
 // 2. Деструктурируем пропс
-export default function AuthForm({ onClose }: AuthFormProps) {
-  const [isLoginMode, setIsLoginMode] = useState<boolean>(false);
+export default function AuthForm({ onClose, initialLoginMode }: AuthFormProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isLoginMode, setIsLoginMode] = useState<boolean>(() => {
+    if (typeof initialLoginMode === 'boolean') return initialLoginMode;
+    const mode = searchParams.get('mode');
+    if (mode === 'login') return true;
+    if (mode === 'register') return false;
+    return Boolean(searchParams.get('next'));
+  });
   const [step, setStep] = useState<number>(1);
   const [accountType, setAccountType] = useState<AccountType>('business');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -49,29 +62,96 @@ export default function AuthForm({ onClose }: AuthFormProps) {
   const gradientBgClass = "bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-600";
   const focusBorderClass = "border-blue-600 ring-4 ring-blue-600/10 bg-white";
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    setFormError(null);
+
     if (isLoginMode) {
-      console.log('Login submitted:', { email: formData.email, password: formData.password });
-      // Здесь логика успешного входа...
-      // Если успешно -> onClose?.();
-    } else {
-      if (step === 1) {
-        setStep(2);
-      } else {
-        if (formData.password !== formData.confirmPassword) {
-            alert("Passwords do not match!");
-            return;
-        }
-        console.log('Registration submitted:', { accountType, ...formData });
-        // Если успешно -> onClose?.();
+      setIsSubmitting(true);
+      try {
+        await AuthApi.login({ email: formData.email, password: formData.password });
+        redirectAfterAuth();
+      } catch (error: unknown) {
+        setFormError(extractAuthError(error));
+      } finally {
+        setIsSubmitting(false);
       }
+      return;
+    }
+
+    if (step === 1) {
+      setStep(2);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setFormError("Passwords do not match");
+      return;
+    }
+
+    if (!acceptedPolicy) {
+      setFormError("Please accept the Privacy Policy");
+      return;
+    }
+
+    const firstName =
+      accountType === "business"
+        ? formData.businessName.trim()
+        : formData.firstName.trim();
+    const lastName = formData.lastName.trim() || "—";
+
+    setIsSubmitting(true);
+    try {
+      await AuthApi.register({
+        email: formData.email,
+        password: formData.password,
+        firstName,
+        lastName,
+      });
+      redirectAfterAuth();
+    } catch (error: unknown) {
+      setFormError(extractAuthError(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  function isSafeRelativePath(path: string): boolean {
+    if (!path.startsWith("/") || path.startsWith("//")) return false;
+    if (path.includes("://") || path.includes("\\")) return false;
+    if (/%5c/i.test(path) || /\s/.test(path)) return false;
+    return true;
+  }
+
+  function redirectAfterAuth() {
+    const nextRaw = searchParams.get("next");
+    const intent = searchParams.get("intent");
+    let dest = "/maps";
+
+    if (nextRaw && isSafeRelativePath(nextRaw)) {
+      dest = nextRaw;
+    }
+
+    if (intent === "add-pin") {
+      const hashIndex = dest.indexOf("#");
+      const withoutHash = hashIndex >= 0 ? dest.slice(0, hashIndex) : dest;
+      const qIndex = withoutHash.indexOf("?");
+      const pathname = qIndex >= 0 ? withoutHash.slice(0, qIndex) : withoutHash;
+      const query = qIndex >= 0 ? withoutHash.slice(qIndex + 1) : "";
+      const params = new URLSearchParams(query);
+      if (!params.get("intent")) params.set("intent", "add-pin");
+      const qs = params.toString();
+      dest = qs ? `${pathname}?${qs}` : pathname;
+    }
+
+    onClose?.();
+    router.replace(dest);
+  }
 
   const toggleMode = (): void => {
     setIsLoginMode(!isLoginMode);
     setStep(1);
+    setFormError(null);
   };
 
   const goBack = (): void => {
@@ -112,6 +192,11 @@ export default function AuthForm({ onClose }: AuthFormProps) {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md w-full mx-auto lg:mx-0">
+        {formError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {formError}
+          </div>
+        )}
         
         {/* --- ШАГ 1: Тип аккаунта --- */}
         {!isLoginMode && step === 1 && (
@@ -321,9 +406,12 @@ export default function AuthForm({ onClose }: AuthFormProps) {
 
         <button
           type="submit"
-          className={`w-full ${gradientBgClass} text-white font-bold py-3.5 lg:py-4 rounded-xl lg:rounded-2xl transition-all duration-300 transform active:scale-95 hover:scale-[1.02] hover:opacity-95 shadow-lg shadow-blue-500/25 mt-4 lg:mt-6 text-sm lg:text-base`}
+          disabled={isSubmitting}
+          className={`w-full ${gradientBgClass} text-white font-bold py-3.5 lg:py-4 rounded-xl lg:rounded-2xl transition-all duration-300 transform active:scale-95 hover:scale-[1.02] hover:opacity-95 shadow-lg shadow-blue-500/25 mt-4 lg:mt-6 text-sm lg:text-base disabled:opacity-60 disabled:hover:scale-100`}
         >
-          {isLoginMode 
+          {isSubmitting
+            ? (isLoginMode ? 'Signing in…' : 'Creating account…')
+            : isLoginMode 
             ? 'Log in' 
             : step === 1 ? 'Next Step' : 'Create Account'}
         </button>

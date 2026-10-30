@@ -5,10 +5,9 @@ import { inputBase, labelBase } from "../ui/classes";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useTheme } from "next-themes";
+import { getMapboxToken } from "@/lib/map/getMapboxToken";
 
-// Токен Mapbox
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+mapboxgl.accessToken = getMapboxToken();
 
 type Props = {
   formData: {

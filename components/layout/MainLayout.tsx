@@ -1,14 +1,16 @@
 "use client";
 
-import Sidebar from "./Sidebar";
+import { AppShell } from "@/components/ops/shell/AppShell";
 
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex flex-1 overflow-hidden">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
-    </div>
-  );
+/** Legacy pages share the operations shell (navigation, auth guard, theme) */
+const MainLayout = ({
+  children,
+  fill = false,
+}: {
+  children: React.ReactNode;
+  fill?: boolean;
+}) => {
+  return <AppShell fill={fill}>{children}</AppShell>;
 };
 
 export default MainLayout;

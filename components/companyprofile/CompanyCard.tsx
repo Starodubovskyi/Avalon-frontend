@@ -22,10 +22,9 @@ import { Company } from "@/components/types/company.types";
 import { LineUpItem, TeamMember } from "./CompaniRegistation/form/types";
 import ManageTeamModal from "./manage/ManageTeamModal";
 import ManageLineUpModal from "./manage/ManageLineUpModal";
+import { getMapboxToken } from "@/lib/map/getMapboxToken";
 
-// Токен Mapbox
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYmFiYXN0ZXIiLCJhIjoiY21rcXlxcHFjMGIxbDNpczRjaXZ0bjU5ZCJ9.hM2_TSbf9hKdvuVYSWXsEQ";
+mapboxgl.accessToken = getMapboxToken();
 
 const GRADIENT_BG = "bg-gradient-to-br from-blue-500 via-indigo-500 to-sky-500";
 const GRADIENT_TEXT =

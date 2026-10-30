@@ -16,7 +16,7 @@ export function mapMarineTrafficPort(row: any) {
   const a2 = toAlpha2(row?.flag || row?.country);
   return {
     id: String(row?.id ?? row?.unlocode ?? crypto.randomUUID()),
-    port: row?.portname ?? row?.port ?? "",
+    port: row?.portname ?? row?.port ?? row?.name ?? row?.title ?? "",
     unlocode: row?.unlocode ?? "",
     country: row?.country ?? row?.flag ?? "",
     photoUrl: row?.photo ?? row?.photo_url ?? "",
