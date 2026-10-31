@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth/useAuth";
 import { AuthApi } from "@/lib/api/auth";
 import { ROLE_LABEL, displayName, roleId } from "@/lib/auth/roles";
 import { useChatUnread } from "@/lib/network/hooks";
+import { useNewRequestsCount } from "@/lib/requests/hooks";
 import { Avatar } from "../ui/primitives";
 import { NAV_GROUPS, isActive } from "./nav";
 
@@ -36,6 +37,7 @@ export function OpsSidebar({ className, onNavigate }: { className?: string; onNa
   const name = displayName(user);
   const { data: unread } = useChatUnread();
   const chatUnread = unread?.total ?? 0;
+  const newRequests = useNewRequestsCount();
   const navRef = useRef<HTMLElement>(null);
 
   // Long menus scroll: keep the current section in view after navigation
@@ -88,6 +90,12 @@ export function OpsSidebar({ className, onNavigate }: { className?: string; onNa
                           <span className="tabular inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-bad px-1.5 text-[11px] font-bold leading-none text-white shadow-[0_4px_10px_-4px_hsl(var(--bad))]">
                             {chatUnread > 99 ? "99+" : chatUnread}
                             <span className="sr-only"> unread messages</span>
+                          </span>
+                        ) : null}
+                        {item.badge === "requests" && newRequests > 0 ? (
+                          <span className="tabular inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-stage-expected px-1.5 text-[11px] font-bold leading-none text-white shadow-[0_4px_10px_-4px_hsl(var(--st-expected))]">
+                            {newRequests > 99 ? "99+" : newRequests}
+                            <span className="sr-only"> new requests</span>
                           </span>
                         ) : null}
                         {active ? <ChevronRight className="h-4 w-4 text-white/50" aria-hidden /> : null}
