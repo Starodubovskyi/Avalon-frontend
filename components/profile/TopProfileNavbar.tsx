@@ -13,8 +13,8 @@ export default function TopProfileNavbar() {
   const pathname = usePathname();
 
   const tabs = [
-    { href: "/profile", label: "My Profile" },
-    { href: "/companyprofile", label: "Business Profile" },
+    { href: "/account", label: "My Profile" },
+    { href: "/companies", label: "Companies" },
     { href: "/tasks", label: "Tasks" },
     { href: "/billing", label: "Billing" },
     { href: "/subscriptions", label: "Subscriptions" },
@@ -22,7 +22,7 @@ export default function TopProfileNavbar() {
   ];
 
   const isActive = (href: string) =>
-    pathname === href || (pathname === "/profile" && href === "/profile");
+    pathname === href;
 
   return (
     <div className="w-full mb-8">

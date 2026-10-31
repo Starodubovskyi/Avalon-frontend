@@ -1,23 +1,12 @@
 "use client";
 
-import EmailDashboard from "@/components/email-page/emailDashboard";
-import MainLayout from "@/components/layout/MainLayout";
-import ThemeToggler from "@/components/ThemeToggler";
-import React from "react";
+import { AppShell } from "@/components/ops/shell/AppShell";
+import { EmailComposer } from "@/components/ops/email/EmailComposer";
 
-const EmailPage: React.FC = () => {
+export default function EmailPage() {
   return (
-    <MainLayout>
-      <div className="h-[100dvh]">
-        <EmailDashboard
-          currentUser={{
-            name: "",
-            email: "",
-          }}
-        />
-      </div>
-    </MainLayout>
+    <AppShell title="Email" access="staff">
+      <EmailComposer />
+    </AppShell>
   );
-};
-
-export default EmailPage;
+}
