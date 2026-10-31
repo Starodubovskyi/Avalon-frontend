@@ -1,6 +1,7 @@
 "use client";
 
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from "axios";
+import { isDemoActive, isDemoToken, lazyDemoAdapter } from "@/lib/demo/mode";
 
 const LS = {
   token: "access_token",
@@ -28,7 +29,8 @@ function setAuthHeader(cfg: AxiosRequestConfig, token: string) {
 }
 
 function setDefaultAuthHeader(token?: string) {
-  if (!token) {
+  // axios merges defaults into each request before interceptors run, so a demo token never goes here
+  if (!token || isDemoToken(token)) {
     delete api.defaults.headers.common.Authorization;
     return;
   }
@@ -45,6 +47,8 @@ const isPublicPage = () => {
   const p = window.location.pathname;
   return (
     p === "/" ||
+    p === "/port-guide" ||
+    p === "/estimate" ||
     p === "/auth" ||
     p.startsWith("/auth/") ||
     /^\/login(\/|$)/.test(p)
@@ -82,7 +86,8 @@ export function setTokens(
   window.dispatchEvent(new Event("authchange"));
 }
 
-export function clearAuth() {
+/** `notify: false` skips the in-tab "authchange" event (the caller is about to leave the page anyway) */
+export function clearAuth({ notify = true }: { notify?: boolean } = {}) {
   if (typeof window !== "undefined") {
     localStorage.removeItem(LS.token);
     localStorage.removeItem(LS.refresh);
@@ -92,12 +97,24 @@ export function clearAuth() {
     } catch {
       /* ignore quota */
     }
-    window.dispatchEvent(new Event("authchange"));
+    if (notify) window.dispatchEvent(new Event("authchange"));
   }
   setDefaultAuthHeader(undefined);
 }
 
 api.interceptors.request.use((cfg) => {
+  // Demo mode answers from the in-browser mock backend; a demo token never reaches a real server
+  if (isDemoActive()) {
+    cfg.adapter = lazyDemoAdapter;
+  } else {
+    if (isDemoToken(getAccessToken())) clearAuth();
+    const headers = AxiosHeaders.from(cfg.headers);
+    const auth = headers.get("Authorization");
+    if (typeof auth === "string" && isDemoToken(auth)) {
+      headers.delete("Authorization");
+      cfg.headers = headers;
+    }
+  }
   if (!shouldSkipAuth(cfg.url || "")) {
     const token = getAccessToken();
     if (token) setAuthHeader(cfg, token);
@@ -205,7 +222,7 @@ api.interceptors.response.use(
     const status = error?.response?.status ?? 0;
     const url = String(original?.url || "");
 
-    if (status !== 401 || original._retry || shouldSkipAuth(url)) {
+    if (status !== 401 || original._retry || shouldSkipAuth(url) || isDemoActive()) {
       return Promise.reject(error);
     }
 
@@ -238,7 +255,7 @@ export async function ensureAccessToken(): Promise<string | null> {
     setDefaultAuthHeader(t);
     return t;
   }
-  if (USE_COOKIES) return null;
+  if (USE_COOKIES || isDemoActive()) return null;
   const nt = await refreshTokens();
   if (nt) setDefaultAuthHeader(nt);
   return nt ?? null;

@@ -12,7 +12,14 @@ import {
 import axios from "axios";
 import { AuthApi } from "@/lib/api/auth";
 import { getAccessToken } from "@/lib/api/client";
+import { DEMO_FLAG_KEY, isDemoToken } from "@/lib/demo/mode";
 import type { AuthUser } from "@/lib/domain/map-point";
+
+/** Another tab switched between a real and a demo session: this tab must not keep mixing them */
+function crossesDemoBoundary(e: StorageEvent): boolean {
+  if (e.key === null || e.key === DEMO_FLAG_KEY) return true;
+  return e.key === "access_token" && isDemoToken(e.oldValue) !== isDemoToken(e.newValue);
+}
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -61,10 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (document.visibilityState === "visible") void load();
     };
     document.addEventListener("visibilitychange", onVisible);
+    const onStorage = (e: StorageEvent) => {
+      if (crossesDemoBoundary(e)) window.location.reload();
+    };
+    window.addEventListener("storage", onStorage);
     return () => {
       genRef.current += 1;
       window.removeEventListener("authchange", onAuth);
       document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("storage", onStorage);
     };
   }, [load]);
 
