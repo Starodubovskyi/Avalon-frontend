@@ -24,6 +24,7 @@ import {
   migrateLegacyIfNeeded,
   savePoints,
 } from "@/lib/points/points-storage";
+import { canEdit } from "@/lib/auth/roles";
 
 export type { MapPoint };
 
@@ -43,6 +44,8 @@ const PointsContext = createContext<PointsContextType | undefined>(undefined);
 export function PointsProvider({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const userId = user?.id;
+  // /map-points is staff-only; viewers would just collect a 403 on every page
+  const staff = canEdit(user);
   const [points, setPoints] = useState<MapPoint[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const hydratedForUserRef = useRef<string | number | null>(null);
@@ -50,7 +53,7 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    if (!userId) {
+    if (!userId || !staff) {
       setPoints([]);
       setHydrated(false);
       hydratedForUserRef.current = null;
@@ -88,7 +91,7 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       ac.abort();
     };
-  }, [userId, loading]);
+  }, [userId, loading, staff]);
 
   useEffect(() => {
     if (!hydrated || !userId) return;
