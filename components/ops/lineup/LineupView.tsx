@@ -6,7 +6,7 @@ import { Anchor, Clock3, Hourglass, Ship } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVessels } from "@/lib/vessels/hooks";
 import { compareVessels, daysSince } from "@/lib/vessels/status";
-import { fmtDateTime } from "@/lib/vessels/format";
+import { fmtDate, fmtDateTime } from "@/lib/vessels/format";
 import { CONDITION_LABEL, DESTINATIONS, DESTINATION_LABEL, TYPE_LABEL, type Destination, type VesselView } from "@/lib/vessels/types";
 import { EmptyState, ErrorBlock, KpiTile, LoadingBlock, PageHeader, Panel } from "../ui/primitives";
 import { StageBadge } from "../ui/StageBadge";
@@ -17,6 +17,46 @@ function waitingDays(v: VesselView): number | null {
   if (v.stage === "in_port") return daysSince(v.inPortAt);
   if (v.stage === "at_roads") return daysSince(v.arrivedAt);
   return null;
+}
+
+/** Phone layout of one line-up row: the table does not fit 390 px */
+function LineupCard({ vessel: v, position }: { vessel: VesselView; position: number }) {
+  const wait = waitingDays(v);
+  const times: [string, string | null][] = [
+    ["ETA", v.etaSulina],
+    ["Arrived", v.arrivedAt],
+    ["In port", v.inPortAt],
+  ];
+  return (
+    <li>
+      <Link href={`/vessels/${v.id}`} className="block px-4 py-3.5 active:bg-accent/50">
+        <div className="flex items-center gap-3">
+          <span className="tabular w-5 text-xs font-bold text-muted-foreground">{position}</span>
+          <VesselTypeIcon vessel={v} size="sm" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate font-semibold">{v.name}</span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {TYPE_LABEL[v.type]}
+              {v.condition ? ` · ${CONDITION_LABEL[v.condition]}` : ""}
+            </span>
+          </span>
+          <StageBadge stage={v.stage} compact />
+        </div>
+        <div className="mt-2.5 grid grid-cols-4 gap-2 pl-8 text-[11px]">
+          {times.map(([label, iso]) => (
+            <span key={label} className="min-w-0">
+              <span className="block text-muted-foreground">{label}</span>
+              <span className="tabular block truncate font-semibold">{iso ? fmtDate(iso) : "—"}</span>
+            </span>
+          ))}
+          <span className="text-right">
+            <span className="block text-muted-foreground">Waiting</span>
+            <span className="tabular block font-semibold">{wait === null ? "—" : `${wait} d`}</span>
+          </span>
+        </div>
+      </Link>
+    </li>
+  );
 }
 
 function PortTable({ port, rows }: { port: Destination; rows: VesselView[] }) {
@@ -30,7 +70,12 @@ function PortTable({ port, rows }: { port: Destination; rows: VesselView[] }) {
       icon={<Anchor className="h-4 w-4" />}
       bodyClassName="p-0"
     >
-      <div className="overflow-x-auto">
+      <ul className="divide-y divide-border/70 border-t border-border/70 sm:hidden">
+        {rows.map((v, i) => (
+          <LineupCard key={v.id} vessel={v} position={i + 1} />
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-muted/50 text-left text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
             <tr className="[&>th]:whitespace-nowrap [&>th]:px-4 [&>th]:py-2.5 [&>th]:font-semibold">

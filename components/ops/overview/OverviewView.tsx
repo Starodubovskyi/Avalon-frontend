@@ -90,7 +90,7 @@ export function OverviewView() {
         </div>
       </section>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5 [&>*:last-child:nth-child(odd)]:col-span-2 lg:[&>*:last-child:nth-child(odd)]:col-span-1">
         <KpiTile label="Expected" value={stats.expected} tone="expected" icon={<Clock3 className="h-4 w-4" />} hint={`${stats.arriving.length} within 72 h`} />
         <KpiTile label="At Sulina roads" value={stats.roads} tone="roads" icon={<Anchor className="h-4 w-4" />} />
         <KpiTile label="In port" value={stats.port} tone="port" icon={<CircleDot className="h-4 w-4" />} />

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Eye, Menu, Moon, Radio, Search, Sun, TriangleAlert } from "lucide-react";
@@ -13,6 +13,7 @@ import { STAGE_META, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import { fmtRelative } from "@/lib/vessels/format";
 import { DESTINATION_LABEL } from "@/lib/vessels/types";
 import { Avatar, btn } from "../ui/primitives";
+import { NAV_ITEMS, isActive } from "./nav";
 
 function ThemeSwitch() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -144,6 +145,9 @@ function QuickSearch() {
 export function Topbar({ title, onMenu }: { title?: string; onMenu: () => void }) {
   const { user } = useAuth();
   const staff = canEdit(user);
+  const pathname = usePathname() ?? "";
+  // Legacy pages render the shell without a title: fall back to the menu label
+  const heading = title ?? NAV_ITEMS.find((i) => isActive(pathname, i.href))?.label ?? "";
   const today = useMemo(
     () => new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(new Date()),
     [],
@@ -154,7 +158,7 @@ export function Topbar({ title, onMenu }: { title?: string; onMenu: () => void }
         <Menu className="h-5 w-5" />
       </button>
       <div className="min-w-0 shrink-0 leading-tight">
-        <p className="truncate font-display text-[15px] font-bold">{title}</p>
+        <p className="truncate font-display text-[15px] font-bold">{heading}</p>
         <p className="hidden text-[11px] text-muted-foreground sm:block">{today}</p>
       </div>
       <div className="flex flex-1 justify-center px-2">

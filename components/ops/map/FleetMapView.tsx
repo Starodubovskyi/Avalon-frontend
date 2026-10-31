@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { List, MapPinPlus, Ship, Users, X } from "lucide-react";
+import { List, Ship, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit } from "@/lib/auth/roles";
@@ -25,7 +25,7 @@ import { MapPointList } from "./MapPointList";
 import { MapPointCard } from "./MapPointCard";
 import { PointFormDialog } from "./PointFormDialog";
 import { MapLegend, MapLayerChips } from "./MapControls";
-import { POINT_KIND_ICON } from "./PointKindIcon";
+import { AddPointControl } from "./AddPointControl";
 import type { LayerVisibility } from "./FleetMap";
 
 const FleetMap = dynamic(() => import("./FleetMap").then((m) => m.FleetMap), {
@@ -55,7 +55,6 @@ export function FleetMapView() {
   });
   const [listOpen, setListOpen] = useState(false);
   const [addKind, setAddKind] = useState<PointKind | null>(null);
-  const [kindMenu, setKindMenu] = useState(false);
   const [draft, setDraft] = useState<[number, number] | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editPoint, setEditPoint] = useState<TeamPoint | null>(null);
@@ -89,7 +88,6 @@ export function FleetMapView() {
   };
 
   function startAdd(kind: PointKind) {
-    setKindMenu(false);
     setAddKind(kind);
     setDraft(null);
     setSelectedVesselId(null);
@@ -135,8 +133,6 @@ export function FleetMapView() {
     // startAdd only sets state; re-run when the points list arrives
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [staff, linkedPoint, linkedAdd, pointsData]);
-
-  const AddIcon = addKind ? POINT_KIND_ICON[addKind] : MapPinPlus;
 
   return (
     <div className="relative flex min-h-0 flex-1">
@@ -204,35 +200,16 @@ export function FleetMapView() {
           }}
         />
 
-        <div className="pointer-events-none absolute inset-x-3 top-3 z-10 flex flex-wrap items-start justify-center gap-2 md:left-[344px]">
+        <div className="pointer-events-none absolute left-3 right-14 top-3 z-10 flex items-start gap-2 md:left-[344px] md:right-3 md:flex-wrap md:justify-center">
           <button
             type="button"
             onClick={() => setListOpen((o) => !o)}
-            className="glass pointer-events-auto flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold shadow-card md:hidden"
+            className="glass pointer-events-auto flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-semibold shadow-card md:hidden"
           >
             <List className="h-4 w-4" /> List
           </button>
           <MapLayerChips layers={layers} onChange={setLayers} showKinds={staff} />
-          {staff ? (
-            <div className="pointer-events-auto relative">
-              <button type="button" onClick={() => (addKind ? cancelAdd() : setKindMenu((m) => !m))} className={cn(btn.primary, "h-10")}>
-                {addKind ? <X className="h-4 w-4" /> : <AddIcon className="h-4 w-4" />}
-                {addKind ? "Cancel" : "Add point"}
-              </button>
-              {kindMenu ? (
-                <div className="shadow-elevated absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-xl border bg-popover p-1">
-                  {POINT_KINDS.map((k) => {
-                    const Icon = POINT_KIND_ICON[k];
-                    return (
-                      <button key={k} type="button" onClick={() => startAdd(k)} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-accent">
-                        <Icon className="h-4 w-4 text-muted-foreground" /> {POINT_KIND_LABEL[k]}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </div>
-          ) : null}
+          {staff ? <AddPointControl variant="toolbar" addKind={addKind} onStart={startAdd} onCancel={cancelAdd} /> : null}
         </div>
 
         {addKind && !formOpen ? (
@@ -248,6 +225,9 @@ export function FleetMapView() {
         ) : null}
 
         <MapLegend staff={staff} showDeparted={showDeparted} onShowDeparted={setShowDeparted} />
+        {staff && !selectedVessel && !selectedPoint ? (
+          <AddPointControl variant="fab" addKind={addKind} onStart={startAdd} onCancel={cancelAdd} />
+        ) : null}
 
         {selectedVessel || selectedPoint ? (
           <div className="glass absolute inset-x-0 bottom-0 z-20 max-h-[70%] overflow-y-auto rounded-t-3xl border shadow-elevated md:inset-x-auto md:bottom-auto md:right-14 md:top-3 md:max-h-[calc(100%-1.5rem)] md:w-[360px] md:rounded-2xl">
