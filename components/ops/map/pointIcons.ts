@@ -7,7 +7,7 @@ export function pointIconId(kind: PointKind): string {
   return `av-pt-${kind}`;
 }
 
-/** Small white glyph inside the pin: building / person / id badge */
+/** Small white glyph inside the pin, one per kind (building, briefcase, warehouse, landmark, person, badge) */
 function glyph(ctx: CanvasRenderingContext2D, kind: PointKind, cx: number, cy: number) {
   ctx.fillStyle = "#ffffff";
   ctx.strokeStyle = "#ffffff";
@@ -18,6 +18,41 @@ function glyph(ctx: CanvasRenderingContext2D, kind: PointKind, cx: number, cy: n
     for (const [x, y] of [[-6, -4], [-3, -4], [-6, 0], [-3, 0], [3, 1], [6, 1]] as const) {
       ctx.fillRect(cx + x, cy + y, 1.6, 2);
     }
+    return;
+  }
+  if (kind === "agency") {
+    // briefcase: handle + body + clasp
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cx - 3.5, cy - 8, 7, 4);
+    ctx.fillRect(cx - 9, cy - 4, 18, 12);
+    ctx.fillStyle = POINT_KIND_HEX.agency;
+    ctx.fillRect(cx - 9, cy + 0.5, 18, 1.6);
+    ctx.fillRect(cx - 1.5, cy - 0.5, 3, 3.5);
+    return;
+  }
+  if (kind === "terminal") {
+    // warehouse: gabled roof + walls + door
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, cy - 1);
+    ctx.lineTo(cx, cy - 9);
+    ctx.lineTo(cx + 10, cy - 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillRect(cx - 8, cy - 1, 16, 9);
+    ctx.fillStyle = POINT_KIND_HEX.terminal;
+    ctx.fillRect(cx - 3, cy + 2, 6, 6);
+    return;
+  }
+  if (kind === "authority") {
+    // landmark: pediment, three columns, base
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, cy - 3);
+    ctx.lineTo(cx, cy - 9);
+    ctx.lineTo(cx + 10, cy - 3);
+    ctx.closePath();
+    ctx.fill();
+    for (const x of [-7, -1.5, 4]) ctx.fillRect(cx + x, cy - 2, 3, 8);
+    ctx.fillRect(cx - 10, cy + 6, 20, 2.5);
     return;
   }
   // head + shoulders
