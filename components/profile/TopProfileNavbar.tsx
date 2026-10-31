@@ -4,6 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { PreviewNotice } from "@/components/ops/ui/PreviewNotice";
+
+/** Tabs that are still design previews (no billing provider connected) */
+const PREVIEW_TABS = new Set(["/billing", "/subscriptions", "/services"]);
 
 // Градиент текста для активного таба
 const GRADIENT_TEXT =
@@ -63,6 +67,11 @@ export default function TopProfileNavbar() {
           );
         })}
       </div>
+      {PREVIEW_TABS.has(pathname ?? "") ? (
+        <PreviewNotice className="mt-4">
+          Plans, invoices and online services are not connected to a payment provider yet — nothing here is charged or saved on the server.
+        </PreviewNotice>
+      ) : null}
     </div>
   );
 }

@@ -1,7 +1,10 @@
 import {
   Activity,
   Anchor,
+  BookOpen,
   Building2,
+  Calculator,
+  ClipboardList,
   CreditCard,
   FileText,
   LayoutDashboard,
@@ -11,6 +14,7 @@ import {
   Map,
   MessageCircle,
   Newspaper,
+  Send,
   Settings,
   Ship,
   TrendingUp,
@@ -27,8 +31,8 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   visible: (user: AuthUser | null) => boolean;
-  /** live badge key resolved by the sidebar (e.g. unread chat) */
-  badge?: "chat";
+  /** live badge key resolved by the sidebar (unread chat, new agency requests) */
+  badge?: "chat" | "requests";
 }
 
 export interface NavGroup {
@@ -47,6 +51,15 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Vessels", href: "/vessels", icon: Ship, visible: everyone },
       { label: "Line-up", href: "/lineup", icon: TrendingUp, visible: everyone },
       { label: "Ports", href: "/ports", icon: Anchor, visible: canEdit },
+    ],
+  },
+  {
+    label: "Clients",
+    items: [
+      { label: "Request agency", href: "/request", icon: Send, visible: everyone },
+      { label: "Requests", href: "/requests", icon: ClipboardList, visible: canEdit, badge: "requests" },
+      { label: "PDA estimate", href: "/estimate", icon: Calculator, visible: everyone },
+      { label: "Port guide", href: "/port-guide", icon: BookOpen, visible: everyone },
     ],
   },
   {

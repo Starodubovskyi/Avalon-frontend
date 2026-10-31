@@ -30,7 +30,7 @@ export function ChecklistGrid({ vessel, editable }: { vessel: VesselView; editab
         const items = CHECKLIST.filter((c) => c.phase === phase.id);
         const doneCount = items.filter((c) => isItemDone(vessel, c.key)).length;
         return (
-          <div key={phase.id}>
+          <div key={phase.id} className="min-w-0">
             <div className="mb-2 flex items-center justify-between px-0.5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{phase.label}</p>
               <span className={cn("tabular text-[11px] font-bold", doneCount === items.length ? "text-ok" : "text-muted-foreground")}>

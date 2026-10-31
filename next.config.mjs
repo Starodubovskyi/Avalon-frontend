@@ -5,11 +5,6 @@ const API_PROXY_TARGET = (process.env.API_PROXY_TARGET || "http://localhost:3020
 const nextConfig = {
   async redirects() {
     return [
-      {
-        source: "/",
-        destination: "/dashboard",
-        permanent: false,
-      },
       // Legacy profile hub pages backed by endpoints that never existed — send them to the real screens
       { source: "/profile", destination: "/account", permanent: false },
       { source: "/companyprofile", destination: "/companies", permanent: false },

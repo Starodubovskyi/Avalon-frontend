@@ -3,13 +3,18 @@
 import Image from "next/image";
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
-import { Anchor, Eye, EyeOff, FileText, History, Map } from "lucide-react";
+import { Anchor, Eye, EyeOff, FileText, History, Map, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthApi, extractAuthError } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth/useAuth";
+import { demoEnvMode, setDemoFlag, type DemoRole } from "@/lib/demo/mode";
+import { enterDemo, isServerUnavailable } from "@/lib/demo/session";
+import { DemoEntry } from "../shell/DemoBanner";
 import { Field, Spinner, TextInput, btn } from "../ui/primitives";
 
 type Mode = "signin" | "register";
+
+const DEMO_MODE = demoEnvMode();
 
 const HOME = "/maps";
 
@@ -50,15 +55,34 @@ export function LoginView() {
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [demoRole, setDemoRole] = useState<DemoRole>("admin");
+  const [serverDown, setServerDown] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && user && !busy) enterApp(next);
   }, [loading, user, next, busy]);
 
+  async function openDemo() {
+    setDemoError(null);
+    setBusy(true);
+    try {
+      await enterDemo(demoRole);
+      window.location.assign("/dashboard");
+    } catch {
+      // shown under the demo entry: with NEXT_PUBLIC_DEMO_MODE=only the sign-in form is hidden
+      setDemoError("The demo could not start in this browser. Allow site storage and try again.");
+      setBusy(false);
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setServerDown(false);
     setBusy(true);
+    // a real sign-in always talks to the real server
+    if (DEMO_MODE !== "only") setDemoFlag(false);
     try {
       if (mode === "signin") {
         await AuthApi.login({ email: email.trim(), password });
@@ -73,6 +97,7 @@ export function LoginView() {
       enterApp(next);
     } catch (err) {
       setError(friendly(extractAuthError(err)));
+      setServerDown(DEMO_MODE === "fallback" && isServerUnavailable(err));
       setBusy(false);
     }
   }
@@ -124,15 +149,17 @@ export function LoginView() {
           </div>
 
           <h2 className="font-display text-3xl font-bold tracking-tight">
-            {mode === "signin" ? "Welcome back" : "Create a viewer account"}
+            {DEMO_MODE === "only" ? "Explore the portal" : mode === "signin" ? "Welcome back" : "Create a viewer account"}
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            {mode === "signin"
+            {DEMO_MODE === "only"
+              ? "This build runs on demo data. Pick a role and look around."
+              : mode === "signin"
               ? "Use the account your administrator gave you."
               : "Owners and partners get read-only access to vessel status. Staff accounts are issued by the administrator."}
           </p>
 
-          <div className="mt-7 grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold" role="tablist">
+          <div className={cn("mt-7 grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold", DEMO_MODE === "only" && "hidden")} role="tablist">
             {(["signin", "register"] as const).map((m) => (
               <button
                 key={m}
@@ -153,7 +180,7 @@ export function LoginView() {
             ))}
           </div>
 
-          <form className="mt-6 space-y-4" onSubmit={onSubmit} noValidate>
+          <form className={cn("mt-6 space-y-4", DEMO_MODE === "only" && "hidden")} onSubmit={onSubmit} noValidate>
             {mode === "register" ? (
               <div className="grid grid-cols-2 gap-3">
                 <Field label="First name">
@@ -200,6 +227,15 @@ export function LoginView() {
                 {error}
               </p>
             ) : null}
+            {serverDown ? (
+              <button
+                type="button"
+                onClick={() => void openDemo()}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/25 bg-primary/5 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10"
+              >
+                <Sparkles className="h-4 w-4" aria-hidden /> Server unavailable — open the demo instead
+              </button>
+            ) : null}
 
             <button
               type="submit"
@@ -210,6 +246,17 @@ export function LoginView() {
               {mode === "signin" ? "Sign in" : "Create account"}
             </button>
           </form>
+
+          {DEMO_MODE !== "off" ? (
+            <DemoEntry
+              role={demoRole}
+              onRole={setDemoRole}
+              busy={busy}
+              primary={DEMO_MODE === "only"}
+              error={demoError}
+              onEnter={() => void openDemo()}
+            />
+          ) : null}
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
             Avalon Shipping SRL · ship agency services, Sulina channel

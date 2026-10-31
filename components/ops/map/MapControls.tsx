@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Anchor, ChevronDown, Layers, Ship } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STAGE_META } from "@/lib/vessels/status";
@@ -29,7 +29,7 @@ function Chip({
       aria-pressed={active}
       title={title}
       className={cn(
-        "flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition",
+        "flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition",
         active ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
       )}
     >
@@ -51,7 +51,7 @@ export function MapLayerChips({
 }) {
   const toggleKind = (k: PointKind) => onChange({ ...layers, kinds: { ...layers.kinds, [k]: !layers.kinds[k] } });
   return (
-    <div className="glass pointer-events-auto flex flex-wrap items-center gap-0.5 rounded-xl border p-1 shadow-card">
+    <div className="glass no-scrollbar pointer-events-auto flex min-w-0 max-w-full flex-nowrap items-center gap-0.5 overflow-x-auto rounded-xl border p-1 shadow-card md:flex-wrap md:overflow-visible">
       <Chip active={layers.vessels} onClick={() => onChange({ ...layers, vessels: !layers.vessels })} dot="bg-stage-port">
         <Ship className="h-3.5 w-3.5" /> Vessels
       </Chip>
@@ -84,8 +84,12 @@ export function MapLegend({
   onShowDeparted: (v: boolean) => void;
 }) {
   const [open, setOpen] = useState(true);
+  // Phones: collapse after mount so the legend does not cover a third of the map
+  useEffect(() => {
+    if (!window.matchMedia("(min-width: 768px)").matches) setOpen(false);
+  }, []);
   return (
-    <div className="glass absolute bottom-8 right-3 z-10 w-[230px] rounded-2xl border p-3 text-xs shadow-elevated md:left-[344px] md:right-auto">
+    <div className="glass absolute bottom-8 left-3 z-10 w-[200px] rounded-2xl border p-3 text-xs shadow-elevated md:left-[344px] md:w-[230px]">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between font-semibold" aria-expanded={open}>
         <span className="flex items-center gap-1.5">
           <Layers className="h-3.5 w-3.5" /> Legend

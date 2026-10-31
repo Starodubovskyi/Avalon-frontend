@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -23,6 +23,18 @@ export const metadata: Metadata = {
   description:
     "Vessel operations board for Avalon Shipping SRL: vessels in work, Sulina channel, checklist, documents and audit log.",
   icons: { icon: "/brand/avalon-logo.png" },
+  appleWebApp: { capable: true, title: "Avalon Ops", statusBarStyle: "default" },
+};
+
+// Edge-to-edge on phones: the bottom tab bar pads itself with the safe-area inset
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f7fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1220" },
+  ],
 };
 
 export default function RootLayout({

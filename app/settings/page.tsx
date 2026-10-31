@@ -14,6 +14,8 @@ import Appearance from "@/components/settings/Appearance";
 import Privacy from "@/components/settings/Privacy";
 import Integrations from "@/components/settings/Integrations";
 import DangerZone from "@/components/settings/DangerZone";
+import Link from "next/link";
+import { PreviewNotice } from "@/components/ops/ui/PreviewNotice";
 
 function isValidTab(key: string | null | undefined): key is SettingsTabKey {
   return !!key && TABS.some((t) => t.key === key);
@@ -74,6 +76,14 @@ export default function SettingsPage() {
           <h1 className="mb-4 text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             Settings
           </h1>
+
+          <PreviewNotice className="mb-4">
+            Your name and password live in{" "}
+            <Link href="/account" className="font-semibold text-primary hover:underline">
+              Account
+            </Link>
+            ; the theme switch in the top bar is live. The other settings here are not stored yet.
+          </PreviewNotice>
 
           <div className="mb-6">
             <SettingsTopNav active={active} onChange={handleChangeTab} />

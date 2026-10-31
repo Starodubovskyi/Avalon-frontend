@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { STAGE_META, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import { TYPE_LABEL, type VesselType, type VesselView } from "@/lib/vessels/types";
 
-const TYPE_ICON: Record<VesselType, typeof Container> = {
+/** Glyph per vessel type — shared by the board, agency requests and the public PDA estimator */
+export const TYPE_ICON: Record<VesselType, typeof Container> = {
   general_cargo: Container,
   tanker: Fuel,
   livestock: PawPrint,

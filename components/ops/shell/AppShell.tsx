@@ -7,6 +7,8 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit, isAdmin } from "@/lib/auth/roles";
+import { DemoBanner } from "./DemoBanner";
+import { MobileTabBar } from "./MobileTabBar";
 import { OpsSidebar } from "./OpsSidebar";
 import { Topbar } from "./Topbar";
 import { LoadingBlock } from "../ui/primitives";
@@ -83,8 +85,14 @@ export function AppShell({ children, title, fill = false, access = "any" }: AppS
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        <DemoBanner />
         <Topbar title={title} onMenu={() => setMenuOpen(true)} />
-        <main className={cn("min-h-0 flex-1", fill ? "relative flex flex-col overflow-hidden" : "overflow-y-auto")}>
+        <main
+          className={cn(
+            "min-h-0 flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0",
+            fill ? "relative flex flex-col overflow-hidden" : "overflow-y-auto",
+          )}
+        >
           {!allowed ? (
             <div className="mx-auto mt-10 max-w-lg rounded-2xl border bg-card p-10 text-center shadow-card">
               <p className="font-display text-lg font-bold">No access</p>
@@ -100,6 +108,7 @@ export function AppShell({ children, title, fill = false, access = "any" }: AppS
             </div>
           )}
         </main>
+        <MobileTabBar onMenu={() => setMenuOpen(true)} />
       </div>
     </div>
   );
