@@ -3,11 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { ChevronRight, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { AuthApi } from "@/lib/api/auth";
 import { ROLE_LABEL, displayName, roleId } from "@/lib/auth/roles";
+import { useChatUnread } from "@/lib/network/hooks";
 import { Avatar } from "../ui/primitives";
 import { NAV_GROUPS, isActive } from "./nav";
 
@@ -32,22 +34,30 @@ export function OpsSidebar({ className, onNavigate }: { className?: string; onNa
   const { user } = useAuth();
   const role = roleId(user);
   const name = displayName(user);
+  const { data: unread } = useChatUnread();
+  const chatUnread = unread?.total ?? 0;
+  const navRef = useRef<HTMLElement>(null);
+
+  // Long menus scroll: keep the current section in view after navigation
+  useEffect(() => {
+    navRef.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: "nearest" });
+  }, [pathname]);
 
   return (
     <aside className={cn("bg-sidebar-gradient relative flex w-[264px] shrink-0 flex-col text-sidebar-foreground", className)}>
-      <div className="px-5 pb-7 pt-6">
+      <div className="px-5 pb-5 pt-5">
         <Link href="/dashboard" onClick={onNavigate} aria-label="Avalon Shipping — overview">
           <BrandMark />
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3" aria-label="Main">
+      <nav ref={navRef} className="no-scrollbar flex-1 space-y-4 overflow-y-auto px-3 pb-2" aria-label="Main">
         {NAV_GROUPS.map((group) => {
           const items = group.items.filter((item) => item.visible(user));
           if (!items.length) return null;
           return (
             <div key={group.label}>
-              <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-sidebar-muted/80">{group.label}</p>
+              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-sidebar-muted/80">{group.label}</p>
               <ul className="space-y-0.5">
                 {items.map((item) => {
                   const active = isActive(pathname, item.href);
@@ -59,7 +69,7 @@ export function OpsSidebar({ className, onNavigate }: { className?: string; onNa
                         onClick={onNavigate}
                         aria-current={active ? "page" : undefined}
                         className={cn(
-                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                          "group flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium transition-all",
                           active
                             ? "bg-white/[0.09] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
                             : "text-sidebar-muted hover:bg-white/[0.05] hover:text-white",
@@ -67,13 +77,19 @@ export function OpsSidebar({ className, onNavigate }: { className?: string; onNa
                       >
                         <span
                           className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+                            "flex h-7 w-7 items-center justify-center rounded-lg transition-colors",
                             active ? "bg-primary text-white shadow-[0_6px_14px_-4px_hsl(var(--primary)/0.9)]" : "bg-white/[0.04] group-hover:bg-white/[0.08]",
                           )}
                         >
-                          <Icon className="h-[17px] w-[17px]" aria-hidden />
+                          <Icon className="h-4 w-4" aria-hidden />
                         </span>
                         <span className="flex-1">{item.label}</span>
+                        {item.badge === "chat" && chatUnread > 0 ? (
+                          <span className="tabular inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-bad px-1.5 text-[11px] font-bold leading-none text-white shadow-[0_4px_10px_-4px_hsl(var(--bad))]">
+                            {chatUnread > 99 ? "99+" : chatUnread}
+                            <span className="sr-only"> unread messages</span>
+                          </span>
+                        ) : null}
                         {active ? <ChevronRight className="h-4 w-4 text-white/50" aria-hidden /> : null}
                       </Link>
                     </li>
@@ -85,8 +101,8 @@ export function OpsSidebar({ className, onNavigate }: { className?: string; onNa
         })}
       </nav>
 
-      <div className="m-3 rounded-2xl border border-white/[0.06] bg-white/[0.04] p-2">
-        <Link href="/account" onClick={onNavigate} className="flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.06]">
+      <div className="m-3 flex items-center gap-1 rounded-2xl border border-white/[0.06] bg-white/[0.04] p-1.5">
+        <Link href="/account" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-white/[0.06]">
           <Avatar name={name || "User"} className="bg-white/10 text-white" />
           <span className="min-w-0 flex-1 leading-tight">
             <span className="block truncate text-sm font-semibold text-white">{name}</span>
@@ -98,9 +114,11 @@ export function OpsSidebar({ className, onNavigate }: { className?: string; onNa
           onClick={() => {
             void AuthApi.logout().finally(() => window.location.assign("/auth"));
           }}
-          className="mt-1 flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-sidebar-muted transition hover:bg-white/[0.06] hover:text-white"
+          title="Sign out"
+          aria-label="Sign out"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sidebar-muted transition hover:bg-white/[0.06] hover:text-white"
         >
-          <LogOut className="h-4 w-4" aria-hidden /> Sign out
+          <LogOut className="h-4 w-4" aria-hidden />
         </button>
       </div>
     </aside>
