@@ -1,13 +1,12 @@
 "use client";
 
-import HydrateOwnerFromLocalProfile from "@/components/tasks/HydrateOwnerFromLocalProfile.tsx";
-import TasksClient from "@/components/tasks/TasksClient";
+import { AppShell } from "@/components/ops/shell/AppShell";
+import { TasksView } from "@/components/ops/tasks/TasksView";
 
 export default function TasksPage() {
   return (
-    <>
-      <HydrateOwnerFromLocalProfile />
-      <TasksClient />
-    </>
+    <AppShell title="Tasks" access="staff">
+      <TasksView />
+    </AppShell>
   );
 }

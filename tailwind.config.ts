@@ -70,6 +70,9 @@ const config = {
         bad: "hsl(var(--bad))",
         point: {
           company: "#7c3aed",
+          agency: "#4f46e5",
+          terminal: "#0d9488",
+          authority: "#b45309",
           person: "#059669",
           employee: "#ea580c",
         },

@@ -10,27 +10,51 @@ import { canEdit } from "@/lib/auth/roles";
 import type { UserRef } from "@/lib/vessels/types";
 
 /** Team-wide contacts on the fleet map (backend /map-points, staff and admins only) */
-export const POINT_KINDS = ["company", "person", "employee"] as const;
+export const POINT_KINDS = ["company", "agency", "terminal", "authority", "person", "employee"] as const;
 export type PointKind = (typeof POINT_KINDS)[number];
 
 export const POINT_KIND_LABEL: Record<PointKind, string> = {
   company: "Company",
+  agency: "Agency",
+  terminal: "Terminal / berth",
+  authority: "Authority",
   person: "Contact person",
   employee: "Employee",
 };
 
 export const POINT_KIND_PLURAL: Record<PointKind, string> = {
   company: "Companies",
+  agency: "Agencies",
+  terminal: "Terminals",
+  authority: "Authorities",
   person: "People",
   employee: "Employees",
+};
+
+/** Short hint shown in the type picker */
+export const POINT_KIND_HINT: Record<PointKind, string> = {
+  company: "Owner, charterer, supplier",
+  agency: "Port or ship agency",
+  terminal: "Terminal, berth, shipyard",
+  authority: "Port authority, customs, border",
+  person: "Captain, broker, contact",
+  employee: "Avalon team member",
 };
 
 /** Hex for canvas-drawn map icons; Tailwind uses point.* with the same values */
 export const POINT_KIND_HEX: Record<PointKind, string> = {
   company: "#7c3aed",
+  agency: "#4f46e5",
+  terminal: "#0d9488",
+  authority: "#b45309",
   person: "#059669",
   employee: "#ea580c",
 };
+
+/** Kinds that represent organisations (title only, no last name) */
+export function isOrgKind(kind: PointKind): boolean {
+  return kind !== "person" && kind !== "employee";
+}
 
 export interface TeamPoint {
   id: string;
@@ -63,7 +87,7 @@ export interface TeamPointInput {
 }
 
 export function pointTitle(p: Pick<TeamPoint, "kind" | "firstName" | "lastName">): string {
-  if (p.kind === "company") return p.firstName;
+  if (isOrgKind(p.kind)) return p.firstName;
   return [p.firstName, p.lastName].filter(Boolean).join(" ").trim() || p.firstName;
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { List, MapPinPlus, Ship, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
@@ -50,7 +51,7 @@ export function FleetMapView() {
   const [layers, setLayers] = useState<LayerVisibility>({
     vessels: true,
     seamarks: true,
-    kinds: { company: true, person: true, employee: true },
+    kinds: Object.fromEntries(POINT_KINDS.map((k) => [k, true])) as Record<PointKind, boolean>,
   });
   const [listOpen, setListOpen] = useState(false);
   const [addKind, setAddKind] = useState<PointKind | null>(null);
@@ -110,6 +111,30 @@ export function FleetMapView() {
       /* toast shown */
     }
   }
+
+  // Deep links from the contacts directory: ?point=<id> focuses a pin, ?add=<kind> starts placing one
+  const params = useSearchParams();
+  const linkedPoint = params?.get("point") ?? null;
+  const linkedAdd = params?.get("add") ?? null;
+  const appliedLink = useRef<string | null>(null);
+  useEffect(() => {
+    if (!staff) return;
+    const key = `${linkedPoint ?? ""}|${linkedAdd ?? ""}`;
+    if (appliedLink.current === key) return;
+    if (linkedAdd && (POINT_KINDS as readonly string[]).includes(linkedAdd)) {
+      appliedLink.current = key;
+      startAdd(linkedAdd as PointKind);
+      return;
+    }
+    if (linkedPoint && pointsData?.some((p) => p.id === linkedPoint)) {
+      appliedLink.current = key;
+      setTab("contacts");
+      setSelectedVesselId(null);
+      setSelectedPointId(linkedPoint);
+    }
+    // startAdd only sets state; re-run when the points list arrives
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staff, linkedPoint, linkedAdd, pointsData]);
 
   const AddIcon = addKind ? POINT_KIND_ICON[addKind] : MapPinPlus;
 

@@ -14,17 +14,20 @@ function Chip({
   onClick,
   children,
   dot,
+  title,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
   dot?: string;
+  title?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      title={title}
       className={cn(
         "flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition",
         active ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
@@ -56,8 +59,10 @@ export function MapLayerChips({
         ? POINT_KINDS.map((k) => {
             const Icon = POINT_KIND_ICON[k];
             return (
-              <Chip key={k} active={layers.kinds[k]} onClick={() => toggleKind(k)} dot={POINT_KIND_CLASS[k].dot}>
-                <Icon className="h-3.5 w-3.5" /> {POINT_KIND_PLURAL[k]}
+              <Chip key={k} active={layers.kinds[k]} onClick={() => toggleKind(k)} dot={POINT_KIND_CLASS[k].dot} title={POINT_KIND_PLURAL[k]}>
+                <Icon className={cn("h-3.5 w-3.5", layers.kinds[k] && POINT_KIND_CLASS[k].text)} />
+                <span className="hidden 2xl:inline">{POINT_KIND_PLURAL[k]}</span>
+                <span className="sr-only 2xl:hidden">{POINT_KIND_PLURAL[k]}</span>
               </Chip>
             );
           })

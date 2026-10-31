@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   POINT_KINDS,
+  POINT_KIND_HINT,
   POINT_KIND_LABEL,
+  isOrgKind,
   useTeamPointMutations,
   type PointKind,
   type TeamPoint,
@@ -18,9 +20,21 @@ import { POINT_KIND_CLASS, POINT_KIND_ICON } from "./PointKindIcon";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ROLE_LABEL: Record<PointKind, string> = {
-  company: "Business (agency, terminal, shipyard…)",
+  company: "Business (owner, charterer, supplier…)",
+  agency: "Services (port agency, ship agency…)",
+  terminal: "Cargo / berth details",
+  authority: "Department (customs, harbour master…)",
   person: "Role / company",
   employee: "Position",
+};
+
+const NAME_LABEL: Record<PointKind, string> = {
+  company: "Company name *",
+  agency: "Agency name *",
+  terminal: "Terminal / berth name *",
+  authority: "Authority name *",
+  person: "First name *",
+  employee: "First name *",
 };
 
 interface FormState {
@@ -101,14 +115,14 @@ export function PointFormDialog({
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!form.firstName.trim()) return setError(form.kind === "company" ? "Enter the company name" : "Enter the first name");
+    if (!form.firstName.trim()) return setError(isOrgKind(form.kind) ? "Enter the name" : "Enter the first name");
     if (form.email && !EMAIL_RE.test(form.email.trim())) return setError("Invalid email");
     setBusy(true);
     setError(null);
     const input: TeamPointInput = {
       kind: form.kind,
       firstName: form.firstName.trim(),
-      lastName: form.kind === "company" ? "" : form.lastName.trim(),
+      lastName: isOrgKind(form.kind) ? "" : form.lastName.trim(),
       activity: form.activity.trim(),
       phone: form.phone.trim() || null,
       email: form.email.trim() || null,
@@ -150,8 +164,9 @@ export function PointFormDialog({
                   role="radio"
                   aria-checked={active}
                   onClick={() => set("kind", k)}
+                  title={POINT_KIND_HINT[k]}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-xs font-semibold transition",
+                    "flex flex-col items-center gap-1 rounded-xl border p-2.5 text-center text-[11px] font-semibold leading-tight transition",
                     active ? cn("ring-2", POINT_KIND_CLASS[k].ring, POINT_KIND_CLASS[k].tile, "border-transparent") : "hover:bg-accent",
                   )}
                 >
@@ -161,14 +176,15 @@ export function PointFormDialog({
               );
             })}
           </div>
+          <p className="-mt-2 text-xs text-muted-foreground">{POINT_KIND_HINT[form.kind]}</p>
 
-          {form.kind === "company" ? (
-            <Field label="Company name *">
-              <TextInput value={form.firstName} onChange={(e) => set("firstName", e.target.value)} autoFocus placeholder="e.g. Odemara Izmail" />
+          {isOrgKind(form.kind) ? (
+            <Field label={NAME_LABEL[form.kind]}>
+              <TextInput value={form.firstName} onChange={(e) => set("firstName", e.target.value)} autoFocus />
             </Field>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              <Field label="First name *">
+              <Field label={NAME_LABEL[form.kind]}>
                 <TextInput value={form.firstName} onChange={(e) => set("firstName", e.target.value)} autoFocus />
               </Field>
               <Field label="Last name">

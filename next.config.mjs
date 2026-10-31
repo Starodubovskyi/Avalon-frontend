@@ -10,6 +10,10 @@ const nextConfig = {
         destination: "/dashboard",
         permanent: false,
       },
+      // Legacy profile hub pages backed by endpoints that never existed — send them to the real screens
+      { source: "/profile", destination: "/account", permanent: false },
+      { source: "/companyprofile", destination: "/companies", permanent: false },
+      { source: "/mypoints", destination: "/companies", permanent: false },
     ];
   },
   async rewrites() {

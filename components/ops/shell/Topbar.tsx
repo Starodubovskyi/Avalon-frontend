@@ -38,10 +38,10 @@ function UnpaidAlert() {
   return (
     <Link
       href="/vessels?view=unpaid"
-      className="flex items-center gap-1.5 rounded-full border border-stage-unpaid/25 bg-stage-unpaid/10 px-3 py-1.5 text-xs font-semibold text-stage-unpaid transition hover:bg-stage-unpaid/15"
+      className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-stage-unpaid/25 bg-stage-unpaid/10 px-3 py-1.5 text-xs font-semibold text-stage-unpaid transition hover:bg-stage-unpaid/15"
     >
       <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
-      {count} sailed unpaid
+      {count} <span className="hidden sm:inline">sailed</span> unpaid
     </Link>
   );
 }

@@ -22,7 +22,8 @@ import { fileKind } from "./docMeta";
 import { useRefreshDocuments } from "./useDocuments";
 
 const ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png";
-const MAX_BYTES = 20 * 1024 * 1024;
+/** Matches the server limit on Vercel (request bodies over ~4.5 MB are rejected) */
+const MAX_BYTES = 4 * 1024 * 1024;
 
 function SelectedFile({ file, onReplace, onRemove }: { file: File; onReplace: () => void; onRemove: () => void }) {
   const kind = fileKind(file.type, file.name);
@@ -101,7 +102,7 @@ export function UploadDocumentDialog({
       return;
     }
     if (f.size > MAX_BYTES) {
-      setError("File is larger than 20 MB");
+      setError("File is larger than 4 MB — compress the PDF or split it");
       return;
     }
     setError(null);
@@ -153,7 +154,7 @@ export function UploadDocumentDialog({
           </span>
           <DialogHeader className="min-w-0 space-y-1 pr-6 text-left">
             <DialogTitle className="font-display text-lg font-bold">Upload document</DialogTitle>
-            <DialogDescription>Visible to Avalon staff only. PDF, Word, Excel, images — up to 20 MB.</DialogDescription>
+            <DialogDescription>Visible to Avalon staff only. PDF, Word, Excel, images — up to 4 MB.</DialogDescription>
           </DialogHeader>
         </div>
 
@@ -184,7 +185,7 @@ export function UploadDocumentDialog({
                     <span className="font-semibold">{dragging ? "Release to attach" : "Drop a file here"}</span>
                     {dragging ? null : <span className="text-muted-foreground"> or <span className="font-semibold text-primary underline-offset-2 group-hover:underline">browse</span></span>}
                   </span>
-                  <span className="text-xs text-muted-foreground">PDF · DOCX · XLSX · CSV · TXT · JPG · PNG — max 20 MB</span>
+                  <span className="text-xs text-muted-foreground">PDF · DOCX · XLSX · CSV · TXT · JPG · PNG — max 4 MB</span>
                 </button>
               )}
               <input ref={inputRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ""; }} />

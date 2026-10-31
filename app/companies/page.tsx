@@ -1,8 +1,12 @@
-// page.tsx
-import CompaniesContainer from "@/components/companies/CompaniesContainer";
+"use client";
 
-const CompaniesPage = () => {
-  return <CompaniesContainer />;
-};
+import { AppShell } from "@/components/ops/shell/AppShell";
+import { ContactsDirectory } from "@/components/ops/contacts/ContactsDirectory";
 
-export default CompaniesPage;
+export default function CompaniesPage() {
+  return (
+    <AppShell title="Companies & contacts" access="staff">
+      <ContactsDirectory />
+    </AppShell>
+  );
+}
