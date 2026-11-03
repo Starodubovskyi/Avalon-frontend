@@ -1,16 +1,19 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
-import { Anchor, Eye, EyeOff, FileText, History, Map, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Mail, Sparkles, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthApi, extractAuthError } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth/useAuth";
 import { demoEnvMode, setDemoFlag, type DemoRole } from "@/lib/demo/mode";
 import { enterDemo, isServerUnavailable } from "@/lib/demo/session";
-import { DemoEntry } from "../shell/DemoBanner";
-import { Field, Spinner, TextInput, btn } from "../ui/primitives";
+import { PublicThemeToggle } from "@/components/public/PublicThemeToggle";
+import { Spinner, btn } from "../ui/primitives";
+import { AuthInput, FormAlert, PasswordInput } from "./AuthFields";
+import { AuthBrandPanel, AuthMobileHero } from "./AuthBrandPanel";
+import { DemoPanel } from "./DemoPanel";
 
 type Mode = "signin" | "register";
 
@@ -35,12 +38,14 @@ function enterApp(raw: string | null) {
   window.location.assign(safeNext(raw));
 }
 
-const FEATURES = [
-  { icon: Map, text: "Every vessel in work on one map — Sulina roads to the berth" },
-  { icon: Anchor, text: "Prearrivals, MSW, PDA, payment: red until done, green after" },
-  { icon: History, text: "Each change is signed: who, what and when" },
-  { icon: FileText, text: "Vessel and port documents in one place for the team" },
-];
+const COPY: Record<Mode | "demo", { title: string; subtitle: string }> = {
+  signin: { title: "Welcome back", subtitle: "Sign in with the account your administrator gave you." },
+  register: {
+    title: "Create a viewer account",
+    subtitle: "Owners and partners get read-only access to vessel status. Staff accounts are issued by the administrator.",
+  },
+  demo: { title: "Explore the portal", subtitle: "This build runs on demo data. Pick a role and look around." },
+};
 
 export function LoginView() {
   const params = useSearchParams();
@@ -52,8 +57,9 @@ export function LoginView() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [busy, setBusy] = useState(false);
+  // which action is in flight: the other one is disabled but shows no spinner
+  const [pending, setPending] = useState<"signin" | "demo" | null>(null);
+  const busy = pending !== null;
   const [error, setError] = useState<string | null>(null);
   const [demoRole, setDemoRole] = useState<DemoRole>("admin");
   const [serverDown, setServerDown] = useState(false);
@@ -65,14 +71,14 @@ export function LoginView() {
 
   async function openDemo() {
     setDemoError(null);
-    setBusy(true);
+    setPending("demo");
     try {
       await enterDemo(demoRole);
       window.location.assign("/dashboard");
     } catch {
       // shown under the demo entry: with NEXT_PUBLIC_DEMO_MODE=only the sign-in form is hidden
       setDemoError("The demo could not start in this browser. Allow site storage and try again.");
-      setBusy(false);
+      setPending(null);
     }
   }
 
@@ -80,7 +86,7 @@ export function LoginView() {
     e.preventDefault();
     setError(null);
     setServerDown(false);
-    setBusy(true);
+    setPending("signin");
     // a real sign-in always talks to the real server
     if (DEMO_MODE !== "only") setDemoFlag(false);
     try {
@@ -98,170 +104,154 @@ export function LoginView() {
     } catch (err) {
       setError(friendly(extractAuthError(err)));
       setServerDown(DEMO_MODE === "fallback" && isServerUnavailable(err));
-      setBusy(false);
+      setPending(null);
     }
   }
 
+  const copy = COPY[DEMO_MODE === "only" ? "demo" : mode];
+  const canSubmit = !!email && !!password && (mode === "signin" || (!!firstName && !!lastName));
+
   return (
-    <div className="grid min-h-full flex-1 overflow-y-auto bg-background lg:grid-cols-[1.05fr_1fr]">
-      <section className="relative m-3 hidden overflow-hidden rounded-3xl bg-sidebar px-12 py-12 text-sidebar-foreground shadow-elevated lg:flex lg:flex-col">
-        <Image src="/brand/hero-sea.webp" alt="" fill priority sizes="55vw" className="object-cover object-[60%_50%]" />
-        <div aria-hidden className="hero-overlay absolute inset-0" />
-        <div className="relative flex items-center gap-4">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white p-1 shadow-[0_0_0_6px_rgba(255,255,255,0.12)]">
-            <Image src="/brand/avalon-logo.png" alt="" width={58} height={58} priority />
-          </span>
-          <div>
-            <p className="font-display text-lg font-bold tracking-wide text-white">AVALON SHIPPING SRL</p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">Sulina · Danube · Black Sea</p>
-          </div>
-        </div>
-        <div className="relative mt-auto max-w-xl">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur">
-            Operations portal
-          </p>
-          <h1 className="font-display text-4xl font-extrabold leading-[1.1] text-white xl:text-5xl">
-            Every vessel, every step — one shared board.
-          </h1>
-          <ul className="mt-8 grid grid-cols-2 gap-3">
-            {FEATURES.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 text-[13px] leading-snug text-white/90 backdrop-blur-md">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15">
-                  <Icon className="h-4 w-4 text-white" aria-hidden />
-                </span>
-                {text}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+    <div className="grid min-h-full flex-1 grid-cols-1 overflow-y-auto overflow-x-hidden bg-background lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)]">
+      <AuthBrandPanel />
 
-      <section className="flex items-center justify-center px-4 py-10 sm:px-8">
-        <div className="w-full max-w-md">
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white p-0.5 shadow">
-              <Image src="/brand/avalon-logo.png" alt="" width={44} height={44} priority />
-            </span>
-            <div className="leading-tight">
-              <p className="font-semibold">AVALON SHIPPING</p>
-              <p className="text-xs text-muted-foreground">Operations portal</p>
-            </div>
-          </div>
+      <section className="relative flex min-h-full min-w-0 flex-col lg:px-10 xl:px-14">
+        <AuthMobileHero />
 
-          <h2 className="font-display text-3xl font-bold tracking-tight">
-            {DEMO_MODE === "only" ? "Explore the portal" : mode === "signin" ? "Welcome back" : "Create a viewer account"}
-          </h2>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            {DEMO_MODE === "only"
-              ? "This build runs on demo data. Pick a role and look around."
-              : mode === "signin"
-              ? "Use the account your administrator gave you."
-              : "Owners and partners get read-only access to vessel status. Staff accounts are issued by the administrator."}
-          </p>
+        <header className="hidden items-center justify-between pt-7 lg:flex">
+          <Link
+            href="/"
+            className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden /> Avalon Shipping website
+          </Link>
+          <PublicThemeToggle />
+        </header>
 
-          <div className={cn("mt-7 grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold", DEMO_MODE === "only" && "hidden")} role="tablist">
-            {(["signin", "register"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                role="tab"
-                aria-selected={mode === m}
-                onClick={() => {
-                  setMode(m);
-                  setError(null);
-                }}
-                className={cn(
-                  "rounded-lg py-2.5 transition-all",
-                  mode === m ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
+        <div className="relative z-10 -mt-12 flex flex-1 items-start justify-center px-3 pb-8 sm:px-6 lg:mt-0 lg:items-center lg:px-0 lg:py-10">
+          <div className="w-full max-w-[460px] rounded-[28px] border bg-card p-6 shadow-elevated sm:p-9">
+            <h2 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[32px]">{copy.title}</h2>
+            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{copy.subtitle}</p>
+
+            {DEMO_MODE === "only" ? null : (
+              <>
+                <div className="mt-7 grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold" role="tablist" aria-label="Account">
+                  {(["signin", "register"] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      role="tab"
+                      aria-selected={mode === m}
+                      onClick={() => {
+                        setMode(m);
+                        setError(null);
+                      }}
+                      className={cn(
+                        "h-10 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                        mode === m ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {m === "signin" ? "Sign in" : "Register"}
+                    </button>
+                  ))}
+                </div>
+
+                <form className="mt-6 space-y-4" onSubmit={onSubmit} noValidate>
+                  {mode === "register" ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <AuthInput
+                        label="First name"
+                        icon={UserRound}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        autoComplete="given-name"
+                        required
+                      />
+                      <AuthInput
+                        label="Last name"
+                        icon={UserRound}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        autoComplete="family-name"
+                        required
+                      />
+                    </div>
+                  ) : null}
+                  <AuthInput
+                    label="Email"
+                    icon={Mail}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    inputMode="email"
+                    placeholder="name@company.com"
+                    invalid={!!error}
+                    required
+                  />
+                  <PasswordInput
+                    label="Password"
+                    hint={mode === "register" ? "At least 6 characters" : undefined}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                    invalid={!!error}
+                    required
+                  />
+
+                  {error ? <FormAlert>{error}</FormAlert> : null}
+                  {serverDown ? (
+                    <button
+                      type="button"
+                      onClick={() => void openDemo()}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-3 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    >
+                      <Sparkles className="h-4 w-4" aria-hidden /> Server unavailable — open the demo instead
+                    </button>
+                  ) : null}
+
+                  <button type="submit" disabled={busy || !canSubmit} className={cn(btn.primary, "group h-12 w-full text-[15px]")}>
+                    {pending === "signin" ? <Spinner className="h-4 w-4 text-primary-foreground" /> : null}
+                    {mode === "signin" ? "Sign in" : "Create account"}
+                    {pending === "signin" ? null : <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />}
+                  </button>
+                </form>
+              </>
+            )}
+
+            {DEMO_MODE !== "off" ? (
+              <>
+                {DEMO_MODE === "only" ? null : (
+                  <div className="my-6 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    <span className="h-px flex-1 bg-border" aria-hidden />
+                    or
+                    <span className="h-px flex-1 bg-border" aria-hidden />
+                  </div>
                 )}
-              >
-                {m === "signin" ? "Sign in" : "Register"}
-              </button>
-            ))}
-          </div>
-
-          <form className={cn("mt-6 space-y-4", DEMO_MODE === "only" && "hidden")} onSubmit={onSubmit} noValidate>
-            {mode === "register" ? (
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="First name">
-                  <TextInput value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" required />
-                </Field>
-                <Field label="Last name">
-                  <TextInput value={lastName} onChange={(e) => setLastName(e.target.value)} autoComplete="family-name" required />
-                </Field>
-              </div>
-            ) : null}
-            <Field label="Email">
-              <TextInput
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                inputMode="email"
-                required
-              />
-            </Field>
-            <Field label="Password" hint={mode === "register" ? "At least 6 characters" : undefined}>
-              <div className="relative">
-                <TextInput
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                  className="pr-10"
-                  required
+                <DemoPanel
+                  role={demoRole}
+                  onRole={setDemoRole}
+                  busy={busy}
+                  starting={pending === "demo"}
+                  primary={DEMO_MODE === "only"}
+                  error={demoError}
+                  onEnter={() => void openDemo()}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground hover:text-foreground"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </Field>
-
-            {error ? (
-              <p role="alert" className="rounded-lg border border-bad/30 bg-bad/5 px-3 py-2 text-sm text-bad">
-                {error}
-              </p>
+              </>
             ) : null}
-            {serverDown ? (
-              <button
-                type="button"
-                onClick={() => void openDemo()}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/25 bg-primary/5 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10"
-              >
-                <Sparkles className="h-4 w-4" aria-hidden /> Server unavailable — open the demo instead
-              </button>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={busy || !email || !password || (mode === "register" && (!firstName || !lastName))}
-              className={cn(btn.primary, "h-12 w-full text-[15px]")}
-            >
-              {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : null}
-              {mode === "signin" ? "Sign in" : "Create account"}
-            </button>
-          </form>
-
-          {DEMO_MODE !== "off" ? (
-            <DemoEntry
-              role={demoRole}
-              onRole={setDemoRole}
-              busy={busy}
-              primary={DEMO_MODE === "only"}
-              error={demoError}
-              onEnter={() => void openDemo()}
-            />
-          ) : null}
-
-          <p className="mt-8 text-center text-xs text-muted-foreground">
-            Avalon Shipping SRL · ship agency services, Sulina channel
-          </p>
+          </div>
         </div>
+
+        <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 pb-6 text-xs text-muted-foreground lg:pb-8">
+          {/* static on purpose: a clock read during render would differ between server and client at the year boundary */}
+          <span>© Avalon Shipping SRL · Sulina channel</span>
+          <Link href="/port-guide" className="hover:text-foreground">
+            Port guide
+          </Link>
+          <Link href="/request" className="hover:text-foreground">
+            Request agency
+          </Link>
+        </footer>
       </section>
     </div>
   );

@@ -12,6 +12,9 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     background_color: "#f5f7fb",
     theme_color: "#0f2a5c",
-    icons: [{ src: "/brand/avalon-logo.png", sizes: "380x360", type: "image/png", purpose: "any" }],
+    icons: [
+      { src: "/brand/avalon-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/brand/avalon-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+    ],
   };
 }

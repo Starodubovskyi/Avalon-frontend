@@ -41,7 +41,7 @@ export function AppShell({ children, title, fill = false, access = "any" }: AppS
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 bg-background">
         <span className="flex h-14 w-14 animate-pulse items-center justify-center rounded-full bg-white p-1 shadow-elevated">
-          <Image src="/brand/avalon-logo.png" alt="" width={48} height={48} priority />
+          <Image src="/brand/avalon-icon-192.png" alt="" width={48} height={48} priority />
         </span>
         <LoadingBlock label="Checking your session…" />
       </div>

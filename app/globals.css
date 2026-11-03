@@ -44,6 +44,13 @@
     --st-unpaid: 326 78% 48%;
     --ok: 152 62% 36%;
     --bad: 350 72% 50%;
+
+    /* Brand surfaces of the public site and sign-in: logo navy #10218B, one cyan accent for live data */
+    --brand-navy: 232 79% 30%;
+    --brand-deep: 231 62% 9%;
+    --brand-deep-2: 230 64% 15%;
+    --brand-accent: 189 94% 56%;
+    --brand-glow: 226 90% 62%;
   }
 
   :root {
@@ -87,6 +94,9 @@
     --st-unpaid: 326 85% 64%;
     --ok: 152 58% 48%;
     --bad: 352 85% 64%;
+
+    --brand-deep: 230 58% 6%;
+    --brand-deep-2: 229 56% 11%;
   }
 
   * {
@@ -174,6 +184,189 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-in-up { animation: none; }
+}
+
+/* ---------- Brand surfaces & motion: public site and sign-in ---------- */
+.brand-surface {
+  background-color: hsl(var(--brand-deep));
+  background-image:
+    radial-gradient(70% 55% at 88% -5%, hsl(var(--brand-navy) / 0.9), transparent 70%),
+    radial-gradient(55% 50% at -5% 105%, hsl(var(--brand-accent) / 0.13), transparent 70%),
+    linear-gradient(180deg, hsl(var(--brand-deep-2)) 0%, hsl(var(--brand-deep)) 100%);
+}
+/* two soft light blobs drifting behind the content */
+.brand-aurora {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.brand-aurora::before,
+.brand-aurora::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(72px);
+  animation: brand-drift 20s ease-in-out infinite alternate;
+}
+.brand-aurora::before {
+  width: 48%;
+  aspect-ratio: 1;
+  left: -10%;
+  top: 4%;
+  background: hsl(var(--brand-glow) / 0.32);
+}
+.brand-aurora::after {
+  width: 38%;
+  aspect-ratio: 1;
+  right: -8%;
+  bottom: -14%;
+  background: hsl(var(--brand-accent) / 0.2);
+  animation-duration: 26s;
+  animation-direction: alternate-reverse;
+}
+@keyframes brand-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(9%, -7%, 0) scale(1.15); }
+}
+/* hairline grid fading out from the top */
+.brand-grid {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 100% / 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 60% at 50% 0%, #000 25%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 0%, #000 25%, transparent 100%);
+}
+.surface-grid {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(hsl(var(--border) / 0.7) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.7) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 50%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 70% at 50% 50%, #000 10%, transparent 75%);
+}
+/* faint chart grid behind the mock fleet maps */
+.map-grid {
+  background-image:
+    linear-gradient(hsl(var(--foreground) / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.text-brand-gradient {
+  background: linear-gradient(92deg, #fff 10%, hsl(var(--brand-accent)) 95%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.shadow-product {
+  box-shadow:
+    0 0 0 1px hsl(0 0% 100% / 0.08),
+    0 30px 90px -24px hsl(var(--brand-glow) / 0.45),
+    0 60px 120px -40px rgb(0 0 0 / 0.6);
+}
+/* a short bright dash travelling along an SVG path that has pathLength="1000" */
+.route-flow {
+  stroke-dasharray: 70 930;
+  animation: route-flow 9s linear infinite;
+}
+@keyframes route-flow {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+.route-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: route-pulse 2.8s ease-out infinite;
+}
+@keyframes route-pulse {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  80%, 100% { transform: scale(2.4); opacity: 0; }
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 48s linear infinite;
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+.hero-rise {
+  animation: brand-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes brand-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* checklist chip turning from red to green, staggered with animation-delay */
+.chip-flip {
+  animation: chip-flip 7s ease-in-out infinite both;
+}
+/* --flip-ok / --flip-bad let navy surfaces use brighter tones than the theme's --ok / --bad */
+@keyframes chip-flip {
+  0%, 12% {
+    color: hsl(var(--flip-bad, var(--bad)));
+    background-color: hsl(var(--flip-bad, var(--bad)) / 0.12);
+    border-color: hsl(var(--flip-bad, var(--bad)) / 0.3);
+  }
+  22%, 88% {
+    color: hsl(var(--flip-ok, var(--ok)));
+    background-color: hsl(var(--flip-ok, var(--ok)) / 0.14);
+    border-color: hsl(var(--flip-ok, var(--ok)) / 0.32);
+  }
+  100% {
+    color: hsl(var(--flip-bad, var(--bad)));
+    background-color: hsl(var(--flip-bad, var(--bad)) / 0.12);
+    border-color: hsl(var(--flip-bad, var(--bad)) / 0.3);
+  }
+}
+.on-navy {
+  --flip-ok: 152 62% 58%;
+  --flip-bad: 352 90% 70%;
+}
+.chip-ok {
+  color: hsl(var(--flip-ok, var(--ok)));
+  background-color: hsl(var(--flip-ok, var(--ok)) / 0.14);
+  border-color: hsl(var(--flip-ok, var(--ok)) / 0.32);
+}
+.chip-bad {
+  color: hsl(var(--flip-bad, var(--bad)));
+  background-color: hsl(var(--flip-bad, var(--bad)) / 0.12);
+  border-color: hsl(var(--flip-bad, var(--bad)) / 0.3);
+}
+/* scroll-linked fade-up where the browser supports it; plain content elsewhere */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: brand-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-aurora::before,
+  .brand-aurora::after,
+  .route-pulse,
+  .marquee-track,
+  .hero-rise,
+  .chip-flip,
+  .reveal {
+    animation: none !important;
+  }
+  .route-flow {
+    animation: none;
+    stroke-dasharray: none;
+    opacity: 0.35;
+  }
 }
 
 /* swipeable chip rows on phones without a chunky Windows scrollbar */
