@@ -7,57 +7,52 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import {
   POINT_KINDS,
   POINT_KIND_HINT,
-  POINT_KIND_LABEL,
-  isOrgKind,
+  POINT_KIND_SHORT,
+  pointTitle,
   useTeamPointMutations,
   type PointKind,
   type TeamPoint,
   type TeamPointInput,
 } from "@/lib/points/team-points";
-import { Field, Spinner, TextArea, TextInput, btn } from "../ui/primitives";
+import type { ActivityCode } from "@/lib/points/activities";
+import { TITLE_MAX } from "@/lib/points/limits";
+import { usePointLogoUrl } from "@/lib/points/logo-cache";
+import { Field, Spinner, TextInput, btn } from "../ui/primitives";
 import { POINT_KIND_CLASS, POINT_KIND_ICON } from "./PointKindIcon";
+import { LogoUploader } from "./LogoUploader";
+import { ActivityPicker } from "./ActivityPicker";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const ROLE_LABEL: Record<PointKind, string> = {
-  company: "Business (owner, charterer, supplier…)",
-  agency: "Services (port agency, ship agency…)",
-  terminal: "Cargo / berth details",
-  authority: "Department (customs, harbour master…)",
-  person: "Role / company",
-  employee: "Position",
-};
-
-const NAME_LABEL: Record<PointKind, string> = {
-  company: "Company name *",
-  agency: "Agency name *",
-  terminal: "Terminal / berth name *",
-  authority: "Authority name *",
-  person: "First name *",
-  employee: "First name *",
+const TITLE_PLACEHOLDER: Record<PointKind, string> = {
+  head_office: "e.g. Danube Grain Trading SRL",
+  branch: "e.g. Izmail office · Berth 7",
+  self_employed: "e.g. Viorel Stan, Sulina pilot",
+  for_sale: "e.g. Tug “Sulina Star”",
+  authority: "e.g. Sulina Harbour Master",
+  private_person: "Full name",
 };
 
 interface FormState {
   kind: PointKind;
-  firstName: string;
-  lastName: string;
-  activity: string;
+  title: string;
+  activities: ActivityCode[];
+  /** undefined keeps the stored logo, a data URL replaces it, null removes it */
+  newLogo: string | null | undefined;
   phone: string;
   email: string;
   address: string;
-  notes: string;
 }
 
 function initial(point: TeamPoint | null | undefined, kind: PointKind): FormState {
   return {
     kind: point?.kind ?? kind,
-    firstName: point?.firstName ?? "",
-    lastName: point?.lastName ?? "",
-    activity: point?.activity ?? "",
+    title: point ? pointTitle(point) : "",
+    activities: point?.activities ?? [],
+    newLogo: undefined,
     phone: point?.phone ?? "",
     email: point?.email ?? "",
     address: point?.address ?? "",
-    notes: point?.notes ?? "",
   };
 }
 
@@ -93,6 +88,7 @@ export function PointFormDialog({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const wasOpen = useRef(false);
+  const storedLogo = usePointLogoUrl(open ? point : null);
 
   useEffect(() => {
     if (open && !wasOpen.current) {
@@ -115,20 +111,25 @@ export function PointFormDialog({
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!form.firstName.trim()) return setError(isOrgKind(form.kind) ? "Enter the name" : "Enter the first name");
+    const title = form.title.trim();
+    if (!title) return setError("Enter the title");
     if (form.email && !EMAIL_RE.test(form.email.trim())) return setError("Invalid email");
     setBusy(true);
     setError(null);
     const input: TeamPointInput = {
       kind: form.kind,
-      firstName: form.firstName.trim(),
-      lastName: isOrgKind(form.kind) ? "" : form.lastName.trim(),
-      activity: form.activity.trim(),
+      firstName: title,
+      // codes replace the legacy free-text activity for good once the point is saved from this form
+      activity: "",
+      activities: form.activities,
       phone: form.phone.trim() || null,
       email: form.email.trim() || null,
       address: form.address.trim() || null,
-      notes: form.notes.trim() || null,
     };
+    // the title now holds the full name of legacy people; their separate last name is cleared
+    if (point?.lastName) input.lastName = "";
+    // the logo travels only when it changed (it can be up to 150 KB)
+    if (typeof form.newLogo === "string" || (form.newLogo === null && point?.hasLogo)) input.logo = form.newLogo;
     try {
       const saved = point ? await update(point.id, input) : at ? await create({ ...input, lat: at[1], lng: at[0] }) : null;
       if (saved) onSaved?.(saved);
@@ -147,54 +148,67 @@ export function PointFormDialog({
       <DialogContent className="max-h-[92svh] max-w-lg overflow-y-auto rounded-2xl">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">{point ? "Edit point" : "New point on the map"}</DialogTitle>
-          <DialogDescription className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5" />
-            {coords ? `${coords[1].toFixed(5)}°, ${coords[0].toFixed(5)}°` : "—"} · visible to Avalon staff
-          </DialogDescription>
+          <DialogDescription>Visible to Avalon staff on the fleet map and in Companies.</DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Point type">
-            {POINT_KINDS.map((k) => {
-              const Icon = POINT_KIND_ICON[k];
-              const active = form.kind === k;
-              return (
-                <button
-                  key={k}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  onClick={() => set("kind", k)}
-                  title={POINT_KIND_HINT[k]}
-                  className={cn(
-                    "flex flex-col items-center gap-1 rounded-xl border p-2.5 text-center text-[11px] font-semibold leading-tight transition",
-                    active ? cn("ring-2", POINT_KIND_CLASS[k].ring, POINT_KIND_CLASS[k].tile, "border-transparent") : "hover:bg-accent",
-                  )}
-                >
-                  <Icon className={cn("h-5 w-5", active ? "" : "text-muted-foreground")} />
-                  {POINT_KIND_LABEL[k]}
-                </button>
-              );
-            })}
-          </div>
-          <p className="-mt-2 text-xs text-muted-foreground">{POINT_KIND_HINT[form.kind]}</p>
+          <LogoUploader
+            value={form.newLogo === undefined ? storedLogo : form.newLogo}
+            kind={form.kind}
+            onChange={(logo) => set("newLogo", logo)}
+          />
 
-          {isOrgKind(form.kind) ? (
-            <Field label={NAME_LABEL[form.kind]}>
-              <TextInput value={form.firstName} onChange={(e) => set("firstName", e.target.value)} autoFocus />
-            </Field>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <Field label={NAME_LABEL[form.kind]}>
-                <TextInput value={form.firstName} onChange={(e) => set("firstName", e.target.value)} autoFocus />
-              </Field>
-              <Field label="Last name">
-                <TextInput value={form.lastName} onChange={(e) => set("lastName", e.target.value)} />
-              </Field>
+          <div className="space-y-1.5">
+            <span className="text-xs font-semibold text-foreground/80">Geoposition</span>
+            <div className="flex items-center gap-2 rounded-xl bg-muted/70 px-3 py-2 text-xs font-medium tabular-nums text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+              {coords ? `${coords[1].toFixed(5)}°, ${coords[0].toFixed(5)}°` : "—"}
             </div>
-          )}
-          <Field label={ROLE_LABEL[form.kind]}>
-            <TextInput value={form.activity} onChange={(e) => set("activity", e.target.value)} maxLength={255} />
+            <TextInput
+              value={form.address}
+              onChange={(e) => set("address", e.target.value)}
+              maxLength={500}
+              placeholder={point ? "Address" : "Address — filled from the map when available"}
+              aria-label="Address"
+            />
+          </div>
+
+          <Field label="Title *">
+            <TextInput value={form.title} onChange={(e) => set("title", e.target.value)} maxLength={TITLE_MAX} placeholder={TITLE_PLACEHOLDER[form.kind]} autoFocus />
           </Field>
+
+          <div className="space-y-1.5">
+            <span className="text-xs font-semibold text-foreground/80">Point type</span>
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Point type">
+              {POINT_KINDS.map((k) => {
+                const Icon = POINT_KIND_ICON[k];
+                const active = form.kind === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => set("kind", k)}
+                    title={POINT_KIND_HINT[k]}
+                    className={cn(
+                      "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-xl border p-2 text-center text-[11px] font-semibold leading-tight transition",
+                      active ? cn("ring-2", POINT_KIND_CLASS[k].ring, POINT_KIND_CLASS[k].tile, "border-transparent") : "hover:bg-accent",
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5", active ? "" : "text-muted-foreground")} />
+                    {POINT_KIND_SHORT[k]}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">{POINT_KIND_HINT[form.kind]}</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <span className="text-xs font-semibold text-foreground/80">Business Activity</span>
+            <ActivityPicker value={form.activities} onChange={(next) => set("activities", next)} />
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Phone / WhatsApp">
               <TextInput value={form.phone} onChange={(e) => set("phone", e.target.value)} inputMode="tel" maxLength={50} />
@@ -203,12 +217,6 @@ export function PointFormDialog({
               <TextInput type="email" value={form.email} onChange={(e) => set("email", e.target.value)} maxLength={255} />
             </Field>
           </div>
-          <Field label="Address" hint={point ? undefined : "Filled from the map when available"}>
-            <TextInput value={form.address} onChange={(e) => set("address", e.target.value)} maxLength={500} />
-          </Field>
-          <Field label="Notes">
-            <TextArea value={form.notes} onChange={(e) => set("notes", e.target.value)} maxLength={2000} className="min-h-[64px]" />
-          </Field>
 
           {error ? <p role="alert" className="rounded-xl border border-bad/30 bg-bad/5 px-3 py-2 text-sm text-bad">{error}</p> : null}
 

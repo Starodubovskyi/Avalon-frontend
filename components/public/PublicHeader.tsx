@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { btn } from "@/components/ops/ui/primitives";
 import { PublicThemeToggle } from "./PublicThemeToggle";
+import { BrandLockup } from "./brand/BrandSeal";
 
 export const PUBLIC_NAV = [
   { href: "/#services", label: "Services" },
@@ -19,18 +19,12 @@ export const PUBLIC_NAV = [
 
 export function PublicLogo({ inverted = false }: { inverted?: boolean }) {
   return (
-    <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="Avalon Shipping — home">
-      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white p-0.5 shadow-[0_0_0_3px_hsl(var(--primary)/0.12),0_6px_18px_-6px_hsl(var(--primary)/0.7)]">
-        <Image src="/brand/avalon-logo.png" alt="" width={36} height={36} priority />
-      </span>
-      <span className="leading-tight">
-        <span className={cn("block font-display text-[15px] font-extrabold tracking-wide", inverted ? "text-white" : "text-foreground")}>
-          AVALON
-        </span>
-        <span className={cn("block text-[10px] font-semibold uppercase tracking-[0.22em]", inverted ? "text-white/60" : "text-muted-foreground")}>
-          Shipping SRL
-        </span>
-      </span>
+    <Link
+      href="/"
+      className="flex shrink-0 items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      aria-label="Avalon Shipping — home"
+    >
+      <BrandLockup inverted={inverted} tagline="Shipping SRL" priority={!inverted} />
     </Link>
   );
 }

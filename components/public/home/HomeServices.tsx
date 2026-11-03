@@ -1,15 +1,17 @@
 import {
   Anchor,
+  CheckCircle2,
   ClipboardCheck,
   FileCheck2,
   LifeBuoy,
   Navigation,
   Send,
-  Ship,
   Users,
-  Wallet,
   type LucideIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
+import { StageBadge } from "@/components/ops/ui/StageBadge";
+import { ChecklistChip } from "../brand/ChecklistChip";
 import { PublicSectionHeader } from "../PublicShell";
 
 const SERVICES: { icon: LucideIcon; title: string; text: string }[] = [
@@ -45,34 +47,67 @@ const SERVICES: { icon: LucideIcon; title: string; text: string }[] = [
   },
 ];
 
-const STEPS: { icon: LucideIcon; title: string; text: string }[] = [
-  { icon: Send, title: "Nominate", text: "Send the vessel, ETA and cargo. We confirm and send the proforma (PDA)." },
-  { icon: FileCheck2, title: "Pre-arrival", text: "Prearrivals, MSW, T1 and pilot orders — every item red until done." },
-  { icon: Ship, title: "Port call", text: "Sulina transit, berthing, cargo operations and sailing, live on your board." },
-  { icon: Wallet, title: "FDA", text: "Final disbursement account with vouchers, settled against the PDA." },
+const STEPS: { title: string; text: string; visual: ReactNode }[] = [
+  {
+    title: "Nominate",
+    text: "Send the vessel, ETA and cargo. We confirm and send the proforma (PDA).",
+    visual: (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+        <Send className="h-3.5 w-3.5" aria-hidden /> Nomination received
+      </span>
+    ),
+  },
+  {
+    title: "Pre-arrival",
+    text: "Prearrivals, MSW, T1 and pilot orders — every item red until done.",
+    visual: (
+      <span className="flex flex-wrap gap-1">
+        {["PRE IN", "MSW IN", "T1", "PILOT"].map((c, i) => (
+          <ChecklistChip key={c} label={c} done flip index={i} />
+        ))}
+      </span>
+    ),
+  },
+  {
+    title: "Port call",
+    text: "Sulina transit, berthing, cargo operations and sailing, live on your board.",
+    visual: (
+      <span className="flex flex-wrap gap-1.5">
+        <StageBadge stage="at_roads" />
+        <StageBadge stage="in_port" />
+      </span>
+    ),
+  },
+  {
+    title: "FDA",
+    text: "Final disbursement account with vouchers, settled against the PDA.",
+    visual: (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-ok/25 bg-ok/10 px-2.5 py-1 text-[11px] font-semibold text-ok">
+        <CheckCircle2 className="h-3.5 w-3.5" aria-hidden /> Settled against PDA
+      </span>
+    ),
+  },
 ];
 
 export function HomeServices() {
   return (
     <section id="services" className="scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <PublicSectionHeader
-          eyebrow="Services"
-          title="Everything a Danube call needs"
-          subtitle="One agency team from the first nomination email to the final account — on the river every day."
-        />
-        <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <PublicSectionHeader
+            eyebrow="Services"
+            title="Everything a Danube call needs"
+            subtitle="One agency team from the first nomination email to the final account — on the river every day."
+          />
+        </div>
+        <ul className="reveal mt-12 grid gap-px overflow-hidden rounded-[24px] border bg-border shadow-card sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map(({ icon: Icon, title, text }) => (
-            <li
-              key={title}
-              className="group relative overflow-hidden rounded-2xl border bg-card p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated sm:p-6"
-            >
-              <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/[0.06] transition group-hover:bg-primary/10" />
-              <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-[0_8px_18px_-8px_hsl(var(--primary))]">
+            <li key={title} className="group relative bg-card p-6 transition-colors hover:bg-accent/40 sm:p-8">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/15 bg-primary/[0.08] text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
-              <h3 className="relative mt-4 text-[17px] font-bold">{title}</h3>
-              <p className="relative mt-1.5 text-sm leading-relaxed text-muted-foreground">{text}</p>
+              <h3 className="mt-5 text-[17px] font-bold tracking-[-0.01em]">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p>
             </li>
           ))}
         </ul>
@@ -83,7 +118,7 @@ export function HomeServices() {
 
 export function HomeProcess() {
   return (
-    <section id="process" className="scroll-mt-20 px-4 pb-4 pt-16 sm:px-6 sm:pb-8 sm:pt-24 lg:px-8">
+    <section id="process" className="scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <PublicSectionHeader
           eyebrow="How we work"
@@ -91,23 +126,23 @@ export function HomeProcess() {
           subtitle="The same checklist our team uses on the board — you see each step turn from red to green."
           align="center"
         />
-        <div className="relative mt-12">
-          <div aria-hidden className="absolute bottom-6 left-[22px] top-6 w-px bg-gradient-to-b from-primary/50 via-primary/20 to-transparent md:bottom-auto md:left-6 md:right-6 md:top-[22px] md:h-px md:w-auto md:bg-gradient-to-r" />
-          <ol className="relative grid gap-4 md:grid-cols-4 md:gap-5">
-            {STEPS.map(({ icon: Icon, title, text }, i) => (
-              <li key={title} className="relative flex gap-4 md:flex-col md:gap-0">
-                <span className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-4 border-background bg-primary text-primary-foreground shadow-[0_8px_18px_-8px_hsl(var(--primary))]">
-                  <Icon className="h-4 w-4" aria-hidden />
-                </span>
-                <div className="flex-1 rounded-2xl border bg-card p-4 shadow-card md:mt-4 md:p-5">
-                  <p className="tabular text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Step {i + 1}</p>
-                  <h3 className="mt-1 text-[17px] font-bold">{title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
+        <ol className="relative mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          {/* connector: shows in the gaps between the cards, level with the step numbers */}
+          <span
+            aria-hidden
+            className="absolute left-10 right-10 top-[47px] hidden h-0.5 rounded-full bg-gradient-to-r from-primary/20 via-primary/60 to-ok/60 lg:block"
+          />
+          {STEPS.map((s, i) => (
+            <li key={s.title} className="reveal relative flex flex-col rounded-[22px] border bg-card p-5 shadow-card sm:p-6">
+              <span className="tabular flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[hsl(var(--brand-navy))] font-display text-base font-extrabold text-white shadow-[0_10px_24px_-10px_hsl(var(--primary))]">
+                0{i + 1}
+              </span>
+              <h3 className="mt-5 text-lg font-bold tracking-[-0.01em]">{s.title}</h3>
+              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
+              <div className="mt-5 border-t pt-4">{s.visual}</div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

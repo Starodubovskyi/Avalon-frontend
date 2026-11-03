@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Anchor, ChevronDown, Layers, Ship } from "lucide-react";
+import { Anchor, ChevronDown, Layers, Ship, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STAGE_META } from "@/lib/vessels/status";
 import { STAGES } from "@/lib/vessels/types";
-import { POINT_KINDS, POINT_KIND_PLURAL, type PointKind } from "@/lib/points/team-points";
-import { POINT_KIND_CLASS, POINT_KIND_ICON } from "./PointKindIcon";
+import { POINT_KINDS, POINT_KIND_PLURAL, POINT_KIND_SHORT, type PointKind } from "@/lib/points/team-points";
+import { POINT_KIND_CLASS, POINT_KIND_ICON, PointAvatar } from "./PointKindIcon";
 import type { LayerVisibility } from "./FleetMap";
 
 function Chip({
@@ -67,6 +67,13 @@ export function MapLayerChips({
             );
           })
         : null}
+      {showKinds ? (
+        <Chip active={layers.favoritesOnly} onClick={() => onChange({ ...layers, favoritesOnly: !layers.favoritesOnly })} title="Only my favorite points">
+          <Star className={cn("h-3.5 w-3.5", layers.favoritesOnly && "fill-amber-400 text-amber-400")} />
+          <span className="hidden lg:inline">Favorites</span>
+          <span className="sr-only lg:hidden">Favorites</span>
+        </Chip>
+      ) : null}
       <Chip active={layers.seamarks} onClick={() => onChange({ ...layers, seamarks: !layers.seamarks })}>
         <Anchor className="h-3.5 w-3.5" /> Sea marks
       </Chip>
@@ -89,7 +96,7 @@ export function MapLegend({
     if (!window.matchMedia("(min-width: 768px)").matches) setOpen(false);
   }, []);
   return (
-    <div className="glass absolute bottom-8 left-3 z-10 w-[200px] rounded-2xl border p-3 text-xs shadow-elevated md:left-[344px] md:w-[230px]">
+    <div className="glass absolute bottom-8 left-3 z-10 w-[224px] rounded-2xl border p-3 text-xs shadow-elevated md:left-[344px] md:w-[264px]">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between font-semibold" aria-expanded={open}>
         <span className="flex items-center gap-1.5">
           <Layers className="h-3.5 w-3.5" /> Legend
@@ -111,6 +118,16 @@ export function MapLegend({
             ) : null}
           </ul>
           <p className="mt-2 text-muted-foreground">▲ under way · ● stopped · ◇ estimated (≈)</p>
+          {staff ? (
+            <ul className="mt-2.5 grid grid-cols-2 gap-x-2 gap-y-1.5 border-t pt-2.5" aria-label="Point types">
+              {POINT_KINDS.map((k) => (
+                <li key={k} className="flex min-w-0 items-center gap-1.5">
+                  <PointAvatar kind={k} size="xs" />
+                  <span className="truncate">{POINT_KIND_SHORT[k]}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <label className="mt-2.5 flex cursor-pointer items-center gap-2 border-t pt-2.5 font-medium">
             <input type="checkbox" checked={showDeparted} onChange={(e) => onShowDeparted(e.target.checked)} className="h-3.5 w-3.5 accent-[hsl(var(--primary))]" />
             Show departed vessels

@@ -9,11 +9,15 @@ import type { VesselView } from "@/lib/vessels/types";
 import type { PointKind, TeamPoint } from "@/lib/points/team-points";
 import { draftGeoJson, pointsToGeoJson, vesselsToGeoJson } from "./fleetGeo";
 import { STYLE_URL, applyBasemapTheme, installLayers, restyleLabels } from "./mapLayers";
+import { POINT_FOCUS_ZOOM, POINT_LAYERS, POINT_SOURCE } from "./pointLayers";
+import { useLogoImages } from "./useLogoImages";
 
 export interface LayerVisibility {
   vessels: boolean;
   seamarks: boolean;
   kinds: Record<PointKind, boolean>;
+  /** only my ★ favourite points */
+  favoritesOnly: boolean;
 }
 
 interface FleetMapProps {
@@ -30,7 +34,16 @@ interface FleetMapProps {
   onPick: (lngLat: [number, number]) => void;
 }
 
-const CLICKABLE = ["vessel-icons", "point-icons"];
+const CLICKABLE = ["vessel-icons", POINT_LAYERS.icons, POINT_LAYERS.labels, POINT_LAYERS.clusters];
+
+/** Cluster bubble click: zoom in until it splits */
+function expandCluster(map: mapboxgl.Map, clusterId: number, center: [number, number]) {
+  const source = map.getSource(POINT_SOURCE) as GeoJSONSource | undefined;
+  source?.getClusterExpansionZoom(clusterId, (err, zoom) => {
+    if (err || zoom == null) return;
+    map.easeTo({ center, zoom: zoom + 0.25, duration: 650, essential: true });
+  });
+}
 
 export function FleetMap(props: FleetMapProps) {
   const { vessels, points, selectedVesselId, selectedPointId, layers, picking, draft } = props;
@@ -46,6 +59,7 @@ export function FleetMap(props: FleetMapProps) {
   const handlers = useRef(props);
   handlers.current = props;
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim() ?? "";
+  const { logoVersion, logoIconFor } = useLogoImages(mapRef, ready, points);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -82,6 +96,11 @@ export function FleetMap(props: FleetMapProps) {
       }
       const layerIds = CLICKABLE.filter((id) => map.getLayer(id));
       const hit = layerIds.length ? map.queryRenderedFeatures(e.point, { layers: layerIds })[0] : undefined;
+      const clusterId = hit?.properties?.cluster_id;
+      if (hit && hit.layer?.id === POINT_LAYERS.clusters && typeof clusterId === "number" && hit.geometry.type === "Point") {
+        expandCluster(map, clusterId, hit.geometry.coordinates as [number, number]);
+        return;
+      }
       const id = hit?.properties?.id;
       if (hit && typeof id === "string") {
         if (hit.layer?.id === "vessel-icons") {
@@ -132,8 +151,8 @@ export function FleetMap(props: FleetMapProps) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    (map.getSource("points") as GeoJSONSource | undefined)?.setData(pointsToGeoJson(points));
-  }, [points, ready, styleVersion]);
+    (map.getSource(POINT_SOURCE) as GeoJSONSource | undefined)?.setData(pointsToGeoJson(points, logoIconFor));
+  }, [points, ready, styleVersion, logoVersion, logoIconFor]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -148,8 +167,7 @@ export function FleetMap(props: FleetMapProps) {
     show("seamarks", layers.seamarks);
     show("vessel-icons", layers.vessels);
     show("vessel-selected", layers.vessels);
-    const kinds = (Object.keys(layers.kinds) as PointKind[]).filter((k) => layers.kinds[k]);
-    if (map.getLayer("point-icons")) map.setFilter("point-icons", ["in", ["get", "kind"], ["literal", kinds]]);
+    // point kinds and favourites are filtered in the data, so cluster counts stay honest
   }, [layers, ready, styleVersion]);
 
   useEffect(() => {
@@ -171,8 +189,9 @@ export function FleetMap(props: FleetMapProps) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
+    if (map.getLayer(POINT_LAYERS.selected)) map.setFilter(POINT_LAYERS.selected, ["==", ["get", "id"], selectedPointId ?? ""]);
     const p = points.find((x) => x.id === selectedPointId);
-    if (p) map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 11), duration: 900, essential: true });
+    if (p) map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), POINT_FOCUS_ZOOM), duration: 900, essential: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPointId, ready]);
 

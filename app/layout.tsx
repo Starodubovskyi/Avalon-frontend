@@ -22,7 +22,13 @@ export const metadata: Metadata = {
   title: "Avalon Shipping — Operations",
   description:
     "Vessel operations board for Avalon Shipping SRL: vessels in work, Sulina channel, checklist, documents and audit log.",
-  icons: { icon: "/brand/avalon-logo.png" },
+  icons: {
+    icon: [
+      { url: "/brand/avalon-icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/avalon-icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/brand/avalon-icon-180.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: { capable: true, title: "Avalon Ops", statusBarStyle: "default" },
 };
 

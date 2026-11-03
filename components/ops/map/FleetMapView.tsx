@@ -10,6 +10,7 @@ import { canEdit } from "@/lib/auth/roles";
 import { useVessels } from "@/lib/vessels/hooks";
 import { compareVessels, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import {
+  DEFAULT_FORM_KIND,
   POINT_KINDS,
   POINT_KIND_LABEL,
   pointTitle,
@@ -18,6 +19,7 @@ import {
   type PointKind,
   type TeamPoint,
 } from "@/lib/points/team-points";
+import { activityLine } from "@/lib/points/activities";
 import { ErrorBlock, btn } from "../ui/primitives";
 import { MapVesselList } from "./MapVesselList";
 import { MapVesselCard } from "./MapVesselCard";
@@ -52,6 +54,7 @@ export function FleetMapView() {
     vessels: true,
     seamarks: true,
     kinds: Object.fromEntries(POINT_KINDS.map((k) => [k, true])) as Record<PointKind, boolean>,
+    favoritesOnly: false,
   });
   const [listOpen, setListOpen] = useState(false);
   const [addKind, setAddKind] = useState<PointKind | null>(null);
@@ -70,9 +73,13 @@ export function FleetMapView() {
   const points = useMemo(() => {
     const q = pointQuery.trim().toLowerCase();
     return (pointsData ?? []).filter(
-      (p) => layers.kinds[p.kind] && (!q || `${pointTitle(p)} ${p.activity}`.toLowerCase().includes(q)),
+      (p) =>
+        layers.kinds[p.kind] &&
+        (!layers.favoritesOnly || p.isFavorite) &&
+        (!q || `${pointTitle(p)} ${activityLine(p)} ${p.address ?? ""}`.toLowerCase().includes(q)),
     );
-  }, [pointsData, pointQuery, layers.kinds]);
+  }, [pointsData, pointQuery, layers.kinds, layers.favoritesOnly]);
+  const favoriteCount = useMemo(() => (pointsData ?? []).filter((p) => p.isFavorite).length, [pointsData]);
 
   const selectedVessel = visible.find((v) => v.id === selectedVesselId) ?? null;
   const selectedPoint = (pointsData ?? []).find((p) => p.id === selectedPointId) ?? null;
@@ -124,8 +131,11 @@ export function FleetMapView() {
       startAdd(linkedAdd as PointKind);
       return;
     }
-    if (linkedPoint && pointsData?.some((p) => p.id === linkedPoint)) {
+    const linked = linkedPoint ? pointsData?.find((p) => p.id === linkedPoint) : undefined;
+    if (linked) {
       appliedLink.current = key;
+      // a shared link must show the point even if filters would hide it
+      setLayers((l) => ({ ...l, favoritesOnly: l.favoritesOnly && linked.isFavorite, kinds: { ...l.kinds, [linked.kind]: true } }));
       setTab("contacts");
       setSelectedVesselId(null);
       setSelectedPointId(linkedPoint);
@@ -177,7 +187,16 @@ export function FleetMapView() {
           {tab === "vessels" || !staff ? (
             <MapVesselList vessels={visible} selectedId={selectedVesselId} onSelect={(id) => { selectVessel(id); setSelectedPointId(null); }} query={query} onQuery={setQuery} />
           ) : (
-            <MapPointList points={points} selectedId={selectedPointId} onSelect={(id) => { selectPoint(id); setSelectedVesselId(null); }} query={pointQuery} onQuery={setPointQuery} />
+            <MapPointList
+              points={points}
+              selectedId={selectedPointId}
+              onSelect={(id) => { selectPoint(id); setSelectedVesselId(null); }}
+              query={pointQuery}
+              onQuery={setPointQuery}
+              favoritesOnly={layers.favoritesOnly}
+              onFavoritesOnly={(on) => setLayers((l) => ({ ...l, favoritesOnly: on }))}
+              favoriteCount={favoriteCount}
+            />
           )}
         </div>
       </aside>
@@ -236,6 +255,7 @@ export function FleetMapView() {
             ) : selectedPoint ? (
               <MapPointCard
                 point={selectedPoint}
+                editable={staff}
                 onClose={() => setSelectedPointId(null)}
                 onEdit={() => {
                   setEditPoint(selectedPoint);
@@ -260,7 +280,7 @@ export function FleetMapView() {
           }}
           point={editPoint}
           at={draft}
-          defaultKind={addKind ?? "company"}
+          defaultKind={addKind ?? DEFAULT_FORM_KIND}
           onSaved={(p) => {
             setSelectedPointId(p.id);
             setTab("contacts");

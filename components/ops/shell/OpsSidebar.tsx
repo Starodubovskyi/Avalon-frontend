@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -11,15 +10,19 @@ import { AuthApi } from "@/lib/api/auth";
 import { ROLE_LABEL, displayName, roleId } from "@/lib/auth/roles";
 import { useChatUnread } from "@/lib/network/hooks";
 import { useNewRequestsCount } from "@/lib/requests/hooks";
+import { BrandSeal } from "@/components/public/brand/BrandSeal";
 import { Avatar } from "../ui/primitives";
 import { NAV_GROUPS, isActive } from "./nav";
 
 export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-[0_0_0_4px_rgba(255,255,255,0.08),0_8px_24px_-6px_rgba(43,93,176,0.8)]">
-        <Image src="/brand/avalon-logo.png" alt="Avalon Shipping SRL" width={40} height={40} priority />
-      </span>
+      <BrandSeal
+        size="md"
+        label="Avalon Shipping SRL"
+        priority
+        className="h-11 w-11 shadow-[0_0_0_4px_rgba(255,255,255,0.08),0_8px_24px_-6px_rgba(43,93,176,0.8)]"
+      />
       {compact ? null : (
         <span className="leading-tight">
           <span className="block font-display text-[15px] font-bold tracking-wide text-white">AVALON</span>

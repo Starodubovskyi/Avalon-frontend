@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { PublicHeader } from "./PublicHeader";
 import { PublicFooter } from "./PublicFooter";
 
@@ -27,15 +28,28 @@ export function PublicSectionHeader({
   inverted?: boolean;
 }) {
   return (
-    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
-      <p className={inverted ? "text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70" : "text-[11px] font-semibold uppercase tracking-[0.2em] text-primary"}>
+    <div className={cn("reveal", align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-3xl")}>
+      <p
+        className={cn(
+          "inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em]",
+          inverted ? "text-[hsl(var(--brand-accent))]" : "text-primary",
+        )}
+      >
+        <span aria-hidden className={cn("h-px w-6", inverted ? "bg-[hsl(var(--brand-accent))]" : "bg-primary")} />
         {eyebrow}
       </p>
-      <h2 className={inverted ? "mt-2 font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl" : "mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl"}>
+      <h2
+        className={cn(
+          "mt-3 font-display text-[30px] font-extrabold leading-[1.08] tracking-[-0.025em] sm:text-[44px]",
+          inverted && "text-white",
+        )}
+      >
         {title}
       </h2>
       {subtitle ? (
-        <p className={inverted ? "mt-3 text-[15px] leading-relaxed text-white/75" : "mt-3 text-[15px] leading-relaxed text-muted-foreground"}>{subtitle}</p>
+        <p className={cn("mt-4 max-w-2xl text-[15px] leading-relaxed sm:text-base", align === "center" && "mx-auto", inverted ? "text-white/65" : "text-muted-foreground")}>
+          {subtitle}
+        </p>
       ) : null}
     </div>
   );

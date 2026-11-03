@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { PublicShell } from "@/components/public/PublicShell";
 import { HomeHero } from "@/components/public/home/HomeHero";
+import { HomeTrust } from "@/components/public/home/HomeTrust";
 import { HomeProcess, HomeServices } from "@/components/public/home/HomeServices";
-import { HomeCoverage, HomeCta, HomePortal } from "@/components/public/home/HomeCoverage";
+import { HomeBento } from "@/components/public/home/HomeBento";
+import { HomeCoverage } from "@/components/public/home/HomeCoverage";
+import { HomeCta } from "@/components/public/home/HomeCta";
 
 export const metadata: Metadata = {
   title: "Avalon Shipping — Danube port agency",
@@ -14,10 +17,11 @@ export default function HomePage() {
   return (
     <PublicShell>
       <HomeHero />
+      <HomeTrust />
       <HomeServices />
+      <HomeBento />
       <HomeCoverage />
       <HomeProcess />
-      <HomePortal />
       <HomeCta />
     </PublicShell>
   );
