@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -37,6 +38,8 @@ interface PointsContextType {
     id: string,
     data: Partial<Omit<MapPoint, "id" | "userId">>,
   ) => void;
+  /** Starts loading; called by usePoints() so pages that never use the legacy points don't fetch them */
+  activate: () => void;
 }
 
 const PointsContext = createContext<PointsContextType | undefined>(undefined);
@@ -49,9 +52,13 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
   const [points, setPoints] = useState<MapPoint[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const hydratedForUserRef = useRef<string | number | null>(null);
+  // Lazy: the provider sits in the root layout, but only the legacy /mypoints view reads it.
+  // Without this every staff page fired a second GET /map-points next to the fleet map's SWR one.
+  const [wanted, setWanted] = useState(false);
+  const activate = useCallback(() => setWanted(true), []);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || !wanted) return;
 
     if (!userId || !staff) {
       setPoints([]);
@@ -91,7 +98,7 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       ac.abort();
     };
-  }, [userId, loading, staff]);
+  }, [userId, loading, staff, wanted]);
 
   useEffect(() => {
     if (!hydrated || !userId) return;
@@ -181,7 +188,7 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PointsContext.Provider
-      value={{ points, addPoint, toggleFavorite, deletePoint, updatePoint }}
+      value={{ points, addPoint, toggleFavorite, deletePoint, updatePoint, activate }}
     >
       {children}
     </PointsContext.Provider>
@@ -190,6 +197,10 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
 
 export const usePoints = () => {
   const context = useContext(PointsContext);
+  const activate = context?.activate;
+  useEffect(() => {
+    activate?.();
+  }, [activate]);
   if (!context)
     throw new Error("usePoints must be used within a PointsProvider");
   return context;

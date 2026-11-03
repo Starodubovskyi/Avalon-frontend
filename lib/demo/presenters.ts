@@ -47,6 +47,22 @@ export function canDeleteContent(viewer: DemoUserRow, authorId: number): boolean
   return authorId === viewer.id || viewer.roleId === ROLE.admin;
 }
 
+/**
+ * Rank of a user, as the backend counts it on read:
+ * 10 × points on the map + 5 × points with a logo + 3 × posts + 1 × comments + 5 × agency requests; deleted rows do not count.
+ */
+export function userRank(state: DemoState, userId: number | null | undefined): number {
+  if (userId == null) return 0;
+  const points = state.mapPoints.filter((p) => p.userId === userId && !p.deletedAt);
+  const logos = points.filter((p) => !!p.logo).length;
+  const posts = state.posts.filter((p) => p.authorId === userId && !p.deletedAt).length;
+  // like the backend: a comment under a deleted post no longer counts
+  const livePosts = new Set(state.posts.filter((p) => !p.deletedAt).map((p) => p.id));
+  const comments = state.comments.filter((c) => c.authorId === userId && !c.deletedAt && livePosts.has(c.postId)).length;
+  const requests = state.agencyRequests.filter((r) => r.createdById === userId).length;
+  return 10 * points.length + 5 * logos + 3 * posts + comments + 5 * requests;
+}
+
 /** firstName, lastName, email, id — ascending, nulls last */
 export function compareUsers(a: DemoUserRow, b: DemoUserRow): number {
   return (

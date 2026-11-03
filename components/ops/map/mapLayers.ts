@@ -2,6 +2,7 @@ import type mapboxgl from "mapbox-gl";
 import { installShipIcons } from "./shipIcons";
 import { installPointIcons } from "./pointIcons";
 import { placesGeoJson } from "./fleetGeo";
+import { installPointLayers, restylePointLayers } from "./pointLayers";
 
 export const STYLE_URL = "mapbox://styles/mapbox/standard";
 const SEAMARK_TILES = "https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png";
@@ -65,28 +66,7 @@ export function installLayers(map: mapboxgl.Map, dark: boolean) {
       paint: { "text-color": text, "text-halo-color": halo, "text-halo-width": 1.4, "text-emissive-strength": 1 },
     });
   }
-  if (!map.getSource("points")) {
-    map.addSource("points", { type: "geojson", data: EMPTY });
-    map.addLayer({
-      id: "point-icons",
-      type: "symbol",
-      source: "points",
-      slot: "top",
-      layout: {
-        "icon-image": ["get", "icon"],
-        "icon-anchor": "bottom",
-        "icon-allow-overlap": true,
-        "icon-ignore-placement": true,
-        "text-field": ["step", ["zoom"], "", 10, ["get", "name"]],
-        "text-size": 11,
-        "text-offset": [0, 0.4],
-        "text-anchor": "top",
-        "text-optional": true,
-        "text-font": FONT_MEDIUM,
-      },
-      paint: { "text-color": text, "text-halo-color": halo, "text-halo-width": 1.3, "icon-emissive-strength": 1, "text-emissive-strength": 1 },
-    });
-  }
+  if (!map.getSource("points")) installPointLayers(map, dark);
   if (!map.getSource("draft")) {
     map.addSource("draft", { type: "geojson", data: EMPTY });
     map.addLayer({
@@ -152,7 +132,7 @@ export function installLayers(map: mapboxgl.Map, dark: boolean) {
 /** Halo/label colours follow the theme without reloading the style */
 export function restyleLabels(map: mapboxgl.Map, dark: boolean) {
   const { text, halo } = textColors(dark);
-  for (const id of ["places-label", "point-icons", "vessel-icons"]) {
+  for (const id of ["places-label", "vessel-icons"]) {
     if (!map.getLayer(id)) continue;
     map.setPaintProperty(id, "text-color", text);
     map.setPaintProperty(id, "text-halo-color", halo);
@@ -160,4 +140,5 @@ export function restyleLabels(map: mapboxgl.Map, dark: boolean) {
   if (map.getLayer("vessel-selected")) {
     map.setPaintProperty("vessel-selected", "circle-stroke-color", dark ? "#f8fafc" : "#0f172a");
   }
+  restylePointLayers(map, dark);
 }

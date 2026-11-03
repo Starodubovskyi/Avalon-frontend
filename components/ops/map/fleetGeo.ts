@@ -2,7 +2,7 @@ import type { FeatureCollection, Point } from "geojson";
 import { PORT_COORDS, SULINA_ROADS, resolvePosition } from "@/lib/vessels/geo";
 import { isPositionStale, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import { DESTINATIONS, DESTINATION_LABEL, type VesselView } from "@/lib/vessels/types";
-import { pointTitle, type PointKind, type TeamPoint } from "@/lib/points/team-points";
+import { POINT_KIND_COLORS, fmtRank, pointTitle, type PointKind, type TeamPoint } from "@/lib/points/team-points";
 import { iconId, type IconShape, type IconTone } from "./shipIcons";
 import { pointIconId } from "./pointIcons";
 
@@ -51,17 +51,37 @@ export interface PointFeatureProps {
   name: string;
   kind: PointKind;
   icon: string;
+  rank: string;
+  color: string;
 }
 
-export function pointsToGeoJson(points: TeamPoint[]): FeatureCollection<Point, PointFeatureProps> {
+const LABEL_MAX = 24;
+
+function shortTitle(p: TeamPoint): string {
+  const t = pointTitle(p);
+  return t.length > LABEL_MAX ? `${t.slice(0, LABEL_MAX - 1).trimEnd()}…` : t;
+}
+
+/** `logoIconFor` gives the logo marker once it is on the map; until then the kind marker is used */
+export function pointsToGeoJson(points: TeamPoint[], logoIconFor: (pointId: string) => string | null): FeatureCollection<Point, PointFeatureProps> {
   return {
     type: "FeatureCollection",
-    features: points.map((p) => ({
-      type: "Feature",
-      id: p.id,
-      geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-      properties: { id: p.id, name: pointTitle(p), kind: p.kind, icon: pointIconId(p.kind) },
-    })),
+    features: points.map((p) => {
+      const logoId = p.hasLogo ? logoIconFor(p.id) : null;
+      return {
+        type: "Feature",
+        id: p.id,
+        geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+        properties: {
+          id: p.id,
+          name: shortTitle(p),
+          kind: p.kind,
+          icon: logoId ?? pointIconId(p.kind),
+          rank: `RANK ${fmtRank(p.rank)}`,
+          color: POINT_KIND_COLORS[p.kind].base,
+        },
+      };
+    }),
   };
 }
 

@@ -7,6 +7,7 @@ import type {
   VesselType,
 } from "@/lib/vessels/types";
 import type { PointKind } from "@/lib/points/team-points";
+import type { ActivityCode } from "@/lib/points/activities";
 import type { AgencyRequest } from "@/lib/requests/types";
 
 /** Rows of the in-browser demo database; dates are ISO strings, soft deletes keep the row */
@@ -105,10 +106,18 @@ export interface MapPointRow {
   firstName: string;
   lastName: string;
   activity: string;
+  /** Business Activity codes (0 or 1 without Premium) */
+  activities: ActivityCode[];
+  /** data:image/… URL, served by GET /map-points/:id/logo */
+  logo: string | null;
+  /** Changes with every new logo (cache key of the logo URL); null without a logo */
+  logoVersion: string | null;
   phone: string | null;
   email: string | null;
   address: string | null;
   notes: string | null;
+  /** map_point_favorite rows of this point (user ids) */
+  favoritedBy: number[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

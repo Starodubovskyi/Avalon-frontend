@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { tailwindPointColors, tailwindPointGlows } from "./lib/points/kind-colors";
 
 const config = {
   darkMode: ["class"],
@@ -68,15 +69,10 @@ const config = {
         },
         ok: "hsl(var(--ok))",
         bad: "hsl(var(--bad))",
-        point: {
-          company: "#7c3aed",
-          agency: "#4f46e5",
-          terminal: "#0d9488",
-          authority: "#b45309",
-          person: "#059669",
-          employee: "#ea580c",
-        },
+        /* map point kinds — lib/points/kind-colors.ts */
+        point: tailwindPointColors(),
       },
+      boxShadow: tailwindPointGlows(),
       fontFamily: {
         sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
