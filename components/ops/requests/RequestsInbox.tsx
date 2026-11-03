@@ -2,20 +2,18 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ClipboardList, Search, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNow } from "@/lib/network/hooks";
 import { useAgencyRequests } from "@/lib/requests/hooks";
-import { REQUEST_STATUSES, REQUEST_STATUS_META, type AgencyRequest, type RequestStatus } from "@/lib/requests/types";
+import { REQUEST_STATUSES, type AgencyRequest, type RequestStatus } from "@/lib/requests/types";
 import { EmptyState, ErrorBlock, LoadingBlock, PageHeader, TextInput, btn } from "../ui/primitives";
 import { RequestCard } from "./RequestCard";
 
 type Tab = RequestStatus | "all";
 
-const TABS: { id: Tab; label: string }[] = [
-  ...REQUEST_STATUSES.map((s) => ({ id: s, label: REQUEST_STATUS_META[s].label })),
-  { id: "all", label: "All" },
-];
+const TABS: Tab[] = [...REQUEST_STATUSES, "all"];
 
 function matches(r: AgencyRequest, q: string): boolean {
   if (!q) return true;
@@ -23,6 +21,7 @@ function matches(r: AgencyRequest, q: string): boolean {
 }
 
 export function RequestsInbox() {
+  const t = useTranslations("requests");
   const { data, error, isLoading, mutate } = useAgencyRequests();
   const now = useNow();
   const [tab, setTab] = useState<Tab>("new");
@@ -45,47 +44,47 @@ export function RequestsInbox() {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Clients"
-        title="Agency requests"
-        subtitle="Reply to clients, send terms, and put accepted calls on the board in one click."
+        eyebrow={t("eyebrow")}
+        title={t("inbox.title")}
+        subtitle={t("inbox.subtitle")}
         actions={
           <Link href="/request" className={btn.secondary}>
-            <Send className="h-4 w-4" aria-hidden /> New request
+            <Send className="h-4 w-4" aria-hidden /> {t("inbox.newRequest")}
           </Link>
         }
       />
 
       <div className="flex flex-col gap-3 rounded-2xl border bg-card p-2 shadow-card lg:flex-row lg:items-center lg:justify-between">
-        <div className="no-scrollbar flex gap-1 overflow-x-auto" role="tablist" aria-label="Filter by status">
-          {TABS.map((t) => (
+        <div className="no-scrollbar flex gap-1 overflow-x-auto" role="tablist" aria-label={t("inbox.filterLabel")}>
+          {TABS.map((id) => (
             <button
-              key={t.id}
+              key={id}
               type="button"
               role="tab"
-              aria-selected={tab === t.id}
+              aria-selected={tab === id}
               onClick={() => {
-                setTab(t.id);
+                setTab(id);
                 setKept([]);
               }}
               className={cn(
                 "flex min-h-[40px] shrink-0 items-center gap-2 rounded-xl px-3.5 text-[13px] font-semibold transition-all",
-                tab === t.id
+                tab === id
                   ? "bg-primary text-primary-foreground shadow-[0_6px_16px_-8px_hsl(var(--primary))]"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
             >
-              {t.label}
+              {t(`inbox.tabs.${id}`)}
               <span
                 className={cn(
                   "tabular min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-[10px] font-bold",
-                  tab === t.id
+                  tab === id
                     ? "bg-white/20"
-                    : t.id === "new" && counts.new > 0
+                    : id === "new" && counts.new > 0
                       ? "bg-stage-expected text-white"
                       : "bg-muted text-foreground/70",
                 )}
               >
-                {counts[t.id]}
+                {counts[id]}
               </span>
             </button>
           ))}
@@ -95,28 +94,22 @@ export function RequestsInbox() {
           <TextInput
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Vessel, IMO, company…"
+            placeholder={t("inbox.searchPlaceholder")}
             className="pl-9"
-            aria-label="Search requests"
+            aria-label={t("inbox.searchLabel")}
           />
         </div>
       </div>
 
       {error ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
-      {isLoading && !data ? <LoadingBlock label="Loading requests…" /> : null}
+      {isLoading && !data ? <LoadingBlock label={t("inbox.loading")} /> : null}
 
       {data && rows.length === 0 ? (
         <div className="rounded-2xl border bg-card shadow-card">
           <EmptyState
             icon={<ClipboardList className="h-8 w-8" />}
-            title={data.length ? "Nothing in this tab" : "No requests yet"}
-            text={
-              data.length
-                ? query
-                  ? "No request matches the search."
-                  : "Try another status tab."
-                : "Client requests from the Request agency form will land here."
-            }
+            title={data.length ? t("inbox.emptyTab") : t("inbox.emptyNone")}
+            text={data.length ? (query ? t("inbox.noMatch") : t("inbox.tryTab")) : t("inbox.landHere")}
           />
         </div>
       ) : null}

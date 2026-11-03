@@ -12,13 +12,20 @@ export const URGENCY_LABEL: Record<TaskUrgency, string> = {
   upcoming: "Upcoming",
 };
 
+/** Why a task has its urgency, as data — the UI renders it in the interface language (see TasksView) */
+export type TaskReason =
+  | { code: "sailed" | "berthedOpen" | "berthed" | "arrivedSulina" | "eta"; at: string | null }
+  | { code: "atRoads" | "etaPassed" | "noEta" };
+
 /** One open checklist item of one vessel — what is still red on the board */
 export interface VesselTask {
   id: string;
   vessel: VesselView;
   item: ChecklistItemDef;
   urgency: TaskUrgency;
+  /** English sentence, kept for existing callers */
   reason: string;
+  why: TaskReason;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -30,23 +37,29 @@ function applies(v: VesselView, item: ChecklistItemDef): boolean {
   return item.phase !== "departure";
 }
 
-function urgencyOf(v: VesselView, item: ChecklistItemDef, now: number): { urgency: TaskUrgency; reason: string } {
-  if (v.stage === "departed") return { urgency: "overdue", reason: `Sailed ${fmtRelative(v.departedAt, now)}` };
+function urgencyOf(v: VesselView, item: ChecklistItemDef, now: number): { urgency: TaskUrgency; reason: string; why: TaskReason } {
+  if (v.stage === "departed") {
+    return { urgency: "overdue", reason: `Sailed ${fmtRelative(v.departedAt, now)}`, why: { code: "sailed", at: v.departedAt } };
+  }
   if (v.stage === "in_port") {
     return item.phase === "arrival"
-      ? { urgency: "overdue", reason: `Berthed ${fmtRelative(v.inPortAt, now)}, still open` }
-      : { urgency: "now", reason: `Berthed ${fmtRelative(v.inPortAt, now)}` };
+      ? { urgency: "overdue", reason: `Berthed ${fmtRelative(v.inPortAt, now)}, still open`, why: { code: "berthedOpen", at: v.inPortAt } }
+      : { urgency: "now", reason: `Berthed ${fmtRelative(v.inPortAt, now)}`, why: { code: "berthed", at: v.inPortAt } };
   }
   if (v.stage === "at_roads") {
     return item.phase === "arrival"
-      ? { urgency: "now", reason: `Arrived at Sulina ${fmtRelative(v.arrivedAt, now)}` }
-      : { urgency: "upcoming", reason: "At Sulina roads" };
+      ? { urgency: "now", reason: `Arrived at Sulina ${fmtRelative(v.arrivedAt, now)}`, why: { code: "arrivedSulina", at: v.arrivedAt } }
+      : { urgency: "upcoming", reason: "At Sulina roads", why: { code: "atRoads" } };
   }
   const eta = v.etaSulina ? new Date(v.etaSulina).getTime() : null;
   if (eta !== null && eta - now < DAY_MS && item.phase === "arrival") {
-    return { urgency: "now", reason: eta < now ? "ETA passed, not arrived yet" : `ETA ${fmtRelative(v.etaSulina, now)}` };
+    return eta < now
+      ? { urgency: "now", reason: "ETA passed, not arrived yet", why: { code: "etaPassed" } }
+      : { urgency: "now", reason: `ETA ${fmtRelative(v.etaSulina, now)}`, why: { code: "eta", at: v.etaSulina } };
   }
-  return { urgency: "upcoming", reason: eta !== null ? `ETA ${fmtRelative(v.etaSulina, now)}` : "No ETA yet" };
+  return eta !== null
+    ? { urgency: "upcoming", reason: `ETA ${fmtRelative(v.etaSulina, now)}`, why: { code: "eta", at: v.etaSulina } }
+    : { urgency: "upcoming", reason: "No ETA yet", why: { code: "noEta" } };
 }
 
 export function deriveTasks(vessels: VesselView[], now = Date.now()): VesselTask[] {

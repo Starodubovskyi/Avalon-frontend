@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { PublicShell } from "@/components/public/PublicShell";
 import { EstimateView } from "@/components/public/estimate/EstimateView";
 import { LoadingBlock } from "@/components/ops/ui/primitives";
 
-export const metadata: Metadata = {
-  title: "PDA estimate — Danube port call costs · Avalon Shipping",
-  description:
-    "Indicative proforma disbursement account for a Danube call via Sulina: channel dues, pilotage, port and berth dues, towage and agency fee in EUR.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("publicPages");
+  return { title: t("estimate.metaTitle"), description: t("estimate.metaDescription") };
+}
 
-export default function EstimatePage() {
+export default async function EstimatePage() {
+  const t = await getTranslations("publicPages");
   return (
     <PublicShell>
-      <Suspense fallback={<LoadingBlock label="Loading estimator…" />}>
+      <Suspense fallback={<LoadingBlock label={t("estimate.loading")} />}>
         <EstimateView />
       </Suspense>
     </PublicShell>

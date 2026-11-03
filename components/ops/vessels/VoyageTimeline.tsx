@@ -2,20 +2,18 @@
 
 import { useState } from "react";
 import { Check, Pencil, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useVesselMutations } from "@/lib/vessels/hooks";
-import { fmtFull, fmtRelative, fromLocalInput, toLocalInput } from "@/lib/vessels/format";
+import { fromLocalInput, toLocalInput } from "@/lib/vessels/format";
+import { useVesselFormat } from "@/lib/vessels/i18n";
 import type { VesselView } from "@/lib/vessels/types";
 import { TextInput } from "../ui/primitives";
 
 type DateKey = "etaSulina" | "arrivedAt" | "inPortAt" | "departedAt";
 
-const STEPS: { key: DateKey; label: string; hint: string }[] = [
-  { key: "etaSulina", label: "ETA Sulina", hint: "Expected at Sulina" },
-  { key: "arrivedAt", label: "Arrived Sulina roads", hint: "Anchored at the roads" },
-  { key: "inPortAt", label: "In port", hint: "Entered the destination port" },
-  { key: "departedAt", label: "Departed", hint: "Left the channel to open sea" },
-];
+/** Label and hint per step: vessels.timeline.steps.<key> */
+const STEPS: DateKey[] = ["etaSulina", "arrivedAt", "inPortAt", "departedAt"];
 
 function Step({
   vessel,
@@ -24,12 +22,15 @@ function Step({
   isLast,
 }: {
   vessel: VesselView;
-  step: (typeof STEPS)[number];
+  step: DateKey;
   editable: boolean;
   isLast: boolean;
 }) {
+  const t = useTranslations("vessels.timeline");
+  const fmt = useVesselFormat();
   const { update } = useVesselMutations();
-  const value = vessel[step.key];
+  const value = vessel[step];
+  const label = t(`steps.${step}.label`);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -37,7 +38,7 @@ function Step({
   async function save(next: string | null) {
     setBusy(true);
     try {
-      await update(vessel.id, { [step.key]: next }, `${step.label} saved`);
+      await update(vessel.id, { [step]: next }, t("saved", { label }));
       setEditing(false);
     } catch {
       /* toast shown */
@@ -61,7 +62,7 @@ function Step({
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-medium">{step.label}</p>
+          <p className="text-sm font-medium">{label}</p>
           {editable && !editing ? (
             <button
               type="button"
@@ -71,7 +72,7 @@ function Step({
               }}
               className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
             >
-              <Pencil className="h-3 w-3" /> {value ? "Edit" : "Set"}
+              <Pencil className="h-3 w-3" /> {value ? t("edit") : t("set")}
             </button>
           ) : null}
         </div>
@@ -79,17 +80,17 @@ function Step({
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <TextInput type="datetime-local" value={draft} onChange={(e) => setDraft(e.target.value)} className="h-9 w-auto" />
             <button type="button" disabled={busy} onClick={() => void save(fromLocalInput(draft))} className="h-9 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground disabled:opacity-50">
-              Save
+              {t("save")}
             </button>
             <button type="button" disabled={busy} onClick={() => void save(new Date().toISOString())} className="h-9 rounded-lg border px-3 text-xs font-medium hover:bg-accent">
-              Now
+              {t("now")}
             </button>
             {value ? (
               <button type="button" disabled={busy} onClick={() => void save(null)} className="h-9 rounded-lg border px-3 text-xs font-medium text-bad hover:bg-bad/5">
-                Clear
+                {t("clear")}
               </button>
             ) : null}
-            <button type="button" onClick={() => setEditing(false)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent" aria-label="Cancel">
+            <button type="button" onClick={() => setEditing(false)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent" aria-label={t("cancel")}>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -97,10 +98,10 @@ function Step({
           <p className="tabular text-xs text-muted-foreground">
             {value ? (
               <>
-                {fmtFull(value)} <span className="opacity-70">· {fmtRelative(value)}</span>
+                {fmt.full(value)} <span className="opacity-70">· {fmt.relative(value)}</span>
               </>
             ) : (
-              step.hint
+              t(`steps.${step}.hint`)
             )}
           </p>
         )}
@@ -113,7 +114,7 @@ export function VoyageTimeline({ vessel, editable }: { vessel: VesselView; edita
   return (
     <ol>
       {STEPS.map((step, i) => (
-        <Step key={step.key} vessel={vessel} step={step} editable={editable} isLast={i === STEPS.length - 1} />
+        <Step key={step} vessel={vessel} step={step} editable={editable} isLast={i === STEPS.length - 1} />
       ))}
     </ol>
   );

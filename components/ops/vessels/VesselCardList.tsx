@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { daysSince, isUnpaidAfterDeparture } from "@/lib/vessels/status";
-import { fmtDate } from "@/lib/vessels/format";
-import { DESTINATION_LABEL, TYPE_LABEL, type VesselView } from "@/lib/vessels/types";
+import { useVesselFormat, useVesselLabels } from "@/lib/vessels/i18n";
+import type { VesselView } from "@/lib/vessels/types";
 import { StageBadge, UnpaidBadge } from "../ui/StageBadge";
 import { ChecklistRow } from "./ChecklistRow";
 import { VesselTypeIcon } from "./VesselTypeIcon";
 
 /** Phone layout of the board: one card per vessel, checklist wraps */
 export function VesselCardList({ vessels, editable }: { vessels: VesselView[]; editable: boolean }) {
+  const t = useTranslations("vessels.table");
+  const labels = useVesselLabels();
+  const fmt = useVesselFormat();
   return (
     <ul className="space-y-3">
       {vessels.map((v) => {
@@ -33,22 +37,22 @@ export function VesselCardList({ vessels, editable }: { vessels: VesselView[]; e
                     <StageBadge stage={v.stage} compact />
                   </div>
                   <p className="truncate text-xs text-muted-foreground">
-                    {v.imo ? `IMO ${v.imo}` : "No IMO"} · {TYPE_LABEL[v.type]} → {DESTINATION_LABEL[v.destination]}
+                    {v.imo ? `IMO ${v.imo}` : t("noImo")} · {labels.type(v.type)} → {labels.destination(v.destination)}
                   </p>
                 </div>
               </div>
               <dl className="tabular mt-3 grid grid-cols-3 gap-2 rounded-xl bg-muted/60 p-2.5 text-xs">
                 <div>
                   <dt className="text-muted-foreground">ETA</dt>
-                  <dd className="font-semibold">{fmtDate(v.etaSulina)}</dd>
+                  <dd className="font-semibold">{fmt.date(v.etaSulina)}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Arrival</dt>
-                  <dd className="font-semibold">{fmtDate(v.arrivedAt)}</dd>
+                  <dt className="text-muted-foreground">{t("arrival")}</dt>
+                  <dd className="font-semibold">{fmt.date(v.arrivedAt)}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Departure</dt>
-                  <dd className="font-semibold">{fmtDate(v.departedAt)}</dd>
+                  <dt className="text-muted-foreground">{t("departure")}</dt>
+                  <dd className="font-semibold">{fmt.date(v.departedAt)}</dd>
                 </div>
               </dl>
             </Link>

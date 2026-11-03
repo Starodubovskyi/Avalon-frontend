@@ -1,0 +1,146 @@
+{
+  "eyebrow": "Cont",
+  "title": "Sold",
+  "subtitle": "Credite pentru activități suplimentare și boost-uri RANK. 1 credit ≈ 1 €; alimentările sunt confirmate de echipa Avalon.",
+  "loading": "Se încarcă soldul…",
+  "loadError": "Soldul nu a putut fi încărcat.",
+  "pending": "Cererea dumneavoastră de {amount, plural, one {# credit} few {# credite} other {# de credite}} din {date} așteaptă aprobarea. Puteți trimite alta după ce este procesată.",
+  "tabs": {
+    "label": "Secțiunile soldului",
+    "wallet": "Soldul meu",
+    "requests": "Cereri de alimentare",
+    "requestsShort": "Cereri",
+    "accounts": "Conturi",
+    "pendingLabel": "în așteptare"
+  },
+  "card": {
+    "brand": "Credite Avalon",
+    "available": "Sold disponibil",
+    "unit": "{count, plural, one {credit} few {credite} other {de credite}}",
+    "rate": "1 credit ≈ 1 €",
+    "holder": "Titular",
+    "pending": "+{amount} în așteptare",
+    "amount": "{count, plural, one {# credit} few {# credite} other {# de credite}}"
+  },
+  "actions": {
+    "topUp": "Cereți alimentare",
+    "boost": "Boost RANK"
+  },
+  "prices": {
+    "title": "Ce puteți cumpăra",
+    "hint": "Se debitează din acest sold",
+    "slot": "Domeniu de activitate suplimentar",
+    "slotHint": "Încă un slot de activitate pentru punct (unul e gratuit)",
+    "boost": "Boost RANK",
+    "boostHint": "+{points} RANK timp de {days} de zile pentru toate punctele dumneavoastră"
+  },
+  "boosts": {
+    "title": "Boost-uri active",
+    "empty": "Niciun boost activ. Un boost vă ridică RANK-ul pe hartă și în profiluri.",
+    "until": "până la {date}"
+  },
+  "history": {
+    "title": "Istoric",
+    "hint": "Ultimele 50 de operațiuni",
+    "after": "sold {balance}",
+    "emptyTitle": "Încă nu există operațiuni",
+    "emptyText": "Aici vor apărea alimentările și achizițiile."
+  },
+  "kinds": {
+    "top_up": "Alimentare",
+    "activity_slot": "Slot pentru domeniu de activitate",
+    "rank_boost": "Boost RANK",
+    "refund": "Rambursare",
+    "adjustment": "Corecție"
+  },
+  "topUp": {
+    "title": "Cerere de alimentare",
+    "text": "Spuneți-ne de câte credite aveți nevoie. Echipa Avalon confirmă plata și alimentează soldul.",
+    "presets": "Sume rapide",
+    "amount": "Suma, credite",
+    "amountHint": "1 credit ≈ 1 €",
+    "amountRange": "Introduceți un număr întreg între {min} și {max}.",
+    "note": "Notă pentru echipă",
+    "noteHint": "Opțional: factura sau referința plății",
+    "notePlaceholder": "ex. Transfer bancar, factura AV-2026-120",
+    "submit": "Trimiteți cererea",
+    "sent": "Cerere trimisă",
+    "sentText": "Creditele apar imediat ce echipa aprobă cererea."
+  },
+  "boost": {
+    "title": "Boost RANK",
+    "text": "+{points} RANK timp de {days} de zile. Punctele dumneavoastră urcă pe hartă și în Companii, iar profilul devine mai vizibil.",
+    "price": "Preț",
+    "gain": "Primiți",
+    "after": "Sold după boost: {balance, plural, one {# credit} few {# credite} other {# de credite}}",
+    "confirm": "Plătiți {price, plural, one {# credit} few {# credite} other {# de credite}}",
+    "topUpFirst": "Alimentați întâi",
+    "done": "RANK crescut: +{points} pentru {days} de zile"
+  },
+  "admin": {
+    "statusFilter": "Starea cererii",
+    "status": {
+      "pending": "În așteptare",
+      "approved": "Aprobate",
+      "declined": "Respinse"
+    },
+    "approve": "Aprobați",
+    "decline": "Respingeți",
+    "approved": "{name}: au fost adăugate {amount} credite",
+    "declined": "Cererea lui {name} a fost respinsă",
+    "empty": {
+      "pending": "Nicio cerere în așteptare",
+      "approved": "Încă nu există cereri aprobate",
+      "declined": "Nicio cerere respinsă"
+    },
+    "emptyText": "Clienții cer credite din pagina Sold."
+  },
+  "accounts": {
+    "search": "Căutați după nume sau email",
+    "manage": "Creditați / Corectați",
+    "emptyTitle": "Niciun cont găsit",
+    "emptyText": "Încercați alt nume sau email."
+  },
+  "credit": {
+    "current": "Sold curent: {balance, plural, one {# credit} few {# credite} other {# de credite}}",
+    "mode": "Operațiune",
+    "credit": "Creditați",
+    "adjust": "Corectați (debitați)",
+    "amount": "Suma, credite",
+    "creditHint": "Se adaugă la sold ca alimentare",
+    "adjustHint": "Se scade din sold ca o corecție",
+    "amountRange": "Introduceți un număr întreg între 1 și {max}.",
+    "note": "Notă",
+    "notePlaceholder": "Motiv, ex. plătit prin transfer bancar",
+    "submitCredit": "Creditați",
+    "submitAdjust": "Debitați",
+    "credited": "{name}: au fost adăugate {amount} credite",
+    "adjusted": "{name}: au fost scăzute {amount} credite",
+    "newBalance": "Sold nou: {balance}"
+  },
+  "common": {
+    "cancel": "Anulați"
+  },
+  "errors": {
+    "amount": {
+      "pendingExists": "Aveți deja o cerere care așteaptă aprobarea.",
+      "invalid": "Introduceți un număr întreg de credite."
+    },
+    "balance": {
+      "insufficient": "Nu sunt suficiente credite în sold."
+    },
+    "status": {
+      "alreadyHandled": "Această cerere a fost deja procesată."
+    },
+    "userId": {
+      "notFound": "Acest cont nu mai există."
+    },
+    "note": {
+      "tooLong": "Nota este prea lungă."
+    },
+    "forbidden": "Doar un administrator poate face asta.",
+    "notFound": "Nu a fost găsit — poate a fost șters.",
+    "offline": "Serverul nu răspunde — verificați conexiunea.",
+    "generic": "Ceva nu a mers. Încercați din nou."
+  }
+}

@@ -3,8 +3,9 @@
 import { useCallback } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { VesselsApi, type VesselScope } from "@/lib/api/vessels";
-import { extractAuthError } from "@/lib/api/auth";
+import { useErrorText } from "@/lib/api/errorText";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit } from "@/lib/auth/roles";
 import type { VesselInput, VesselView } from "./types";
@@ -70,6 +71,8 @@ function newest(cached: VesselView | undefined, incoming: VesselView): VesselVie
 /** Mutations keep every cached list and the detail entry in sync */
 export function useVesselMutations() {
   const { mutate } = useSWRConfig();
+  const t = useTranslations("vessels.toast");
+  const errorText = useErrorText();
 
   const putEverywhere = useCallback(
     async (vessel: VesselView) => {
@@ -99,21 +102,21 @@ export function useVesselMutations() {
         if (successText) toast.success(successText);
         return saved;
       } catch (e) {
-        toast.error(extractAuthError(e));
+        toast.error(errorText(e));
         throw e;
       }
     },
-    [putEverywhere],
+    [putEverywhere, errorText],
   );
 
   const create = useCallback(
     async (input: VesselInput) => {
       const saved = await VesselsApi.create(input);
       await putEverywhere(saved);
-      toast.success(`${saved.name} added`);
+      toast.success(t("added", { name: saved.name }));
       return saved;
     },
-    [putEverywhere],
+    [putEverywhere, t],
   );
 
   const remove = useCallback(
@@ -124,9 +127,9 @@ export function useVesselMutations() {
         (list?: VesselView[]) => list?.filter((v) => v.id !== vessel.id),
         { revalidate: true },
       );
-      toast.success(`${vessel.name} removed`);
+      toast.success(t("removed", { name: vessel.name }));
     },
-    [mutate],
+    [mutate, t],
   );
 
   return { update, create, remove };

@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 
 export default function SearchBar() {
+  const t = useTranslations("support.search");
   const [q, setQ] = useState("");
   const router = useRouter();
 
@@ -16,17 +18,19 @@ export default function SearchBar() {
         if (v) router.push(`/support?q=${encodeURIComponent(v)}`);
       }}
       className="group w-full relative"
-      aria-label="Search articles"
+      aria-label={t("label")}
     >
       <div className="relative flex items-center w-full">
         <Search
           size={20}
+          aria-hidden
           className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
         />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search for articles..."
+          placeholder={t("placeholder")}
+          aria-label={t("label")}
           className="
             w-full h-14 pl-12 pr-6 rounded-full
             bg-white text-gray-900 placeholder:text-gray-400

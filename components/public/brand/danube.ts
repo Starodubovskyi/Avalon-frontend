@@ -44,11 +44,12 @@ export const DANUBE_PORTS: DanubePort[] = [
   { id: "braila", name: "Brăila", x: 81, y: 221, dx: 20, dy: 7, anchor: "start" },
 ];
 
+/** Country names come from `common.country.<code>` */
 export const COUNTRY_LABELS = [
-  { name: "ROMANIA", x: 270, y: 368 },
-  { name: "UKRAINE", x: 650, y: 72 },
-  { name: "MOLDOVA", x: 300, y: 34 },
-];
+  { code: "RO", x: 270, y: 368 },
+  { code: "UA", x: 650, y: 72 },
+  { code: "MD", x: 300, y: 34 },
+] as const;
 
 /** Static class names for staggered pulses (Tailwind needs literal strings) */
 export const PULSE_DELAYS = [

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNow, type ChatMessageView } from "@/lib/network/hooks";
 import { sameUser } from "@/lib/network/format";
 import { ErrorBlock, LoadingBlock } from "../ui/primitives";
 import { focusRing } from "../network/bits";
+import { useTimeFormat } from "../network/useTimeFormat";
 import { MessageBubble } from "./MessageBubble";
 import { buildRows } from "./chatRows";
 
@@ -29,8 +31,10 @@ export function MessageList({
   onRetry: () => void;
   empty: ReactNode;
 }) {
+  const t = useTranslations("chat.messages");
   const now = useNow();
-  const rows = useMemo(() => buildRows(messages, now), [messages, now]);
+  const time = useTimeFormat();
+  const rows = useMemo(() => buildRows(messages, now, time), [messages, now, time]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickRef = useRef(true);
   const seenRef = useRef<string | null>(null);
@@ -80,7 +84,7 @@ export function MessageList({
   return (
     <div className="relative min-h-0 flex-1">
       <div ref={scrollRef} onScroll={onScroll} className="h-full overflow-y-auto overscroll-contain px-3 pb-4 pt-2 sm:px-6">
-        {loading && !messages.length ? <LoadingBlock label="Loading messages…" /> : null}
+        {loading && !messages.length ? <LoadingBlock label={t("loading")} /> : null}
         {error && !messages.length ? (
           <div className="py-6">
             <ErrorBlock error={error} onRetry={onRetry} />
@@ -88,7 +92,7 @@ export function MessageList({
         ) : null}
         {!loading && !error && !messages.length ? empty : null}
         {messages.length ? (
-          <ol role="log" aria-label="Messages" aria-relevant="additions" className="flex flex-col">
+          <ol role="log" aria-label={t("label")} aria-relevant="additions" className="flex flex-col">
             {rows.map((row) =>
               row.type === "day" ? (
                 <li key={row.key} className="sticky top-0 z-[1] flex justify-center py-3" aria-label={row.label}>
@@ -119,7 +123,7 @@ export function MessageList({
             focusRing,
           )}
         >
-          <ArrowDown className="h-3.5 w-3.5" aria-hidden /> New messages
+          <ArrowDown className="h-3.5 w-3.5" aria-hidden /> {t("newMessages")}
         </button>
       ) : null}
     </div>

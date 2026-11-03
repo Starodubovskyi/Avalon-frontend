@@ -1,0 +1,67 @@
+{
+  "loading": "Загружаем обзор…",
+  "hero": {
+    "eyebrow": "Avalon Shipping · Операции",
+    "greetingDay": "Добрый день, {name}",
+    "greeting": {
+      "morning": "Доброе утро, {name}",
+      "afternoon": "Добрый день, {name}",
+      "evening": "Добрый вечер, {name}",
+      "night": "Доброй ночи, {name}"
+    },
+    "summary": "В работе {active, plural, one {# судно} few {# судна} many {# судов} other {# судна}} · прибывают в течение 72 ч: {arriving}",
+    "unpaid": "отошли без оплаты: {count}",
+    "fleetBar": "Суда в работе по этапам: {count}",
+    "danubeTime": "Время на Дунае",
+    "ports": "Сулина · Тулча · Галац · Измаил · Рени"
+  },
+  "kpi": {
+    "within72": "В течение 72 ч: {count}",
+    "roadsHint": "Ждут лоцмана или причал",
+    "portHint": "У причала, идут грузовые работы",
+    "sailed30": "Отошли (30 дней)",
+    "sailedHint": "Отошли за последние 30 дней",
+    "unpaid": "Отошли без оплаты",
+    "pdaMissing": "PDA не отправлен: {count}"
+  },
+  "actions": {
+    "title": "Быстрые действия",
+    "addVessel": "Добавить судно",
+    "addVesselText": "Новый заход на доске",
+    "estimate": "Расчёт PDA",
+    "estimateText": "Стоимость захода",
+    "request": "Новая заявка",
+    "requestText": "Агентирование судна",
+    "map": "Открыть карту",
+    "mapText": "Флот и компании",
+    "balance": "Баланс",
+    "balanceText": "Кредиты и история"
+  },
+  "attention": {
+    "title": "Требует внимания",
+    "description": "{count, plural, one {# судно} few {# судна} many {# судов} other {# судна}} с открытыми пунктами",
+    "openBoard": "Открыть доску",
+    "progress": "{done}/{total}",
+    "emptyTitle": "Всё в порядке",
+    "emptyText": "У всех судов в работе чек-лист закрыт, и никто не отошёл без оплаты."
+  },
+  "arrivals": {
+    "title": "Прибывают в течение 72 ч",
+    "lineup": "Лайн-ап",
+    "emptyTitle": "Прибытий не ожидается",
+    "emptyText": "Здесь появятся суда, которые подойдут к рейду Сулины в ближайшие три дня."
+  },
+  "byPort": {
+    "title": "Суда в работе по портам",
+    "emptyTitle": "Нет судов в работе"
+  },
+  "inWork": {
+    "title": "Суда в работе",
+    "open": "Открыть доску",
+    "emptyTitle": "Нет судов в работе"
+  },
+  "activity": {
+    "title": "Последние изменения",
+    "fullLog": "Весь журнал"
+  }
+}

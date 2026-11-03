@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { ExternalLink, LocateFixed, Radio } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useVesselMutations } from "@/lib/vessels/hooks";
 import { marineTrafficUrl, resolvePosition } from "@/lib/vessels/geo";
 import { isPositionStale, isUnpaidAfterDeparture } from "@/lib/vessels/status";
-import { fmtFull, fmtRelative } from "@/lib/vessels/format";
+import { useVesselFormat } from "@/lib/vessels/i18n";
 import type { VesselView } from "@/lib/vessels/types";
 import { Field, TextInput } from "../ui/primitives";
 
@@ -26,6 +27,8 @@ function staticMapUrl(vessel: VesselView, [lng, lat]: [number, number], estimate
 }
 
 export function PositionPanel({ vessel, editable }: { vessel: VesselView; editable: boolean }) {
+  const t = useTranslations("vessels.position");
+  const fmt = useVesselFormat();
   const { update } = useVesselMutations();
   const pos = resolvePosition(vessel);
   const stale = !pos.estimated && isPositionStale(vessel);
@@ -38,12 +41,12 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
     const la = Number(lat.replace(",", "."));
     const ln = Number(lng.replace(",", "."));
     if (!Number.isFinite(la) || la < -90 || la > 90 || !Number.isFinite(ln) || ln < -180 || ln > 180) {
-      setError("Latitude −90…90, longitude −180…180, decimal degrees (e.g. 45.155, 29.79)");
+      setError(t("invalid"));
       return;
     }
     setError(null);
     try {
-      await update(vessel.id, { lat: la, lng: ln }, "Position saved");
+      await update(vessel.id, { lat: la, lng: ln }, t("saved"));
       setEditing(false);
     } catch {
       /* toast shown */
@@ -60,19 +63,19 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
           target="_blank"
           rel="noreferrer"
           className="group relative block overflow-hidden rounded-xl border"
-          title="Open in MarineTraffic"
+          title={t("openMarineTraffic")}
         >
           {/* external static image (Mapbox Static API); next/image would need a remote domain allowlist */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={preview}
-            alt={`Map around ${vessel.name}`}
+            alt={t("mapAlt", { name: vessel.name })}
             loading="lazy"
             className="aspect-[16/7] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
           />
           {pos.estimated ? (
             <span className="absolute left-2 top-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur">
-              ≈ estimated
+              ≈ {t("estimatedBadge")}
             </span>
           ) : null}
         </a>
@@ -84,9 +87,9 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
         <div className="min-w-0">
           {pos.estimated ? (
             <>
-              <p className="font-medium">≈ Estimated position</p>
+              <p className="font-medium">≈ {t("estimated")}</p>
               <p className="text-xs text-muted-foreground">
-                No AIS fix yet — shown at {vessel.stage === "in_port" || vessel.stage === "departed" ? "the destination port" : "Sulina roads"}.
+                {vessel.stage === "in_port" || vessel.stage === "departed" ? t("noFixPort") : t("noFixRoads")}
               </p>
             </>
           ) : (
@@ -95,11 +98,11 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
                 {pos.lngLat[1].toFixed(4)}°, {pos.lngLat[0].toFixed(4)}°
               </p>
               <p className="text-xs text-muted-foreground">
-                {vessel.positionSource === "ais" ? "AIS" : "Set manually"} · {fmtRelative(vessel.positionAt)}
-                {vessel.sog !== null ? ` · ${vessel.sog.toFixed(1)} kn` : ""}
+                {vessel.positionSource === "ais" ? "AIS" : t("manual")} · {fmt.relative(vessel.positionAt)}
+                {vessel.sog !== null ? ` · ${t("knots", { value: vessel.sog.toFixed(1) })}` : ""}
                 {vessel.cog !== null ? ` · ${Math.round(vessel.cog)}°` : ""}
               </p>
-              {stale ? <p className="mt-1 text-xs font-medium text-stage-expected">Position older than 6 h ({fmtFull(vessel.positionAt)})</p> : null}
+              {stale ? <p className="mt-1 text-xs font-medium text-stage-expected">{t("stale", { at: fmt.full(vessel.positionAt) })}</p> : null}
             </>
           )}
         </div>
@@ -112,7 +115,7 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
           rel="noreferrer"
           className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium hover:bg-accent"
         >
-          <ExternalLink className="h-3.5 w-3.5" /> Open in MarineTraffic
+          <ExternalLink className="h-3.5 w-3.5" /> {t("openMarineTraffic")}
         </a>
         {editable && !editing ? (
           <button
@@ -124,7 +127,7 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
             }}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium hover:bg-accent"
           >
-            <LocateFixed className="h-3.5 w-3.5" /> Set position
+            <LocateFixed className="h-3.5 w-3.5" /> {t("set")}
           </button>
         ) : null}
       </div>
@@ -132,15 +135,15 @@ export function PositionPanel({ vessel, editable }: { vessel: VesselView; editab
       {editing ? (
         <div className="space-y-2 rounded-lg border p-3">
           <div className="grid grid-cols-2 gap-2">
-            <Field label="Latitude"><TextInput value={lat} onChange={(e) => setLat(e.target.value)} inputMode="decimal" placeholder="45.155" /></Field>
-            <Field label="Longitude"><TextInput value={lng} onChange={(e) => setLng(e.target.value)} inputMode="decimal" placeholder="29.790" /></Field>
+            <Field label={t("latitude")}><TextInput value={lat} onChange={(e) => setLat(e.target.value)} inputMode="decimal" placeholder="45.155" /></Field>
+            <Field label={t("longitude")}><TextInput value={lng} onChange={(e) => setLng(e.target.value)} inputMode="decimal" placeholder="29.790" /></Field>
           </div>
           {error ? <p className="text-xs text-bad">{error}</p> : null}
           <div className="flex gap-2">
-            <button type="button" onClick={() => void save()} className="h-9 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground">Save position</button>
-            <button type="button" onClick={() => setEditing(false)} className="h-9 rounded-lg border px-3 text-xs">Cancel</button>
+            <button type="button" onClick={() => void save()} className="h-9 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground">{t("save")}</button>
+            <button type="button" onClick={() => setEditing(false)} className="h-9 rounded-lg border px-3 text-xs">{t("cancel")}</button>
           </div>
-          <p className="text-xs text-muted-foreground">Tip: copy coordinates from MarineTraffic. AIS will overwrite them when a fresh fix arrives.</p>
+          <p className="text-xs text-muted-foreground">{t("tip")}</p>
         </div>
       ) : null}
     </div>

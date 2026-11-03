@@ -1,0 +1,82 @@
+{
+  "pageTitle": "Chat",
+  "time": {
+    "today": "Azi",
+    "yesterday": "Ieri",
+    "justNow": "chiar acum"
+  },
+  "counter": {
+    "over": "{count, plural, one {Cu # caracter peste limită} few {Cu # caractere peste limită} other {Cu # de caractere peste limită}}"
+  },
+  "list": {
+    "title": "Conversații",
+    "unread": "{count, plural, one {# necitit} few {# necitite} other {# de necitite}}",
+    "caughtUp": "Totul este citit",
+    "subtitle": "Conversații directe și de grup",
+    "newGroup": "Grup nou",
+    "newChat": "Chat nou",
+    "searchPlaceholder": "Căutați conversații",
+    "loading": "Se încarcă conversațiile…",
+    "emptyTitle": "Nicio conversație încă",
+    "emptyText": "Scrieți unui coleg sau creați un grup pentru escala unei nave.",
+    "noMatch": "Nicio conversație pentru „{query}”.",
+    "groupCreated": "Grup creat — niciun mesaj încă",
+    "noMessages": "Niciun mesaj încă",
+    "fromMe": "Dvs.: {body}",
+    "unreadLabel": "necitite"
+  },
+  "view": {
+    "opening": "Se deschide conversația…",
+    "notFoundTitle": "Conversația nu a fost găsită",
+    "notFoundText": "Este posibil să fi fost ștearsă sau să nu faceți parte din ea.",
+    "back": "Înapoi la conversații",
+    "pickTitle": "Alegeți o conversație",
+    "pickText": "Alegeți un chat din stânga sau începeți unul nou cu un coleg.",
+    "conversations": "Conversații",
+    "conversation": "Conversație"
+  },
+  "pane": {
+    "back": "Înapoi la conversații",
+    "members": "{count, plural, one {# membru} few {# membri} other {# de membri}}",
+    "namesAndYou": "{names} și dvs.",
+    "emptyTitle": "Niciun mesaj încă",
+    "emptyGroup": "Salutați grupul — toți membrii vor vedea mesajul.",
+    "emptyDirect": "Începeți conversația cu {name}.",
+    "messageTo": "Mesaj către {name}"
+  },
+  "composer": {
+    "placeholder": "Scrieți un mesaj…",
+    "label": "Mesaj",
+    "send": "Trimiteți mesajul",
+    "sendTitle": "Trimiteți (Enter)",
+    "hint": "Enter pentru a trimite · Shift + Enter pentru rând nou"
+  },
+  "messages": {
+    "loading": "Se încarcă mesajele…",
+    "label": "Mesaje",
+    "newMessages": "Mesaje noi",
+    "you": "Dvs.",
+    "sending": "Se trimite…"
+  },
+  "dialog": {
+    "newGroup": "Grup nou",
+    "newChat": "Chat nou",
+    "groupDescription": "Dați un nume grupului și alegeți cel puțin două persoane.",
+    "directDescription": "Alegeți persoana căreia îi scrieți. Dacă aveți deja un chat cu ea, se deschide acela.",
+    "typeLabel": "Tipul conversației",
+    "direct": "Direct",
+    "group": "Grup",
+    "groupName": "Numele grupului",
+    "groupPlaceholder": "ex. MV Delta Star — escală la Sulina",
+    "selectedPeople": "Persoane selectate",
+    "remove": "Eliminați pe {name}",
+    "searchPlaceholder": "Căutați după nume sau email",
+    "searchLabel": "Căutați persoane",
+    "noMatch": "Nimeni nu corespunde căutării.",
+    "noOne": "Încă nu aveți cui să scrieți.",
+    "people": "Persoane",
+    "selectedCount": "{count, plural, =0 {Nimeni selectat · alegeți cel puțin 2} =1 {1 selectat · alegeți cel puțin 2} other {# selectați}}",
+    "cancel": "Anulați",
+    "create": "Creați grupul"
+  }
+}

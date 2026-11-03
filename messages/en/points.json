@@ -1,0 +1,224 @@
+{
+  "kinds": {
+    "head_office": {
+      "label": "Company head office",
+      "short": "Head office",
+      "plural": "Head offices",
+      "hint": "Headquarters of an owner, agency or trader"
+    },
+    "branch": {
+      "label": "Company branch",
+      "short": "Branch",
+      "plural": "Branches",
+      "hint": "Branch office, terminal, berth or yard"
+    },
+    "self_employed": {
+      "label": "Self-employed",
+      "short": "Self-employed",
+      "plural": "Self-employed",
+      "hint": "Independent surveyor, broker or pilot"
+    },
+    "for_sale": {
+      "label": "For sale",
+      "short": "For sale",
+      "plural": "For sale",
+      "hint": "Vessel, berth or business on sale"
+    },
+    "authority": {
+      "label": "Government agency / authority",
+      "short": "Authority",
+      "plural": "Authorities",
+      "hint": "Harbour master, customs, border police"
+    },
+    "private_person": {
+      "label": "Private person / employee",
+      "short": "Person",
+      "plural": "People",
+      "hint": "Captain, crew or team member"
+    }
+  },
+  "activities": {
+    "ship_agency": "Ship agency",
+    "ship_supply": "Ship supply, ship chandler",
+    "ship_operation": "Ship operation",
+    "ship_management": "Ship management",
+    "crewing": "Crew management / crewing",
+    "ship_repair": "Ship repair",
+    "shipowners": "Shipowners",
+    "bunker_supply": "Bunker and oil supply",
+    "ship_charterers": "Ship charterers",
+    "ship_brokers": "Ship brokers",
+    "cargo_brokers": "Cargo brokers",
+    "cargo_charterers": "Cargo charterers",
+    "cargo_shippers": "Cargo shippers",
+    "commodity_trading": "Commodity trading"
+  },
+  "visibility": {
+    "public": {
+      "label": "Public",
+      "hint": "Everyone signed in sees it on the map, in Companies and on its profile."
+    },
+    "team": {
+      "label": "Team only",
+      "hint": "Only the Avalon team and you see it."
+    }
+  },
+  "rank": {
+    "tooltip": "RANK of the person who added the point: points, logos, posts, comments, requests and boosts"
+  },
+  "logo": {
+    "title": "Logo or photo",
+    "hint": "Shown on the card, the profile and inside the map marker. PNG, JPEG, WebP or SVG.",
+    "addAria": "Add logo or photo",
+    "changeAria": "Change logo",
+    "preview": "Logo preview",
+    "change": "Change",
+    "upload": "Upload",
+    "remove": "Remove",
+    "errors": {
+      "unreadable": "This file is not an image we can read",
+      "notImage": "Choose an image: PNG, JPEG, WebP or SVG",
+      "tooBig": "The image is larger than 15 MB",
+      "noCanvas": "Your browser cannot resize images",
+      "tooDetailed": "The logo is too detailed to store — try a simpler image"
+    }
+  },
+  "actions": {
+    "group": "Point actions",
+    "chat": "Chat",
+    "share": "Share",
+    "favorite": "Favorite",
+    "saved": "Saved",
+    "call": "Call",
+    "email": "Email",
+    "shareText": "{title} — Avalon fleet map",
+    "linkCopied": "Link copied",
+    "copyLink": "Copy this link"
+  },
+  "activityPicker": {
+    "choose": "Choose Business Activity",
+    "title": "Business Activity",
+    "description": "{slots, plural, one {This point has # activity slot.} other {This point has # activity slots.}} One is free, more are unlocked from your balance.",
+    "search": "Search activities",
+    "lockedWithUnlock": "All slots are in use. Unlock another one, or remove an activity to switch.",
+    "lockedNew": "All slots are in use. Save the point first to unlock more, or remove an activity to switch.",
+    "premium": "Premium — with balance",
+    "remove": "Remove",
+    "noMatch": "No activity matches “{query}”.",
+    "done": "Done"
+  },
+  "slots": {
+    "unlockTitle": "Unlock another activity — {price, plural, one {# credit} other {# credits}}",
+    "balance": "Your balance: {balance, plural, one {# credit} other {# credits}}",
+    "balanceUnknown": "Balance unavailable",
+    "unlock": "Unlock",
+    "confirm": "Pay {price, plural, one {# credit} other {# credits}}",
+    "cancel": "Cancel",
+    "topUp": "Top up the balance",
+    "bought": "Slot unlocked — the point now has {count, plural, one {# activity slot} other {# activity slots}}",
+    "max": "This point already has the maximum of {max} activities."
+  },
+  "email": {
+    "verified": "Verified",
+    "verifiedHint": "Confirmed from a link sent to this address",
+    "notConfirmed": "Not confirmed yet",
+    "send": "Send confirmation",
+    "resendIn": "Resend in {seconds} s",
+    "markVerified": "Mark verified",
+    "changed": "Save the point to confirm the new address.",
+    "afterSave": "You can confirm the address after saving.",
+    "sent": "Confirmation link sent to {email}",
+    "demoConfirmed": "Demo: the address is confirmed right away — no real email is sent",
+    "marked": "Email marked as verified"
+  },
+  "form": {
+    "newTitle": "New point on the map",
+    "editTitle": "Edit point",
+    "subtitle": "Logo, type, Business Activity, visibility and contacts.",
+    "quota": "{remaining, plural, =0 {You have used all {limit} of your points.} one {You can add # more point (limit {limit}).} other {You can add # more points (limit {limit}).}}",
+    "geoposition": "Geoposition",
+    "address": "Address",
+    "addressAuto": "Address — filled from the map when available",
+    "title": "Title *",
+    "titlePlaceholder": {
+      "head_office": "e.g. Danube Grain Trading SRL",
+      "branch": "e.g. Izmail office · Berth 7",
+      "self_employed": "e.g. Viorel Stan, Sulina pilot",
+      "for_sale": "e.g. Tug “Sulina Star”",
+      "authority": "e.g. Sulina Harbour Master",
+      "private_person": "Full name"
+    },
+    "kind": "Point type",
+    "activity": "Business Activity",
+    "activityNewHint": "One activity is free. More can be unlocked for credits once the point is saved.",
+    "visibility": "Visibility",
+    "parent": "Parent company",
+    "parentHint": "The head office this branch belongs to",
+    "parentNone": "There is no head office you can choose yet",
+    "parentEmpty": "No parent company",
+    "description": "Description",
+    "descriptionPlaceholder": "What the company does: ports, fleet, services…",
+    "website": "Website",
+    "phone": "Phone / WhatsApp",
+    "email": "Email",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add to map",
+    "errors": {
+      "title": "Enter the title",
+      "email": "Invalid email",
+      "website": "Enter a website like https://example.com"
+    }
+  },
+  "toast": {
+    "added": "“{title}” added to the map",
+    "saved": "Saved",
+    "removed": "“{title}” removed",
+    "favoriteOn": "Added to favorites",
+    "favoriteOff": "Removed from favorites"
+  },
+  "errors": {
+    "activities": {
+      "premiumRequired": "Every activity needs a slot. Unlock another one for credits.",
+      "invalid": "Choose the Business Activity from the list."
+    },
+    "logo": {
+      "invalid": "The logo must be a PNG, JPEG or WebP image.",
+      "tooLong": "The logo is too large — choose a simpler image."
+    },
+    "points": {
+      "limitReached": "You have reached the limit of 5 points. Delete one to add another."
+    },
+    "balance": {
+      "insufficient": "Not enough credits on your balance."
+    },
+    "activitySlots": {
+      "max": "This point already has the maximum number of activities."
+    },
+    "email": {
+      "missing": "Add an email address and save the point first.",
+      "alreadyVerified": "This address is already confirmed.",
+      "tooSoon": "A confirmation was sent less than a minute ago — you can send another one when the timer runs out.",
+      "mailUnavailable": "Email is not configured on the server yet. The Avalon team can mark the address as verified.",
+      "stale": "The email changed meanwhile — reload the point and try again."
+    },
+    "website": {
+      "invalid": "Enter a website like https://example.com",
+      "tooLong": "The website address is too long."
+    },
+    "description": {
+      "tooLong": "The description is too long (2,000 characters max)."
+    },
+    "parentId": {
+      "invalid": "A branch can’t be its own parent company.",
+      "notFound": "That parent company is no longer available."
+    },
+    "visibility": {
+      "invalid": "Choose who can see the point."
+    },
+    "forbidden": "Only the owner or the Avalon team can change this point.",
+    "notFound": "This point no longer exists or isn’t visible to you.",
+    "offline": "Can’t reach the server — check your connection.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

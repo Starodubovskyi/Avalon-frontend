@@ -3,15 +3,18 @@ import { DemoHttpError, badRequest, type DemoHandler, type DemoRequest, type Dem
 import { flushDueReplies } from "./liveness";
 import { demoUserIdFromToken } from "./mode";
 import { chatRoutes } from "./handlers/chat";
+import { companyRoutes } from "./handlers/companies";
 import { documentRoutes } from "./handlers/documents";
 import { eventRoutes } from "./handlers/events";
 import { peopleRoutes } from "./handlers/people";
 import { pointRoutes } from "./handlers/points";
 import { portRoutes } from "./handlers/ports";
+import { profileRoutes } from "./handlers/profiles";
 import { requestRoutes } from "./handlers/requests";
 import { socialRoutes } from "./handlers/social";
 import { userRoutes } from "./handlers/users";
 import { vesselRoutes } from "./handlers/vessels";
+import { walletRoutes } from "./handlers/wallet";
 
 /** Method + path pattern → handler. More specific patterns are listed first where they overlap. */
 
@@ -46,6 +49,9 @@ const ROUTES: CompiledRoute[] = [
   ...socialRoutes,
   ...portRoutes,
   ...requestRoutes,
+  ...companyRoutes, // /companies/mine before /companies/:pointId
+  ...profileRoutes,
+  ...walletRoutes,
 ].map(compile);
 
 export interface RawDemoRequest {

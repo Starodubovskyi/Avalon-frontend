@@ -1,7 +1,11 @@
+"use client";
+
 import { CircleCheck, CircleX, TriangleAlert, type LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { PortStatus } from "@/lib/api/ports";
 import { cn } from "@/lib/utils";
 
+/** `label` is the English fallback; screens show usePortStatusLabel() */
 export const PORT_STATUS_META: Record<PortStatus, { label: string; icon: LucideIcon; chip: string; dot: string }> = {
   Open: { label: "Open", icon: CircleCheck, chip: "border-ok/25 bg-ok/10 text-ok", dot: "bg-ok" },
   Congested: {
@@ -13,7 +17,14 @@ export const PORT_STATUS_META: Record<PortStatus, { label: string; icon: LucideI
   Closed: { label: "Closed", icon: CircleX, chip: "border-bad/25 bg-bad/10 text-bad", dot: "bg-bad" },
 };
 
+/** Open / Congested / Closed in the interface language (ports.status.*) */
+export function usePortStatusLabel() {
+  const t = useTranslations("ports.status");
+  return (status: PortStatus) => t(status);
+}
+
 export function PortStatusBadge({ status, className }: { status: PortStatus; className?: string }) {
+  const statusLabel = usePortStatusLabel();
   const meta = PORT_STATUS_META[status];
   const Icon = meta.icon;
   return (
@@ -25,7 +36,7 @@ export function PortStatusBadge({ status, className }: { status: PortStatus; cla
       )}
     >
       <Icon className="h-3.5 w-3.5" aria-hidden />
-      {meta.label}
+      {statusLabel(status)}
     </span>
   );
 }

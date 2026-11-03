@@ -1,0 +1,149 @@
+{
+  "hero": {
+    "title": "Sfaturi și răspunsuri de la echipa Avalon Shipping",
+    "language": "Limba interfeței",
+    "brand": "Avalon Shipping"
+  },
+  "search": {
+    "placeholder": "Căutați articole...",
+    "label": "Căutați articole"
+  },
+  "articles": "{count, plural, one {# articol} few {# articole} other {# de articole}}",
+  "categories": {
+    "recent-updates": {
+      "title": "Actualizări recente",
+      "description": "Descoperiți cele mai noi funcții Avalon Shipping."
+    },
+    "previous-updates": {
+      "title": "Actualizări anterioare",
+      "description": "Revedeți actualizările anterioare ale Avalon Shipping."
+    },
+    "getting-started": {
+      "title": "Primii pași",
+      "description": "Sunteți nou în Avalon Shipping? Începeți aici și deveniți expert în scurt timp."
+    },
+    "using-avalon": {
+      "title": "Utilizarea Avalon Shipping",
+      "description": "Noțiunile de bază pentru lucrul zilnic în Avalon Shipping."
+    },
+    "mobile-apps": {
+      "title": "Aplicațiile noastre mobile",
+      "description": "Tot ce vă trebuie pentru a începe cu aplicațiile noastre mobile."
+    },
+    "apis": {
+      "title": "Utilizarea API-urilor",
+      "description": "Totul despre utilizarea API-urilor noastre și rezolvarea problemelor."
+    },
+    "data-quality": {
+      "title": "Calitatea datelor și metodologie",
+      "description": "Sursele noastre de date, validarea și acuratețea."
+    },
+    "ais-network": {
+      "title": "Rețeaua AIS pentru proprietarii de stații",
+      "description": "Ghiduri complete pentru proprietarii de stații AIS."
+    },
+    "faq-troubleshooting": {
+      "title": "Întrebări frecvente și depanare",
+      "description": "Răspunsuri la întrebări frecvente și soluții rapide."
+    }
+  },
+  "bot": {
+    "name": "Asistentul Avalon",
+    "online": "Online",
+    "open": "Deschideți asistentul",
+    "close": "Închideți asistentul",
+    "placeholder": "Întrebați orice…",
+    "send": "Trimiteți",
+    "you": "Dvs.",
+    "userInitial": "D",
+    "poweredBy": "Asistentul Avalon Shipping",
+    "welcome": "👋 Bună ziua! Sunt asistentul virtual Avalon Shipping. Cu ce vă pot ajuta astăzi?",
+    "fallback": "🤖 Ne pare rău, nu am înțeles întrebarea. Întrebați despre flotă, hartă, cereri de agenturare sau plăți.",
+    "buttons": {
+      "about": "Despre noi",
+      "offer": "Ce oferim",
+      "agency": "Cerere de agenturare",
+      "fleet": "Flotă",
+      "map": "Hartă live",
+      "notifications": "Notificări",
+      "reports": "Rapoarte",
+      "search": "Căutare",
+      "security": "Securitate",
+      "team": "Echipă",
+      "history": "Istoric",
+      "automation": "Automatizare",
+      "pricing": "Prețuri",
+      "payment": "Plată",
+      "support": "Suport",
+      "greeting": "Salut",
+      "bye": "La revedere"
+    },
+    "answers": {
+      "about": "🚢 Avalon Shipping este o agenție navală pe Dunăre. În portal urmăriți navele pe hartă, vedeți în ce porturi fac escală și ce marfă transportă și deschideți fișa detaliată a fiecărei nave.",
+      "offer": "📌 Planificați escale, țineți notițe, lucrați cu companiile partenere, gestionați operațiunile zilnice — și discutați cu echipa și partenerii în chatul și fluxul integrate.",
+      "agency": "⚓ Ca să numiți Avalon pentru o escală pe Dunăre, trimiteți o [cerere de agenturare](/request). Agentul răspunde direct în portal, iar statusul se schimbă pe măsură ce lucrăm.",
+      "fleet": "🛳️ Panoul navelor arată toată flota: adăugați nave, actualizați datele și vedeți statusul și lista de verificare a fiecărei escale.",
+      "map": "🗺️ Harta live arată navele în timp real — poziții curente, rute și porturi de escală.",
+      "notifications": "🔔 Contoarele din meniu arată ce necesită atenție: conversații necitite, cereri noi și nave plecate neplătite.",
+      "reports": "📈 Prezentarea generală rezumă sosirile, punctele deschise din lista de verificare și escalele neplătite, iar documentele sunt mereu la îndemână în biblioteca comună.",
+      "search": "🔎 Folosiți căutarea și filtrele ca să găsiți rapid nave, companii, mărfuri sau porturi.",
+      "security": "🛡️ Datele sunt stocate în siguranță, iar accesul depinde de rol: administratorii, angajații și clienții văd doar ce le trebuie.",
+      "team": "👥 Administratorii adaugă membri, atribuie roluri și permisiuni, iar fiecare modificare din jurnal poartă numele autorului.",
+      "history": "📜 Jurnalul modificărilor păstrează istoricul complet al actualizărilor navelor, al deplasărilor și al acțiunilor utilizatorilor.",
+      "automation": "🤖 Pașii de rutină se fac singuri: progresul listei de verificare și numărătoarea inversă până la ETA se actualizează automat.",
+      "pricing": "💸 Costurile portuare depind de navă și de escală. Obțineți o [estimare PDA](/estimate) instantanee, apoi trimiteți o cerere de agenturare pentru o ofertă fermă.",
+      "payment": "💳 Escalele se plătesc pe baza facturii agentului, iar serviciile portalului din soldul de credite — vedeți **Sold** în meniu.",
+      "support": "🛟 Vă pot ajuta cu cererile de agenturare și plățile. Cu ce aveți nevoie de ajutor?",
+      "greeting": "👋 Bună ziua! Cu ce vă pot ajuta?",
+      "bye": "👋 La revedere! O zi bună!"
+    }
+  },
+  "page": {
+    "eyebrow": "Ajutor",
+    "title": "Asistență",
+    "subtitle": "Întrebări despre o escală, un document sau contul dvs. — echipa Avalon răspunde în chat.",
+    "contact": {
+      "eyebrow": "Echipa Avalon",
+      "title": "Vorbiți cu un om",
+      "text": "Agenții din Sulina, Galați și Ismail citesc chatul în timpul operațiunilor. Pentru o escală nouă, trimiteți o cerere de agenturare — ajunge imediat la toată echipa.",
+      "chat": "Deschideți chatul",
+      "request": "Cerere de agenturare",
+      "assistant": "Răspunsuri rapide: asistentul din colțul din dreapta jos"
+    },
+    "guides": {
+      "title": "Cum funcționează",
+      "overview": {
+        "title": "Prezentare",
+        "text": "Nave pe etape, ce necesită atenție, sosiri în 72 de ore."
+      },
+      "vessels": {
+        "title": "Nave",
+        "text": "Panoul și lista de verificare a fiecărei nave: roșu până e gata, apoi verde."
+      },
+      "map": {
+        "title": "Harta flotei",
+        "text": "Nave și companii pe Dunăre; adăugați punctul companiei dvs."
+      },
+      "companies": {
+        "title": "Companii",
+        "text": "Profiluri cu domenii de activitate, RANK, echipă și filiale."
+      },
+      "request": {
+        "title": "Cerere de agenturare",
+        "text": "Trimiteți escala către Avalon și urmăriți răspunsul și statusul."
+      },
+      "estimate": {
+        "title": "Estimare PDA",
+        "text": "Cheltuieli portuare orientative pentru nava dvs. într-un minut."
+      },
+      "balance": {
+        "title": "Sold",
+        "text": "Credite pentru domenii de activitate suplimentare și boost RANK; alimentările sunt confirmate de echipă."
+      },
+      "portGuide": {
+        "title": "Ghid porturi",
+        "text": "Canalul Sulina și porturile fluviale: coduri, ora locală, note."
+      }
+    }
+  }
+}

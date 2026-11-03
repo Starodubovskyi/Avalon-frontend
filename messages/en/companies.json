@@ -1,0 +1,130 @@
+{
+  "eyebrow": "Network",
+  "title": "Companies & contacts",
+  "subtitle": "Companies, branches and people on the Avalon map. Open a profile to see the team, branches and contacts.",
+  "subtitleTeam": "Everything on the fleet map — public client companies and team-only entries. Open a profile to manage its team.",
+  "addOnMap": "Add on map",
+  "loading": "Loading companies…",
+  "filters": {
+    "kind": "Point type",
+    "all": "All",
+    "mine": "My companies",
+    "search": "Search name, address, email",
+    "activity": "Business Activity",
+    "allActivities": "All Business Activities",
+    "favorites": "Favorites"
+  },
+  "card": {
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites",
+    "noActivity": "No Business Activity",
+    "noContacts": "No contact details yet",
+    "people": "{count, plural, =0 {No team yet} one {# person} other {# people}}",
+    "onMap": "On map",
+    "profile": "Profile"
+  },
+  "empty": {
+    "mineTitle": "No companies yet",
+    "mineText": "Add your company to the map, or open a company profile and press “I work here”.",
+    "mineAction": "Add my company",
+    "favoritesTitle": "No favorites here",
+    "filteredTitle": "Nothing matches",
+    "filteredText": "Try another type or activity, or clear the search.",
+    "nothing": "Nothing to show.",
+    "noneTitle": "No companies yet",
+    "noneText": "Open the fleet map, press Add point, choose a type and click on the map.",
+    "clear": "Clear filters",
+    "addFirst": "Add the first one"
+  },
+  "profile": {
+    "pageTitle": "Company profile",
+    "breadcrumb": "Breadcrumb",
+    "edit": "Edit",
+    "rankHint": "RANK of the company owner: points, logos, posts, comments, requests and boosts",
+    "verifiedCompany": "Verified email",
+    "activities": "Business Activities",
+    "notFoundTitle": "Company not found",
+    "notFoundText": "It may have been removed, or it is visible only to its owner and the Avalon team.",
+    "back": "Back to companies",
+    "loadError": "Could not load the company profile."
+  },
+  "about": {
+    "title": "About",
+    "noDescription": "No description yet.",
+    "noDescriptionOwner": "Add a description so partners know what you do — press Edit.",
+    "website": "Website",
+    "phone": "Phone / WhatsApp",
+    "email": "Email",
+    "notVerified": "not verified",
+    "address": "Address",
+    "addedBy": "Added by",
+    "onMapSince": "On the map since"
+  },
+  "map": {
+    "open": "Open on the fleet map"
+  },
+  "relations": {
+    "title": "Company structure",
+    "parent": "Head office",
+    "branches": "{count, plural, one {# branch} other {# branches}}"
+  },
+  "team": {
+    "title": "Team",
+    "hint": "People who work here",
+    "manageHint": "Approve requests and set positions",
+    "requests": "{count, plural, one {# request to join} other {# requests to join}}",
+    "owner": "Owner",
+    "ownerRole": "Owner",
+    "pending": "Pending",
+    "noPosition": "Position not set",
+    "rankHint": "RANK: points, logos, posts, comments, requests and boosts",
+    "approve": "Approve",
+    "decline": "Decline",
+    "editPosition": "Edit the position of {name}",
+    "savePosition": "Save position",
+    "remove": "Remove {name} from the team",
+    "removeConfirm": "Remove {name} from the team?",
+    "emptyTitle": "No team yet",
+    "emptyText": "People who work here can press “I work here” on this page."
+  },
+  "membership": {
+    "owner": "You own this company",
+    "pending": "Request sent",
+    "cancel": "Cancel request",
+    "cancelConfirm": "Cancel your request to join?",
+    "leave": "Leave",
+    "leaveConfirm": "Leave “{title}”? You will no longer appear in its team.",
+    "join": "I work here",
+    "joinTitle": "Join {title}",
+    "joinText": "The owner or the Avalon team confirms your request. Then you appear in the team and the company shows on your personal page.",
+    "position": "Your position",
+    "positionHint": "Optional — it can be changed later",
+    "positionPlaceholder": "e.g. Chartering manager",
+    "close": "Cancel",
+    "send": "Send request"
+  },
+  "toast": {
+    "joinSent": "Request sent — the owner will confirm it",
+    "left": "You left the company",
+    "approved": "Approved — they are now in the team",
+    "positionSaved": "Position saved",
+    "declined": "Request declined",
+    "removed": "Removed from the team"
+  },
+  "errors": {
+    "membership": {
+      "exists": "You have already asked to join this company.",
+      "owner": "You own this company — you are already in its team."
+    },
+    "position": {
+      "tooLong": "The position is too long (120 characters max)."
+    },
+    "status": {
+      "invalid": "This change is not possible."
+    },
+    "forbidden": "Only the owner or the Avalon team can do that.",
+    "notFound": "Not found — it may have been removed.",
+    "offline": "Can’t reach the server — check your connection.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

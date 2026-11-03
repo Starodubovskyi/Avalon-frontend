@@ -1,0 +1,21 @@
+{
+  "eyebrow": "Workspace",
+  "title": "Activity log",
+  "subtitle": "Every change to a vessel, signed with the employee's name.",
+  "filterLabel": "Filter by employee",
+  "allEmployees": "All employees",
+  "summary": "{changes, plural, one {# change} other {# changes}} across {days, plural, one {# day} other {# days}}",
+  "byAuthor": "by {name}",
+  "employees": "{count, plural, one {# employee} other {# employees}}",
+  "loading": "Loading activity…",
+  "emptyAuthorTitle": "No changes by this employee",
+  "emptyTitle": "No changes yet",
+  "emptyAuthorText": "Pick another employee or load older changes.",
+  "emptyText": "Edits to vessels will appear here, newest first.",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "changes": "{count, plural, one {# change} other {# changes}}",
+  "changesBy": "Changes by {names}",
+  "loadOlder": "Load older changes",
+  "beginning": "You have reached the beginning of the log."
+}

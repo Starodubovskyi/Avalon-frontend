@@ -1,0 +1,41 @@
+{
+  "metaTitle": "Confirm email · Avalon Shipping",
+  "loading": "Confirming your email…",
+  "done": {
+    "title": "Email confirmed",
+    "text": "Thank you — the address now carries a verified badge on the map and in the company profile.",
+    "company": "Company",
+    "email": "Email",
+    "open": "Open the company profile"
+  },
+  "errors": {
+    "missing": {
+      "title": "The link is incomplete",
+      "text": "Open the link from the email again, or copy it into the browser in full."
+    },
+    "invalid": {
+      "title": "This link is not valid",
+      "text": "It may be mistyped or replaced by a newer one. Ask the company owner to send a new confirmation."
+    },
+    "expired": {
+      "title": "The link has expired",
+      "text": "Confirmation links work for 24 hours. Open the point on the map and send a new confirmation."
+    },
+    "stale": {
+      "title": "The email has changed",
+      "text": "This link was sent to an address the point no longer uses. Confirm the current address with a new link."
+    },
+    "offline": {
+      "title": "Can’t reach Avalon",
+      "text": "Check your connection and try again."
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "text": "We could not confirm the email right now. Please try again."
+    }
+  },
+  "retry": "Try again",
+  "openMap": "Open the fleet map",
+  "home": "Go to the Avalon home page",
+  "footer": "Avalon Shipping · ship agency on the Lower Danube"
+}

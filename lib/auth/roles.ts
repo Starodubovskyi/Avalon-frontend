@@ -12,7 +12,7 @@ export type RoleId = (typeof ROLE)[keyof typeof ROLE];
 export const ROLE_LABEL: Record<number, string> = {
   [ROLE.admin]: "Admin",
   [ROLE.staff]: "Staff",
-  [ROLE.viewer]: "Viewer",
+  [ROLE.viewer]: "Client",
 };
 
 export function roleId(user: AuthUser | null | undefined): number | null {
@@ -29,10 +29,10 @@ export function canEdit(user: AuthUser | null | undefined): boolean {
   return id === ROLE.admin || id === ROLE.staff;
 }
 
-export function displayName(user: AuthUser | null | undefined): string {
+export function displayName(user: AuthUser | null | undefined, fallback = "User"): string {
   if (!user) return "";
   const full = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
-  return full || user.email || "User";
+  return full || user.email || fallback;
 }
 
 export function initials(user: AuthUser | null | undefined): string {

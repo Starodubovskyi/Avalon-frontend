@@ -1,19 +1,13 @@
 import CategoryCard from "./CategoryCard";
 
-type Category = {
+export type SupportCategory = {
+  /** key under support.categories in the messages */
   id: string;
-  title: string;
-  description: string;
   authors: string[];
-  authorsCount: number;
   articlesCount: number;
 };
 
-export default function CategoriesGrid({
-  categories,
-}: {
-  categories: Category[];
-}) {
+export default function CategoriesGrid({ categories }: { categories: SupportCategory[] }) {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {categories.map((c) => (

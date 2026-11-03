@@ -1,0 +1,161 @@
+{
+  "pageTitleRequest": "Cerere de agenturare",
+  "pageTitleInbox": "Cereri de agenturare",
+  "eyebrow": "Clienți",
+  "status": {
+    "new": "Nouă",
+    "quoted": "Ofertată",
+    "accepted": "Acceptată",
+    "declined": "Refuzată"
+  },
+  "statusHint": {
+    "new": "Primită — un agent vă răspunde în curând",
+    "quoted": "Agentul a trimis condițiile sau un PDA",
+    "accepted": "Pe panoul Avalon — ne ocupăm de escală",
+    "declined": "Nepreluată de data aceasta — vedeți nota agentului"
+  },
+  "vesselType": {
+    "general_cargo": "Mărfuri generale",
+    "tanker": "Tanc petrolier",
+    "livestock": "Transport animale"
+  },
+  "condition": {
+    "ballast": "în balast",
+    "loaded": "încărcată"
+  },
+  "estimate": {
+    "facts": "GT {gt, number}, LOA {loa, number} m, {days, plural, one {# zi} few {# zile} other {# de zile}} la dană, {condition}",
+    "request": "Vă rog să trimiteți un PDA ferm: {facts}.",
+    "total": "Estimare online: {total}."
+  },
+  "view": {
+    "title": "Cerere de agenturare",
+    "subtitle": "Numiți Avalon pentru următoarea escală pe Dunăre. Răspunsul agentului și fiecare schimbare de status apar la Cererile dvs.",
+    "allRequests": "Toate cererile",
+    "pdaEstimate": "Estimare PDA",
+    "prefilled": "Completat din estimarea PDA — adăugați numele navei și trimiteți.",
+    "nextTitle": "Ce urmează",
+    "steps": {
+      "review": {
+        "title": "Analizăm",
+        "text": "Un agent Avalon verifică nava, ETA și disponibilitatea danei."
+      },
+      "terms": {
+        "title": "Primiți condițiile",
+        "text": "Statusul devine Ofertată, iar nota agentului apare mai jos."
+      },
+      "board": {
+        "title": "Pe panou",
+        "text": "După acceptare, nava apare pe panoul live, unde o puteți urmări."
+      }
+    }
+  },
+  "sent": {
+    "title": "Cerere trimisă",
+    "text": "{vessel} → {port}. Agentul vă răspunde aici — statusul se schimbă pe măsură ce lucrăm.",
+    "seeIt": "Vedeți-o în cererile dvs.",
+    "another": "Trimiteți o altă cerere"
+  },
+  "form": {
+    "companyGroup": "Compania dvs.",
+    "vesselGroup": "Navă și escală",
+    "company": "Companie *",
+    "contactName": "Persoană de contact *",
+    "email": "Email *",
+    "phone": "Telefon / WhatsApp",
+    "vesselName": "Numele navei *",
+    "imoHint": "7 cifre",
+    "vesselType": "Tipul navei *",
+    "port": "Port de escală *",
+    "eta": "ETA Sulina",
+    "etaHint": "Ora dvs. locală",
+    "cargo": "Marfă",
+    "cargoPlaceholder": "ex. 4.500 t grâu",
+    "notes": "Note pentru agent",
+    "notesPlaceholder": "Laycan, navlositor, cerințe speciale, nevoi de aprovizionare…",
+    "requiredNote": "* Obligatoriu. Doar personalul Avalon vă vede cererea.",
+    "sending": "Se trimite…",
+    "send": "Trimiteți cererea"
+  },
+  "errors": {
+    "required": "Obligatoriu",
+    "email": "Introduceți un email valid — fără ?, &, %, # sau spații",
+    "imo": "IMO are exact 7 cifre",
+    "imoExists": "Acest IMO este deja pe panou",
+    "imoExistsOpen": "Acest IMO este deja pe panou — deschideți nava existentă",
+    "tooLong": "Prea lung — scurtați textul",
+    "maxChars": "{max, plural, one {Maximum # caracter} few {Maximum # caractere} other {Maximum # de caractere}}",
+    "dateTime": "Alegeți o dată și o oră valide",
+    "notFound": "Negăsit — este posibil să fi fost șters",
+    "invalid": "Verificați această valoare",
+    "attention": "Unele câmpuri necesită atenție",
+    "offline": "Serverul nu răspunde — verificați conexiunea",
+    "sessionExpired": "Sesiunea a expirat — autentificați-vă din nou",
+    "forbidden": "Nu aveți permisiunea pentru această acțiune",
+    "gone": "Negăsit — a fost șters sau nu mai aveți acces",
+    "boardLink": "{vessel} este pe panou, dar cererea nu a fost actualizată: {reason}",
+    "generic": "Ceva nu a mers — încercați din nou"
+  },
+  "mine": {
+    "title": "Cererile dvs.",
+    "subtitle": "Statusul și răspunsurile agentului, cele mai noi primele.",
+    "loading": "Se încarcă cererile dvs.…",
+    "emptyTitle": "Nicio cerere încă",
+    "emptyText": "Cererile trimise apar aici împreună cu răspunsul agentului.",
+    "sent": "Trimisă",
+    "follow": "Urmăriți {vessel} pe panou"
+  },
+  "summary": {
+    "noImo": "Fără IMO",
+    "eta": "ETA Sulina",
+    "cargo": "Marfă"
+  },
+  "agentNote": "Nota agentului",
+  "card": {
+    "received": "Primită",
+    "sentBy": "Trimisă de {name} · {date}",
+    "system": "Sistem",
+    "mailSubject": "Cerere de agenturare — {vessel}"
+  },
+  "actions": {
+    "status": "Status",
+    "statusOf": "Statusul {vessel}",
+    "statusToast": "{vessel}: {status}",
+    "noteLabel": "Notă pentru client",
+    "notePlaceholder": "Condiții, total PDA, fereastra la dană… Clientul vede această notă.",
+    "noteSaved": "Notă salvată — clientul o poate vedea",
+    "saveNote": "Salvați nota",
+    "openVessel": "Deschideți nava",
+    "addToBoard": "Pe panou",
+    "linkExisting": "Legați nava",
+    "retryLink": "Reîncercați",
+    "declinedTitle": "Cererile refuzate nu pot fi adăugate — schimbați mai întâi statusul",
+    "onBoard": "Pe panou — clientul poate urmări nava.",
+    "duplicate": "Acest IMO este deja pe panou — <link>deschideți {vessel}</link> sau legați cererea de ea.",
+    "orphan": "{vessel} a fost adăugată pe panou, dar legarea cererii a eșuat. Reîncercarea o leagă fără duplicat.",
+    "duplicateUnknown": "Acest IMO este deja pe panou — deschideți nava existentă din panoul Nave.",
+    "addHint": "„Pe panou” creează nava din această cerere și o marchează ca acceptată.",
+    "acceptedToast": "Cerere acceptată — {vessel} este pe panou"
+  },
+  "inbox": {
+    "title": "Cereri de agenturare",
+    "subtitle": "Răspundeți clienților, trimiteți condițiile și puneți escalele acceptate pe panou dintr-un clic.",
+    "newRequest": "Cerere nouă",
+    "filterLabel": "Filtrați după status",
+    "tabs": {
+      "new": "Noi",
+      "quoted": "Ofertate",
+      "accepted": "Acceptate",
+      "declined": "Refuzate",
+      "all": "Toate"
+    },
+    "searchPlaceholder": "Navă, IMO, companie…",
+    "searchLabel": "Căutați cereri",
+    "loading": "Se încarcă cererile…",
+    "emptyTab": "Nimic în această filă",
+    "emptyNone": "Nicio cerere încă",
+    "noMatch": "Nicio cerere nu corespunde căutării.",
+    "tryTab": "Încercați altă filă de status.",
+    "landHere": "Aici ajung cererile clienților din formularul Cerere de agenturare."
+  }
+}

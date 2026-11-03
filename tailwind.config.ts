@@ -21,13 +21,20 @@ const config = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
+        border: {
+          DEFAULT: "hsl(var(--border))",
+          /* dividers that must read on a muted surface, hovered outlines */
+          strong: "hsl(var(--border-strong))",
+        },
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        /* a step above the page: panel headers, insets, table heads */
+        surface: "hsl(var(--surface))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          strong: "hsl(var(--primary-strong))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -81,6 +88,14 @@ const config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      letterSpacing: {
+        /* display headings in Manrope: tight at large sizes, open for small caps eyebrows */
+        tightest: "-0.035em",
+        eyebrow: "0.18em",
+      },
+      transitionTimingFunction: {
+        "out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
       },
       keyframes: {
         "accordion-down": {

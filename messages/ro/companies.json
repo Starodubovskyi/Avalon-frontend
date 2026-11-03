@@ -1,0 +1,130 @@
+{
+  "eyebrow": "Rețea",
+  "title": "Companii și contacte",
+  "subtitle": "Companii, filiale și persoane de pe harta Avalon. Deschideți un profil pentru echipă, filiale și contacte.",
+  "subtitleTeam": "Tot ce este pe harta flotei — companii publice ale clienților și înregistrări doar pentru echipă. Din profil gestionați echipa.",
+  "addOnMap": "Adăugați pe hartă",
+  "loading": "Se încarcă companiile…",
+  "filters": {
+    "kind": "Tipul punctului",
+    "all": "Toate",
+    "mine": "Companiile mele",
+    "search": "Căutați după nume, adresă, email",
+    "activity": "Domeniu de activitate",
+    "allActivities": "Toate domeniile de activitate",
+    "favorites": "Favorite"
+  },
+  "card": {
+    "favorite": "Adăugați la favorite",
+    "unfavorite": "Eliminați din favorite",
+    "noActivity": "Fără domeniu de activitate",
+    "noContacts": "Încă nu există date de contact",
+    "people": "{count, plural, =0 {Încă fără echipă} one {# persoană} few {# persoane} other {# de persoane}}",
+    "onMap": "Pe hartă",
+    "profile": "Profil"
+  },
+  "empty": {
+    "mineTitle": "Încă nu aveți companii",
+    "mineText": "Adăugați compania dumneavoastră pe hartă sau deschideți profilul unei companii și apăsați „Lucrez aici”.",
+    "mineAction": "Adăugați compania mea",
+    "favoritesTitle": "Nicio companie favorită",
+    "filteredTitle": "Niciun rezultat",
+    "filteredText": "Încercați alt tip sau altă activitate ori ștergeți căutarea.",
+    "nothing": "Nimic de afișat.",
+    "noneTitle": "Încă nu există companii",
+    "noneText": "Deschideți harta flotei, apăsați „Adăugați un punct”, alegeți tipul și faceți clic pe hartă.",
+    "clear": "Resetați filtrele",
+    "addFirst": "Adăugați prima"
+  },
+  "profile": {
+    "pageTitle": "Profilul companiei",
+    "breadcrumb": "Navigare",
+    "edit": "Editați",
+    "rankHint": "RANK-ul proprietarului: puncte, logo-uri, postări, comentarii, cereri și boost-uri",
+    "verifiedCompany": "Email verificat",
+    "activities": "Domenii de activitate",
+    "notFoundTitle": "Compania nu a fost găsită",
+    "notFoundText": "Poate a fost ștearsă sau este vizibilă doar proprietarului și echipei Avalon.",
+    "back": "Înapoi la companii",
+    "loadError": "Profilul companiei nu a putut fi încărcat."
+  },
+  "about": {
+    "title": "Despre",
+    "noDescription": "Încă nu există o descriere.",
+    "noDescriptionOwner": "Adăugați o descriere ca partenerii să știe ce faceți — apăsați „Editați”.",
+    "website": "Site web",
+    "phone": "Telefon / WhatsApp",
+    "email": "Email",
+    "notVerified": "neverificat",
+    "address": "Adresă",
+    "addedBy": "Adăugat de",
+    "onMapSince": "Pe hartă din"
+  },
+  "map": {
+    "open": "Deschideți pe harta flotei"
+  },
+  "relations": {
+    "title": "Structura companiei",
+    "parent": "Sediu central",
+    "branches": "{count, plural, one {# filială} few {# filiale} other {# de filiale}}"
+  },
+  "team": {
+    "title": "Echipa",
+    "hint": "Persoanele care lucrează aici",
+    "manageHint": "Aprobați cererile și setați funcțiile",
+    "requests": "{count, plural, one {# cerere de aderare} few {# cereri de aderare} other {# de cereri de aderare}}",
+    "owner": "Proprietar",
+    "ownerRole": "Proprietar",
+    "pending": "În așteptare",
+    "noPosition": "Funcție nespecificată",
+    "rankHint": "RANK: puncte, logo-uri, postări, comentarii, cereri și boost-uri",
+    "approve": "Aprobați",
+    "decline": "Respingeți",
+    "editPosition": "Editați funcția: {name}",
+    "savePosition": "Salvați funcția",
+    "remove": "Eliminați pe {name} din echipă",
+    "removeConfirm": "Eliminați pe {name} din echipă?",
+    "emptyTitle": "Încă fără echipă",
+    "emptyText": "Angajații pot apăsa „Lucrez aici” pe această pagină."
+  },
+  "membership": {
+    "owner": "Sunteți proprietarul",
+    "pending": "Cerere trimisă",
+    "cancel": "Retrageți cererea",
+    "cancelConfirm": "Retrageți cererea de aderare?",
+    "leave": "Părăsiți",
+    "leaveConfirm": "Părăsiți „{title}”? Nu veți mai apărea în echipă.",
+    "join": "Lucrez aici",
+    "joinTitle": "Alăturați-vă: {title}",
+    "joinText": "Proprietarul sau echipa Avalon confirmă cererea. Apoi apăreți în echipă, iar compania apare pe pagina dumneavoastră.",
+    "position": "Funcția dumneavoastră",
+    "positionHint": "Opțional — poate fi schimbată ulterior",
+    "positionPlaceholder": "ex. Manager navlosire",
+    "close": "Anulați",
+    "send": "Trimiteți cererea"
+  },
+  "toast": {
+    "joinSent": "Cerere trimisă — proprietarul o va confirma",
+    "left": "Ați părăsit compania",
+    "approved": "Aprobat — persoana face acum parte din echipă",
+    "positionSaved": "Funcția a fost salvată",
+    "declined": "Cerere respinsă",
+    "removed": "Eliminat din echipă"
+  },
+  "errors": {
+    "membership": {
+      "exists": "Ați trimis deja o cerere acestei companii.",
+      "owner": "Sunteți proprietarul — faceți deja parte din echipă."
+    },
+    "position": {
+      "tooLong": "Funcția este prea lungă (maximum 120 de caractere)."
+    },
+    "status": {
+      "invalid": "Această modificare nu este posibilă."
+    },
+    "forbidden": "Doar proprietarul sau echipa Avalon pot face asta.",
+    "notFound": "Nu a fost găsit — poate a fost șters.",
+    "offline": "Serverul nu răspunde — verificați conexiunea.",
+    "generic": "Ceva nu a mers. Încercați din nou."
+  }
+}

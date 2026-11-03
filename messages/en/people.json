@@ -1,0 +1,51 @@
+{
+  "eyebrow": "Network",
+  "title": "People",
+  "subtitle": "The Avalon team and partners. Follow people to see their posts in your feed, or message them directly.",
+  "filterLabel": "Filter people",
+  "filters": {
+    "all": {
+      "label": "All",
+      "emptyTitle": "No people yet",
+      "emptyText": "Colleagues and partners appear here once they have an account."
+    },
+    "friends": {
+      "label": "Friends",
+      "emptyTitle": "No friends yet",
+      "emptyText": "Friends are people you follow who follow you back."
+    },
+    "following": {
+      "label": "Following",
+      "emptyTitle": "You don't follow anyone yet",
+      "emptyText": "Follow people to see their posts in your Following feed."
+    },
+    "followers": {
+      "label": "Followers",
+      "emptyTitle": "No followers yet",
+      "emptyText": "When someone follows you, they show up here."
+    }
+  },
+  "searchPlaceholder": "Search name or email",
+  "searchLabel": "Search people",
+  "loading": "Loading people…",
+  "noMatchTitle": "Nobody matches that search",
+  "noMatchText": "Try a different name or email.",
+  "count": "{count, plural, one {# person} other {# people}}",
+  "relation": {
+    "friends": "Friends",
+    "following": "Following",
+    "followsYou": "Follows you"
+  },
+  "card": {
+    "followers": "Followers",
+    "following": "Following",
+    "posts": "Posts",
+    "follow": "Follow",
+    "followBack": "Follow back",
+    "unfollow": "Unfollow",
+    "followAria": "Follow {name}",
+    "unfollowAria": "Unfollow {name}",
+    "message": "Message",
+    "messageAria": "Message {name}"
+  }
+}

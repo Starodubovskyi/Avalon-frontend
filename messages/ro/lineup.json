@@ -1,0 +1,30 @@
+{
+  "shellTitle": "Line-up",
+  "eyebrow": "Operațiuni",
+  "title": "Line-up",
+  "subtitle": "Navele aflate la rând pe canalul Sulina pentru fiecare port dunărean, din panoul navelor în timp real.",
+  "col": {
+    "vessel": "Navă",
+    "condition": "Încărcare",
+    "status": "Stare",
+    "etaSulina": "ETA Sulina",
+    "arrived": "Sosită",
+    "inPort": "În port",
+    "waiting": "Așteptare"
+  },
+  "days": "{days} z",
+  "portSummary": "{inPort} în port · {roads} în rada Sulina · {expected} așteptate",
+  "kpi": {
+    "inLineup": "În line-up",
+    "ports": "{count, plural, one {# port} few {# porturi} other {# de porturi}}",
+    "atRoads": "În rada Sulina",
+    "avgWait": "Așteptare medie în radă",
+    "avgWaitHint": "zile de la sosire",
+    "loadedBallast": "Încărcate / balast"
+  },
+  "portTabsAria": "Port",
+  "allPorts": "Toate porturile",
+  "loading": "Se încarcă line-up-ul…",
+  "emptyTitle": "Nicio navă în line-up",
+  "emptyText": "Navele apar aici imediat ce sunt adăugate pe panou cu o destinație."
+}

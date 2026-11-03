@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useVesselMutations } from "@/lib/vessels/hooks";
-import { CHECKLIST } from "@/lib/vessels/status";
+import { useChecklistLabels } from "@/lib/vessels/i18n";
 import type { ChecklistKey, T1Status, VesselInput, VesselView } from "@/lib/vessels/types";
 
 const T1_CYCLE: Record<string, T1Status> = {
@@ -28,6 +28,7 @@ export function nextChecklistInput(v: VesselView, key: ChecklistKey): VesselInpu
 /** One toggle in flight per vessel+item; failures surface as a toast from the mutation hook */
 export function useChecklistToggle() {
   const { update } = useVesselMutations();
+  const items = useChecklistLabels();
   const [busy, setBusy] = useState<Record<string, boolean>>({});
 
   const toggle = useCallback(
@@ -51,5 +52,5 @@ export function useChecklistToggle() {
 
   const isBusy = useCallback((v: VesselView, key: ChecklistKey) => !!busy[`${v.id}:${key}`], [busy]);
 
-  return { toggle, isBusy, items: CHECKLIST };
+  return { toggle, isBusy, items };
 }

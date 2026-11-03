@@ -1,0 +1,224 @@
+{
+  "kinds": {
+    "head_office": {
+      "label": "Sediul central al companiei",
+      "short": "Sediu central",
+      "plural": "Sedii centrale",
+      "hint": "Sediul unui armator, al unei agenții sau al unui trader"
+    },
+    "branch": {
+      "label": "Filială a companiei",
+      "short": "Filială",
+      "plural": "Filiale",
+      "hint": "Filială, terminal, dană sau platformă"
+    },
+    "self_employed": {
+      "label": "Persoană fizică autorizată",
+      "short": "PFA",
+      "plural": "PFA",
+      "hint": "Inspector, broker sau pilot independent"
+    },
+    "for_sale": {
+      "label": "De vânzare",
+      "short": "De vânzare",
+      "plural": "De vânzare",
+      "hint": "Navă, dană sau afacere de vânzare"
+    },
+    "authority": {
+      "label": "Instituție publică / autoritate",
+      "short": "Autoritate",
+      "plural": "Autorități",
+      "hint": "Căpitănia portului, vama, poliția de frontieră"
+    },
+    "private_person": {
+      "label": "Persoană fizică / angajat",
+      "short": "Persoană",
+      "plural": "Persoane",
+      "hint": "Comandant, echipaj sau membru al echipei"
+    }
+  },
+  "activities": {
+    "ship_agency": "Agenturare navală",
+    "ship_supply": "Aprovizionare nave, ship chandler",
+    "ship_operation": "Operare nave",
+    "ship_management": "Management naval",
+    "crewing": "Crewing / management echipaje",
+    "ship_repair": "Reparații navale",
+    "shipowners": "Armatori",
+    "bunker_supply": "Buncheraj și furnizare de combustibil",
+    "ship_charterers": "Navlositori de nave",
+    "ship_brokers": "Brokeri de nave",
+    "cargo_brokers": "Brokeri de mărfuri",
+    "cargo_charterers": "Navlositori de mărfuri",
+    "cargo_shippers": "Expeditori de mărfuri",
+    "commodity_trading": "Comerț cu mărfuri"
+  },
+  "visibility": {
+    "public": {
+      "label": "Publică",
+      "hint": "O văd toți utilizatorii conectați: pe hartă, în Companii și în profil."
+    },
+    "team": {
+      "label": "Doar echipa",
+      "hint": "O vedeți doar dumneavoastră și echipa Avalon."
+    }
+  },
+  "rank": {
+    "tooltip": "RANK-ul autorului punctului: puncte, logo-uri, postări, comentarii, cereri și boost-uri"
+  },
+  "logo": {
+    "title": "Logo sau fotografie",
+    "hint": "Apare pe card, în profil și în marcajul de pe hartă. PNG, JPEG, WebP sau SVG.",
+    "addAria": "Adăugați un logo sau o fotografie",
+    "changeAria": "Schimbați logo-ul",
+    "preview": "Previzualizare logo",
+    "change": "Schimbați",
+    "upload": "Încărcați",
+    "remove": "Ștergeți",
+    "errors": {
+      "unreadable": "Acest fișier nu este o imagine pe care o putem citi",
+      "notImage": "Alegeți o imagine: PNG, JPEG, WebP sau SVG",
+      "tooBig": "Imaginea depășește 15 MB",
+      "noCanvas": "Browserul nu poate redimensiona imagini",
+      "tooDetailed": "Logo-ul este prea detaliat — alegeți o imagine mai simplă"
+    }
+  },
+  "actions": {
+    "group": "Acțiuni pentru punct",
+    "chat": "Chat",
+    "share": "Distribuiți",
+    "favorite": "Favorit",
+    "saved": "Salvat",
+    "call": "Sunați",
+    "email": "Email",
+    "shareText": "{title} — harta flotei Avalon",
+    "linkCopied": "Link copiat",
+    "copyLink": "Copiați acest link"
+  },
+  "activityPicker": {
+    "choose": "Alegeți domeniul de activitate",
+    "title": "Domeniu de activitate",
+    "description": "{slots, plural, one {Punctul are # slot de activitate.} few {Punctul are # sloturi de activitate.} other {Punctul are # de sloturi de activitate.}} Unul este gratuit, restul se deblochează din sold.",
+    "search": "Căutați o activitate",
+    "lockedWithUnlock": "Toate sloturile sunt ocupate. Deblocați încă unul sau eliminați o activitate pentru a o înlocui.",
+    "lockedNew": "Toate sloturile sunt ocupate. Salvați întâi punctul pentru a debloca altele sau eliminați o activitate.",
+    "premium": "Premium — din sold",
+    "remove": "Eliminați",
+    "noMatch": "Nicio activitate pentru „{query}”.",
+    "done": "Gata"
+  },
+  "slots": {
+    "unlockTitle": "Încă o activitate — {price, plural, one {# credit} few {# credite} other {# de credite}}",
+    "balance": "Soldul dumneavoastră: {balance, plural, one {# credit} few {# credite} other {# de credite}}",
+    "balanceUnknown": "Sold indisponibil",
+    "unlock": "Deblocați",
+    "confirm": "Plătiți {price, plural, one {# credit} few {# credite} other {# de credite}}",
+    "cancel": "Anulați",
+    "topUp": "Alimentați soldul",
+    "bought": "Slot deblocat — punctul are acum {count, plural, one {# slot} few {# sloturi} other {# de sloturi}} de activitate",
+    "max": "Punctul are deja numărul maxim de {max} activități."
+  },
+  "email": {
+    "verified": "Verificat",
+    "verifiedHint": "Confirmat printr-un link trimis la această adresă",
+    "notConfirmed": "Încă neconfirmat",
+    "send": "Trimiteți confirmarea",
+    "resendIn": "Retrimitere în {seconds} s",
+    "markVerified": "Marcați ca verificat",
+    "changed": "Salvați punctul pentru a confirma noua adresă.",
+    "afterSave": "Adresa poate fi confirmată după salvare.",
+    "sent": "Linkul de confirmare a fost trimis la {email}",
+    "demoConfirmed": "Demo: adresa este confirmată imediat — nu se trimite niciun email real",
+    "marked": "Emailul a fost marcat ca verificat"
+  },
+  "form": {
+    "newTitle": "Punct nou pe hartă",
+    "editTitle": "Editare punct",
+    "subtitle": "Logo, tip, domeniu de activitate, vizibilitate și contacte.",
+    "quota": "{remaining, plural, =0 {Ați folosit toate cele {limit} puncte.} one {Mai puteți adăuga # punct (limită {limit}).} few {Mai puteți adăuga # puncte (limită {limit}).} other {Mai puteți adăuga # de puncte (limită {limit}).}}",
+    "geoposition": "Poziție",
+    "address": "Adresă",
+    "addressAuto": "Adresă — completată de pe hartă, dacă există",
+    "title": "Denumire *",
+    "titlePlaceholder": {
+      "head_office": "ex. Danube Grain Trading SRL",
+      "branch": "ex. Biroul Ismail · Dana 7",
+      "self_employed": "ex. Viorel Stan, pilot Sulina",
+      "for_sale": "ex. Remorcherul „Sulina Star”",
+      "authority": "ex. Căpitănia Portului Sulina",
+      "private_person": "Nume și prenume"
+    },
+    "kind": "Tipul punctului",
+    "activity": "Domeniu de activitate",
+    "activityNewHint": "O activitate este gratuită. Altele pot fi deblocate pe credite după salvarea punctului.",
+    "visibility": "Vizibilitate",
+    "parent": "Compania-mamă",
+    "parentHint": "Sediul central de care aparține filiala",
+    "parentNone": "Încă nu există un sediu central pe care să-l puteți alege",
+    "parentEmpty": "Fără companie-mamă",
+    "description": "Descriere",
+    "descriptionPlaceholder": "Ce face compania: porturi, flotă, servicii…",
+    "website": "Site web",
+    "phone": "Telefon / WhatsApp",
+    "email": "Email",
+    "cancel": "Anulați",
+    "save": "Salvați",
+    "add": "Adăugați pe hartă",
+    "errors": {
+      "title": "Introduceți denumirea",
+      "email": "Email invalid",
+      "website": "Introduceți un site de forma https://example.com"
+    }
+  },
+  "toast": {
+    "added": "„{title}” a fost adăugat pe hartă",
+    "saved": "Salvat",
+    "removed": "„{title}” a fost șters",
+    "favoriteOn": "Adăugat la favorite",
+    "favoriteOff": "Eliminat din favorite"
+  },
+  "errors": {
+    "activities": {
+      "premiumRequired": "Fiecare activitate are nevoie de un slot. Deblocați încă unul pe credite.",
+      "invalid": "Alegeți domeniul de activitate din listă."
+    },
+    "logo": {
+      "invalid": "Logo-ul trebuie să fie PNG, JPEG sau WebP.",
+      "tooLong": "Logo-ul este prea mare — alegeți o imagine mai simplă."
+    },
+    "points": {
+      "limitReached": "Ați atins limita de 5 puncte. Ștergeți unul pentru a adăuga altul."
+    },
+    "balance": {
+      "insufficient": "Nu aveți suficiente credite în sold."
+    },
+    "activitySlots": {
+      "max": "Punctul are deja numărul maxim de activități."
+    },
+    "email": {
+      "missing": "Adăugați întâi o adresă de email și salvați punctul.",
+      "alreadyVerified": "Această adresă este deja confirmată.",
+      "tooSoon": "O confirmare a fost trimisă acum mai puțin de un minut — puteți trimite alta când expiră cronometrul.",
+      "mailUnavailable": "Emailul nu este încă configurat pe server. Echipa Avalon poate marca adresa ca verificată.",
+      "stale": "Emailul s-a schimbat între timp — reîncărcați punctul și încercați din nou."
+    },
+    "website": {
+      "invalid": "Introduceți un site de forma https://example.com",
+      "tooLong": "Adresa site-ului este prea lungă."
+    },
+    "description": {
+      "tooLong": "Descrierea este prea lungă (maximum 2.000 de caractere)."
+    },
+    "parentId": {
+      "invalid": "O filială nu poate fi propria companie-mamă.",
+      "notFound": "Această companie-mamă nu mai este disponibilă."
+    },
+    "visibility": {
+      "invalid": "Alegeți cine vede punctul."
+    },
+    "forbidden": "Doar proprietarul sau echipa Avalon pot modifica acest punct.",
+    "notFound": "Punctul nu mai există sau nu vă este vizibil.",
+    "offline": "Serverul nu răspunde — verificați conexiunea.",
+    "generic": "Ceva nu a mers. Încercați din nou."
+  }
+}

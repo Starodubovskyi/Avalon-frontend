@@ -4,28 +4,42 @@ import type { Destination } from "@/lib/vessels/types";
  * Public port guide: Sulina channel and the Danube ports Avalon covers.
  * Depths and limits are indicative planning figures, not navigational data —
  * the page always shows the "check current notices to mariners" note.
+ * Texts live in the `publicPages` dictionary (`sulina.*`, `ports.<ID>.*`, `cargo.*`); this file holds the facts.
  */
 
 export type CountryCode = "RO" | "UA" | "MD";
 
+/** English names, for places outside the translated UI (metadata, logs) */
 export const COUNTRY_LABEL: Record<CountryCode, string> = {
   RO: "Romania",
   UA: "Ukraine",
   MD: "Moldova",
 };
 
-export interface GuideFact {
-  label: string;
-  value: string;
-}
+export type CargoKey =
+  | "alumina"
+  | "generalCargo"
+  | "project"
+  | "grain"
+  | "ironOre"
+  | "steel"
+  | "roro"
+  | "vegOil"
+  | "fertilisers"
+  | "oilProducts"
+  | "containers"
+  | "steelProducts"
+  | "timber"
+  | "bulk";
 
 export interface ChannelGuide {
   name: string;
   unlocode: string;
   timezone: string;
-  summary: string;
-  facts: GuideFact[];
-  rules: string[];
+  /** `publicPages.sulina.facts.<key>.label|value` */
+  facts: ("draught" | "length" | "pilotage" | "hours")[];
+  /** `publicPages.sulina.rules.<key>` */
+  rules: ("pilot" | "daylight" | "convoys" | "dues")[];
 }
 
 export interface PortGuide {
@@ -37,31 +51,20 @@ export interface PortGuide {
   timezone: string;
   /** indicative maximum draught alongside, metres */
   draughtM: number;
-  /** where the port sits on the river */
-  position: string;
-  cargoes: string[];
-  notes: string[];
+  cargoes: CargoKey[];
+  /** `publicPages.ports.<ID>.notes.<key>`; the position is `publicPages.ports.<ID>.position` */
+  notes: ("n1" | "n2")[];
 }
 
 export const SULINA_CHANNEL: ChannelGuide = {
-  name: "Sulina channel",
+  name: "Sulina",
   unlocode: "ROSUL",
   timezone: "Europe/Bucharest",
-  summary:
-    "The canalised Sulina arm is the seagoing gateway to the Maritime Danube: every call at Tulcea, Galați, Brăila, Reni, Giurgiulești and most calls at Izmail and Orlivka start at the Sulina roads.",
-  facts: [
-    { label: "Max draught", value: "7.32 m (24 ft)" },
-    { label: "Length", value: "≈ 64 km, Sulina → Tulcea fork" },
-    { label: "Pilotage", value: "Compulsory, Romanian pilots" },
-    { label: "Operating hours", value: "24 h, size-dependent limits" },
-  ],
-  rules: [
-    "Pilot boards at the Sulina roads; the master's ETA and draught must be with the agent at least 24 h ahead.",
-    "Deep-draught and long vessels may be restricted to daylight transits and one-way passages.",
-    "Inbound traffic can be grouped into convoys by the harbour master when the roads are busy — allow waiting time.",
-    "Channel dues are levied per passage by the Lower Danube River Administration (AFDJ Galați).",
-  ],
+  facts: ["draught", "length", "pilotage", "hours"],
+  rules: ["pilot", "daylight", "convoys", "dues"],
 };
+
+const NOTES: PortGuide["notes"] = ["n1", "n2"];
 
 export const PORT_GUIDE: PortGuide[] = [
   {
@@ -71,9 +74,8 @@ export const PORT_GUIDE: PortGuide[] = [
     unlocode: "ROTUL",
     timezone: "Europe/Bucharest",
     draughtM: 7.0,
-    position: "Head of the Sulina arm, gateway to the Danube Delta",
-    cargoes: ["Alumina & bauxite", "General cargo", "Project cargo"],
-    notes: ["Shipyard calls and repairs", "Short river leg from Sulina — quick turnarounds"],
+    cargoes: ["alumina", "generalCargo", "project"],
+    notes: NOTES,
   },
   {
     id: "IZMAIL",
@@ -82,9 +84,8 @@ export const PORT_GUIDE: PortGuide[] = [
     unlocode: "UAIZM",
     timezone: "Europe/Kyiv",
     draughtM: 7.0,
-    position: "Kiliya arm, the largest Ukrainian Danube port",
-    cargoes: ["Grain", "Iron ore & coal", "Steel", "General cargo"],
-    notes: ["Reached via Sulina or the Ukrainian Bystre route", "Ukrainian border and customs formalities on arrival"],
+    cargoes: ["grain", "ironOre", "steel", "generalCargo"],
+    notes: NOTES,
   },
   {
     id: "ORLIVKA",
@@ -93,9 +94,8 @@ export const PORT_GUIDE: PortGuide[] = [
     unlocode: null,
     timezone: "Europe/Kyiv",
     draughtM: 6.0,
-    position: "Main Danube, opposite Isaccea (RO)",
-    cargoes: ["Grain", "Ro-Ro & ferry cargo"],
-    notes: ["River terminals with limited berth length", "Confirm berth and draught with the terminal before nomination"],
+    cargoes: ["grain", "roro"],
+    notes: NOTES,
   },
   {
     id: "RENI",
@@ -104,9 +104,8 @@ export const PORT_GUIDE: PortGuide[] = [
     unlocode: "UAREN",
     timezone: "Europe/Kyiv",
     draughtM: 7.0,
-    position: "Main Danube, near the Prut confluence",
-    cargoes: ["Grain", "Vegetable oil", "Fertilisers", "General cargo"],
-    notes: ["Busy grain season July–November", "Ukrainian border and customs formalities on arrival"],
+    cargoes: ["grain", "vegOil", "fertilisers", "generalCargo"],
+    notes: NOTES,
   },
   {
     id: "GIURGIULESTI",
@@ -115,9 +114,8 @@ export const PORT_GUIDE: PortGuide[] = [
     unlocode: "MDGIU",
     timezone: "Europe/Chisinau",
     draughtM: 7.0,
-    position: "Moldova's only seagoing port, free port zone",
-    cargoes: ["Oil products", "Grain", "Vegetable oil", "Containers"],
-    notes: ["Free-zone status simplifies transit cargo", "Separate oil, grain and cargo terminals"],
+    cargoes: ["oilProducts", "grain", "vegOil", "containers"],
+    notes: NOTES,
   },
   {
     id: "GALATI",
@@ -126,9 +124,8 @@ export const PORT_GUIDE: PortGuide[] = [
     unlocode: "ROGAL",
     timezone: "Europe/Bucharest",
     draughtM: 7.0,
-    position: "Maritime Danube, Romania's largest river port",
-    cargoes: ["Steel products", "Grain", "Timber", "Project cargo"],
-    notes: ["Steelworks and shipyard berths", "Seat of the Lower Danube River Administration"],
+    cargoes: ["steelProducts", "grain", "timber", "project"],
+    notes: NOTES,
   },
   {
     id: "BRAILA",
@@ -137,16 +134,10 @@ export const PORT_GUIDE: PortGuide[] = [
     unlocode: "ROBRA",
     timezone: "Europe/Bucharest",
     draughtM: 7.0,
-    position: "Upper limit of the Maritime Danube",
-    cargoes: ["Grain", "General cargo", "Bulk"],
-    notes: ["Last port reachable by seagoing vessels", "Longer river passage — plan pilotage time"],
+    cargoes: ["grain", "generalCargo", "bulk"],
+    notes: NOTES,
   },
 ];
-
-export const INDICATIVE_NOTE = {
-  title: "Indicative — check current notices to mariners.",
-  detail: "Depths, limits and hours change with the river level and the harbour master's orders.",
-} as const;
 
 /** Port label lookup by destination id */
 export function portGuideById(id: Destination): PortGuide | undefined {

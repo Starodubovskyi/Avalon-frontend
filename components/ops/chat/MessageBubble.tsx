@@ -1,7 +1,11 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { ChatMessageView } from "@/lib/network/hooks";
-import { clockTime, fullTime, personName } from "@/lib/network/format";
+import { personName } from "@/lib/network/format";
 import { Avatar } from "../ui/primitives";
+import { useTimeFormat } from "../network/useTimeFormat";
 
 export function MessageBubble({
   message,
@@ -16,6 +20,8 @@ export function MessageBubble({
   first: boolean;
   last: boolean;
 }) {
+  const t = useTranslations("chat.messages");
+  const time = useTimeFormat();
   const name = personName(message.sender);
   const showPeer = isGroup && !mine;
 
@@ -37,16 +43,16 @@ export function MessageBubble({
             message.pending && "opacity-70",
           )}
         >
-          <span className="sr-only">{mine ? "You" : name}: </span>
+          <span className="sr-only">{mine ? t("you") : name}: </span>
           {message.body}
         </div>
         {last ? (
           <span className="tabular mt-1 px-1 text-[11px] text-muted-foreground">
             {message.pending ? (
-              "Sending…"
+              t("sending")
             ) : (
-              <time dateTime={message.createdAt} title={fullTime(message.createdAt)}>
-                {clockTime(message.createdAt)}
+              <time dateTime={message.createdAt} title={time.full(message.createdAt)}>
+                {time.clock(message.createdAt)}
               </time>
             )}
           </span>

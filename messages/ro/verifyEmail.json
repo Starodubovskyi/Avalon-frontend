@@ -1,0 +1,41 @@
+{
+  "metaTitle": "Confirmare email · Avalon Shipping",
+  "loading": "Se confirmă adresa de email…",
+  "done": {
+    "title": "Email confirmat",
+    "text": "Mulțumim — adresa are acum insigna „Verificat” pe hartă și în profilul companiei.",
+    "company": "Companie",
+    "email": "Email",
+    "open": "Deschideți profilul companiei"
+  },
+  "errors": {
+    "missing": {
+      "title": "Linkul este incomplet",
+      "text": "Deschideți din nou linkul din email sau copiați-l integral în browser."
+    },
+    "invalid": {
+      "title": "Linkul nu este valid",
+      "text": "Poate conține o greșeală sau a fost înlocuit de unul mai nou. Cereți proprietarului companiei să trimită o nouă confirmare."
+    },
+    "expired": {
+      "title": "Linkul a expirat",
+      "text": "Linkurile de confirmare sunt valabile 24 de ore. Deschideți punctul pe hartă și trimiteți o nouă confirmare."
+    },
+    "stale": {
+      "title": "Emailul s-a schimbat",
+      "text": "Linkul a fost trimis la o adresă pe care punctul nu o mai folosește. Confirmați adresa actuală cu un link nou."
+    },
+    "offline": {
+      "title": "Avalon nu răspunde",
+      "text": "Verificați conexiunea și încercați din nou."
+    },
+    "generic": {
+      "title": "Ceva nu a mers",
+      "text": "Nu am putut confirma emailul acum. Încercați din nou."
+    }
+  },
+  "retry": "Încercați din nou",
+  "openMap": "Deschideți harta flotei",
+  "home": "Pagina principală Avalon",
+  "footer": "Avalon Shipping · agenturare navală pe Dunărea de Jos"
+}

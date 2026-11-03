@@ -1,13 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Building2, Mail, Phone, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fmtDateTime } from "@/lib/vessels/format";
 import { userName } from "@/lib/vessels/types";
 import type { AgencyRequest } from "@/lib/requests/types";
 import { RequestSummary } from "./RequestBits";
 import { RequestActions } from "./RequestActions";
+import { useTimeFormat } from "../network/useTimeFormat";
 
 function Contact({ href, icon, children }: { href: string; icon: ReactNode; children: ReactNode }) {
   return (
@@ -23,6 +24,8 @@ function Contact({ href, icon, children }: { href: string; icon: ReactNode; chil
 
 /** Phone: stacked card. Desktop: one rich row — call, client, actions */
 export function RequestCard({ request: r, now, onTouch }: { request: AgencyRequest; now: number; onTouch?: (id: string) => void }) {
+  const t = useTranslations("requests.card");
+  const time = useTimeFormat();
   return (
     <li
       className={cn(
@@ -33,7 +36,7 @@ export function RequestCard({ request: r, now, onTouch }: { request: AgencyReque
     >
       <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(300px,340px)]">
         <section className="min-w-0 p-4 sm:p-5">
-          <RequestSummary request={r} now={now} sentLabel="Received" />
+          <RequestSummary request={r} now={now} sentLabel={t("received")} />
         </section>
 
         <section className="min-w-0 border-t p-4 sm:p-5 lg:border-l lg:border-t-0">
@@ -48,7 +51,7 @@ export function RequestCard({ request: r, now, onTouch }: { request: AgencyReque
               </span>
               <span className="truncate">{r.contactName}</span>
             </p>
-            <Contact href={`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent(`Agency request — ${r.vesselName}`)}`} icon={<Mail className="h-3.5 w-3.5" aria-hidden />}>
+            <Contact href={`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent(t("mailSubject", { vessel: r.vesselName }))}`} icon={<Mail className="h-3.5 w-3.5" aria-hidden />}>
               {r.email}
             </Contact>
             {r.phone ? (
@@ -61,7 +64,7 @@ export function RequestCard({ request: r, now, onTouch }: { request: AgencyReque
             <p className="mt-3 whitespace-pre-line break-words rounded-xl border bg-background/60 p-3 text-sm text-foreground/85">{r.notes}</p>
           ) : null}
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Sent by {userName(r.createdBy)} · {fmtDateTime(r.createdAt)}
+            {t("sentBy", { name: r.createdBy ? userName(r.createdBy) : t("system"), date: time.dateTime(r.createdAt) })}
           </p>
         </section>
 

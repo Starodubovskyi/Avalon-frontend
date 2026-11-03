@@ -1,18 +1,13 @@
-"use client";
-
-import { useCallback, useRef } from "react";
-import axios from "axios";
-import useSWR, { useSWRConfig } from "swr";
-import { toast } from "sonner";
 import api from "@/lib/api/client";
-import { extractAuthError } from "@/lib/api/auth";
-import { useAuth } from "@/lib/auth/useAuth";
-import { canEdit } from "@/lib/auth/roles";
+import type { KnownFieldErrors } from "@/lib/api/fieldErrors";
 import type { UserRef } from "@/lib/vessels/types";
 import { activityFromText, toActivityCodes, type ActivityCode } from "./activities";
 import { POINT_KIND_COLORS as KIND_COLORS } from "./kind-colors";
 
-/** Team-wide points on the fleet map (backend /map-points, staff and admins only) */
+/**
+ * Points on the fleet map (backend /map-points). Everyone signed in sees public points and their own;
+ * the team sees all. Labels live in the "points" dictionary (lib/points/labels.ts).
+ */
 export const POINT_KINDS = ["head_office", "branch", "self_employed", "for_sale", "authority", "private_person"] as const;
 export type PointKind = (typeof POINT_KINDS)[number];
 
@@ -21,43 +16,9 @@ export const DEFAULT_FORM_KIND: PointKind = "head_office";
 /** Kind the API stores when none is sent (backend DEFAULT_MAP_POINT_KIND); also the fallback for unknown kinds */
 export const DEFAULT_POINT_KIND: PointKind = "private_person";
 
-export const POINT_KIND_LABEL: Record<PointKind, string> = {
-  head_office: "Company head office",
-  branch: "Company branch",
-  self_employed: "Self-employed",
-  for_sale: "For sale",
-  authority: "Government agency / authority",
-  private_person: "Private person / employee",
-};
-
-/** Compact name for tiles, chips and the legend */
-export const POINT_KIND_SHORT: Record<PointKind, string> = {
-  head_office: "Head office",
-  branch: "Branch",
-  self_employed: "Self-employed",
-  for_sale: "For sale",
-  authority: "Authority",
-  private_person: "Person",
-};
-
-export const POINT_KIND_PLURAL: Record<PointKind, string> = {
-  head_office: "Head offices",
-  branch: "Branches",
-  self_employed: "Self-employed",
-  for_sale: "For sale",
-  authority: "Authorities",
-  private_person: "People",
-};
-
-/** Short hint shown in the type picker */
-export const POINT_KIND_HINT: Record<PointKind, string> = {
-  head_office: "Headquarters of an owner, agency or trader",
-  branch: "Branch office, terminal, berth or yard",
-  self_employed: "Independent surveyor, broker or pilot",
-  for_sale: "Vessel, berth or business on sale",
-  authority: "Harbour master, customs, border police",
-  private_person: "Captain, crew or team member",
-};
+/** public: everyone signed in; team: the Avalon team and the owner (backend MAP_POINT_VISIBILITIES) */
+export const POINT_VISIBILITIES = ["public", "team"] as const;
+export type PointVisibility = (typeof POINT_VISIBILITIES)[number];
 
 /** Canvas colours for map markers (lib/points/kind-colors.ts, shared with Tailwind point.*) */
 export const POINT_KIND_COLORS: Record<PointKind, { base: string; light: string; dark: string }> = KIND_COLORS;
@@ -78,6 +39,10 @@ export function toPointKind(value: unknown): PointKind {
   return LEGACY_KIND[value] ?? DEFAULT_POINT_KIND;
 }
 
+/** Author of a point; email is null unless the caller may see it (team, team author, or themselves) */
+export type PointAuthor = UserRef & { role?: "admin" | "staff" | "viewer" };
+
+/** MapPointView of the contract */
 export interface TeamPoint {
   id: string;
   kind: PointKind;
@@ -100,9 +65,21 @@ export interface TeamPoint {
   isFavorite: boolean;
   /** Rank of the author of the point */
   rank: number;
-  createdBy: UserRef | null;
+  createdBy: PointAuthor | null;
   createdAt: string;
   updatedAt: string;
+  visibility: PointVisibility;
+  description: string | null;
+  website: string | null;
+  /** Head office of a branch */
+  parentId: string | null;
+  /** Business Activity slots (1 free, up to 14) */
+  activitySlots: number;
+  emailVerified: boolean;
+  /** The caller may edit / delete it (owner or the team) */
+  canEdit: boolean;
+  /** Active people of the company profile, the owner included */
+  memberCount: number;
 }
 
 export interface TeamPointInput {
@@ -120,33 +97,66 @@ export interface TeamPointInput {
   phone?: string | null;
   email?: string | null;
   address?: string | null;
+  visibility?: PointVisibility;
+  description?: string | null;
+  website?: string | null;
+  parentId?: string | null;
 }
 
-type RawPoint = Omit<TeamPoint, "kind" | "activities" | "hasLogo" | "logoVersion" | "isFavorite" | "rank" | "lastName" | "activity"> & {
-  kind?: unknown;
-  activities?: unknown;
-  hasLogo?: unknown;
-  logoVersion?: unknown;
-  isFavorite?: unknown;
-  rank?: unknown;
-  lastName?: string | null;
-  activity?: string | null;
-};
+type NormalizedKeys =
+  | "kind"
+  | "activities"
+  | "hasLogo"
+  | "logoVersion"
+  | "isFavorite"
+  | "rank"
+  | "lastName"
+  | "activity"
+  | "visibility"
+  | "description"
+  | "website"
+  | "parentId"
+  | "activitySlots"
+  | "emailVerified"
+  | "canEdit"
+  | "memberCount";
 
-/** Tolerates older API answers (legacy kinds, no activities/rank/logo fields yet) */
+export type RawPoint = Omit<TeamPoint, NormalizedKeys> & { [K in NormalizedKeys]?: unknown };
+
+function text(value: unknown): string | null {
+  return typeof value === "string" && value.trim() !== "" ? value : null;
+}
+
+function count(value: unknown, min: number): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(min, Math.round(value)) : null;
+}
+
+/** Tolerates older API answers (legacy kinds, fields of later stages missing) */
 export function normalizePoint(raw: RawPoint): TeamPoint {
   const activities = toActivityCodes(raw.activities);
-  const legacy = activityFromText(raw.activity);
+  const legacyText = typeof raw.activity === "string" ? raw.activity : "";
+  const legacy = activityFromText(legacyText);
+  const codes = activities.length || Array.isArray(raw.activities) ? activities : legacy ? [legacy] : [];
+  const logoVersion = raw.hasLogo === true && typeof raw.logoVersion === "string" && raw.logoVersion !== "" ? raw.logoVersion : null;
   return {
     ...raw,
     kind: toPointKind(raw.kind),
-    lastName: raw.lastName ?? "",
-    activity: raw.activity ?? "",
-    activities: activities.length || Array.isArray(raw.activities) ? activities : legacy ? [legacy] : [],
-    hasLogo: raw.hasLogo === true && typeof raw.logoVersion === "string" && raw.logoVersion !== "",
-    logoVersion: raw.hasLogo === true && typeof raw.logoVersion === "string" && raw.logoVersion !== "" ? raw.logoVersion : null,
+    lastName: typeof raw.lastName === "string" ? raw.lastName : "",
+    activity: legacyText,
+    activities: codes,
+    hasLogo: logoVersion !== null,
+    logoVersion,
     isFavorite: raw.isFavorite === true,
-    rank: typeof raw.rank === "number" && Number.isFinite(raw.rank) ? raw.rank : 0,
+    rank: count(raw.rank, 0) ?? 0,
+    visibility: raw.visibility === "team" ? "team" : "public",
+    description: text(raw.description),
+    website: text(raw.website),
+    parentId: text(raw.parentId),
+    activitySlots: count(raw.activitySlots, 1) ?? Math.max(1, codes.length),
+    emailVerified: raw.emailVerified === true,
+    canEdit: raw.canEdit === true,
+    // the team includes the owner
+    memberCount: count(raw.memberCount, 1) ?? 1,
   };
 }
 
@@ -154,36 +164,28 @@ export function pointTitle(p: Pick<TeamPoint, "firstName" | "lastName">): string
   return [p.firstName, p.lastName].filter(Boolean).join(" ").trim() || p.firstName;
 }
 
-export function fmtRank(rank: number): string {
-  return Math.max(0, Math.round(rank)).toLocaleString("en-US");
+/** RANK as shown: whole and never negative; `format` is the locale-aware number formatter (useFormatter().number) */
+export function fmtRank(rank: number, format: (n: number) => string = (n) => n.toLocaleString("en-US")): string {
+  return format(Math.max(0, Math.round(rank)));
 }
 
-const FIELD_ERROR: Record<string, Record<string, string>> = {
-  activities: {
-    premiumRequired: "One Business Activity is free. More activities need Premium — with balance.",
-    invalid: "Choose the Business Activity from the list.",
-  },
-  logo: {
-    invalid: "The logo must be a PNG, JPEG or WebP image.",
-    tooLong: "The logo is too large — choose a simpler image.",
-  },
+/** 422 codes of /map-points calls the "points" dictionary words (errors.<field>.<code>) */
+export const POINT_ERRORS: KnownFieldErrors = {
+  activities: ["premiumRequired", "invalid"],
+  logo: ["invalid", "tooLong"],
+  points: ["limitReached"],
+  balance: ["insufficient"],
+  activitySlots: ["max"],
+  email: ["missing", "alreadyVerified", "tooSoon", "mailUnavailable", "stale"],
+  website: ["invalid", "tooLong"],
+  description: ["tooLong"],
+  parentId: ["invalid", "notFound"],
+  visibility: ["invalid"],
 };
 
-/** Readable message for a failed save: the API's field codes (premiumRequired, invalid, tooLong) get real wording */
-export function pointErrorMessage(e: unknown): string {
-  if (axios.isAxiosError(e)) {
-    const errors: unknown = (e.response?.data as { errors?: unknown } | undefined)?.errors;
-    if (errors && typeof errors === "object") {
-      for (const [field, codes] of Object.entries(FIELD_ERROR)) {
-        const code = (errors as Record<string, unknown>)[field];
-        if (typeof code === "string" && codes[code]) return codes[code];
-      }
-    }
-  }
-  return extractAuthError(e);
-}
-
 export const TEAM_POINTS_KEY = "team-points";
+
+const path = (id: string) => `/map-points/${encodeURIComponent(id)}`;
 
 export const TeamPointsApi = {
   async list(): Promise<TeamPoint[]> {
@@ -195,104 +197,34 @@ export const TeamPointsApi = {
     return normalizePoint(data);
   },
   async update(id: string, input: TeamPointInput): Promise<TeamPoint> {
-    const { data } = await api.patch<RawPoint>(`/map-points/${id}`, input);
+    const { data } = await api.patch<RawPoint>(path(id), input);
     return normalizePoint(data);
   },
   async remove(id: string): Promise<void> {
-    await api.delete(`/map-points/${id}`);
+    await api.delete(path(id));
   },
   async setFavorite(id: string, on: boolean): Promise<boolean> {
     const { data } = on
-      ? await api.post<{ isFavorite?: boolean }>(`/map-points/${id}/favorite`)
-      : await api.delete<{ isFavorite?: boolean }>(`/map-points/${id}/favorite`);
+      ? await api.post<{ isFavorite?: boolean }>(`${path(id)}/favorite`)
+      : await api.delete<{ isFavorite?: boolean }>(`${path(id)}/favorite`);
     return typeof data?.isFavorite === "boolean" ? data.isFavorite : on;
   },
+  /** One more Business Activity slot, paid from the caller's balance */
+  async buyActivitySlot(id: string): Promise<TeamPoint> {
+    const { data } = await api.post<RawPoint>(`${path(id)}/activity-slots`);
+    return normalizePoint(data);
+  },
+  async sendEmailVerification(id: string): Promise<void> {
+    await api.post(`${path(id)}/email-verification`);
+  },
+  /** Team only: confirm the address by hand (mail not configured on the server) */
+  async markEmailVerified(id: string): Promise<TeamPoint> {
+    const { data } = await api.post<RawPoint>(`${path(id)}/email-verification/mark-verified`);
+    return normalizePoint(data);
+  },
+  /** Public: the link from the confirmation email */
+  async confirmEmail(token: string): Promise<{ pointId: string; title: string; email: string }> {
+    const { data } = await api.post<{ pointId: string; title: string; email: string }>("/map-points/email-verification/confirm", { token });
+    return data;
+  },
 };
-
-export function useTeamPoints() {
-  const { user } = useAuth();
-  return useSWR<TeamPoint[]>(canEdit(user) ? TEAM_POINTS_KEY : null, () => TeamPointsApi.list(), {
-    refreshInterval: 120_000,
-    keepPreviousData: true,
-  });
-}
-
-export function useTeamPointMutations() {
-  const { mutate } = useSWRConfig();
-
-  const create = useCallback(
-    async (input: TeamPointInput) => {
-      try {
-        const saved = await TeamPointsApi.create(input);
-        await mutate(TEAM_POINTS_KEY, (list?: TeamPoint[]) => [saved, ...(list ?? [])], { revalidate: false });
-        toast.success(`${POINT_KIND_SHORT[saved.kind]} “${pointTitle(saved)}” added to the map`);
-        return saved;
-      } catch (e) {
-        toast.error(pointErrorMessage(e));
-        throw e;
-      }
-    },
-    [mutate],
-  );
-
-  const update = useCallback(
-    async (id: string, input: TeamPointInput) => {
-      try {
-        const saved = await TeamPointsApi.update(id, input);
-        await mutate(TEAM_POINTS_KEY, (list?: TeamPoint[]) => list?.map((p) => (p.id === id ? saved : p)), { revalidate: false });
-        toast.success("Saved");
-        return saved;
-      } catch (e) {
-        toast.error(pointErrorMessage(e));
-        throw e;
-      }
-    },
-    [mutate],
-  );
-
-  const remove = useCallback(
-    async (point: TeamPoint) => {
-      try {
-        await TeamPointsApi.remove(point.id);
-        await mutate(TEAM_POINTS_KEY, (list?: TeamPoint[]) => list?.filter((p) => p.id !== point.id), { revalidate: false });
-        toast.success(`“${pointTitle(point)}” removed`);
-      } catch (e) {
-        toast.error(extractAuthError(e));
-        throw e;
-      }
-    },
-    [mutate],
-  );
-
-  return { create, update, remove };
-}
-
-/** Personal favourite with an optimistic flip; reverted with a toast when the server refuses */
-export function useFavoriteToggle() {
-  const { mutate } = useSWRConfig();
-  const inFlight = useRef(new Set<string>());
-
-  return useCallback(
-    async (point: TeamPoint) => {
-      if (inFlight.current.has(point.id)) return;
-      inFlight.current.add(point.id);
-      const next = !point.isFavorite;
-      const patch = (value: boolean) =>
-        mutate(TEAM_POINTS_KEY, (list?: TeamPoint[]) => list?.map((p) => (p.id === point.id ? { ...p, isFavorite: value } : p)), {
-          revalidate: false,
-        });
-      await patch(next);
-      try {
-        const saved = await TeamPointsApi.setFavorite(point.id, next);
-        if (saved !== next) await patch(saved);
-        toast.success(saved ? "Added to favorites" : "Removed from favorites");
-      } catch (e) {
-        await patch(point.isFavorite);
-        toast.error(extractAuthError(e));
-      } finally {
-        inFlight.current.delete(point.id);
-      }
-    },
-    [mutate],
-  );
-}

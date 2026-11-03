@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Layers, MessageCircle, Minus, Plus, Share2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrandSeal } from "@/components/public/brand/BrandSeal";
@@ -69,6 +70,7 @@ export function MockMap({
   viewBox?: string;
   className?: string;
 }) {
+  const t = useTranslations("home");
   // labels of ports outside the crop would show as clipped fragments at the edge
   const [minX, , width] = viewBox.split(/\s+/).map(Number);
   const inCrop = (x: number) => x >= minX && x <= minX + width;
@@ -129,7 +131,7 @@ export function MockMap({
       {chrome ? (
         <>
           <div className="absolute left-2.5 top-2.5 flex gap-1">
-            {["Vessels", "Companies", "★ Favorites"].map((l, i) => (
+            {[t("map.vessels"), t("map.companies"), `★ ${t("map.favorites")}`].map((l, i) => (
               <span
                 key={l}
                 className={cn(
@@ -161,19 +163,20 @@ export function MockMap({
 
 /** The open geopoint card: logo, title, Business Activity, Rank and the Chat / Share / Favorite actions */
 export function PointCard({ className, large = false }: { className?: string; large?: boolean }) {
+  const t = useTranslations("home");
   return (
     <div className={cn("rounded-xl border p-2.5", large && "rounded-2xl p-4", className)}>
       <div className="flex items-center gap-2.5">
         <BrandSeal size={large ? "md" : "xs"} />
         <div className="min-w-0">
           <p className={cn("truncate font-bold leading-tight", large ? "text-[15px]" : "text-[12px]")}>Avalon Shipping SRL</p>
-          <p className={cn("truncate text-muted-foreground", large ? "text-xs" : "text-[10px]")}>Company head office</p>
+          <p className={cn("truncate text-muted-foreground", large ? "text-xs" : "text-[10px]")}>{t("map.headOffice")}</p>
         </div>
       </div>
       <div className={cn("flex items-center justify-between gap-2", large ? "mt-4 rounded-xl bg-muted/60 px-3 py-2.5" : "mt-2")}>
         <span className="min-w-0">
-          {large ? <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Business Activity</span> : null}
-          <span className={cn("block truncate font-medium text-foreground/85", large ? "text-sm" : "text-[11px]")}>Ship agency</span>
+          {large ? <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t("map.activity")}</span> : null}
+          <span className={cn("block truncate font-medium text-foreground/85", large ? "text-sm" : "text-[11px]")}>{t("map.shipAgency")}</span>
         </span>
         <span
           className={cn(
@@ -186,19 +189,19 @@ export function PointCard({ className, large = false }: { className?: string; la
       </div>
       <div className={cn("grid grid-cols-3 gap-1", large ? "mt-3 gap-1.5" : "mt-2")}>
         {[
-          { icon: MessageCircle, label: "Chat" },
-          { icon: Share2, label: "Share" },
-          { icon: Star, label: "Saved" },
-        ].map(({ icon: Icon, label }) => (
+          { icon: MessageCircle, key: "chat" },
+          { icon: Share2, key: "share" },
+          { icon: Star, key: "saved" },
+        ].map(({ icon: Icon, key }) => (
           <span
-            key={label}
+            key={key}
             className={cn(
               "flex items-center justify-center gap-1 rounded-md bg-muted font-semibold text-foreground/80",
               large ? "h-9 rounded-lg text-xs" : "h-7 text-[10px]",
             )}
           >
-            <Icon className={cn(large ? "h-3.5 w-3.5" : "h-3 w-3", label === "Saved" && "fill-amber-400 text-amber-500")} aria-hidden />
-            {label}
+            <Icon className={cn(large ? "h-3.5 w-3.5" : "h-3 w-3", key === "saved" && "fill-amber-400 text-amber-500")} aria-hidden />
+            {t(`map.${key}`)}
           </span>
         ))}
       </div>

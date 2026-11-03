@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Field, SelectInput, TextInput, btn } from "@/components/ops/ui/primitives";
@@ -7,10 +8,8 @@ import { TYPE_ICON } from "@/components/ops/vessels/VesselTypeIcon";
 import { PDA_LIMITS } from "@/lib/public/pdaTariffs";
 import {
   CONDITIONS,
-  CONDITION_LABEL,
   DESTINATIONS,
   DESTINATION_LABEL,
-  TYPE_LABEL,
   VESSEL_TYPES,
   type Destination,
   type VesselCondition,
@@ -73,12 +72,13 @@ function RangeField({
   limits: { min: number; max: number; step: number };
   onChange: (v: string) => void;
 }) {
+  const t = useTranslations("publicPages");
   const n = Number(value);
   const outOfRange = value !== "" && (!Number.isFinite(n) || n < limits.min || n > limits.max);
   return (
     <Field
       label={label}
-      error={outOfRange ? `Between ${limits.min.toLocaleString("en-GB")} and ${limits.max.toLocaleString("en-GB")} ${unit}` : undefined}
+      error={outOfRange ? t("estimate.between", { min: limits.min, max: limits.max, unit }) : undefined}
     >
       <div className="relative">
         <TextInput
@@ -100,7 +100,7 @@ function RangeField({
         step={limits.step}
         value={Number.isFinite(n) ? Math.min(limits.max, Math.max(limits.min, n)) : limits.min}
         onChange={(e) => onChange(e.target.value)}
-        aria-label={`${label} slider`}
+        aria-label={t("estimate.slider", { label })}
         className="mt-1 h-6 w-full cursor-pointer accent-primary"
       />
     </Field>
@@ -108,12 +108,14 @@ function RangeField({
 }
 
 export function EstimateForm({ draft, onChange }: { draft: EstimateDraft; onChange: (patch: Partial<EstimateDraft>) => void }) {
+  const t = useTranslations("publicPages");
+  const tc = useTranslations("common");
   const days = Number(draft.days) || PDA_LIMITS.days.min;
   const setDays = (d: number) => onChange({ days: String(Math.min(PDA_LIMITS.days.max, Math.max(PDA_LIMITS.days.min, d))) });
 
   return (
-    <form className="space-y-5" onSubmit={(e) => e.preventDefault()} aria-label="Vessel and call details">
-      <Field label="Port of call">
+    <form className="space-y-5" onSubmit={(e) => e.preventDefault()} aria-label={t("estimate.formLabel")}>
+      <Field label={t("estimate.port")}>
         <SelectInput value={draft.port} onChange={(e) => onChange({ port: e.target.value as Destination })}>
           {DESTINATIONS.map((d) => (
             <option key={d} value={d}>
@@ -124,31 +126,31 @@ export function EstimateForm({ draft, onChange }: { draft: EstimateDraft; onChan
       </Field>
 
       <div className="space-y-1.5">
-        <p className="text-xs font-semibold text-foreground/80">Vessel type</p>
+        <p className="text-[12.5px] font-semibold text-foreground/85">{t("estimate.vesselType")}</p>
         <Segmented
-          label="Vessel type"
+          label={t("estimate.vesselType")}
           value={draft.vesselType}
           options={VESSEL_TYPES}
           onChange={(vesselType) => onChange({ vesselType })}
-          render={(t) => {
-            const Icon = TYPE_ICON[t];
+          render={(vt) => {
+            const Icon = TYPE_ICON[vt];
             return (
               <>
                 <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                <span className="truncate">{t === "general_cargo" ? "Cargo" : TYPE_LABEL[t]}</span>
+                <span className="truncate">{tc(`vesselTypeShort.${vt}`)}</span>
               </>
             );
           }}
         />
       </div>
 
-      <RangeField label="Gross tonnage" unit="GT" value={draft.gt} limits={PDA_LIMITS.gt} onChange={(gt) => onChange({ gt })} />
-      <RangeField label="Length overall" unit="m" value={draft.loa} limits={PDA_LIMITS.loa} onChange={(loa) => onChange({ loa })} />
+      <RangeField label={t("estimate.gt")} unit="GT" value={draft.gt} limits={PDA_LIMITS.gt} onChange={(gt) => onChange({ gt })} />
+      <RangeField label={t("estimate.loa")} unit={t("estimate.metreUnit")} value={draft.loa} limits={PDA_LIMITS.loa} onChange={(loa) => onChange({ loa })} />
 
       <div className="space-y-1.5">
-        <p className="text-xs font-semibold text-foreground/80">Days alongside</p>
+        <p className="text-[12.5px] font-semibold text-foreground/85">{t("estimate.days")}</p>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setDays(days - 1)} className={cn(btn.secondary, "w-11 px-0")} aria-label="One day less" disabled={days <= PDA_LIMITS.days.min}>
+          <button type="button" onClick={() => setDays(days - 1)} className={cn(btn.secondary, "w-11 px-0")} aria-label={t("estimate.dayLess")} disabled={days <= PDA_LIMITS.days.min}>
             <Minus className="h-4 w-4" aria-hidden />
           </button>
           <TextInput
@@ -159,22 +161,22 @@ export function EstimateForm({ draft, onChange }: { draft: EstimateDraft; onChan
             value={draft.days}
             onChange={(e) => onChange({ days: e.target.value })}
             className="tabular text-center"
-            aria-label="Days alongside"
+            aria-label={t("estimate.days")}
           />
-          <button type="button" onClick={() => setDays(days + 1)} className={cn(btn.secondary, "w-11 px-0")} aria-label="One day more" disabled={days >= PDA_LIMITS.days.max}>
+          <button type="button" onClick={() => setDays(days + 1)} className={cn(btn.secondary, "w-11 px-0")} aria-label={t("estimate.dayMore")} disabled={days >= PDA_LIMITS.days.max}>
             <Plus className="h-4 w-4" aria-hidden />
           </button>
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-xs font-semibold text-foreground/80">Condition</p>
+        <p className="text-[12.5px] font-semibold text-foreground/85">{t("estimate.condition")}</p>
         <Segmented
-          label="Condition"
+          label={t("estimate.condition")}
           value={draft.condition}
           options={CONDITIONS}
           onChange={(condition) => onChange({ condition })}
-          render={(c) => CONDITION_LABEL[c]}
+          render={(c) => tc(`condition.${c}`)}
         />
       </div>
     </form>

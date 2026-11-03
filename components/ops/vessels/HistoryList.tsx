@@ -2,72 +2,33 @@
 
 import Link from "next/link";
 import { ArrowRight, History } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { fmtFull, fmtRelative } from "@/lib/vessels/format";
+import { useVesselFormat, useVesselLabels } from "@/lib/vessels/i18n";
 import {
-  CONDITION_LABEL,
-  DESTINATION_LABEL,
-  T1_LABEL,
-  TYPE_LABEL,
+  CONDITIONS,
+  DESTINATIONS,
+  T1_VALUES,
+  VESSEL_TYPES,
   userName,
   type VesselEventView,
 } from "@/lib/vessels/types";
 import { EmptyState } from "../ui/primitives";
 
-const FIELD_LABEL: Record<string, string> = {
-  name: "Name",
-  imo: "IMO",
-  mmsi: "MMSI",
-  type: "Type",
-  destination: "Destination",
-  condition: "Condition",
-  etaSulina: "ETA Sulina",
-  arrivedAt: "Arrival (Sulina roads)",
-  inPortAt: "Entered port",
-  departedAt: "Departure",
-  prearrivalsIn: "Prearrivals IN",
-  prearrivalsOut: "Prearrivals OUT",
-  mswIn: "MSW IN",
-  mswOut: "MSW OUT",
-  pdaSent: "PDA",
-  paid: "Payment",
-  t1: "T1",
-  pilotageArranged: "Sulina pilotage",
-  pilot: "Pilot",
-  masterName: "Master",
-  masterPhone: "Master phone",
-  masterEmail: "Master email",
-  officeName: "Office",
-  officePhone: "Office phone",
-  officeEmail: "Office email",
-  portAgent: "Port agent",
-  notes: "Notes",
-  lat: "Latitude",
-  lng: "Longitude",
-  positionSource: "Position source",
-  positionAt: "Position time",
-};
+/** Field names with a label under vessels.history.fields; anything else reads as fields.other */
+const FIELDS = new Set([
+  "name", "imo", "mmsi", "type", "destination", "condition", "etaSulina", "arrivedAt", "inPortAt", "departedAt",
+  "prearrivalsIn", "prearrivalsOut", "mswIn", "mswOut", "pdaSent", "paid", "t1", "pilotageArranged", "pilot",
+  "masterName", "masterPhone", "masterEmail", "officeName", "officePhone", "officeEmail", "portAgent", "notes",
+  "lat", "lng", "positionSource", "positionAt",
+]);
 
 const DATE_FIELDS = new Set(["etaSulina", "arrivedAt", "inPortAt", "departedAt", "positionAt"]);
-const BOOL_TEXT: Record<string, [string, string]> = {
-  pdaSent: ["sent", "not sent"],
-  paid: ["paid", "not paid"],
-};
+/** Boolean fields with their own words (vessels.history.values.<field>True / <field>False) */
+const BOOL_WORDS = new Set(["pdaSent", "paid"]);
 
-function show(field: string, value: unknown): string {
-  if (value === null || value === undefined || value === "") return "—";
-  if (DATE_FIELDS.has(field) && typeof value === "string") return fmtFull(value);
-  if (typeof value === "boolean") {
-    const pair = BOOL_TEXT[field];
-    return pair ? (value ? pair[0] : pair[1]) : value ? "done" : "not done";
-  }
-  const s = String(value);
-  if (field === "prearrivalsIn" || field === "prearrivalsOut") return s === "ok" ? "OK" : "NOT OK";
-  if (field === "t1") return T1_LABEL[s as keyof typeof T1_LABEL] ?? s;
-  if (field === "type") return TYPE_LABEL[s as keyof typeof TYPE_LABEL] ?? s;
-  if (field === "destination") return DESTINATION_LABEL[s as keyof typeof DESTINATION_LABEL] ?? s;
-  if (field === "condition") return CONDITION_LABEL[s as keyof typeof CONDITION_LABEL] ?? s;
-  return s.length > 80 ? `${s.slice(0, 80)}…` : s;
+function isOneOf<T extends string>(list: readonly T[], value: string): value is T {
+  return (list as readonly string[]).includes(value);
 }
 
 const CHECK_FIELDS = new Set([
@@ -95,12 +56,6 @@ const TONE_CLASS: Record<Tone, string> = {
   neutral: "bg-muted text-foreground",
 };
 
-const ACTION_TEXT: Record<VesselEventView["action"], string> = {
-  created: "added the vessel",
-  updated: "changed",
-  deleted: "removed the vessel",
-};
-
 export function HistoryList({
   events,
   showVessel = false,
@@ -108,8 +63,29 @@ export function HistoryList({
   events: VesselEventView[];
   showVessel?: boolean;
 }) {
+  const t = useTranslations("vessels.history");
+  const labels = useVesselLabels();
+  const fmt = useVesselFormat();
+
+  function show(field: string, value: unknown): string {
+    if (value === null || value === undefined || value === "") return "—";
+    if (DATE_FIELDS.has(field) && typeof value === "string") return fmt.full(value);
+    if (typeof value === "boolean") {
+      const word = BOOL_WORDS.has(field) ? field : "check";
+      return t(`values.${word}${value ? "True" : "False"}`);
+    }
+    const s = String(value);
+    if (field === "prearrivalsIn" || field === "prearrivalsOut") return s === "ok" ? t("values.ok") : t("values.notOk");
+    if (field === "t1" && isOneOf(T1_VALUES, s)) return labels.t1(s);
+    if (field === "type" && isOneOf(VESSEL_TYPES, s)) return labels.type(s);
+    if (field === "destination" && isOneOf(DESTINATIONS, s)) return labels.destination(s);
+    if (field === "condition" && isOneOf(CONDITIONS, s)) return labels.condition(s);
+    if (field === "positionSource") return s === "ais" ? "AIS" : t("values.sourceManual");
+    return s.length > 80 ? `${s.slice(0, 80)}…` : s;
+  }
+
   if (!events.length) {
-    return <EmptyState icon={<History className="h-7 w-7" />} title="No changes yet" />;
+    return <EmptyState icon={<History className="h-7 w-7" />} title={t("empty")} />;
   }
   return (
     <ol className="relative space-y-4 border-l pl-5">
@@ -119,22 +95,22 @@ export function HistoryList({
           <li key={ev.id} className="relative">
             <span className="absolute -left-[26px] top-1 h-3 w-3 rounded-full border-2 border-background bg-primary" aria-hidden />
             <div className="flex flex-wrap items-baseline gap-x-1.5 text-sm">
-              <span className="font-semibold">{userName(ev.user)}</span>
-              <span className="text-muted-foreground">{ACTION_TEXT[ev.action]}</span>
+              <span className="font-semibold">{ev.user ? userName(ev.user) : t("system")}</span>
+              <span className="text-muted-foreground">{t(`actions.${ev.action}`)}</span>
               {showVessel ? (
                 <Link href={`/vessels/${ev.vesselId}`} className="font-medium text-primary hover:underline">
                   {ev.vesselName}
                 </Link>
               ) : null}
-              <time className="ml-auto text-xs text-muted-foreground" dateTime={ev.createdAt} title={fmtFull(ev.createdAt)}>
-                {fmtRelative(ev.createdAt)}
+              <time className="ml-auto text-xs text-muted-foreground" dateTime={ev.createdAt} title={fmt.full(ev.createdAt)}>
+                {fmt.relative(ev.createdAt)}
               </time>
             </div>
             {ev.action === "updated" && fields.length ? (
               <ul className="mt-1.5 space-y-1">
                 {fields.map(([field, change]) => (
                   <li key={field} className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs">
-                    <span className="font-medium text-foreground">{FIELD_LABEL[field] ?? field}:</span>
+                    <span className="font-medium text-foreground">{FIELDS.has(field) ? t(`fields.${field}`) : t("fields.other")}:</span>
                     <span className="max-w-full break-words rounded px-1.5 py-0.5 text-muted-foreground line-through decoration-muted-foreground/50">
                       {show(field, change.from)}
                     </span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type InputHTMLAttributes, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, Eye, EyeOff, Lock, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +51,7 @@ export function AuthInput({ label, icon: Icon, hint, invalid, ...props }: InputP
 
 /** Password input with a show / hide toggle */
 export function PasswordInput({ label, hint, invalid, ...props }: InputProps & { label: string; hint?: string; invalid?: boolean }) {
+  const t = useTranslations("auth");
   const id = useId();
   const hintId = `${id}-hint`;
   const [visible, setVisible] = useState(false);
@@ -71,7 +73,7 @@ export function PasswordInput({ label, hint, invalid, ...props }: InputProps & {
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label={visible ? t("hidePassword") : t("showPassword")}
           aria-pressed={visible}
           aria-controls={id}
           className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"

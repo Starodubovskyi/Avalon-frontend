@@ -1,31 +1,34 @@
 import Link from "next/link";
-import { COUNTRY_LABEL, PORT_GUIDE, SULINA_CHANNEL } from "@/lib/public/portGuide";
+import { useTranslations } from "next-intl";
+import { PORT_GUIDE, SULINA_CHANNEL } from "@/lib/public/portGuide";
 
 const STATS = [
-  { value: String(PORT_GUIDE.length + 1), label: "Sulina channel + river ports", sub: "From the roads to Brăila" },
-  { value: "3", label: "Countries, one agent", sub: "Romania · Ukraine · Moldova" },
-  { value: "7.32 m", label: "Sulina max draught", sub: "Indicative, 24 ft" },
-  { value: "≈ 64 km", label: "Sulina channel", sub: "Sulina → Tulcea fork" },
-];
+  { key: "ports", value: String(PORT_GUIDE.length + 1) },
+  { key: "countries", value: "3" },
+  { key: "draught", value: null },
+  { key: "channel", value: null },
+] as const;
 
 const CHIPS = [
-  { id: "sulina", name: "Sulina", meta: `${SULINA_CHANNEL.unlocode} · RO` },
-  ...PORT_GUIDE.map((p) => ({ id: p.id.toLowerCase(), name: p.name, meta: `${p.unlocode ?? COUNTRY_LABEL[p.country]} · ${p.country}` })),
+  { id: "sulina", name: "Sulina", code: SULINA_CHANNEL.unlocode, country: "RO" },
+  ...PORT_GUIDE.map((p) => ({ id: p.id.toLowerCase(), name: p.name, code: p.unlocode, country: p.country })),
 ];
 
 /** Plain facts and the ports covered, as a calm strip under the hero */
 export function HomeTrust() {
+  const t = useTranslations("home");
+  const tc = useTranslations("common");
   return (
-    <section aria-label="Coverage in numbers" className="px-4 pb-6 pt-14 sm:px-6 sm:pt-20 lg:px-8">
+    <section aria-label={t("trust.label")} className="px-4 pb-6 pt-14 sm:px-6 sm:pt-20 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4 lg:gap-0 lg:divide-x">
           {STATS.map((s) => (
-            <div key={s.label} className="flex flex-col lg:px-8 lg:first:pl-0">
-              <dt className="mt-2 text-sm font-semibold text-foreground">{s.label}</dt>
-              <dd className="tabular -order-1 font-display text-[34px] font-extrabold leading-none tracking-[-0.02em] text-foreground sm:text-[44px]">
-                {s.value}
+            <div key={s.key} className="flex flex-col lg:px-8 lg:first:pl-0">
+              <dt className="mt-2 text-sm font-semibold text-foreground">{t(`trust.stats.${s.key}.label`)}</dt>
+              <dd className="tabular -order-1 font-display text-[34px] font-extrabold leading-none tracking-[-0.035em] text-foreground sm:text-[46px]">
+                {s.value ?? t(`trust.stats.${s.key}.value`)}
               </dd>
-              <dd className="mt-1 text-xs text-muted-foreground">{s.sub}</dd>
+              <dd className="mt-1 text-xs text-muted-foreground">{t(`trust.stats.${s.key}.sub`)}</dd>
             </div>
           ))}
         </dl>
@@ -42,7 +45,9 @@ export function HomeTrust() {
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
                     {c.name}
-                    <span className="tabular text-xs font-medium text-muted-foreground">{c.meta}</span>
+                    <span className="tabular text-xs font-medium text-muted-foreground">
+                      {c.code ?? tc(`country.${c.country}`)} · {c.country}
+                    </span>
                   </Link>
                 </li>
               )),

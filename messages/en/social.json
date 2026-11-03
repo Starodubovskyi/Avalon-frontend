@@ -1,0 +1,49 @@
+{
+  "pageTitle": "Feed",
+  "eyebrow": "Network",
+  "title": "Feed",
+  "subtitle": "News from the Avalon team and partners — port updates, arrivals, wins.",
+  "tabs": {
+    "label": "Feed filter",
+    "all": "All",
+    "following": "Following"
+  },
+  "loading": "Loading feed…",
+  "emptyFollowingTitle": "Nothing from people you follow yet",
+  "emptyFollowingText": "Follow colleagues and partners to see their posts here. Your own posts show up too.",
+  "findPeople": "Find people",
+  "emptyTitle": "No posts yet",
+  "emptyText": "Be the first to share an update with the team.",
+  "posts": "Posts",
+  "loadingMore": "Loading…",
+  "loadMore": "Load more",
+  "caughtUp": "You're all caught up",
+  "composer": {
+    "label": "Write a post",
+    "placeholder": "What's new on the water, {name}?",
+    "hint": "Ctrl + Enter to post",
+    "submit": "Post"
+  },
+  "post": {
+    "by": "Post by {name}",
+    "delete": "Delete post",
+    "confirmDelete": "Delete this post? Its likes and comments go with it.",
+    "like": "Like",
+    "liked": "Liked",
+    "likeAria": "{liked, select, true {Unlike} other {Like}} post, {count, plural, one {# like} other {# likes}}",
+    "comments": "{count, plural, one {Comment} other {Comments}}",
+    "commentsAria": "{open, select, true {Hide} other {Show}} comments, {count}"
+  },
+  "comments": {
+    "empty": "No comments yet — be the first to reply.",
+    "label": "Comments",
+    "deleteAria": "Delete comment by {name}",
+    "deleting": "Deleting…",
+    "delete": "Delete",
+    "confirmDelete": "Delete this comment?",
+    "you": "You",
+    "placeholder": "Write a comment…",
+    "writeLabel": "Write a comment",
+    "send": "Post comment"
+  }
+}

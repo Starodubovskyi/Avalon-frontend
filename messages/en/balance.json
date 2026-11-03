@@ -1,0 +1,146 @@
+{
+  "eyebrow": "Account",
+  "title": "Balance",
+  "subtitle": "Credits for extra Business Activities and RANK boosts. 1 credit ≈ €1; top-ups are confirmed by the Avalon team.",
+  "loading": "Loading the balance…",
+  "loadError": "Could not load the balance.",
+  "pending": "Your request for {amount, plural, one {# credit} other {# credits}} from {date} is waiting for approval. You can send a new one once it is handled.",
+  "tabs": {
+    "label": "Balance sections",
+    "wallet": "My balance",
+    "requests": "Top-up requests",
+    "requestsShort": "Requests",
+    "accounts": "Accounts",
+    "pendingLabel": "pending"
+  },
+  "card": {
+    "brand": "Avalon credits",
+    "available": "Available balance",
+    "unit": "{count, plural, one {credit} other {credits}}",
+    "rate": "1 credit ≈ €1",
+    "holder": "Holder",
+    "pending": "+{amount} pending",
+    "amount": "{count, plural, one {# credit} other {# credits}}"
+  },
+  "actions": {
+    "topUp": "Request top-up",
+    "boost": "Boost RANK"
+  },
+  "prices": {
+    "title": "What credits buy",
+    "hint": "Charged from this balance",
+    "slot": "Extra Business Activity",
+    "slotHint": "One more activity slot on your point (one is free)",
+    "boost": "RANK boost",
+    "boostHint": "+{points} RANK for {days} days on every point you added"
+  },
+  "boosts": {
+    "title": "Active boosts",
+    "empty": "No active boosts. A boost lifts your RANK on the map and in profiles.",
+    "until": "until {date}"
+  },
+  "history": {
+    "title": "History",
+    "hint": "Last 50 operations",
+    "after": "balance {balance}",
+    "emptyTitle": "No operations yet",
+    "emptyText": "Top-ups and purchases will appear here."
+  },
+  "kinds": {
+    "top_up": "Top-up",
+    "activity_slot": "Business Activity slot",
+    "rank_boost": "RANK boost",
+    "refund": "Refund",
+    "adjustment": "Adjustment"
+  },
+  "topUp": {
+    "title": "Request a top-up",
+    "text": "Tell us how many credits you need. The Avalon team confirms the payment and credits your balance.",
+    "presets": "Quick amounts",
+    "amount": "Amount, credits",
+    "amountHint": "1 credit ≈ €1",
+    "amountRange": "Enter a whole number from {min} to {max}.",
+    "note": "Note for the team",
+    "noteHint": "Optional: invoice or payment reference",
+    "notePlaceholder": "e.g. Bank transfer, invoice AV-2026-120",
+    "submit": "Send request",
+    "sent": "Request sent",
+    "sentText": "The credits appear as soon as the team approves it."
+  },
+  "boost": {
+    "title": "Boost your RANK",
+    "text": "+{points} RANK for {days} days. Your points rise on the map and in Companies, and partners see a stronger profile.",
+    "price": "Price",
+    "gain": "You get",
+    "after": "Balance after the boost: {balance, plural, one {# credit} other {# credits}}",
+    "confirm": "Pay {price, plural, one {# credit} other {# credits}}",
+    "topUpFirst": "Top up first",
+    "done": "RANK boosted: +{points} for {days} days"
+  },
+  "admin": {
+    "statusFilter": "Request status",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "declined": "Declined"
+    },
+    "approve": "Approve",
+    "decline": "Decline",
+    "approved": "{amount} credits added to {name}",
+    "declined": "Request of {name} declined",
+    "empty": {
+      "pending": "No requests waiting",
+      "approved": "No approved requests yet",
+      "declined": "No declined requests"
+    },
+    "emptyText": "Clients request credits from their Balance page."
+  },
+  "accounts": {
+    "search": "Search name or email",
+    "manage": "Credit / Adjust",
+    "emptyTitle": "No accounts found",
+    "emptyText": "Try another name or email."
+  },
+  "credit": {
+    "current": "Current balance: {balance, plural, one {# credit} other {# credits}}",
+    "mode": "Operation",
+    "credit": "Credit",
+    "adjust": "Adjust (take off)",
+    "amount": "Amount, credits",
+    "creditHint": "Added to the balance as a top-up",
+    "adjustHint": "Taken off the balance as an adjustment",
+    "amountRange": "Enter a whole number from 1 to {max}.",
+    "note": "Note",
+    "notePlaceholder": "Reason, e.g. paid by bank transfer",
+    "submitCredit": "Credit",
+    "submitAdjust": "Take off",
+    "credited": "{amount} credits added to {name}",
+    "adjusted": "{amount} credits taken off {name}",
+    "newBalance": "New balance: {balance}"
+  },
+  "common": {
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "amount": {
+      "pendingExists": "You already have a request waiting for approval.",
+      "invalid": "Enter a whole number of credits."
+    },
+    "balance": {
+      "insufficient": "Not enough credits on the balance."
+    },
+    "status": {
+      "alreadyHandled": "This request has already been handled."
+    },
+    "userId": {
+      "notFound": "This account no longer exists."
+    },
+    "note": {
+      "tooLong": "The note is too long."
+    },
+    "forbidden": "Only an administrator can do that.",
+    "notFound": "Not found — it may have been removed.",
+    "offline": "Can’t reach the server — check your connection.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

@@ -49,6 +49,7 @@ const isPublicPage = () => {
     p === "/" ||
     p === "/port-guide" ||
     p === "/estimate" ||
+    p === "/verify-email" ||
     p === "/auth" ||
     p.startsWith("/auth/") ||
     /^\/login(\/|$)/.test(p)

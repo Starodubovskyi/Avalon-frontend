@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DemoRole } from "@/lib/demo/mode";
@@ -29,6 +30,7 @@ export function DemoPanel({
   error?: string | null;
   onEnter: () => void;
 }) {
+  const t = useTranslations("auth");
   const current = DEMO_ROLES.find((r) => r.role === role) ?? DEMO_ROLES[0];
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -57,13 +59,13 @@ export function DemoPanel({
         </span>
         <div className="min-w-0">
           <h3 id="demo-title" className="text-sm font-bold">
-            Explore the demo
+            {t("demo.title")}
           </h3>
-          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">Sample fleet, team and documents. Nothing leaves this browser.</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("demo.text")}</p>
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-muted p-1" role="radiogroup" aria-label="Demo role" onKeyDown={onKey}>
+      <div className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-muted p-1" role="radiogroup" aria-label={t("demo.roleLabel")} onKeyDown={onKey}>
         {DEMO_ROLES.map((r, i) => {
           const checked = role === r.role;
           return (
@@ -82,7 +84,7 @@ export function DemoPanel({
                 checked ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {r.label}
+              {t(`demo.roles.${r.role}.label`)}
             </button>
           );
         })}
@@ -96,8 +98,8 @@ export function DemoPanel({
       >
         <span className="flex min-w-0 items-center gap-2">
           {starting ? <Spinner className={cn("h-4 w-4 shrink-0", primary && "text-primary-foreground")} /> : null}
-          <span className="whitespace-nowrap font-semibold">Explore as {current.label}</span>
-          <span className="truncate font-normal opacity-70">· {current.hint}</span>
+          <span className="whitespace-nowrap font-semibold">{t("demo.exploreAs", { role: t(`demo.roles.${current.role}.label`) })}</span>
+          <span className="truncate font-normal opacity-70">· {t(`demo.roles.${current.role}.hint`)}</span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden />
       </button>

@@ -1,4 +1,5 @@
-import type { DemoState } from "../types";
+import { DEMO_STATE_VERSION, type DemoState } from "../types";
+import { seedCompanyMembers } from "./companies";
 import { seedDocuments } from "./documents";
 import { seedHistory } from "./history";
 import { seedChat, seedFeed, seedFollows } from "./network";
@@ -6,6 +7,7 @@ import { seedPoints, seedPorts } from "./places";
 import { seedRequests } from "./requests";
 import { seedUsers } from "./users";
 import { seedVessels } from "./vessels";
+import { seedWallet } from "./wallet";
 
 /** Fresh demo database; every date is relative to `now` so the board always looks current */
 export function seedDemoState(now: Date): DemoState {
@@ -14,14 +16,16 @@ export function seedDemoState(now: Date): DemoState {
   const vesselEvents = seedHistory(vessels, t);
   const { conversations, messages } = seedChat(t);
   const { posts, likes, comments } = seedFeed(t);
+  const mapPoints = seedPoints(t);
+  const { topUpRequests, walletTransactions, rankBoosts } = seedWallet(mapPoints, t);
   return {
-    version: 1,
+    version: DEMO_STATE_VERSION,
     seededAt: now.toISOString(),
     users: seedUsers(t),
     vessels,
     vesselEvents,
     documents: seedDocuments(vessels, t),
-    mapPoints: seedPoints(t),
+    mapPoints,
     conversations,
     messages,
     posts,
@@ -31,5 +35,9 @@ export function seedDemoState(now: Date): DemoState {
     ports: seedPorts(t),
     agencyRequests: seedRequests(vessels, t),
     pendingReplies: [],
+    companyMembers: seedCompanyMembers(mapPoints, t),
+    walletTransactions,
+    topUpRequests,
+    rankBoosts,
   };
 }

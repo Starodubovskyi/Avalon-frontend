@@ -1,26 +1,17 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { List, Ship, Users, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useMemo, useState } from "react";
+import { List } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit } from "@/lib/auth/roles";
 import { useVessels } from "@/lib/vessels/hooks";
 import { compareVessels, isUnpaidAfterDeparture } from "@/lib/vessels/status";
-import {
-  DEFAULT_FORM_KIND,
-  POINT_KINDS,
-  POINT_KIND_LABEL,
-  pointTitle,
-  useTeamPointMutations,
-  useTeamPoints,
-  type PointKind,
-  type TeamPoint,
-} from "@/lib/points/team-points";
-import { activityLine } from "@/lib/points/activities";
-import { ErrorBlock, btn } from "../ui/primitives";
+import { DEFAULT_FORM_KIND, POINT_KINDS, pointTitle, type PointKind, type TeamPoint } from "@/lib/points/team-points";
+import { usePointQuota, useTeamPointMutations, useTeamPoints } from "@/lib/points/hooks";
+import { usePointLabels } from "@/lib/points/labels";
+import { ErrorBlock } from "../ui/primitives";
 import { MapVesselList } from "./MapVesselList";
 import { MapVesselCard } from "./MapVesselCard";
 import { MapPointList } from "./MapPointList";
@@ -28,6 +19,8 @@ import { MapPointCard } from "./MapPointCard";
 import { PointFormDialog } from "./PointFormDialog";
 import { MapLegend, MapLayerChips } from "./MapControls";
 import { AddPointControl } from "./AddPointControl";
+import { MapSidebar, type MapTab } from "./MapSidebar";
+import { useMapDeepLinks } from "./useMapDeepLinks";
 import type { LayerVisibility } from "./FleetMap";
 
 const FleetMap = dynamic(() => import("./FleetMap").then((m) => m.FleetMap), {
@@ -35,16 +28,17 @@ const FleetMap = dynamic(() => import("./FleetMap").then((m) => m.FleetMap), {
   loading: () => <div className="absolute inset-0 animate-pulse bg-muted" />,
 });
 
-type Tab = "vessels" | "contacts";
-
 export function FleetMapView() {
+  const t = useTranslations("map");
+  const labels = usePointLabels();
   const { user } = useAuth();
   const staff = canEdit(user);
   const { data, error, mutate } = useVessels("all");
   const { data: pointsData } = useTeamPoints();
   const { remove: removePoint } = useTeamPointMutations();
+  const quota = usePointQuota(pointsData);
 
-  const [tab, setTab] = useState<Tab>("vessels");
+  const [tab, setTab] = useState<MapTab>("vessels");
   const [selectedVesselId, setSelectedVesselId] = useState<string | null>(null);
   const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -76,9 +70,9 @@ export function FleetMapView() {
       (p) =>
         layers.kinds[p.kind] &&
         (!layers.favoritesOnly || p.isFavorite) &&
-        (!q || `${pointTitle(p)} ${activityLine(p)} ${p.address ?? ""}`.toLowerCase().includes(q)),
+        (!q || `${pointTitle(p)} ${labels.activityList(p)} ${p.address ?? ""}`.toLowerCase().includes(q)),
     );
-  }, [pointsData, pointQuery, layers.kinds, layers.favoritesOnly]);
+  }, [pointsData, pointQuery, layers.kinds, layers.favoritesOnly, labels]);
   const favoriteCount = useMemo(() => (pointsData ?? []).filter((p) => p.isFavorite).length, [pointsData]);
 
   const selectedVessel = visible.find((v) => v.id === selectedVesselId) ?? null;
@@ -108,7 +102,7 @@ export function FleetMapView() {
   }
 
   async function deletePoint(p: TeamPoint) {
-    if (!window.confirm(`Remove “${pointTitle(p)}” from the map?`)) return;
+    if (!window.confirm(t("confirmDelete", { title: pointTitle(p) }))) return;
     try {
       await removePoint(p);
       setSelectedPointId(null);
@@ -117,94 +111,62 @@ export function FleetMapView() {
     }
   }
 
-  // Deep links from the contacts directory: ?point=<id> focuses a pin, ?add=<kind> starts placing one
-  const params = useSearchParams();
-  const linkedPoint = params?.get("point") ?? null;
-  const linkedAdd = params?.get("add") ?? null;
-  const appliedLink = useRef<string | null>(null);
-  useEffect(() => {
-    if (!staff) return;
-    const key = `${linkedPoint ?? ""}|${linkedAdd ?? ""}`;
-    if (appliedLink.current === key) return;
-    if (linkedAdd && (POINT_KINDS as readonly string[]).includes(linkedAdd)) {
-      appliedLink.current = key;
-      startAdd(linkedAdd as PointKind);
-      return;
-    }
-    const linked = linkedPoint ? pointsData?.find((p) => p.id === linkedPoint) : undefined;
-    if (linked) {
-      appliedLink.current = key;
+  useMapDeepLinks({
+    points: pointsData,
+    canAdd: !(quota.limited && quota.remaining === 0),
+    onAdd: startAdd,
+    onFocus: (linked) => {
       // a shared link must show the point even if filters would hide it
       setLayers((l) => ({ ...l, favoritesOnly: l.favoritesOnly && linked.isFavorite, kinds: { ...l.kinds, [linked.kind]: true } }));
       setTab("contacts");
       setSelectedVesselId(null);
-      setSelectedPointId(linkedPoint);
-    }
-    // startAdd only sets state; re-run when the points list arrives
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [staff, linkedPoint, linkedAdd, pointsData]);
+      setSelectedPointId(linked.id);
+    },
+  });
 
   return (
     <div className="relative flex min-h-0 flex-1">
-      <aside
-        className={cn(
-          "glass absolute inset-y-3 left-3 z-20 flex w-[320px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-2xl border shadow-elevated transition-[transform,visibility] md:visible md:translate-x-0",
-          listOpen ? "visible translate-x-0" : "invisible -translate-x-[110%]",
-        )}
-      >
-        <div className="flex items-center justify-between px-4 pb-2 pt-4">
-          <div>
-            <p className="font-display text-[15px] font-bold">Fleet & contacts</p>
-            <p className="text-xs text-muted-foreground">
-              {inWork} vessels in work{staff ? ` · ${(pointsData ?? []).length} points` : ""}
-            </p>
-          </div>
-          <button type="button" onClick={() => setListOpen(false)} className={cn(btn.icon, "md:hidden")} aria-label="Close list">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        {staff ? (
-          <div className="mx-3 grid grid-cols-2 rounded-xl bg-muted p-1 text-xs font-semibold" role="tablist">
-            {(["vessels", "contacts"] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                role="tab"
-                aria-selected={tab === t}
-                onClick={() => setTab(t)}
-                className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-lg py-2 transition",
-                  tab === t ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {t === "vessels" ? <Ship className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />}
-                {t === "vessels" ? `Vessels (${visible.length})` : `Contacts (${points.length})`}
-              </button>
-            ))}
-          </div>
-        ) : null}
-        <div className="min-h-0 flex-1">
-          {tab === "vessels" || !staff ? (
-            <MapVesselList vessels={visible} selectedId={selectedVesselId} onSelect={(id) => { selectVessel(id); setSelectedPointId(null); }} query={query} onQuery={setQuery} />
-          ) : (
-            <MapPointList
-              points={points}
-              selectedId={selectedPointId}
-              onSelect={(id) => { selectPoint(id); setSelectedVesselId(null); }}
-              query={pointQuery}
-              onQuery={setPointQuery}
-              favoritesOnly={layers.favoritesOnly}
-              onFavoritesOnly={(on) => setLayers((l) => ({ ...l, favoritesOnly: on }))}
-              favoriteCount={favoriteCount}
-            />
-          )}
-        </div>
-      </aside>
+      <MapSidebar
+        open={listOpen}
+        onClose={() => setListOpen(false)}
+        tab={tab}
+        onTab={setTab}
+        inWork={inWork}
+        vesselCount={visible.length}
+        pointCount={points.length}
+        vessels={
+          <MapVesselList
+            vessels={visible}
+            selectedId={selectedVesselId}
+            onSelect={(id) => {
+              selectVessel(id);
+              setSelectedPointId(null);
+            }}
+            query={query}
+            onQuery={setQuery}
+          />
+        }
+        points={
+          <MapPointList
+            points={points}
+            selectedId={selectedPointId}
+            onSelect={(id) => {
+              selectPoint(id);
+              setSelectedVesselId(null);
+            }}
+            query={pointQuery}
+            onQuery={setPointQuery}
+            favoritesOnly={layers.favoritesOnly}
+            onFavoritesOnly={(on) => setLayers((l) => ({ ...l, favoritesOnly: on }))}
+            favoriteCount={favoriteCount}
+          />
+        }
+      />
 
       <div className="relative min-h-0 flex-1">
         <FleetMap
           vessels={layers.vessels ? visible : []}
-          points={staff ? points : []}
+          points={points}
           selectedVesselId={selectedVesselId}
           selectedPointId={selectedPointId}
           onSelectVessel={selectVessel}
@@ -225,15 +187,15 @@ export function FleetMapView() {
             onClick={() => setListOpen((o) => !o)}
             className="glass pointer-events-auto flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-semibold shadow-card md:hidden"
           >
-            <List className="h-4 w-4" /> List
+            <List className="h-4 w-4" /> {t("listButton")}
           </button>
-          <MapLayerChips layers={layers} onChange={setLayers} showKinds={staff} />
-          {staff ? <AddPointControl variant="toolbar" addKind={addKind} onStart={startAdd} onCancel={cancelAdd} /> : null}
+          <MapLayerChips layers={layers} onChange={setLayers} />
+          <AddPointControl variant="toolbar" addKind={addKind} onStart={startAdd} onCancel={cancelAdd} quota={quota} />
         </div>
 
         {addKind && !formOpen ? (
-          <div className="absolute left-1/2 top-20 z-10 -translate-x-1/2 rounded-full bg-slate-900/85 px-4 py-2 text-sm font-medium text-white shadow-elevated backdrop-blur">
-            Click on the map to place the {POINT_KIND_LABEL[addKind].toLowerCase()}
+          <div className="absolute left-1/2 top-20 z-10 w-max max-w-[calc(100%-1.5rem)] -translate-x-1/2 rounded-full bg-slate-900/85 px-4 py-2 text-center text-sm font-medium text-white shadow-elevated backdrop-blur">
+            {t("placeHint", { kind: labels.kind(addKind).toLowerCase() })}
           </div>
         ) : null}
 
@@ -244,9 +206,7 @@ export function FleetMapView() {
         ) : null}
 
         <MapLegend staff={staff} showDeparted={showDeparted} onShowDeparted={setShowDeparted} />
-        {staff && !selectedVessel && !selectedPoint ? (
-          <AddPointControl variant="fab" addKind={addKind} onStart={startAdd} onCancel={cancelAdd} />
-        ) : null}
+        {!selectedVessel && !selectedPoint ? <AddPointControl variant="fab" addKind={addKind} onStart={startAdd} onCancel={cancelAdd} quota={quota} /> : null}
 
         {selectedVessel || selectedPoint ? (
           <div className="glass absolute inset-x-0 bottom-0 z-20 max-h-[70%] overflow-y-auto rounded-t-3xl border shadow-elevated md:inset-x-auto md:bottom-auto md:right-14 md:top-3 md:max-h-[calc(100%-1.5rem)] md:w-[360px] md:rounded-2xl">
@@ -255,7 +215,6 @@ export function FleetMapView() {
             ) : selectedPoint ? (
               <MapPointCard
                 point={selectedPoint}
-                editable={staff}
                 onClose={() => setSelectedPointId(null)}
                 onEdit={() => {
                   setEditPoint(selectedPoint);
@@ -268,26 +227,24 @@ export function FleetMapView() {
         ) : null}
       </div>
 
-      {staff ? (
-        <PointFormDialog
-          open={formOpen}
-          onOpenChange={(o) => {
-            setFormOpen(o);
-            if (!o) {
-              setDraft(null);
-              if (!editPoint) setAddKind(null);
-            }
-          }}
-          point={editPoint}
-          at={draft}
-          defaultKind={addKind ?? DEFAULT_FORM_KIND}
-          onSaved={(p) => {
-            setSelectedPointId(p.id);
-            setTab("contacts");
-            setAddKind(null);
-          }}
-        />
-      ) : null}
+      <PointFormDialog
+        open={formOpen}
+        onOpenChange={(o) => {
+          setFormOpen(o);
+          if (!o) {
+            setDraft(null);
+            if (!editPoint) setAddKind(null);
+          }
+        }}
+        point={editPoint}
+        at={draft}
+        defaultKind={addKind ?? DEFAULT_FORM_KIND}
+        onSaved={(p) => {
+          setSelectedPointId(p.id);
+          setTab("contacts");
+          setAddKind(null);
+        }}
+      />
     </div>
   );
 }

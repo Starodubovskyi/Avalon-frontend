@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, ClipboardCheck, ExternalLink, FileUp, History, Lock, MapPin, MessageCircle, Pencil, Phone, Route, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit, isAdmin } from "@/lib/auth/roles";
-import { extractAuthError } from "@/lib/api/auth";
+import { useErrorText } from "@/lib/api/errorText";
 import { useVessel, useVesselEvents, useVesselMutations } from "@/lib/vessels/hooks";
 import { STAGE_META, daysSince, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import { marineTrafficUrl } from "@/lib/vessels/geo";
-import { fmtRelative } from "@/lib/vessels/format";
-import { CONDITION_LABEL, DESTINATION_LABEL, TYPE_LABEL, userName } from "@/lib/vessels/types";
+import { useVesselFormat, useVesselLabels } from "@/lib/vessels/i18n";
+import { userName } from "@/lib/vessels/types";
 import { ErrorBlock, LoadingBlock, Panel, btn } from "../ui/primitives";
 import { StageBadge, UnpaidBadge } from "../ui/StageBadge";
 import { ChecklistGrid } from "./ChecklistGrid";
@@ -32,6 +33,10 @@ function digits(phone: string) {
 }
 
 export function VesselDetail({ id }: { id: string }) {
+  const t = useTranslations("vessels.detail");
+  const errorText = useErrorText();
+  const labels = useVesselLabels();
+  const fmt = useVesselFormat();
   const router = useRouter();
   const { user } = useAuth();
   const staff = canEdit(user);
@@ -43,7 +48,7 @@ export function VesselDetail({ id }: { id: string }) {
   const [uploadOpen, setUploadOpen] = useState(false);
 
   if (error && !vessel) return <ErrorBlock error={error} onRetry={() => void mutate()} />;
-  if (!vessel) return <LoadingBlock label={isLoading ? "Loading vessel…" : "Vessel not found"} />;
+  if (!vessel) return <LoadingBlock label={isLoading ? t("loading") : t("notFound")} />;
 
   const unpaid = isUnpaidAfterDeparture(vessel);
   const editable = staff && !vessel.restricted;
@@ -51,19 +56,19 @@ export function VesselDetail({ id }: { id: string }) {
 
   async function onDelete() {
     if (!vessel) return;
-    if (!window.confirm(`Remove ${vessel.name} from the board? The history is kept.`)) return;
+    if (!window.confirm(t("confirmRemove", { name: vessel.name }))) return;
     try {
       await remove(vessel);
       router.push("/vessels");
     } catch (e) {
-      toast.error(extractAuthError(e));
+      toast.error(errorText(e));
     }
   }
 
   return (
     <div className="space-y-6">
       <Link href="/vessels" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> All vessels
+        <ArrowLeft className="h-4 w-4" /> {t("back")}
       </Link>
 
       <header className="relative overflow-hidden rounded-3xl border bg-card shadow-card">
@@ -82,17 +87,18 @@ export function VesselDetail({ id }: { id: string }) {
                 {unpaid ? <UnpaidBadge days={daysSince(vessel.departedAt)} /> : null}
               </div>
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <span>{vessel.imo ? `IMO ${vessel.imo}` : "IMO not set"}</span>
+                <span>{vessel.imo ? `IMO ${vessel.imo}` : t("noImo")}</span>
                 {vessel.mmsi ? <span>MMSI {vessel.mmsi}</span> : null}
-                <span>{TYPE_LABEL[vessel.type]}{vessel.condition ? ` · ${CONDITION_LABEL[vessel.condition]}` : ""}</span>
+                <span>{labels.type(vessel.type)}{vessel.condition ? ` · ${labels.condition(vessel.condition)}` : ""}</span>
                 <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                  <Route className="h-3.5 w-3.5 text-primary" /> Sulina → {DESTINATION_LABEL[vessel.destination]}
+                  <Route className="h-3.5 w-3.5 text-primary" /> Sulina → {labels.destination(vessel.destination)}
                 </span>
               </div>
               {!vessel.restricted ? (
                 <p className="mt-1.5 text-xs text-muted-foreground">
-                  Updated {fmtRelative(vessel.updatedAt)}
-                  {vessel.updatedBy ? ` by ${userName(vessel.updatedBy)}` : ""}
+                  {vessel.updatedBy
+                    ? t("updatedBy", { when: fmt.relative(vessel.updatedAt), name: userName(vessel.updatedBy) })
+                    : t("updated", { when: fmt.relative(vessel.updatedAt) })}
                 </p>
               ) : null}
             </div>
@@ -101,7 +107,7 @@ export function VesselDetail({ id }: { id: string }) {
             {!vessel.restricted && vessel.masterPhone ? (
               <>
                 <a href={`tel:${vessel.masterPhone.replace(/\s/g, "")}`} className={btn.secondary}>
-                  <Phone className="h-4 w-4 text-primary" /> Call master
+                  <Phone className="h-4 w-4 text-primary" /> {t("callMaster")}
                 </a>
                 {digits(vessel.masterPhone).length >= 9 ? (
                   <a href={`https://wa.me/${digits(vessel.masterPhone)}`} target="_blank" rel="noreferrer" className={btn.secondary}>
@@ -115,11 +121,11 @@ export function VesselDetail({ id }: { id: string }) {
             </a>
             {staff ? (
               <button type="button" onClick={() => setEditOpen(true)} className={btn.primary}>
-                <Pencil className="h-4 w-4" /> Edit
+                <Pencil className="h-4 w-4" /> {t("edit")}
               </button>
             ) : null}
             {isAdmin(user) ? (
-              <button type="button" onClick={() => void onDelete()} className={cn(btn.secondary, "w-10 px-0 hover:text-bad")} aria-label="Remove vessel">
+              <button type="button" onClick={() => void onDelete()} className={cn(btn.secondary, "w-10 px-0 hover:text-bad")} aria-label={t("remove")} title={t("remove")}>
                 <Trash2 className="h-4 w-4" />
               </button>
             ) : null}
@@ -127,15 +133,15 @@ export function VesselDetail({ id }: { id: string }) {
         </div>
         {vessel.restricted ? (
           <p className="relative mx-6 mb-6 flex items-center gap-2 rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
-            <Lock className="h-3.5 w-3.5" /> Read-only view: contacts, payments and the internal checklist are visible to Avalon staff only.
+            <Lock className="h-3.5 w-3.5 shrink-0" /> {t("restricted")}
           </p>
         ) : null}
       </header>
 
       {!vessel.restricted ? (
         <Panel
-          title="Preparation checklist"
-          description={`${vessel.checklist?.done ?? 0} of ${vessel.checklist?.total ?? 8} done${editable ? " · click an item to switch it" : ""}`}
+          title={t("checklistTitle")}
+          description={t(editable ? "checklistProgressEditable" : "checklistProgress", { done: vessel.checklist?.done ?? 0, total: vessel.checklist?.total ?? 8 })}
           icon={<ClipboardCheck className="h-4 w-4" />}
         >
           <ChecklistGrid vessel={vessel} editable={editable} />
@@ -144,15 +150,15 @@ export function VesselDetail({ id }: { id: string }) {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
         <div className="space-y-6">
-          <Panel title="Voyage" description="ETA → Sulina roads → port → open sea" icon={<Route className="h-4 w-4" />}>
+          <Panel title={t("voyageTitle")} description={t("voyageDescription")} icon={<Route className="h-4 w-4" />}>
             <VoyageTimeline vessel={vessel} editable={editable} />
           </Panel>
           {!vessel.restricted ? (
-            <Panel title="Contacts" icon={<Users className="h-4 w-4" />}>
+            <Panel title={t("contactsTitle")} icon={<Users className="h-4 w-4" />}>
               <ContactsPanel vessel={vessel} />
               {vessel.pilot || vessel.notes ? (
                 <div className="mt-3 space-y-2 rounded-xl bg-muted/70 p-4 text-sm">
-                  {vessel.pilot ? <p><span className="font-semibold">Pilot:</span> {vessel.pilot}</p> : null}
+                  {vessel.pilot ? <p><span className="font-semibold">{t("pilot")}</span> {vessel.pilot}</p> : null}
                   {vessel.notes ? <p className="whitespace-pre-wrap">{vessel.notes}</p> : null}
                 </div>
               ) : null}
@@ -160,27 +166,27 @@ export function VesselDetail({ id }: { id: string }) {
           ) : null}
           {staff ? (
             <Panel
-              title="Documents"
+              title={t("documentsTitle")}
               icon={<FileUp className="h-4 w-4" />}
               action={
                 <button type="button" onClick={() => setUploadOpen(true)} className={btn.ghost}>
-                  <FileUp className="h-4 w-4" /> Upload
+                  <FileUp className="h-4 w-4" /> {t("upload")}
                 </button>
               }
               bodyClassName="py-1"
             >
-              <DocumentList documents={documents ?? []} showVessel={false} emptyText="Attach PDA, crew list, certificates or customs papers for this vessel." />
+              <DocumentList documents={documents ?? []} showVessel={false} emptyText={t("documentsEmpty")} />
             </Panel>
           ) : null}
         </div>
 
         <div className="space-y-6">
-          <Panel title="Position" icon={<MapPin className="h-4 w-4" />}>
+          <Panel title={t("positionTitle")} icon={<MapPin className="h-4 w-4" />}>
             <PositionPanel vessel={vessel} editable={editable} />
           </Panel>
           {staff ? (
-            <Panel title="History" description="Every change, signed" icon={<History className="h-4 w-4" />}>
-              {events ? <HistoryList events={events} /> : <LoadingBlock label="Loading history…" />}
+            <Panel title={t("historyTitle")} description={t("historyDescription")} icon={<History className="h-4 w-4" />}>
+              {events ? <HistoryList events={events} /> : <LoadingBlock label={t("historyLoading")} />}
             </Panel>
           ) : null}
         </div>

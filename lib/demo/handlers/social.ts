@@ -27,7 +27,7 @@ const COMMENT_MAX = 2000;
 function visibleAuthor(state: DemoState, viewer: DemoUserRow, authorId: number): boolean {
   if (authorId === viewer.id) return true;
   const author = findUser(state, authorId);
-  return !!author && canSeeUser(viewer, author);
+  return !!author && canSeeUser(state, viewer, author);
 }
 
 function visibleComments(state: DemoState, viewer: DemoUserRow, postId: string): CommentRow[] {

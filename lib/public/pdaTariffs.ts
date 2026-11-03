@@ -27,12 +27,19 @@ export interface PdaInput {
 
 export type PdaGroup = "channel" | "port" | "services" | "agency";
 
+/** Values for the translated label and basis (`publicPages.pda.lines.<labelKey>`, `publicPages.pda.basis.<basisKey>`) */
+export type PdaArgs = Record<string, string | number>;
+
 export interface PdaLine {
   id: string;
   group: PdaGroup;
+  /** English label, kept for places outside the translated UI */
   label: string;
-  /** how the amount was built, in plain words */
+  /** how the amount was built, in plain words (English) */
   basis: string;
+  labelKey: string;
+  basisKey: string;
+  args: PdaArgs;
   amount: number;
 }
 
@@ -99,10 +106,10 @@ const SULINA_PILOT_BASE = 350;
 const SULINA_PILOT_PER_M = 4;
 const TUG_PER_GT = 0.02;
 
-const TYPE_EXTRA: Record<VesselType, { label: string; basis: string; amount: number } | null> = {
+const TYPE_EXTRA: Record<VesselType, { label: string; basis: string; labelKey: string; amount: number } | null> = {
   general_cargo: null,
-  tanker: { label: "Tanker safety & gas-free inspection", basis: "Flat, per call", amount: 260 },
-  livestock: { label: "Veterinary inspection & certificates", basis: "Flat, per call", amount: 420 },
+  tanker: { label: "Tanker safety & gas-free inspection", basis: "Flat, per call", labelKey: "tankerInspection", amount: 260 },
+  livestock: { label: "Veterinary inspection & certificates", basis: "Flat, per call", labelKey: "vetInspection", amount: 420 },
 };
 
 const AGENCY_BANDS: { upTo: number; fee: number }[] = [
@@ -161,6 +168,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "channel",
       label: "Sulina channel dues",
       basis: `${num(gt)} GT × €${channelRate.toFixed(2)} × 2 passages${ballast ? " (ballast rate)" : ""}`,
+      labelKey: "channelDues",
+      basisKey: ballast ? "channelDuesBallast" : "channelDues",
+      args: { gt, rate: channelRate },
       amount: eur(gt * channelRate * 2),
     },
     {
@@ -168,6 +178,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "channel",
       label: "Sulina pilotage, in & out",
       basis: `€${SULINA_PILOT_BASE} + ${loa} m LOA × €${SULINA_PILOT_PER_M}, × 2`,
+      labelKey: "sulinaPilotage",
+      basisKey: "sulinaPilotage",
+      args: { base: SULINA_PILOT_BASE, loa, perM: SULINA_PILOT_PER_M },
       amount: eur((SULINA_PILOT_BASE + loa * SULINA_PILOT_PER_M) * 2),
     },
     {
@@ -175,6 +188,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "services",
       label: "River pilotage Sulina ↔ berth",
       basis: `€${t.riverPilotBase} + ${num(gt)} GT × €${t.riverPilotPerGt}, × 2`,
+      labelKey: "riverPilotage",
+      basisKey: "riverPilotage",
+      args: { base: t.riverPilotBase, gt, perGt: t.riverPilotPerGt },
       amount: eur((t.riverPilotBase + gt * t.riverPilotPerGt) * 2),
     },
     {
@@ -182,6 +198,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "port",
       label: "Port dues",
       basis: `${num(gt)} GT × €${t.portDues}${ballast ? " × 0.9 ballast" : ""}`,
+      labelKey: "portDues",
+      basisKey: ballast ? "portDuesBallast" : "portDues",
+      args: { gt, rate: t.portDues },
       amount: eur(gt * t.portDues * (ballast ? BALLAST_PORT_FACTOR : 1)),
     },
     {
@@ -189,6 +208,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "port",
       label: `Berth dues, ${days} ${days === 1 ? "day" : "days"}`,
       basis: `${num(gt)} GT × €${t.berthPerGtDay} × ${days}`,
+      labelKey: "berthDues",
+      basisKey: "berthDues",
+      args: { gt, rate: t.berthPerGtDay, days },
       amount: eur(gt * t.berthPerGtDay * days),
     },
     {
@@ -196,6 +218,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "services",
       label: "Mooring & unmooring",
       basis: `2 operations × €${gt > 10_000 ? Math.round(t.mooring * 1.3) : t.mooring}`,
+      labelKey: "mooring",
+      basisKey: "mooring",
+      args: { rate: gt > 10_000 ? Math.round(t.mooring * 1.3) : t.mooring },
       amount: eur(2 * t.mooring * (gt > 10_000 ? 1.3 : 1)),
     },
   ];
@@ -206,6 +231,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "services",
       label: "Towage, in & out",
       basis: `(€${t.tugPerMove} + ${num(gt)} GT × €${TUG_PER_GT}) × 2 — compulsory from ${num(t.tugFromGt)} GT`,
+      labelKey: "towage",
+      basisKey: "towage",
+      args: { perMove: t.tugPerMove, gt, perGt: TUG_PER_GT, from: t.tugFromGt },
       amount: eur((t.tugPerMove + gt * TUG_PER_GT) * 2),
     });
   }
@@ -216,11 +244,14 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
     group: "port",
     label: "Ship-generated waste fee",
     basis: `€180 + ${num(gt)} GT × €0.015${wasteFactor > 1 ? " × 1.5 slops" : ""}`,
+    labelKey: "waste",
+    basisKey: wasteFactor > 1 ? "wasteTanker" : "waste",
+    args: { gt },
     amount: eur((180 + gt * 0.015) * wasteFactor),
   });
 
   const extra = TYPE_EXTRA[vesselType];
-  if (extra) lines.push({ id: "type-extra", group: "agency", ...extra });
+  if (extra) lines.push({ id: "type-extra", group: "agency", basisKey: "flat", args: {}, ...extra });
 
   lines.push(
     {
@@ -228,6 +259,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "agency",
       label: "Customs, border & sanitary clearance",
       basis: "Flat, per call",
+      labelKey: "clearance",
+      basisKey: "flat",
+      args: {},
       amount: t.clearance,
     },
     {
@@ -235,6 +269,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "agency",
       label: "Agency fee",
       basis: days > 5 ? `GT band + ${days - 5} extra days × €60` : "By GT band",
+      labelKey: "agencyFee",
+      basisKey: days > 5 ? "agencyBandExtra" : "agencyBand",
+      args: { extra: Math.max(0, days - 5) },
       amount: agencyFee(gt, days),
     },
     {
@@ -242,6 +279,9 @@ export function estimatePda(raw: PdaInput): PdaEstimate {
       group: "agency",
       label: "Communication, transport & bank charges",
       basis: `€150 + ${days} × €25`,
+      labelKey: "comms",
+      basisKey: "comms",
+      args: { days },
       amount: eur(150 + days * 25),
     },
   );

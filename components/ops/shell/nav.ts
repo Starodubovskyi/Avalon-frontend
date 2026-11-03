@@ -5,7 +5,6 @@ import {
   Building2,
   Calculator,
   ClipboardList,
-  CreditCard,
   FileText,
   LayoutDashboard,
   LifeBuoy,
@@ -21,13 +20,41 @@ import {
   UserRound,
   Users,
   UsersRound,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import type { AuthUser } from "@/lib/domain/map-point";
 import { canEdit, isAdmin } from "@/lib/auth/roles";
 
+/** Keys of the `nav` dictionary: `nav.items.<key>` and `nav.groups.<group>` */
+export type NavKey =
+  | "overview"
+  | "fleetMap"
+  | "vessels"
+  | "lineup"
+  | "ports"
+  | "requestAgency"
+  | "requests"
+  | "pdaEstimate"
+  | "portGuide"
+  | "chat"
+  | "feed"
+  | "people"
+  | "companies"
+  | "documents"
+  | "tasks"
+  | "email"
+  | "activityLog"
+  | "profile"
+  | "balance"
+  | "settings"
+  | "support"
+  | "team";
+
+export type NavGroupKey = "operations" | "clients" | "network" | "workspace" | "account" | "admin";
+
 export interface NavItem {
-  label: string;
+  key: NavKey;
   href: string;
   icon: LucideIcon;
   visible: (user: AuthUser | null) => boolean;
@@ -36,7 +63,7 @@ export interface NavItem {
 }
 
 export interface NavGroup {
-  label: string;
+  key: NavGroupKey;
   items: NavItem[];
 }
 
@@ -44,60 +71,78 @@ const everyone = () => true;
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Operations",
+    key: "operations",
     items: [
-      { label: "Overview", href: "/dashboard", icon: LayoutDashboard, visible: everyone },
-      { label: "Fleet map", href: "/maps", icon: Map, visible: everyone },
-      { label: "Vessels", href: "/vessels", icon: Ship, visible: everyone },
-      { label: "Line-up", href: "/lineup", icon: TrendingUp, visible: everyone },
-      { label: "Ports", href: "/ports", icon: Anchor, visible: canEdit },
+      { key: "overview", href: "/dashboard", icon: LayoutDashboard, visible: everyone },
+      { key: "fleetMap", href: "/maps", icon: Map, visible: everyone },
+      { key: "vessels", href: "/vessels", icon: Ship, visible: everyone },
+      { key: "lineup", href: "/lineup", icon: TrendingUp, visible: everyone },
+      { key: "ports", href: "/ports", icon: Anchor, visible: canEdit },
     ],
   },
   {
-    label: "Clients",
+    key: "clients",
     items: [
-      { label: "Request agency", href: "/request", icon: Send, visible: everyone },
-      { label: "Requests", href: "/requests", icon: ClipboardList, visible: canEdit, badge: "requests" },
-      { label: "PDA estimate", href: "/estimate", icon: Calculator, visible: everyone },
-      { label: "Port guide", href: "/port-guide", icon: BookOpen, visible: everyone },
+      { key: "requestAgency", href: "/request", icon: Send, visible: everyone },
+      { key: "requests", href: "/requests", icon: ClipboardList, visible: canEdit, badge: "requests" },
+      { key: "pdaEstimate", href: "/estimate", icon: Calculator, visible: everyone },
+      { key: "portGuide", href: "/port-guide", icon: BookOpen, visible: everyone },
     ],
   },
   {
-    label: "Network",
+    key: "network",
     items: [
-      { label: "Chat", href: "/chat", icon: MessageCircle, visible: everyone, badge: "chat" },
-      { label: "Feed", href: "/social", icon: Newspaper, visible: everyone },
-      { label: "People", href: "/people", icon: UsersRound, visible: everyone },
-      { label: "Companies", href: "/companies", icon: Building2, visible: canEdit },
+      { key: "chat", href: "/chat", icon: MessageCircle, visible: everyone, badge: "chat" },
+      { key: "feed", href: "/social", icon: Newspaper, visible: everyone },
+      { key: "people", href: "/people", icon: UsersRound, visible: everyone },
+      { key: "companies", href: "/companies", icon: Building2, visible: everyone },
     ],
   },
   {
-    label: "Workspace",
+    key: "workspace",
     items: [
-      { label: "Documents", href: "/documents", icon: FileText, visible: canEdit },
-      { label: "Tasks", href: "/tasks", icon: ListChecks, visible: canEdit },
-      { label: "Email", href: "/email", icon: Mail, visible: canEdit },
-      { label: "Activity log", href: "/activity", icon: Activity, visible: canEdit },
+      { key: "documents", href: "/documents", icon: FileText, visible: canEdit },
+      { key: "tasks", href: "/tasks", icon: ListChecks, visible: canEdit },
+      { key: "email", href: "/email", icon: Mail, visible: canEdit },
+      { key: "activityLog", href: "/activity", icon: Activity, visible: canEdit },
     ],
   },
   {
-    label: "Account",
+    key: "account",
     items: [
-      { label: "Profile", href: "/account", icon: UserRound, visible: everyone },
-      { label: "Subscription", href: "/subscriptions", icon: CreditCard, visible: everyone },
-      { label: "Settings", href: "/settings", icon: Settings, visible: everyone },
-      { label: "Support", href: "/support", icon: LifeBuoy, visible: everyone },
+      { key: "profile", href: "/account", icon: UserRound, visible: everyone },
+      { key: "balance", href: "/balance", icon: Wallet, visible: everyone },
+      { key: "settings", href: "/settings", icon: Settings, visible: everyone },
+      { key: "support", href: "/support", icon: LifeBuoy, visible: everyone },
     ],
   },
   {
-    label: "Admin",
-    items: [{ label: "Team", href: "/team", icon: Users, visible: isAdmin }],
+    key: "admin",
+    items: [{ key: "team", href: "/team", icon: Users, visible: isAdmin }],
   },
 ];
 
 /** Flat list for places that don't need grouping */
 export const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 
+/** Title for a page below a section (e.g. /vessels/123): `nav.detail.<key>` */
+export const DETAIL_TITLE: Partial<Record<string, "vesselCard" | "companyProfile" | "personProfile" | "portCard" | "portLineup">> = {
+  "/vessels": "vesselCard",
+  "/companies": "companyProfile",
+  "/people": "personProfile",
+  "/ports": "portCard",
+  "/lineup": "portLineup",
+};
+
 export function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** The menu entry and its group for a path, if any */
+export function findNav(pathname: string): { item: NavItem; group: NavGroup } | null {
+  for (const group of NAV_GROUPS) {
+    const item = group.items.find((i) => isActive(pathname, i.href));
+    if (item) return { item, group };
+  }
+  return null;
 }

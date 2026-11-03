@@ -1,0 +1,67 @@
+{
+  "loading": "Se încarcă prezentarea…",
+  "hero": {
+    "eyebrow": "Avalon Shipping · Operațiuni",
+    "greetingDay": "Bună ziua, {name}",
+    "greeting": {
+      "morning": "Bună dimineața, {name}",
+      "afternoon": "Bună ziua, {name}",
+      "evening": "Bună seara, {name}",
+      "night": "Noapte bună, {name}"
+    },
+    "summary": "{active, plural, one {# navă} few {# nave} other {# de nave}} în lucru · sosesc în 72 h: {arriving}",
+    "unpaid": "plecate neplătite: {count}",
+    "fleetBar": "Nave în lucru pe etape: {count}",
+    "danubeTime": "Ora pe Dunăre",
+    "ports": "Sulina · Tulcea · Galați · Izmail · Reni"
+  },
+  "kpi": {
+    "within72": "{count} în următoarele 72 h",
+    "roadsHint": "Așteaptă pilot sau dană",
+    "portHint": "La dană, operațiuni de marfă",
+    "sailed30": "Plecate (30 de zile)",
+    "sailedHint": "Plecate în ultimele 30 de zile",
+    "unpaid": "Plecate neplătite",
+    "pdaMissing": "PDA netrimis: {count}"
+  },
+  "actions": {
+    "title": "Acțiuni rapide",
+    "addVessel": "Adăugați navă",
+    "addVesselText": "Escală nouă pe panou",
+    "estimate": "Estimare PDA",
+    "estimateText": "Costuri orientative",
+    "request": "Cerere nouă",
+    "requestText": "Agenturarea navei",
+    "map": "Deschideți harta",
+    "mapText": "Flotă și companii",
+    "balance": "Sold",
+    "balanceText": "Credite și istoric"
+  },
+  "attention": {
+    "title": "Necesită atenție",
+    "description": "{count, plural, one {# navă} few {# nave} other {# de nave}} cu puncte deschise",
+    "openBoard": "Deschideți panoul",
+    "progress": "{done}/{total}",
+    "emptyTitle": "Totul e în regulă",
+    "emptyText": "Toate navele în lucru au lista de verificare completă și nicio navă nu a plecat neplătită."
+  },
+  "arrivals": {
+    "title": "Sosiri în 72 h",
+    "lineup": "Line-up",
+    "emptyTitle": "Nicio sosire așteptată",
+    "emptyText": "Aici apar navele care ajung în rada Sulina în următoarele trei zile."
+  },
+  "byPort": {
+    "title": "Nave în lucru pe porturi",
+    "emptyTitle": "Nicio navă în lucru"
+  },
+  "inWork": {
+    "title": "Nave în lucru",
+    "open": "Deschideți panoul",
+    "emptyTitle": "Nicio navă în lucru"
+  },
+  "activity": {
+    "title": "Activitate recentă",
+    "fullLog": "Jurnal complet"
+  }
+}

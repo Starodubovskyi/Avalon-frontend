@@ -1,18 +1,11 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Folder } from "lucide-react";
 import clsx from "clsx";
+import type { SupportCategory } from "./CategoriesGrid";
 
 const GRADIENT_ICON =
   "bg-gradient-to-br from-blue-500/10 to-indigo-500/10 text-blue-600 dark:text-blue-400";
-
-type Category = {
-  id: string;
-  title: string;
-  description: string;
-  authors: string[];
-  authorsCount: number;
-  articlesCount: number;
-};
 
 function AvatarStack({ initials }: { initials: string[] }) {
   return (
@@ -29,7 +22,8 @@ function AvatarStack({ initials }: { initials: string[] }) {
   );
 }
 
-export default function CategoryCard({ category }: { category: Category }) {
+export default function CategoryCard({ category }: { category: SupportCategory }) {
+  const t = useTranslations("support");
   return (
     <Link
       href={`/support/${category.id}`}
@@ -47,22 +41,22 @@ export default function CategoryCard({ category }: { category: Category }) {
             GRADIENT_ICON
           )}
         >
-          <Folder size={24} />
+          <Folder size={24} aria-hidden />
         </div>
-        <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-            {category.title}
+        <div className="min-w-0">
+          <h3 className="break-words text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {t(`categories.${category.id}.title`)}
           </h3>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            {category.description}
+            {t(`categories.${category.id}.description`)}
           </p>
         </div>
       </div>
 
-      <div className="pt-4 mt-auto border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+      <div className="pt-4 mt-auto border-t border-gray-100 dark:border-white/5 flex items-center justify-between gap-3">
         <AvatarStack initials={category.authors} />
-        <div className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
-          {category.articlesCount} articles
+        <div className="text-right text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+          {t("articles", { count: category.articlesCount })}
         </div>
       </div>
     </Link>

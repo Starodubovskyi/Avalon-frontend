@@ -1,10 +1,10 @@
-import type { PointKind } from "@/lib/points/team-points";
+import type { PointKind, PointVisibility } from "@/lib/points/team-points";
 import type { ActivityCode } from "@/lib/points/activities";
 import { uuid } from "../ids";
 import type { MapPointRow, PortRow, PortStatusValue } from "../types";
 import { DEMO_LOGOS, type DemoLogo } from "./places-logos";
 
-/** Team map points along the Lower Danube and the Black Sea, and the port list; all contacts are invented */
+/** Map points along the Lower Danube and the Black Sea (team entries and client companies), and the port list; all contacts are invented */
 
 interface PointSpec {
   kind: PointKind;
@@ -18,28 +18,52 @@ interface PointSpec {
   by: number;
   /** demo users who starred the point */
   fav?: number[];
+  /** extra Business Activities (bought slots) */
+  more?: ActivityCode[];
+  /** default: public, except people pins (the migration moves private_person to team) */
+  visibility?: PointVisibility;
+  /** title of the head office of a branch */
+  parent?: string;
+  description?: string;
+  website?: string;
+  verified?: boolean;
 }
 
 const POINTS: PointSpec[] = [
-  { kind: "head_office", at: [45.1588, 29.6553], title: "Avalon Shipping SRL", activity: "ship_agency", phone: "+40 240 000 700", email: "ops@avalon-demo.example", address: "Str. I nr. 1, Sulina", logo: "avalon", by: 701, fav: [701, 702, 703] },
+  {
+    kind: "head_office", at: [45.1588, 29.6553], title: "Avalon Shipping SRL", activity: "ship_agency", more: ["ship_operation"], phone: "+40 240 000 700",
+    email: "ops@avalon-demo.example", address: "Str. I nr. 1, Sulina", logo: "avalon", by: 701, fav: [701, 702, 703], verified: true,
+    website: "https://avalon-demo.example",
+    description: "Ship agency on the Lower Danube since 2006: port calls at Sulina, Tulcea, Izmail, Reni and Galați, husbandry, crew changes and cargo documents. One team, one point of contact from the Sulina roads to the berth.",
+  },
   { kind: "authority", at: [45.1571, 29.6634], title: "Sulina Harbour Master", activity: null, phone: "+40 240 000 101", email: "duty@sulina-hm.example", address: "Str. I, Sulina", by: 701, fav: [701] },
   { kind: "authority", at: [45.1553, 29.6719], title: "Border Police — Sulina", activity: null, phone: "+40 240 000 102", email: "sulina@border-demo.example", address: "Faleza Sulina", by: 702 },
   { kind: "self_employed", at: [45.1603, 29.6802], title: "Viorel Stan — Sulina pilot", activity: "ship_operation", phone: "+40 744 000 215", email: "v.stan@sulina-pilots.example", address: "Sulina pilot station", by: 702, fav: [702] },
   { kind: "private_person", at: [45.1581, 29.6589], title: "Andrei Lungu", activity: "ship_agency", phone: "+40 721 000 702", email: "andrei.lungu@avalon-demo.example", address: "Avalon office, Sulina", by: 701 },
   { kind: "for_sale", at: [45.1626, 29.6921], title: "Tug “Sulina Star” — 1,200 hp", activity: "shipowners", phone: "+40 745 000 318", email: "sale@sulina-star.example", address: "Sulina, river berth 3", by: 703 },
   { kind: "head_office", at: [45.1781, 28.8122], title: "Delta Marine Supply", activity: "ship_supply", phone: "+40 240 000 233", email: "orders@delta-supply.example", address: "Str. Isaccei 5, Tulcea", logo: "delta", by: 704 },
-  { kind: "branch", at: [45.1752, 28.8034], title: "Avalon Shipping — Tulcea", activity: "ship_agency", phone: "+40 240 000 705", email: "tulcea@avalon-demo.example", address: "Str. Babadag 2, Tulcea", logo: "avalon", by: 701 },
+  { kind: "branch", at: [45.1752, 28.8034], title: "Avalon Shipping — Tulcea", activity: "ship_agency", phone: "+40 240 000 705", email: "tulcea@avalon-demo.example", address: "Str. Babadag 2, Tulcea", logo: "avalon", by: 701, parent: "Avalon Shipping SRL" },
   { kind: "head_office", at: [45.3449, 28.8381], title: "Bessarabia Ship Agency", activity: "ship_agency", phone: "+380 4841 0 0127", email: "ops@bessarabia-agency.example", address: "Portova St 4, Izmail", logo: "bessarabia", by: 702, fav: [702] },
   { kind: "branch", at: [45.3366, 28.8478], title: "Izmail Sea Port — Berth 7", activity: "cargo_shippers", phone: "+380 4841 0 0712", email: "berth7@izmail-port.example", address: "Izmail port, berth 7", by: 703 },
   { kind: "authority", at: [45.3419, 28.8442], title: "Izmail Customs Post", activity: null, phone: "+380 4841 0 0303", email: "post@izmail-customs.example", address: "Izmail port gate 2", by: 703 },
   { kind: "private_person", at: [45.3471, 28.8355], title: "Olena Kravets", activity: null, phone: "+380 67 000 7030", email: "olena.kravets@avalon-demo.example", address: "Izmail", by: 701 },
-  { kind: "branch", at: [45.3405, 28.8292], title: "Avalon Shipping — Izmail", activity: "ship_agency", phone: "+380 4841 0 0700", email: "izmail@avalon-demo.example", address: "Bolhradska St 9, Izmail", logo: "avalon", by: 701 },
+  { kind: "branch", at: [45.3405, 28.8292], title: "Avalon Shipping — Izmail", activity: "ship_agency", phone: "+380 4841 0 0700", email: "izmail@avalon-demo.example", address: "Bolhradska St 9, Izmail", logo: "avalon", by: 701, parent: "Avalon Shipping SRL", verified: true },
   { kind: "head_office", at: [45.4521, 28.2942], title: "Reni Maritime Services", activity: "crewing", phone: "+380 4840 0 0391", email: "agency@reni-maritime.example", address: "Dunaiska St 18, Reni", logo: "reni", by: 702 },
   { kind: "branch", at: [45.4498, 28.3011], title: "Reni Port — Grain Berth 12", activity: "cargo_shippers", phone: "+380 4840 0 0212", email: "grain12@reni-port.example", address: "Reni port, berth 12", by: 702 },
   { kind: "self_employed", at: [45.4469, 28.2876], title: "Natalia Bondar — draft surveyor", activity: null, phone: "+380 67 000 4419", email: "n.bondar@surveys.example", address: "Reni", by: 703 },
   { kind: "for_sale", at: [45.4432, 28.2783], title: "Warehouse plot, Reni port zone", activity: null, phone: "+380 67 000 5520", email: "plot@reni-estate.example", address: "Reni port zone, lot 14", by: 704 },
   { kind: "branch", at: [45.4744, 28.1997], title: "Giurgiulești — Liquid Terminal", activity: "bunker_supply", phone: "+373 299 0 0480", email: "terminal@giurgiulesti-port.example", address: "Giurgiulești free port", by: 704 },
-  { kind: "head_office", at: [45.4262, 28.0581], title: "Danube Grain Trading SRL", activity: "commodity_trading", phone: "+40 236 000 410", email: "chartering@danube-grain.example", address: "Str. Portului 12, Galați", logo: "grain", by: 701, fav: [701] },
+  {
+    kind: "head_office", at: [45.4262, 28.0581], title: "Danube Grain Trading SRL", activity: "commodity_trading", more: ["cargo_shippers"], phone: "+40 236 000 410",
+    email: "chartering@danube-grain.example", address: "Str. Portului 12, Galați", logo: "grain", by: 705, fav: [701], verified: true,
+    website: "https://danube-grain.example",
+    description: "Grain and oilseeds from Romanian and Ukrainian farms to Mediterranean buyers. We charter river-sea and handysize tonnage out of Galați, Reni and Constanța every week.",
+  },
+  {
+    kind: "branch", at: [45.4512, 28.2905], title: "Danube Grain — Reni silo", activity: "cargo_shippers", phone: "+380 4840 0 0455",
+    email: "reni@danube-grain.example", address: "Reni port zone, silo 3", by: 705, parent: "Danube Grain Trading SRL",
+    description: "Our 40,000 t silo and loading berth at Reni.",
+  },
   { kind: "private_person", at: [45.4351, 28.0446], title: "Mihai Dobre", activity: null, phone: "+40 722 000 704", email: "mihai.dobre@avalon-demo.example", address: "Galați", by: 701 },
   { kind: "self_employed", at: [45.4309, 28.0522], title: "Radu Ionescu — ship broker", activity: "ship_brokers", phone: "+40 723 000 118", email: "radu@ionescu-broking.example", address: "Str. Domnească 40, Galați", by: 704 },
   { kind: "head_office", at: [45.2714, 27.9792], title: "Brăila Danube Agency", activity: "ship_agency", phone: "+40 239 000 518", email: "office@braila-agency.example", address: "Calea Călărașilor 3, Brăila", by: 703 },
@@ -48,10 +72,19 @@ const POINTS: PointSpec[] = [
   { kind: "head_office", at: [46.4846, 30.7326], title: "Black Sea Crewing", activity: "crewing", phone: "+380 48 000 2210", email: "crew@blacksea-crewing.example", address: "Lanzheronivska St 6, Odesa", by: 702 },
   { kind: "head_office", at: [43.2047, 27.9105], title: "Varna Ship Repair Yard", activity: "ship_repair", phone: "+359 52 000 410", email: "yard@varna-repair.example", address: "Varna West industrial zone", by: 704 },
   { kind: "head_office", at: [41.0216, 28.9741], title: "Bosphorus Chartering", activity: "ship_charterers", phone: "+90 212 000 4410", email: "desk@bosphorus-chartering.example", address: "Karaköy, Istanbul", by: 703 },
+  {
+    kind: "head_office", at: [40.8258, 29.2986], title: "Marmara Tankers", activity: "shipowners", phone: "+90 216 000 7700", email: "ops@marmara-tankers.example",
+    address: "Tuzla shipyard road 14, Istanbul", by: 707, website: "https://marmara-tankers.example",
+    description: "Owner and operator of six product tankers trading between the Marmara Sea, Constanța and the Giurgiulești terminal.",
+  },
+  {
+    kind: "head_office", at: [43.2141, 27.9147], title: "Pontic Chartering Ltd", activity: "ship_brokers", phone: "+359 52 000 7060", email: "desk@pontic-chartering.example",
+    address: "Primorski blvd 21, Varna", by: 706, visibility: "team", description: "Cargo broking desk for agri and steel in the Black Sea.",
+  },
 ];
 
 export function seedPoints(now: number): MapPointRow[] {
-  return POINTS.map((p, i) => {
+  const rows = POINTS.map((p, i): MapPointRow => {
     const at = new Date(now - (POINTS.length - i) * 29 * 3_600_000).toISOString();
     return {
       id: uuid(),
@@ -62,7 +95,7 @@ export function seedPoints(now: number): MapPointRow[] {
       firstName: p.title,
       lastName: "",
       activity: "",
-      activities: p.activity ? [p.activity] : [],
+      activities: p.activity ? [p.activity, ...(p.more ?? [])] : [],
       logo: p.logo ? DEMO_LOGOS[p.logo] : null,
       logoVersion: p.logo ? `seed-${p.logo}` : null,
       phone: p.phone,
@@ -70,11 +103,23 @@ export function seedPoints(now: number): MapPointRow[] {
       address: p.address,
       notes: null,
       favoritedBy: p.fav ?? [],
+      visibility: p.visibility ?? (p.kind === "private_person" ? "team" : "public"),
+      description: p.description ?? null,
+      website: p.website ?? null,
+      parentId: null,
+      activitySlots: Math.max(1, 1 + (p.more?.length ?? 0)),
+      emailVerifiedAt: p.verified ? at : null,
+      emailVerificationSentAt: p.verified ? at : null,
       createdAt: at,
       updatedAt: at,
       deletedAt: null,
     };
   });
+  // branches point at their head office by title
+  POINTS.forEach((p, i) => {
+    if (p.parent) rows[i].parentId = rows.find((r) => r.firstName === p.parent)?.id ?? null;
+  });
+  return rows;
 }
 
 type PortSpec = [name: string, unlocode: string, country: string, status: PortStatusValue, timezone: string, lat: number, lng: number];

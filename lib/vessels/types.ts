@@ -194,8 +194,12 @@ export const CATEGORY_LABEL: Record<DocumentCategory, string> = {
   other: "Other",
 };
 
-export function userName(u: UserRef | null | undefined): string {
-  if (!u) return "System";
+/** No author means the server did it; screens pass translated words (useNames) */
+export function userName(
+  u: UserRef | null | undefined,
+  labels: { system: string; user: (id: number | string) => string } = { system: "System", user: (id) => `User #${id}` },
+): string {
+  if (!u) return labels.system;
   const full = [u.firstName, u.lastName].filter(Boolean).join(" ").trim();
-  return full || u.email || `User #${u.id}`;
+  return full || u.email || labels.user(u.id);
 }

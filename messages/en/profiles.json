@@ -1,0 +1,60 @@
+{
+  "pageTitle": "Profile",
+  "notFoundTitle": "Profile not available",
+  "notFoundText": "This person doesn’t exist or their profile isn’t visible to you.",
+  "back": "Back to people",
+  "loadError": "Could not load the profile.",
+  "hero": {
+    "edit": "Edit profile",
+    "follow": "Follow",
+    "following": "Following",
+    "message": "Message",
+    "rankHint": "RANK: points, logos, posts, comments, requests and boosts",
+    "memberSince": "Member since {date}"
+  },
+  "stats": {
+    "points": "Points on the map",
+    "posts": "Posts",
+    "followers": "Followers",
+    "following": "Following"
+  },
+  "about": {
+    "title": "About",
+    "empty": "Nothing here yet.",
+    "emptyMine": "Tell partners about yourself — add a headline and a few lines in your account."
+  },
+  "contacts": {
+    "title": "Contacts",
+    "phoneHint": "The phone is visible only to the Avalon team."
+  },
+  "companies": {
+    "title": "Companies",
+    "owner": "Owner",
+    "member": "Team member",
+    "emptyTitle": "No companies yet",
+    "emptyText": "This person hasn’t joined a company on the map.",
+    "emptyMine": "Add your company to the map or join one with “I work here”.",
+    "find": "Find my company"
+  },
+  "errors": {
+    "headline": {
+      "tooLong": "The headline is too long (120 characters max).",
+      "invalid": "The headline contains characters that can’t be saved."
+    },
+    "bio": {
+      "tooLong": "“About” is too long (1,000 characters max).",
+      "invalid": "“About” contains characters that can’t be saved."
+    },
+    "phone": {
+      "tooLong": "The phone number is too long.",
+      "invalid": "Enter a phone number like +40 744 000 000."
+    },
+    "locale": {
+      "invalid": "This language is not available."
+    },
+    "forbidden": "You can’t change this profile.",
+    "notFound": "This profile isn’t available.",
+    "offline": "Can’t reach the server — check your connection.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

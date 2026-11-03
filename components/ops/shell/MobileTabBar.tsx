@@ -2,48 +2,68 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { LayoutGrid, Map, Menu, MessageCircle, Ship, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChatUnread } from "@/lib/network/hooks";
 import { isActive } from "./nav";
 
-const TABS: { href: string; label: string; icon: LucideIcon; badge?: boolean }[] = [
-  { href: "/dashboard", label: "Overview", icon: LayoutGrid },
-  { href: "/maps", label: "Map", icon: Map },
-  { href: "/vessels", label: "Vessels", icon: Ship },
-  { href: "/chat", label: "Chat", icon: MessageCircle, badge: true },
+type TabKey = "overview" | "map" | "vessels" | "chat";
+
+const TABS: { href: string; key: TabKey; icon: LucideIcon; badge?: boolean }[] = [
+  { href: "/dashboard", key: "overview", icon: LayoutGrid },
+  { href: "/maps", key: "map", icon: Map },
+  { href: "/vessels", key: "vessels", icon: Ship },
+  { href: "/chat", key: "chat", icon: MessageCircle, badge: true },
 ];
 
 const TAB =
-  "relative flex h-full flex-col items-center justify-center gap-0.5 text-[10.5px] font-semibold transition-colors active:scale-95";
+  "relative flex h-full w-full flex-col items-center justify-center gap-1 text-[10.5px] font-semibold tracking-[0.01em] transition-colors active:scale-95 focus-visible:outline-none";
+
+function TabIcon({ icon: Icon, active }: { icon: LucideIcon; active: boolean }) {
+  return (
+    <span
+      className={cn(
+        "flex h-7 w-12 items-center justify-center rounded-full transition-all duration-200",
+        active ? "bg-gradient-to-b from-primary/15 to-primary/5 text-primary" : "group-focus-visible:ring-2 group-focus-visible:ring-ring/50",
+      )}
+    >
+      <Icon className="h-[19px] w-[19px]" strokeWidth={active ? 2.4 : 2} aria-hidden />
+    </span>
+  );
+}
 
 /** Phone navigation: the four sections people open most, plus the full menu */
 export function MobileTabBar({ onMenu }: { onMenu: () => void }) {
+  const t = useTranslations("nav");
+  const ts = useTranslations("shell");
   const pathname = usePathname() ?? "";
   const { data: unread } = useChatUnread();
   const chatUnread = unread?.total ?? 0;
-  const inTabs = TABS.some((t) => isActive(pathname, t.href));
+  const inTabs = TABS.some((tab) => isActive(pathname, tab.href));
 
   return (
     <nav
-      aria-label="Quick navigation"
-      className="glass fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.25)] lg:hidden"
+      aria-label={t("tabsAria")}
+      className="glass fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_30px_-16px_hsl(var(--shadow-color)/0.35)] lg:hidden"
     >
-      <ul className="mx-auto grid h-16 max-w-lg grid-cols-5">
-        {TABS.map((t) => {
-          const active = isActive(pathname, t.href);
-          const Icon = t.icon;
+      <ul className="mx-auto grid h-16 max-w-lg grid-cols-5 px-1">
+        {TABS.map((tab) => {
+          const active = isActive(pathname, tab.href);
           return (
-            <li key={t.href}>
-              <Link href={t.href} aria-current={active ? "page" : undefined} className={cn(TAB, active ? "text-primary" : "text-muted-foreground")}>
-                <span className={cn("flex h-8 w-12 items-center justify-center rounded-full transition-colors", active && "bg-primary/10")}>
-                  <Icon className="h-[19px] w-[19px]" strokeWidth={active ? 2.4 : 2} aria-hidden />
-                </span>
-                {t.label}
-                {t.badge && chatUnread > 0 ? (
-                  <span className="tabular absolute right-[calc(50%-22px)] top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-bad px-1 text-[10px] font-bold leading-none text-white ring-2 ring-card">
+            <li key={tab.href}>
+              <Link
+                href={tab.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(TAB, "group", active ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+              >
+                {active ? <span aria-hidden className="absolute top-0 h-[2px] w-8 rounded-b-full bg-primary" /> : null}
+                <TabIcon icon={tab.icon} active={active} />
+                <span className="max-w-full truncate px-0.5">{t(`tabs.${tab.key}`)}</span>
+                {tab.badge && chatUnread > 0 ? (
+                  <span className="tabular absolute right-[calc(50%-24px)] top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-bad px-1 text-[10px] font-bold leading-none text-white ring-2 ring-card">
                     {chatUnread > 99 ? "99+" : chatUnread}
-                    <span className="sr-only"> unread messages</span>
+                    <span className="sr-only"> {ts("unreadMessages")}</span>
                   </span>
                 ) : null}
               </Link>
@@ -51,11 +71,10 @@ export function MobileTabBar({ onMenu }: { onMenu: () => void }) {
           );
         })}
         <li>
-          <button type="button" onClick={onMenu} className={cn(TAB, "w-full", inTabs ? "text-muted-foreground" : "text-primary")}>
-            <span className={cn("flex h-8 w-12 items-center justify-center rounded-full", !inTabs && "bg-primary/10")}>
-              <Menu className="h-[19px] w-[19px]" aria-hidden />
-            </span>
-            More
+          <button type="button" onClick={onMenu} className={cn(TAB, "group", inTabs ? "text-muted-foreground hover:text-foreground" : "text-primary")}>
+            {!inTabs ? <span aria-hidden className="absolute top-0 h-[2px] w-8 rounded-b-full bg-primary" /> : null}
+            <TabIcon icon={Menu} active={!inTabs} />
+            <span className="max-w-full truncate px-0.5">{t("tabs.more")}</span>
           </button>
         </li>
       </ul>

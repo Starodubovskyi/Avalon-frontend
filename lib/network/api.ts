@@ -2,7 +2,6 @@
 
 import axios from "axios";
 import api from "@/lib/api/client";
-import { extractAuthError } from "@/lib/api/auth";
 
 /** Network API (chat, feed, people) — contract: docs/designs/2026-10-31-community-chat-feed-people.md */
 
@@ -173,23 +172,38 @@ export const NetworkApi = {
   },
 };
 
-/** 422 codes from the backend ({ errors: { field: code } }) in plain words */
-const VALIDATION_TEXT: Record<string, string> = {
-  "body:empty": "Write something first",
-  "body:tooLong": "That's too long — shorten it and try again",
-  "userIds:notAllowed": "You can't start a chat with this person",
-  "userIds:notFound": "That person no longer has an account",
-  "title:required": "Give the group a name",
-  "title:tooLong": `Group names are limited to ${LIMITS.groupTitle} characters`,
+/** 422 codes from the backend ({ errors: { field: code } }) → keys under network.errors.validation */
+export const VALIDATION_KEYS = {
+  "body:empty": "bodyEmpty",
+  "body:tooLong": "bodyTooLong",
+  "userIds:notAllowed": "userIdsNotAllowed",
+  "userIds:notFound": "userIdsNotFound",
+  "title:required": "titleRequired",
+  "title:tooLong": "titleTooLong",
+} as const;
+
+export type ValidationKey = (typeof VALIDATION_KEYS)[keyof typeof VALIDATION_KEYS];
+
+const VALIDATION_EN: Record<ValidationKey, string> = {
+  bodyEmpty: "Write something first",
+  bodyTooLong: "That's too long — shorten it and try again",
+  userIdsNotAllowed: "You can't start a chat with this person",
+  userIdsNotFound: "That person no longer has an account",
+  titleRequired: "Give the group a name",
+  titleTooLong: `Group names are limited to ${LIMITS.groupTitle} characters`,
 };
 
-function validationText(data: unknown): string | null {
+function isValidationCode(key: string): key is keyof typeof VALIDATION_KEYS {
+  return key in VALIDATION_KEYS;
+}
+
+function validationText(data: unknown, texts: Record<ValidationKey, string>): string | null {
   if (typeof data !== "object" || data === null || !("errors" in data)) return null;
   const errors = (data as { errors: unknown }).errors;
   if (typeof errors !== "object" || errors === null) return null;
   for (const [field, code] of Object.entries(errors)) {
-    const text = typeof code === "string" ? VALIDATION_TEXT[`${field}:${code}`] : undefined;
-    if (text) return text;
+    const key = `${field}:${String(code)}`;
+    if (typeof code === "string" && isValidationCode(key)) return texts[VALIDATION_KEYS[key]];
   }
   return null;
 }
@@ -198,18 +212,38 @@ export function isNotFound(error: unknown): boolean {
   return axios.isAxiosError(error) && error.response?.status === 404;
 }
 
-/** Human message for a failed network call (extractAuthError would call every 401 a bad password) */
-export function networkError(error: unknown): string {
+/** Human message for a failed network call (the auth helper would call every 401 a bad password) */
+export interface NetworkErrorText {
+  sessionExpired: string;
+  forbidden: string;
+  notFound: string;
+  offline: string;
+  /** any other failure — the raw server text is never shown */
+  generic: string;
+  validation: Record<ValidationKey, string>;
+}
+
+/** English fallback; hooks pass the translated set from the `network` namespace */
+const NETWORK_ERROR_EN: NetworkErrorText = {
+  sessionExpired: "Your session has expired — please sign in again",
+  forbidden: "You don't have permission to do that",
+  notFound: "Not found — it may have been deleted or you no longer have access",
+  offline: "Can't reach the server — check your connection",
+  generic: "Something went wrong — please try again",
+  validation: VALIDATION_EN,
+};
+
+export function networkError(error: unknown, text: NetworkErrorText = NETWORK_ERROR_EN): string {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;
     if (status === 422) {
-      const text = validationText(error.response?.data);
-      if (text) return text;
+      const detail = validationText(error.response?.data, text.validation);
+      if (detail) return detail;
     }
-    if (status === 401) return "Your session has expired — please sign in again";
-    if (status === 403) return "You don't have permission to do that";
-    if (status === 404) return "Not found — it may have been deleted or you no longer have access";
-    if (!error.response) return "Can't reach the server — check your connection";
+    if (status === 401) return text.sessionExpired;
+    if (status === 403) return text.forbidden;
+    if (status === 404) return text.notFound;
+    if (!error.response) return text.offline;
   }
-  return extractAuthError(error);
+  return text.generic;
 }

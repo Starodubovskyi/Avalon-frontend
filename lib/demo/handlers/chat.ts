@@ -16,7 +16,7 @@ import {
   type RouteDef,
 } from "../http";
 import { scheduleReply } from "../liveness";
-import { canSeeUser, cardById, findUser } from "../presenters";
+import { canSeeUser, cardById, cardFor, findUser } from "../presenters";
 import type { ConversationRow, DemoState, DemoUserRow, MessageRow } from "../types";
 
 /** /conversations, /chat/unread — direct + group chat with per-member read markers */
@@ -40,6 +40,13 @@ function lastMessage(state: DemoState, conversationId: string): MessageRow | und
   return last;
 }
 
+/** A member's card as the viewer gets it (clients don't see other clients' emails) */
+function cardAs(state: DemoState, viewerId: number, userId: number) {
+  const viewer = findUser(state, viewerId);
+  const u = findUser(state, userId);
+  return viewer && u ? cardFor(viewer, u) : cardById(state, userId);
+}
+
 function toView(state: DemoState, c: ConversationRow, userId: number): Conversation {
   const last = lastMessage(state, c.id);
   const members = [...c.members].sort((a, b) => a.joinedAt.localeCompare(b.joinedAt) || a.userId - b.userId);
@@ -47,15 +54,15 @@ function toView(state: DemoState, c: ConversationRow, userId: number): Conversat
     id: c.id,
     kind: c.kind,
     title: c.title,
-    members: members.map((m) => cardById(state, m.userId)),
+    members: members.map((m) => cardAs(state, userId, m.userId)),
     lastMessage: last ? { body: last.body, senderId: last.senderId, createdAt: last.createdAt } : null,
     unreadCount: unreadFor(state, c, userId),
     lastMessageAt: c.lastMessageAt,
   };
 }
 
-function toMessage(state: DemoState, m: MessageRow): ChatMessage {
-  return { id: m.id, conversationId: m.conversationId, sender: cardById(state, m.senderId), body: m.body, createdAt: m.createdAt };
+function toMessage(state: DemoState, m: MessageRow, viewerId: number): ChatMessage {
+  return { id: m.id, conversationId: m.conversationId, sender: cardAs(state, viewerId, m.senderId), body: m.body, createdAt: m.createdAt };
 }
 
 function mine(state: DemoState, userId: number): ConversationRow[] {
@@ -93,7 +100,7 @@ function create(req: DemoRequest) {
   for (const id of others) {
     const target = findUser(req.state, id);
     if (!target || target.deletedAt) invalid({ userIds: team ? "notFound" : "notAllowed" });
-    if (!canSeeUser(user, target)) invalid({ userIds: "notAllowed" });
+    if (!canSeeUser(req.state, user, target)) invalid({ userIds: "notAllowed" });
   }
 
   const at = new Date().toISOString();
@@ -125,9 +132,9 @@ function messages(req: DemoRequest) {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
   if (after) {
     const cursor = new Date(after).toISOString();
-    return ok(rows.filter((m) => m.createdAt > cursor).slice(0, limit).map((m) => toMessage(req.state, m)));
+    return ok(rows.filter((m) => m.createdAt > cursor).slice(0, limit).map((m) => toMessage(req.state, m, user.id)));
   }
-  return ok(rows.slice(-limit).map((m) => toMessage(req.state, m)));
+  return ok(rows.slice(-limit).map((m) => toMessage(req.state, m, user.id)));
 }
 
 function send(req: DemoRequest) {
@@ -141,7 +148,7 @@ function send(req: DemoRequest) {
   const me = conv.members.find((m) => m.userId === user.id);
   if (me) me.lastReadAt = createdAt;
   scheduleReply(req.state, conv, user.id, body);
-  return created(toMessage(req.state, row));
+  return created(toMessage(req.state, row, user.id));
 }
 
 function markRead(req: DemoRequest) {

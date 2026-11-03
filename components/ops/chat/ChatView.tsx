@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { MessagesSquare, SearchX, SquarePen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
@@ -17,6 +18,7 @@ import { NewConversationDialog, type NewChatMode } from "./NewConversationDialog
  * ?with=<userId> (People → Message) opens or creates the direct chat and is then replaced by ?c=.
  */
 export function ChatView() {
+  const t = useTranslations("chat");
   const router = useRouter();
   const params = useSearchParams();
   const activeId = params?.get("c") ?? null;
@@ -57,7 +59,7 @@ export function ChatView() {
 
   const newChatButton = (
     <button type="button" onClick={() => setDialog("direct")} className={btn.primary}>
-      <SquarePen className="h-4 w-4" aria-hidden /> New chat
+      <SquarePen className="h-4 w-4" aria-hidden /> {t("list.newChat")}
     </button>
   );
 
@@ -65,16 +67,16 @@ export function ChatView() {
   if (active && me) {
     pane = <ConversationPane key={active.id} conversation={active} me={me} onBack={() => select(null)} />;
   } else if (opening || withParam || (activeId && isLoading && !data)) {
-    pane = <LoadingBlock label="Opening conversation…" />;
+    pane = <LoadingBlock label={t("view.opening")} />;
   } else if (activeId) {
     pane = (
       <EmptyState
         icon={<SearchX className="h-7 w-7" />}
-        title="Conversation not found"
-        text="It may have been removed, or you are not a member of it."
+        title={t("view.notFoundTitle")}
+        text={t("view.notFoundText")}
         action={
           <button type="button" onClick={() => select(null)} className={btn.secondary}>
-            Back to chats
+            {t("view.back")}
           </button>
         }
       />
@@ -83,8 +85,8 @@ export function ChatView() {
     pane = (
       <EmptyState
         icon={<MessagesSquare className="h-7 w-7" />}
-        title="Pick a conversation"
-        text="Choose a chat on the left, or start a new one with a colleague."
+        title={t("view.pickTitle")}
+        text={t("view.pickText")}
         action={newChatButton}
       />
     );
@@ -94,7 +96,7 @@ export function ChatView() {
     <div className="flex min-h-0 flex-1 sm:p-4 lg:p-6">
       <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden bg-card sm:rounded-2xl sm:border sm:shadow-card">
         <aside
-          aria-label="Conversations"
+          aria-label={t("view.conversations")}
           className={cn("min-h-0 w-full flex-col md:flex md:w-80 md:shrink-0 md:border-r lg:w-72 xl:w-[340px]", showPane ? "hidden" : "flex")}
         >
           <ConversationList
@@ -109,7 +111,7 @@ export function ChatView() {
           />
         </aside>
         <section
-          aria-label="Conversation"
+          aria-label={t("view.conversation")}
           className={cn("min-h-0 min-w-0 flex-1 flex-col bg-gradient-to-b from-background/40 to-card", showPane ? "flex" : "hidden md:flex")}
         >
           {active && me ? pane : <div className="flex flex-1 items-center justify-center">{pane}</div>}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type DragEvent, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { CloudUpload, RefreshCw, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
@@ -14,18 +15,21 @@ import {
 } from "@/components/ui/dialog";
 import { DocumentsApi } from "@/lib/api/documents";
 import { extractAuthError } from "@/lib/api/auth";
+import { useErrorText } from "@/lib/api/errorText";
 import { useVessels } from "@/lib/vessels/hooks";
-import { fmtBytes } from "@/lib/vessels/format";
-import { CATEGORY_LABEL, DOCUMENT_CATEGORIES, type DocumentCategory } from "@/lib/vessels/types";
+import { DOCUMENT_CATEGORIES, type DocumentCategory } from "@/lib/vessels/types";
 import { btn, Field, SelectInput, Spinner, TextArea, TextInput } from "../ui/primitives";
 import { fileKind } from "./docMeta";
 import { useRefreshDocuments } from "./useDocuments";
+import { useTimeFormat } from "../network/useTimeFormat";
 
 const ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png";
 /** Matches the server limit on Vercel (request bodies over ~4.5 MB are rejected) */
 const MAX_BYTES = 4 * 1024 * 1024;
 
 function SelectedFile({ file, onReplace, onRemove }: { file: File; onReplace: () => void; onRemove: () => void }) {
+  const t = useTranslations("documents");
+  const time = useTimeFormat();
   const kind = fileKind(file.type, file.name);
   const Icon = kind.icon;
   return (
@@ -36,12 +40,12 @@ function SelectedFile({ file, onReplace, onRemove }: { file: File; onReplace: ()
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold" title={file.name}>{file.name}</p>
-        <p className="tabular text-xs text-muted-foreground">{kind.name} · {fmtBytes(file.size)}</p>
+        <p className="tabular text-xs text-muted-foreground">{t(`kinds.${kind.kind}`)} · {time.bytes(file.size)}</p>
       </div>
-      <button type="button" onClick={onReplace} className={btn.icon} aria-label="Choose another file" title="Replace">
+      <button type="button" onClick={onReplace} className={btn.icon} aria-label={t("upload.replaceAria")} title={t("upload.replace")}>
         <RefreshCw className="h-4 w-4" />
       </button>
-      <button type="button" onClick={onRemove} className={cn(btn.icon, "hover:bg-bad/10 hover:text-bad")} aria-label="Remove file" title="Remove">
+      <button type="button" onClick={onRemove} className={cn(btn.icon, "hover:bg-bad/10 hover:text-bad")} aria-label={t("upload.removeAria")} title={t("upload.remove")}>
         <X className="h-4 w-4" />
       </button>
     </div>
@@ -57,6 +61,8 @@ export function UploadDocumentDialog({
   onOpenChange: (open: boolean) => void;
   vesselId?: string;
 }) {
+  const t = useTranslations("documents");
+  const errorText = useErrorText();
   const refresh = useRefreshDocuments();
   const { data: vessels } = useVessels("all");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -85,24 +91,24 @@ export function UploadDocumentDialog({
     const status = axios.isAxiosError(err) ? err.response?.status : undefined;
     const msg = extractAuthError(err);
     if (status === 503 || /documentsStorageNotConfigured/.test(msg)) {
-      return "Document storage is not connected on this server yet. Ask the administrator to configure it.";
+      return t("upload.errors.storage");
     }
     if (status === 413 || /fileTooLarge/.test(msg)) {
-      return "The file is too large for the server. Try a file under 4 MB or compress the PDF.";
+      return t("upload.errors.serverTooLarge");
     }
-    if (/cantUploadFileType/.test(msg)) return "This file type is not allowed.";
-    return msg;
+    if (/cantUploadFileType/.test(msg)) return t("upload.errors.type");
+    return errorText(err);
   }
 
   function pick(f: File | undefined) {
     if (!f) return;
     const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
     if (!ACCEPT.split(",").includes(`.${ext}`)) {
-      setError("Allowed: PDF, Word, Excel, CSV, TXT, JPG, PNG");
+      setError(t("upload.errors.allowed"));
       return;
     }
     if (f.size > MAX_BYTES) {
-      setError("File is larger than 4 MB — compress the PDF or split it");
+      setError(t("upload.errors.tooLarge"));
       return;
     }
     setError(null);
@@ -134,7 +140,7 @@ export function UploadDocumentDialog({
     try {
       await DocumentsApi.upload({ file, title: title.trim(), category, vesselId: vessel || null, notes: notes.trim() || null });
       await refresh();
-      toast.success("Document uploaded");
+      toast.success(t("upload.uploaded"));
       onOpenChange(false);
     } catch (err) {
       setError(uploadErrorText(err));
@@ -150,11 +156,11 @@ export function UploadDocumentDialog({
       <DialogContent className="max-h-[92svh] w-[calc(100%-1.5rem)] max-w-lg gap-0 overflow-y-auto rounded-2xl bg-card p-0 shadow-elevated sm:rounded-2xl">
         <div className="flex items-start gap-3 border-b px-6 pb-4 pt-6">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <CloudUpload className="h-5 w-5" />
+            <CloudUpload className="h-5 w-5" aria-hidden />
           </span>
           <DialogHeader className="min-w-0 space-y-1 pr-6 text-left">
-            <DialogTitle className="font-display text-lg font-bold">Upload document</DialogTitle>
-            <DialogDescription>Visible to Avalon staff only. PDF, Word, Excel, images — up to 4 MB.</DialogDescription>
+            <DialogTitle className="font-display text-lg font-bold">{t("upload.title")}</DialogTitle>
+            <DialogDescription>{t("upload.description")}</DialogDescription>
           </DialogHeader>
         </div>
 
@@ -182,37 +188,44 @@ export function UploadDocumentDialog({
                     <CloudUpload className="h-7 w-7" aria-hidden />
                   </span>
                   <span className="text-sm">
-                    <span className="font-semibold">{dragging ? "Release to attach" : "Drop a file here"}</span>
-                    {dragging ? null : <span className="text-muted-foreground"> or <span className="font-semibold text-primary underline-offset-2 group-hover:underline">browse</span></span>}
+                    {dragging ? (
+                      <span className="font-semibold">{t("upload.release")}</span>
+                    ) : (
+                      t.rich("upload.dropOrBrowse", {
+                        strong: (chunks) => <span className="font-semibold">{chunks}</span>,
+                        muted: (chunks) => <span className="text-muted-foreground">{chunks}</span>,
+                        link: (chunks) => <span className="font-semibold text-primary underline-offset-2 group-hover:underline">{chunks}</span>,
+                      })
+                    )}
                   </span>
-                  <span className="text-xs text-muted-foreground">PDF · DOCX · XLSX · CSV · TXT · JPG · PNG — max 4 MB</span>
+                  <span className="text-xs text-muted-foreground">{t("upload.formats")}</span>
                 </button>
               )}
               <input ref={inputRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ""; }} />
             </div>
 
-            <Field label="Title *">
-              <TextInput value={title} onChange={(e) => setTitle(e.target.value)} maxLength={255} placeholder="e.g. PDA — MV Aurora" />
+            <Field label={t("upload.titleLabel")}>
+              <TextInput value={title} onChange={(e) => setTitle(e.target.value)} maxLength={255} placeholder={t("upload.titlePlaceholder")} />
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Category">
+              <Field label={t("upload.category")}>
                 <SelectInput value={category} onChange={(e) => setCategory(e.target.value as DocumentCategory)}>
                   {DOCUMENT_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>
+                    <option key={c} value={c}>{t(`categories.${c}`)}</option>
                   ))}
                 </SelectInput>
               </Field>
-              <Field label="Vessel">
+              <Field label={t("upload.vessel")}>
                 <SelectInput value={vessel} onChange={(e) => setVessel(e.target.value)} disabled={!!vesselId}>
-                  <option value="">— none —</option>
+                  <option value="">{t("upload.noVessel")}</option>
                   {(vessels ?? []).map((v) => (
                     <option key={v.id} value={v.id}>{v.name}</option>
                   ))}
                 </SelectInput>
               </Field>
             </div>
-            <Field label="Notes">
-              <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} className="min-h-[72px]" placeholder="Optional — what is it, who needs it" />
+            <Field label={t("upload.notes")}>
+              <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} className="min-h-[72px]" placeholder={t("upload.notesPlaceholder")} />
             </Field>
 
             {error ? <p role="alert" className="rounded-xl border border-bad/30 bg-bad/5 px-3 py-2 text-sm text-bad">{error}</p> : null}
@@ -220,11 +233,11 @@ export function UploadDocumentDialog({
 
           <div className="flex flex-col-reverse gap-2 border-t bg-muted/40 px-6 py-4 sm:flex-row sm:justify-end">
             <button type="button" onClick={() => onOpenChange(false)} className={btn.secondary}>
-              Cancel
+              {t("upload.cancel")}
             </button>
             <button type="submit" disabled={busy || !file || !title.trim()} className={btn.primary}>
-              {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : <CloudUpload className="h-4 w-4" />}
-              Upload
+              {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : <CloudUpload className="h-4 w-4" aria-hidden />}
+              {t("upload.submit")}
             </button>
           </div>
         </form>

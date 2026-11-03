@@ -53,19 +53,24 @@ export function flagEmoji(code: string): string {
   return String.fromCodePoint(...code.toUpperCase().split("").map((c) => base + c.charCodeAt(0) - 65));
 }
 
-let regionNames: Intl.DisplayNames | null | undefined;
+const regionNames = new Map<string, Intl.DisplayNames | null>();
 
-export function countryName(code: string): string {
-  if (!ISO2.test(code)) return code;
-  if (regionNames === undefined) {
+function regionNamesFor(locale: string): Intl.DisplayNames | null {
+  if (!regionNames.has(locale)) {
     try {
-      regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+      regionNames.set(locale, new Intl.DisplayNames([locale], { type: "region" }));
     } catch {
-      regionNames = null;
+      regionNames.set(locale, null);
     }
   }
+  return regionNames.get(locale) ?? null;
+}
+
+/** "RO" → "Romania" / "Румыния" / "România" in the given interface locale */
+export function countryName(code: string, locale = "en"): string {
+  if (!ISO2.test(code)) return code;
   try {
-    return regionNames?.of(code.toUpperCase()) ?? code.toUpperCase();
+    return regionNamesFor(locale)?.of(code.toUpperCase()) ?? code.toUpperCase();
   } catch {
     return code.toUpperCase();
   }

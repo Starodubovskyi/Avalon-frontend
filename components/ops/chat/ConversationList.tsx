@@ -1,20 +1,24 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { MessageCircle, Search, SquarePen, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Conversation } from "@/lib/network/api";
 import { useNow } from "@/lib/network/hooks";
-import { conversationTitle, firstName, listTime, personName, sameUser } from "@/lib/network/format";
+import { conversationTitle, firstName, personName, sameUser } from "@/lib/network/format";
 import { btn, EmptyState, ErrorBlock, LoadingBlock, TextInput } from "../ui/primitives";
 import { CountPill, focusRing } from "../network/bits";
+import { useTimeFormat } from "../network/useTimeFormat";
 import { ConversationAvatar } from "./ConversationAvatar";
 import type { NewChatMode } from "./NewConversationDialog";
 
-function preview(c: Conversation, meId: number): string {
+type ListT = (key: string, values?: Record<string, string | number>) => string;
+
+function preview(c: Conversation, meId: number, t: ListT): string {
   const last = c.lastMessage;
-  if (!last) return c.kind === "group" ? "Group created — no messages yet" : "No messages yet";
-  if (sameUser(last.senderId, meId)) return `You: ${last.body}`;
+  if (!last) return c.kind === "group" ? t("groupCreated") : t("noMessages");
+  if (sameUser(last.senderId, meId)) return t("fromMe", { body: last.body });
   if (c.kind === "group") {
     const sender = c.members.find((m) => sameUser(m.id, last.senderId));
     return sender ? `${firstName(sender)}: ${last.body}` : last.body;
@@ -41,8 +45,10 @@ export function ConversationList({
   onSelect: (id: string) => void;
   onNew: (mode: NewChatMode) => void;
 }) {
+  const t = useTranslations("chat.list");
   const [query, setQuery] = useState("");
   const now = useNow();
+  const time = useTimeFormat();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -60,17 +66,17 @@ export function ConversationList({
       <div className="space-y-3 border-b px-4 pb-3 pt-4">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="font-display text-lg font-bold leading-tight">Chats</h2>
-            <p className="text-xs text-muted-foreground">
-              {unreadTotal ? `${unreadTotal} unread` : conversations.length ? "All caught up" : "Direct and group chats"}
+            <h2 className="font-display text-lg font-bold leading-tight">{t("title")}</h2>
+            <p className="truncate text-xs text-muted-foreground">
+              {unreadTotal ? t("unread", { count: unreadTotal }) : conversations.length ? t("caughtUp") : t("subtitle")}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
-            <button type="button" onClick={() => onNew("group")} className={cn(btn.secondary, "h-9 w-9 px-0")} aria-label="New group" title="New group">
+            <button type="button" onClick={() => onNew("group")} className={cn(btn.secondary, "h-9 w-9 px-0")} aria-label={t("newGroup")} title={t("newGroup")}>
               <Users className="h-4 w-4" aria-hidden />
             </button>
             <button type="button" onClick={() => onNew("direct")} className={cn(btn.primary, "h-9 px-3")}>
-              <SquarePen className="h-4 w-4" aria-hidden /> New chat
+              <SquarePen className="h-4 w-4" aria-hidden /> {t("newChat")}
             </button>
           </div>
         </div>
@@ -80,8 +86,8 @@ export function ConversationList({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search chats"
-            aria-label="Search chats"
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchPlaceholder")}
             className="h-9 pl-9 text-base sm:text-sm"
           />
         </div>
@@ -93,21 +99,21 @@ export function ConversationList({
             <ErrorBlock error={error} onRetry={onRetry} />
           </div>
         ) : null}
-        {loading && !conversations.length ? <LoadingBlock label="Loading chats…" /> : null}
+        {loading && !conversations.length ? <LoadingBlock label={t("loading")} /> : null}
         {!loading && !error && !conversations.length ? (
           <EmptyState
             icon={<MessageCircle className="h-7 w-7" />}
-            title="No conversations yet"
-            text="Message a colleague or start a group for a vessel call."
+            title={t("emptyTitle")}
+            text={t("emptyText")}
             action={
               <button type="button" onClick={() => onNew("direct")} className={btn.primary}>
-                <SquarePen className="h-4 w-4" aria-hidden /> New chat
+                <SquarePen className="h-4 w-4" aria-hidden /> {t("newChat")}
               </button>
             }
           />
         ) : null}
         {conversations.length > 0 && !filtered.length ? (
-          <p className="px-3 py-8 text-center text-sm text-muted-foreground">No chats match “{query.trim()}”.</p>
+          <p className="break-words px-3 py-8 text-center text-sm text-muted-foreground">{t("noMatch", { query: query.trim() })}</p>
         ) : null}
 
         <ul className="space-y-0.5">
@@ -135,15 +141,15 @@ export function ConversationList({
                       </span>
                       {stamp ? (
                         <time dateTime={stamp} className={cn("tabular shrink-0 text-[11px]", unread ? "font-semibold text-primary" : "text-muted-foreground")}>
-                          {listTime(stamp, now)}
+                          {time.listTime(stamp, now)}
                         </time>
                       ) : null}
                     </span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
                       <span className={cn("truncate text-[13px]", unread ? "font-medium text-foreground" : "text-muted-foreground")}>
-                        {preview(c, meId)}
+                        {preview(c, meId, t)}
                       </span>
-                      <CountPill count={unread} label="unread" />
+                      <CountPill count={unread} label={t("unreadLabel")} />
                     </span>
                   </span>
                 </button>

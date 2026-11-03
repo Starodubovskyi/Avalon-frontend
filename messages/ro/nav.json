@@ -1,0 +1,50 @@
+{
+  "aria": "Meniu principal",
+  "tabsAria": "Navigare rapidă",
+  "groups": {
+    "operations": "Operațiuni",
+    "clients": "Clienți",
+    "network": "Rețea",
+    "workspace": "Spațiu de lucru",
+    "account": "Cont",
+    "admin": "Administrare"
+  },
+  "items": {
+    "overview": "Prezentare",
+    "fleetMap": "Harta flotei",
+    "vessels": "Nave",
+    "lineup": "Line-up",
+    "ports": "Porturi",
+    "requestAgency": "Cerere de agenturare",
+    "requests": "Cereri",
+    "pdaEstimate": "Estimare PDA",
+    "portGuide": "Ghidul porturilor",
+    "chat": "Chat",
+    "feed": "Noutăți",
+    "people": "Persoane",
+    "companies": "Companii",
+    "documents": "Documente",
+    "tasks": "Sarcini",
+    "email": "E-mail",
+    "activityLog": "Jurnal de activitate",
+    "profile": "Profil",
+    "balance": "Sold",
+    "settings": "Setări",
+    "support": "Asistență",
+    "team": "Echipă"
+  },
+  "detail": {
+    "vesselCard": "Fișa navei",
+    "companyProfile": "Profilul companiei",
+    "personProfile": "Profil",
+    "portCard": "Port",
+    "portLineup": "Line-up port"
+  },
+  "tabs": {
+    "overview": "Acasă",
+    "map": "Hartă",
+    "vessels": "Nave",
+    "chat": "Chat",
+    "more": "Mai mult"
+  }
+}

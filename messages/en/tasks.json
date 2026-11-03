@@ -1,0 +1,40 @@
+{
+  "shellTitle": "Tasks",
+  "eyebrow": "Workspace",
+  "title": "Tasks",
+  "subtitleStaff": "Everything still red on the vessels board. Tick an item when it is done — the board turns it green for everyone.",
+  "subtitleViewer": "Everything still open on the vessels you can see.",
+  "phases": {
+    "all": "All",
+    "arrival": "Arrival",
+    "finance": "PDA & payment",
+    "departure": "Departure"
+  },
+  "phaseAria": "Task type",
+  "searchPlaceholder": "Filter by vessel or task",
+  "searchAria": "Filter tasks",
+  "kpi": {
+    "open": "Open tasks",
+    "vessels": "{count, plural, one {# vessel} other {# vessels}}",
+    "overdueHint": "vessel already moved on",
+    "nowHint": "at roads or ETA < 24 h"
+  },
+  "loading": "Collecting open items…",
+  "emptyFilteredTitle": "Nothing matches the filter",
+  "emptyTitle": "All clear",
+  "emptyFilteredText": "Try another task type or vessel name.",
+  "emptyText": "Every checklist item on the board is green.",
+  "markDone": "Mark {item} done",
+  "markDoneFor": "Mark {item} done for {vessel}",
+  "doneToast": "{item} done · {vessel}",
+  "reason": {
+    "sailed": "Sailed {when}",
+    "berthedOpen": "Berthed {when}, still open",
+    "berthed": "Berthed {when}",
+    "arrivedSulina": "Arrived at Sulina {when}",
+    "eta": "ETA {when}",
+    "atRoads": "At Sulina roads",
+    "etaPassed": "ETA passed, not arrived yet",
+    "noEta": "No ETA yet"
+  }
+}

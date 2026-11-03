@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { CloudUpload, FolderOpen, Layers, Search, Ship, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVessels } from "@/lib/vessels/hooks";
-import { CATEGORY_LABEL, DOCUMENT_CATEGORIES, type DocumentCategory } from "@/lib/vessels/types";
+import { DOCUMENT_CATEGORIES, type DocumentCategory } from "@/lib/vessels/types";
 import { btn, ErrorBlock, LoadingBlock, PageHeader, Panel, SelectInput, Spinner, TextInput } from "../ui/primitives";
 import { CATEGORY_ICON } from "./docMeta";
 import { DocumentList } from "./DocumentList";
@@ -12,6 +13,7 @@ import { UploadDocumentDialog } from "./UploadDocumentDialog";
 import { useDocuments } from "./useDocuments";
 
 export function DocumentsView() {
+  const t = useTranslations("documents");
   const [category, setCategory] = useState<DocumentCategory | "">("");
   const [vesselId, setVesselId] = useState("");
   const [search, setSearch] = useState("");
@@ -35,17 +37,17 @@ export function DocumentsView() {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Workspace"
-        title="Documents"
-        subtitle="Shared library for the team: vessel papers, customs, port forms and templates."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <button type="button" onClick={() => setOpen(true)} className={btn.primary}>
-            <CloudUpload className="h-4 w-4" /> Upload document
+            <CloudUpload className="h-4 w-4" aria-hidden /> {t("upload.open")}
           </button>
         }
       />
 
-      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Category">
+      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label={t("categoryLabel")}>
         {(["", ...DOCUMENT_CATEGORIES] as const).map((c) => {
           const Icon = c ? CATEGORY_ICON[c] : Layers;
           const active = category === c;
@@ -64,7 +66,7 @@ export function DocumentsView() {
               )}
             >
               <Icon className="h-3.5 w-3.5" aria-hidden />
-              {c ? CATEGORY_LABEL[c] : "All"}
+              {c ? t(`categories.${c}`) : t("allCategories")}
             </button>
           );
         })}
@@ -77,15 +79,15 @@ export function DocumentsView() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title"
+            placeholder={t("searchPlaceholder")}
             className="pl-9"
-            aria-label="Search documents"
+            aria-label={t("searchLabel")}
           />
         </div>
         <div className="relative sm:w-56">
           <Ship className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <SelectInput value={vesselId} onChange={(e) => setVesselId(e.target.value)} className="pl-9" aria-label="Filter by vessel">
-            <option value="">All vessels</option>
+          <SelectInput value={vesselId} onChange={(e) => setVesselId(e.target.value)} className="pl-9" aria-label={t("vesselFilter")}>
+            <option value="">{t("allVessels")}</option>
             {(vessels ?? []).map((v) => (
               <option key={v.id} value={v.id}>{v.name}</option>
             ))}
@@ -93,7 +95,7 @@ export function DocumentsView() {
         </div>
         {filtered ? (
           <button type="button" onClick={clearFilters} className={cn(btn.ghost, "self-start sm:self-auto")}>
-            <X className="h-4 w-4" /> Clear
+            <X className="h-4 w-4" aria-hidden /> {t("clear")}
           </button>
         ) : null}
       </div>
@@ -101,16 +103,16 @@ export function DocumentsView() {
       {error ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
 
       <Panel
-        title={category ? CATEGORY_LABEL[category] : "All documents"}
-        description={data ? `${count} ${count === 1 ? "file" : "files"}${filtered ? " match the filters" : ""}` : "Loading…"}
+        title={category ? t(`categories.${category}`) : t("panelAll")}
+        description={data ? (filtered ? t("countFiltered", { count }) : t("count", { count })) : t("loading")}
         icon={<FolderOpen className="h-4 w-4" />}
         action={isValidating && data ? <Spinner className="h-4 w-4" /> : null}
         bodyClassName="pb-2"
       >
-        {isLoading && !data ? <LoadingBlock label="Loading documents…" /> : (
+        {isLoading && !data ? <LoadingBlock label={t("loadingDocuments")} /> : (
           <DocumentList
             documents={data ?? []}
-            emptyText={filtered ? "Nothing matches these filters — try another category or clear the search." : undefined}
+            emptyText={filtered ? t("emptyFiltered") : undefined}
           />
         )}
       </Panel>

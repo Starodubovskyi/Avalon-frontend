@@ -35,9 +35,6 @@ export const ACTIVITY_LABEL: Record<ActivityCode, string> = {
   commodity_trading: "Commodity trading",
 };
 
-/** How many activities a point may have without a balance (backend answers 422 premiumRequired above it) */
-export const FREE_ACTIVITIES = 1;
-
 export function isActivityCode(value: unknown): value is ActivityCode {
   return typeof value === "string" && (ACTIVITY_CODES as readonly string[]).includes(value);
 }
@@ -53,11 +50,4 @@ export function activityFromText(text: string | null | undefined): ActivityCode 
   const t = (text ?? "").trim().toLowerCase();
   if (!t) return null;
   return ACTIVITY_CODES.find((c) => ACTIVITY_LABEL[c].toLowerCase() === t) ?? null;
-}
-
-/** Text for the card's Business Activity line: first code, else the legacy free text */
-export function activityLine(p: { activities: readonly ActivityCode[]; activity?: string | null }): string {
-  const code = p.activities[0];
-  if (code) return ACTIVITY_LABEL[code];
-  return (p.activity ?? "").trim();
 }

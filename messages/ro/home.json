@@ -1,0 +1,224 @@
+{
+  "meta": {
+    "title": "Avalon Shipping — agenturare portuară pe Dunăre",
+    "description": "Agenturare din rada Sulina până la dană: Izmail, Reni, Orlivka, Giurgiulești, Galați, Brăila și Tulcea. Trimiteți o cerere sau estimați un PDA online."
+  },
+  "hero": {
+    "eyebrow": "Agenturare · Sulina → Dunăre",
+    "title": "Agentul dvs. din rada Sulina",
+    "titleAccent": "până la dană.",
+    "lead": "Escale la Izmail, Reni, Orlivka, Giurgiulești, Galați, Brăila și Tulcea — cu un panou live al navelor pe care echipa dvs. și armatorii îl urmăresc de oriunde.",
+    "borders": "România · Ucraina · Moldova — un singur agent peste trei granițe"
+  },
+  "cta": {
+    "request": "Cerere de agenturare",
+    "estimate": "Estimați PDA",
+    "demo": "Explorați demo-ul",
+    "login": "Autentificare clienți",
+    "title": "Următoarea escală pe Dunăre?",
+    "text": "Trimiteți nominalizarea în două minute, verificați întâi costurile orientative — sau conectați-vă și urmăriți nava live."
+  },
+  "trust": {
+    "label": "Acoperirea în cifre",
+    "stats": {
+      "ports": {
+        "label": "Canalul Sulina + porturi fluviale",
+        "sub": "Din radă până la Brăila"
+      },
+      "countries": {
+        "label": "Țări, un singur agent",
+        "sub": "România · Ucraina · Moldova"
+      },
+      "draught": {
+        "label": "Pescaj maxim Sulina",
+        "value": "7,32 m",
+        "sub": "Orientativ, 24 ft"
+      },
+      "channel": {
+        "label": "Canalul Sulina",
+        "value": "≈ 64 km",
+        "sub": "Sulina → bifurcația Tulcea"
+      }
+    }
+  },
+  "services": {
+    "eyebrow": "Servicii",
+    "title": "Tot ce are nevoie o escală pe Dunăre",
+    "subtitle": "O singură echipă de agenturare, de la primul e-mail de nominalizare până la contul final — zilnic pe fluviu.",
+    "items": {
+      "agency": {
+        "title": "Agenturare portuară",
+        "text": "Agenturare completă pentru încărcare și descărcare: nominalizări, planificarea danelor, autorități și terminale."
+      },
+      "husbandry": {
+        "title": "Servicii pentru armator",
+        "text": "Problemele armatorului rezolvate în paralel: piese de schimb, provizii, buncheraj, inspecții, reparații și numerar pentru comandant."
+      },
+      "customs": {
+        "title": "Vamă și T1",
+        "text": "Documente de tranzit, declarații MSW și formalități de frontieră în România, Ucraina și Moldova."
+      },
+      "crew": {
+        "title": "Schimb de echipaj",
+        "text": "Vize, îmbarcare și debarcare, transport, hoteluri și asistență medicală pentru echipaj."
+      },
+      "pilotage": {
+        "title": "Pilotaj Sulina",
+        "text": "Comenzi de pilot, taxe de canal și ferestre de tranzit stabilite înainte ca nava să ajungă în radă."
+      },
+      "supervision": {
+        "title": "Supravegherea mărfii",
+        "text": "Pontaj, draft survey și supravegherea încărcării, cu rapoarte zilnice pentru armatori și navlositori."
+      }
+    }
+  },
+  "process": {
+    "eyebrow": "Cum lucrăm",
+    "title": "Patru pași, fără surprize",
+    "subtitle": "Aceeași listă de verificare pe care o folosește echipa noastră pe panou — vedeți cum fiecare pas trece din roșu în verde.",
+    "received": "Nominalizare primită",
+    "settled": "Decontat față de PDA",
+    "steps": {
+      "nominate": {
+        "title": "Nominalizare",
+        "text": "Trimiteți nava, ETA și marfa. Confirmăm și trimitem proforma (PDA)."
+      },
+      "prearrival": {
+        "title": "Înainte de sosire",
+        "text": "Prearrivals, MSW, T1 și comanda de pilot — fiecare punct e roșu până e finalizat."
+      },
+      "portCall": {
+        "title": "Escala",
+        "text": "Tranzitul Sulina, acostarea, operațiunile de marfă și plecarea, live pe panoul dvs."
+      },
+      "fda": {
+        "title": "FDA",
+        "text": "Contul final de cheltuieli cu documente justificative, decontat față de PDA."
+      }
+    }
+  },
+  "bento": {
+    "eyebrow": "Portalul",
+    "title": "Un singur panou live pentru toată escala",
+    "subtitle": "Echipa Avalon gestionează fiecare escală pe el. Armatorii și navlositorii urmăresc același panou, doar în citire — fără e-mailuri de urmărire.",
+    "estimateLink": "Estimați",
+    "requestLink": "Trimiteți o cerere",
+    "cards": {
+      "board": {
+        "title": "Panou live al navelor",
+        "text": "Așteptată, în rada Sulina, în port, plecată — și fiecare punct din listă e roșu până e finalizat."
+      },
+      "map": {
+        "title": "Harta flotei cu geopuncte ale companiilor",
+        "text": "Navele pe fluviu, lângă agenți, terminale, autorități și furnizori."
+      },
+      "lineup": {
+        "title": "Line-up",
+        "text": "Sosiri și ferestre de dană pe toată săptămâna, port cu port."
+      },
+      "pda": {
+        "title": "Estimare PDA",
+        "text": "Cheltuieli orientative în câteva secunde, apoi un PDA ferm de la echipă."
+      },
+      "requests": {
+        "title": "Cereri de agenturare",
+        "text": "Nominalizați online și urmăriți cererea de la primire la confirmare."
+      },
+      "chat": {
+        "title": "Chatul echipei",
+        "text": "Vorbiți cu oamenii care se ocupă de nava dvs., cu documentele atașate — în locul firelor lungi de e-mail."
+      },
+      "points": {
+        "title": "Fișe de companie și Rank",
+        "text": "Logo, domeniu de activitate și Rank pe fiecare punct — scrieți, distribuiți sau salvați la favorite."
+      }
+    }
+  },
+  "coverage": {
+    "eyebrow": "Acoperire",
+    "title": "Canalul Sulina și șapte porturi fluviale",
+    "subtitle": "România, Ucraina și Moldova — un singur agent peste trei granițe pe Dunărea de Jos.",
+    "open": "Deschideți ghidul porturilor",
+    "mapTitle": "Hartă schematică a Dunării de Jos, de la Brăila până în rada Sulina, cu porturile acoperite de Avalon",
+    "channel": "Canal · {code}"
+  },
+  "visuals": {
+    "board": {
+      "seaGlory": "→ Reni · ETA 04:30",
+      "keremcan": "→ Reni · la ancoră",
+      "bmi": "→ Izmail · dana 2"
+    },
+    "pointTypes": {
+      "headOffice": "Sediu central",
+      "branch": "Filială",
+      "selfEmployed": "PFA",
+      "forSale": "De vânzare",
+      "authority": "Autoritate",
+      "private": "Persoană fizică"
+    },
+    "saved": {
+      "izmail": {
+        "name": "Filiala din Izmail",
+        "meta": "Filială · Aprovizionare nave"
+      },
+      "reni": {
+        "name": "Ship chandler Reni",
+        "meta": "PFA · Aprovizionare nave"
+      }
+    },
+    "inFavourites": "La favorite",
+    "request": {
+      "label": "Cerere de agenturare",
+      "cargo": "Cereale, 4.800 t · ETA Sulina joi",
+      "new": "Nouă",
+      "steps": {
+        "received": "Primită",
+        "quoted": "PDA trimis",
+        "confirmed": "Confirmată"
+      }
+    },
+    "chat": {
+      "ops": "Irina · Avalon ops",
+      "owner": "Biroul armatorului",
+      "m1": "KEREMCAN a ancorat în rada Sulina. Pilotul e comandat pentru 05:00.",
+      "m2": "Perfect, mulțumesc. Ne puteți trimite PDA-ul actualizat?",
+      "m3": "Trimis — îl găsiți și pe panou, la Documente.",
+      "placeholder": "Scrieți echipei Avalon…"
+    }
+  },
+  "shot": {
+    "label": "Previzualizare a portalului operațional Avalon: panoul navelor și harta flotei",
+    "boardTitle": "Panoul navelor",
+    "boardSub": "Operațiuni · Dunărea de Jos",
+    "search": "Navă sau IMO…",
+    "unpaid": "1 plecată neplătită",
+    "ais": "AIS activ",
+    "arrivals": "Sosiri în 72 h",
+    "lineup": "Line-up",
+    "inHours": "în {count} h",
+    "inDays": "în {count, plural, one {# zi} few {# zile} other {# de zile}}",
+    "tabs": {
+      "work": "În lucru",
+      "expected": "Așteptate",
+      "roads": "În radă",
+      "port": "În port",
+      "unpaid": "Plecate neplătite"
+    },
+    "searchBoard": "Nume sau IMO",
+    "colVessel": "Navă",
+    "colStatus": "Stare · destinație",
+    "colEta": "ETA Sulina",
+    "colChecklist": "Listă de verificare"
+  },
+  "map": {
+    "vessels": "Nave",
+    "companies": "Companii",
+    "favorites": "Favorite",
+    "headOffice": "Sediul central al companiei",
+    "activity": "Domeniu de activitate",
+    "shipAgency": "Agenturare navală",
+    "chat": "Chat",
+    "share": "Distribuiți",
+    "saved": "Salvat"
+  }
+}

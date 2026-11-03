@@ -1,13 +1,14 @@
+import { useFormatter, useTranslations } from "next-intl";
 import { Check, FileText, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DEFAULT_PDA_INPUT, PDA_GROUP_LABEL, estimatePda, fmtEur, type PdaGroup } from "@/lib/public/pdaTariffs";
-import { DESTINATION_LABEL, TYPE_LABEL } from "@/lib/vessels/types";
+import { DEFAULT_PDA_INPUT, PDA_GROUP_LABEL, estimatePda, type PdaGroup } from "@/lib/public/pdaTariffs";
+import { useEur } from "@/lib/public/useEur";
+import { DESTINATION_LABEL } from "@/lib/vessels/types";
 
 /** Computed with the same model as /estimate, so the numbers match the calculator */
 const SAMPLE = estimatePda(DEFAULT_PDA_INPUT);
 const GROUPS = (Object.keys(PDA_GROUP_LABEL) as PdaGroup[]).map((g) => ({
   group: g,
-  label: PDA_GROUP_LABEL[g],
   amount: SAMPLE.lines.filter((l) => l.group === g).reduce((sum, l) => sum + l.amount, 0),
 }));
 const MAX = Math.max(...GROUPS.map((g) => g.amount));
@@ -19,17 +20,21 @@ function barWidth(amount: number): string {
 }
 
 export function PdaVisual() {
+  const t = useTranslations("publicPages");
+  const tc = useTranslations("common");
+  const format = useFormatter();
+  const fmtEur = useEur();
   const { input } = SAMPLE;
   return (
     <div className="rounded-xl border bg-background/60 p-3.5">
       <p className="text-[11px] text-muted-foreground">
-        {DESTINATION_LABEL[input.port]} · {TYPE_LABEL[input.vesselType]} · {input.gt.toLocaleString("en-GB")} GT · {input.days} days
+        {DESTINATION_LABEL[input.port]} · {tc(`vesselType.${input.vesselType}`)} · {format.number(input.gt)} GT · {t("pda.days", { count: input.days })}
       </p>
       <ul className="mt-3 space-y-2">
         {GROUPS.map((g) => (
           <li key={g.group}>
             <div className="flex items-baseline justify-between gap-2 text-[11px]">
-              <span className="truncate text-foreground/80">{g.label}</span>
+              <span className="truncate text-foreground/80">{t(`pda.groups.${g.group}`)}</span>
               <span className="tabular font-semibold">{fmtEur(g.amount)}</span>
             </div>
             <span className="mt-1 block h-1.5 rounded-full bg-muted">
@@ -39,7 +44,7 @@ export function PdaVisual() {
         ))}
       </ul>
       <div className="mt-3 flex items-baseline justify-between border-t pt-3">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Indicative total</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("pda.indicativeTotal")}</span>
         <span className="tabular font-display text-xl font-extrabold">{fmtEur(SAMPLE.total)}</span>
       </div>
     </div>
@@ -47,25 +52,31 @@ export function PdaVisual() {
 }
 
 const REQUEST_STEPS = [
-  { label: "Received", done: true },
-  { label: "PDA quoted", done: true },
-  { label: "Confirmed", done: false },
-];
+  { key: "received", done: true },
+  { key: "quoted", done: true },
+  { key: "confirmed", done: false },
+] as const;
+
+const EARLIER = [
+  { name: "UGAH CONFIDENCE → Izmail", status: "quoted", tone: "bg-primary/10 text-primary" },
+  { name: "AZOV COAST → Tulcea", status: "confirmed", tone: "bg-ok/10 text-ok" },
+] as const;
 
 export function RequestVisual() {
+  const t = useTranslations("home");
   return (
     <div className="rounded-xl border bg-background/60 p-3.5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Agency request</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t("visuals.request.label")}</p>
           <p className="mt-0.5 truncate text-[13px] font-bold">KARANFIL → Brăila</p>
-          <p className="truncate text-[11px] text-muted-foreground">Grain, 4,800 t · ETA Sulina Thu</p>
+          <p className="truncate text-[11px] text-muted-foreground">{t("visuals.request.cargo")}</p>
         </div>
-        <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">New</span>
+        <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">{t("visuals.request.new")}</span>
       </div>
       <ol className="mt-4 flex items-center">
         {REQUEST_STEPS.map((s, i) => (
-          <li key={s.label} className={cn("flex items-center", i < REQUEST_STEPS.length - 1 && "flex-1")}>
+          <li key={s.key} className={cn("flex items-center", i < REQUEST_STEPS.length - 1 && "flex-1")}>
             <span className="flex flex-col items-center gap-1">
               <span
                 className={cn(
@@ -75,7 +86,7 @@ export function RequestVisual() {
               >
                 {s.done ? <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden /> : <span className="h-2 w-2 rounded-full bg-primary motion-safe:animate-pulse" />}
               </span>
-              <span className="whitespace-nowrap text-[10px] font-medium text-muted-foreground">{s.label}</span>
+              <span className="whitespace-nowrap text-[10px] font-medium text-muted-foreground">{t(`visuals.request.steps.${s.key}`)}</span>
             </span>
             {i < REQUEST_STEPS.length - 1 ? <span className={cn("mx-1 mb-4 h-0.5 flex-1 rounded-full", s.done ? "bg-ok/60" : "bg-border")} /> : null}
           </li>
@@ -85,7 +96,7 @@ export function RequestVisual() {
         {EARLIER.map((r) => (
           <li key={r.name} className="flex items-center justify-between gap-2 py-2 text-[11px] last:pb-0">
             <span className="min-w-0 truncate font-semibold">{r.name}</span>
-            <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold", r.tone)}>{r.status}</span>
+            <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold", r.tone)}>{t(`visuals.request.steps.${r.status}`)}</span>
           </li>
         ))}
       </ul>
@@ -93,18 +104,14 @@ export function RequestVisual() {
   );
 }
 
-const EARLIER = [
-  { name: "UGAH CONFIDENCE → Izmail", status: "PDA quoted", tone: "bg-primary/10 text-primary" },
-  { name: "AZOV COAST → Tulcea", status: "Confirmed", tone: "bg-ok/10 text-ok" },
-];
-
-const MESSAGES: { from: "ops" | "owner"; who: string; text: string; time: string; file?: string }[] = [
-  { from: "ops", who: "Irina · Avalon ops", text: "KEREMCAN anchored at the Sulina roads. Pilot ordered for 05:00.", time: "21:14" },
-  { from: "owner", who: "Owner's office", text: "Great, thanks. Can you share the updated PDA?", time: "21:16" },
-  { from: "ops", who: "Irina · Avalon ops", text: "Sent — it's also on the board under Documents.", time: "21:18", file: "PDA · KEREMCAN.pdf" },
+const MESSAGES: { from: "ops" | "owner"; key: "m1" | "m2" | "m3"; time: string; file?: string }[] = [
+  { from: "ops", key: "m1", time: "21:14" },
+  { from: "owner", key: "m2", time: "21:16" },
+  { from: "ops", key: "m3", time: "21:18", file: "PDA · KEREMCAN.pdf" },
 ];
 
 export function ChatVisual() {
+  const t = useTranslations("home");
   return (
     <div className="flex h-full flex-col gap-2.5 rounded-xl border bg-background/60 p-3.5">
       {MESSAGES.map((m) => {
@@ -122,11 +129,11 @@ export function ChatVisual() {
             </span>
             <div className={cn("max-w-[78%] rounded-2xl px-3 py-2", ops ? "rounded-bl-md bg-card shadow-card" : "rounded-br-md bg-primary text-primary-foreground")}>
               <p className={cn("text-[10px] font-semibold", ops ? "text-muted-foreground" : "text-primary-foreground/75")}>
-                {m.who} · {m.time}
+                {ops ? t("visuals.chat.ops") : t("visuals.chat.owner")} · {m.time}
               </p>
-              <p className="mt-0.5 text-[12px] leading-snug">{m.text}</p>
+              <p className="mt-0.5 text-[12px] leading-snug">{t(`visuals.chat.${m.key}`)}</p>
               {m.file ? (
-                <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg border bg-background px-2 py-1 text-[11px] font-medium">
+                <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg border bg-background px-2 py-1 text-[11px] font-medium text-foreground">
                   <FileText className="h-3.5 w-3.5 text-primary" aria-hidden /> {m.file}
                 </span>
               ) : null}
@@ -140,7 +147,7 @@ export function ChatVisual() {
         ))}
       </div>
       <div className="mt-auto flex items-center gap-2 rounded-xl border bg-card py-1.5 pl-3 pr-1.5 text-[12px] text-muted-foreground shadow-card" aria-hidden>
-        Write to the Avalon team…
+        {t("visuals.chat.placeholder")}
         <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Send className="h-3.5 w-3.5" />
         </span>

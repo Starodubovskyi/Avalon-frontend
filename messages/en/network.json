@@ -1,0 +1,22 @@
+{
+  "errors": {
+    "sessionExpired": "Your session has expired — please sign in again",
+    "forbidden": "You don't have permission to do that",
+    "notFound": "Not found — it may have been deleted or you no longer have access",
+    "offline": "Can't reach the server — check your connection",
+    "generic": "Something went wrong — please try again",
+    "validation": {
+      "bodyEmpty": "Write something first",
+      "bodyTooLong": "That's too long — shorten it and try again",
+      "userIdsNotAllowed": "You can't start a chat with this person",
+      "userIdsNotFound": "That person no longer has an account",
+      "titleRequired": "Give the group a name",
+      "titleTooLong": "Group names are limited to {max, number} characters"
+    }
+  },
+  "toasts": {
+    "postDeleted": "Post deleted",
+    "postGone": "That post had already been deleted",
+    "commentGone": "That comment had already been deleted"
+  }
+}

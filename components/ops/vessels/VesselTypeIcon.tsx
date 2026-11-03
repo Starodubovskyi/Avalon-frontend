@@ -1,7 +1,8 @@
 import { Container, Fuel, PawPrint } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { STAGE_META, isUnpaidAfterDeparture } from "@/lib/vessels/status";
-import { TYPE_LABEL, type VesselType, type VesselView } from "@/lib/vessels/types";
+import { useVesselLabels } from "@/lib/vessels/i18n";
+import type { VesselType, VesselView } from "@/lib/vessels/types";
 
 /** Glyph per vessel type — shared by the board, agency requests and the public PDA estimator */
 export const TYPE_ICON: Record<VesselType, typeof Container> = {
@@ -12,11 +13,12 @@ export const TYPE_ICON: Record<VesselType, typeof Container> = {
 
 /** Rounded tile with the vessel-type glyph, tinted by stage (or the unpaid colour) */
 export function VesselTypeIcon({ vessel, size = "md" }: { vessel: VesselView; size?: "sm" | "md" | "lg" }) {
+  const labels = useVesselLabels();
   const Icon = TYPE_ICON[vessel.type];
   const unpaid = isUnpaidAfterDeparture(vessel);
   return (
     <span
-      title={TYPE_LABEL[vessel.type]}
+      title={labels.type(vessel.type)}
       className={cn(
         "flex shrink-0 items-center justify-center rounded-xl",
         size === "sm" && "h-8 w-8",

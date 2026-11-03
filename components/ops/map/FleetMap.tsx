@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl, { type GeoJSONSource } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useTheme } from "next-themes";
+import { useFormatter, useTranslations } from "next-intl";
 import { DANUBE_VIEW, resolvePosition } from "@/lib/vessels/geo";
 import type { VesselView } from "@/lib/vessels/types";
 import type { PointKind, TeamPoint } from "@/lib/points/team-points";
@@ -52,7 +53,21 @@ export function FleetMap(props: FleetMapProps) {
   /** bumps on every style load so data/filters are re-applied to the fresh style */
   const [styleVersion, setStyleVersion] = useState(0);
   const ready = styleVersion > 0;
-  const [failed, setFailed] = useState<string | null>(null);
+  const t = useTranslations("map");
+  const format = useFormatter();
+  // setup problem, worded on render
+  const [failed, setFailed] = useState<"noToken" | "rejected" | null>(null);
+  // Mapbox control tooltips in the interface language (read once, when the map is created)
+  const mapLocale = useRef<Record<string, string>>({});
+  mapLocale.current = {
+    "NavigationControl.ZoomIn": t("controls.zoomIn"),
+    "NavigationControl.ZoomOut": t("controls.zoomOut"),
+    "NavigationControl.ResetBearing": t("controls.resetBearing"),
+    "AttributionControl.ToggleAttribution": t("controls.toggleAttribution"),
+    "AttributionControl.MapFeedback": t("controls.feedback"),
+    "Map.Title": t("controls.map"),
+    "ScaleControl.NauticalMiles": t("controls.nauticalMiles"),
+  };
   const { resolvedTheme } = useTheme();
   const dark = resolvedTheme === "dark";
   const darkRef = useRef(dark);
@@ -64,7 +79,7 @@ export function FleetMap(props: FleetMapProps) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     if (!token) {
-      setFailed("Map token is not configured (NEXT_PUBLIC_MAPBOX_TOKEN).");
+      setFailed("noToken");
       return;
     }
     mapboxgl.accessToken = token;
@@ -75,6 +90,7 @@ export function FleetMap(props: FleetMapProps) {
       zoom: DANUBE_VIEW.zoom,
       pitch: 0,
       attributionControl: true,
+      locale: mapLocale.current,
     });
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl({ showCompass: true }), "top-right");
@@ -86,7 +102,7 @@ export function FleetMap(props: FleetMapProps) {
     });
     map.on("error", (e) => {
       const status = (e.error as { status?: number } | undefined)?.status;
-      if (status === 401 || status === 403) setFailed("Map token was rejected by Mapbox. Check NEXT_PUBLIC_MAPBOX_TOKEN.");
+      if (status === 401 || status === 403) setFailed("rejected");
     });
     map.on("click", (e) => {
       const h = handlers.current;
@@ -151,8 +167,8 @@ export function FleetMap(props: FleetMapProps) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    (map.getSource(POINT_SOURCE) as GeoJSONSource | undefined)?.setData(pointsToGeoJson(points, logoIconFor));
-  }, [points, ready, styleVersion, logoVersion, logoIconFor]);
+    (map.getSource(POINT_SOURCE) as GeoJSONSource | undefined)?.setData(pointsToGeoJson(points, logoIconFor, (n) => format.number(n)));
+  }, [points, ready, styleVersion, logoVersion, logoIconFor, format]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -200,7 +216,7 @@ export function FleetMap(props: FleetMapProps) {
       <div ref={containerRef} className="h-full w-full" />
       {failed ? (
         <div className="absolute inset-0 flex items-center justify-center bg-background/90 p-6 text-center text-sm text-muted-foreground">
-          {failed}
+          {t(`errors.${failed}`)}
         </div>
       ) : null}
     </div>
