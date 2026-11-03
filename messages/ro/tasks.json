@@ -1,0 +1,40 @@
+{
+  "shellTitle": "Sarcini",
+  "eyebrow": "Spațiu de lucru",
+  "title": "Sarcini",
+  "subtitleStaff": "Tot ce este încă roșu pe panoul navelor. Bifați un punct când este gata — panoul îl face verde pentru toată lumea.",
+  "subtitleViewer": "Tot ce este încă deschis pentru navele pe care le puteți vedea.",
+  "phases": {
+    "all": "Toate",
+    "arrival": "Sosire",
+    "finance": "PDA și plată",
+    "departure": "Plecare"
+  },
+  "phaseAria": "Tip de sarcină",
+  "searchPlaceholder": "Filtrați după navă sau sarcină",
+  "searchAria": "Filtrați sarcinile",
+  "kpi": {
+    "open": "Sarcini deschise",
+    "vessels": "{count, plural, one {# navă} few {# nave} other {# de nave}}",
+    "overdueHint": "etapa a trecut deja",
+    "nowHint": "în radă sau ETA < 24 h"
+  },
+  "loading": "Se adună punctele deschise…",
+  "emptyFilteredTitle": "Nimic nu corespunde filtrului",
+  "emptyTitle": "Totul e în regulă",
+  "emptyFilteredText": "Încercați alt tip de sarcină sau alt nume de navă.",
+  "emptyText": "Toate punctele de verificare de pe panou sunt verzi.",
+  "markDone": "Marcați „{item}” ca gata",
+  "markDoneFor": "Marcați „{item}” ca gata pentru {vessel}",
+  "doneToast": "{item} gata · {vessel}",
+  "reason": {
+    "sailed": "Plecată {when}",
+    "berthedOpen": "Acostată {when}, încă deschis",
+    "berthed": "Acostată {when}",
+    "arrivedSulina": "Sosită la Sulina {when}",
+    "eta": "ETA {when}",
+    "atRoads": "În rada Sulina",
+    "etaPassed": "ETA a trecut, nava nu a sosit încă",
+    "noEta": "Încă fără ETA"
+  }
+}

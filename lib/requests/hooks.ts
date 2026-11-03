@@ -3,12 +3,13 @@
 import { useCallback, useMemo } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit } from "@/lib/auth/roles";
 import { VesselsApi } from "@/lib/api/vessels";
 import { useVesselMutations } from "@/lib/vessels/hooks";
 import type { VesselInput, VesselView } from "@/lib/vessels/types";
-import { AgencyRequestsApi, requestError } from "./api";
+import { AgencyRequestsApi, requestError, type RequestsT } from "./api";
 import type { AgencyRequest, CreateAgencyRequestDto, UpdateAgencyRequestDto } from "./types";
 
 const LIST_KEY = "agency-requests";
@@ -35,7 +36,7 @@ export function useNewRequestsCount(): number {
   return useMemo(() => data?.filter((r) => r.status === "new").length ?? 0, [data]);
 }
 
-/** Board vessel built from a client's request */
+/** Board vessel built from a client's request (notes stay in English: shared board data, not interface text) */
 export function vesselFromRequest(r: AgencyRequest): VesselInput {
   const notes = [
     `Agency request from ${r.contactName}, ${r.company}`,
@@ -69,14 +70,15 @@ export async function findVesselByImo(imo: string | null): Promise<VesselView | 
 }
 
 export class BoardLinkError extends Error {
-  constructor(public readonly vessel: VesselView, cause: unknown) {
-    super(`${vessel.name} is on the board, but the request was not updated: ${requestError(cause)}`);
+  constructor(public readonly vessel: VesselView, cause: unknown, t: RequestsT) {
+    super(t("errors.boardLink", { vessel: vessel.name, reason: requestError(cause, t) }));
     this.name = "BoardLinkError";
   }
 }
 
 export function useRequestMutations() {
   const { mutate } = useSWRConfig();
+  const t = useTranslations("requests");
   const vessels = useVesselMutations();
 
   const put = useCallback(
@@ -114,11 +116,11 @@ export function useRequestMutations() {
         if (successText) toast.success(successText);
         return saved;
       } catch (e) {
-        toast.error(requestError(e));
+        toast.error(requestError(e, t));
         throw e;
       }
     },
-    [put],
+    [put, t],
   );
 
   /**
@@ -131,13 +133,13 @@ export function useRequestMutations() {
       try {
         const saved = await AgencyRequestsApi.update(request.id, { status: "accepted", vesselId: vessel.id });
         await put(saved);
-        toast.success(`Request accepted — ${vessel.name} is on the board`);
+        toast.success(t("actions.acceptedToast", { vessel: vessel.name }));
         return { request: saved, vessel };
       } catch (e) {
-        throw new BoardLinkError(vessel, e);
+        throw new BoardLinkError(vessel, e, t);
       }
     },
-    [put, vessels],
+    [put, vessels, t],
   );
 
   return { create, update, addToBoard };

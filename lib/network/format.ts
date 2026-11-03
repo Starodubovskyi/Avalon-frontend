@@ -5,13 +5,21 @@ import type { Conversation, NetworkRole, UserCard } from "./api";
 
 type Named = Pick<UserCard, "id" | "firstName" | "lastName" | "email">;
 
-export function personName(u: Named | null | undefined): string {
-  if (!u) return "Unknown";
-  return [u.firstName, u.lastName].filter(Boolean).join(" ").trim() || u.email || `User #${u.id}`;
+/** Words for people without a name or email; screens pass the translated set (useNames) */
+export interface NameLabels {
+  unknown: string;
+  user: (id: number | string) => string;
 }
 
-export function firstName(u: Named | null | undefined): string {
-  return u?.firstName?.trim() || personName(u).split(" ")[0];
+const NAME_LABELS_EN: NameLabels = { unknown: "Unknown", user: (id) => `User #${id}` };
+
+export function personName(u: Named | null | undefined, labels: NameLabels = NAME_LABELS_EN): string {
+  if (!u) return labels.unknown;
+  return [u.firstName, u.lastName].filter(Boolean).join(" ").trim() || u.email || labels.user(u.id);
+}
+
+export function firstName(u: Named | null | undefined, labels: NameLabels = NAME_LABELS_EN): string {
+  return u?.firstName?.trim() || personName(u, labels).split(" ")[0];
 }
 
 const ROLE_BY_NAME: Record<NetworkRole, number> = {
@@ -53,7 +61,7 @@ export function otherMembers(c: Conversation, meId: number | string | null | und
 }
 
 export function conversationTitle(c: Conversation, meId: number | string | null | undefined): string {
-  if (c.kind === "group") return c.title?.trim() || otherMembers(c, meId).map(firstName).join(", ") || "Group";
+  if (c.kind === "group") return c.title?.trim() || otherMembers(c, meId).map((m) => firstName(m)).join(", ") || "Group";
   return personName(otherMembers(c, meId)[0]);
 }
 

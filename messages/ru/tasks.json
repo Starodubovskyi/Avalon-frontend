@@ -1,0 +1,40 @@
+{
+  "shellTitle": "Задачи",
+  "eyebrow": "Рабочее место",
+  "title": "Задачи",
+  "subtitleStaff": "Всё, что ещё красное на доске судов. Отметьте пункт, когда он выполнен, — доска станет зелёной для всех.",
+  "subtitleViewer": "Всё, что ещё открыто по доступным вам судам.",
+  "phases": {
+    "all": "Все",
+    "arrival": "Приход",
+    "finance": "PDA и оплата",
+    "departure": "Отход"
+  },
+  "phaseAria": "Тип задачи",
+  "searchPlaceholder": "Фильтр по судну или задаче",
+  "searchAria": "Фильтр задач",
+  "kpi": {
+    "open": "Открытые задачи",
+    "vessels": "{count, plural, one {# судно} few {# судна} many {# судов} other {# судна}}",
+    "overdueHint": "этап уже пройден",
+    "nowHint": "на рейде или ETA < 24 ч"
+  },
+  "loading": "Собираем открытые пункты…",
+  "emptyFilteredTitle": "Ничего не найдено",
+  "emptyTitle": "Всё выполнено",
+  "emptyFilteredText": "Выберите другой тип задачи или название судна.",
+  "emptyText": "Все пункты чек-листа на доске зелёные.",
+  "markDone": "Отметить «{item}» выполненным",
+  "markDoneFor": "Отметить «{item}» выполненным для {vessel}",
+  "doneToast": "{item} — выполнено · {vessel}",
+  "reason": {
+    "sailed": "Отошло {when}",
+    "berthedOpen": "У причала {when}, всё ещё открыто",
+    "berthed": "У причала {when}",
+    "arrivedSulina": "Прибыло в Сулину {when}",
+    "eta": "ETA {when}",
+    "atRoads": "На рейде Сулина",
+    "etaPassed": "ETA прошло, судно ещё не прибыло",
+    "noEta": "ETA пока нет"
+  }
+}

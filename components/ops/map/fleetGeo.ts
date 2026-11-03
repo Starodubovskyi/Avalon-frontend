@@ -63,7 +63,11 @@ function shortTitle(p: TeamPoint): string {
 }
 
 /** `logoIconFor` gives the logo marker once it is on the map; until then the kind marker is used */
-export function pointsToGeoJson(points: TeamPoint[], logoIconFor: (pointId: string) => string | null): FeatureCollection<Point, PointFeatureProps> {
+export function pointsToGeoJson(
+  points: TeamPoint[],
+  logoIconFor: (pointId: string) => string | null,
+  formatNumber?: (n: number) => string,
+): FeatureCollection<Point, PointFeatureProps> {
   return {
     type: "FeatureCollection",
     features: points.map((p) => {
@@ -77,7 +81,7 @@ export function pointsToGeoJson(points: TeamPoint[], logoIconFor: (pointId: stri
           name: shortTitle(p),
           kind: p.kind,
           icon: logoId ?? pointIconId(p.kind),
-          rank: `RANK ${fmtRank(p.rank)}`,
+          rank: `RANK ${fmtRank(p.rank, formatNumber)}`,
           color: POINT_KIND_COLORS[p.kind].base,
         },
       };

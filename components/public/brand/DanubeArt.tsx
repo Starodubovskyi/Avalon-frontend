@@ -1,3 +1,4 @@
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
   COAST_PATH,
@@ -34,6 +35,8 @@ export function DanubeArt({
   /** accessible name; without it the drawing is decorative */
   title?: string;
 }) {
+  const t = useTranslations("common");
+  const locale = useLocale();
   return (
     <svg
       viewBox={DANUBE_VIEWBOX}
@@ -65,19 +68,19 @@ export function DanubeArt({
         textAnchor="middle"
         className="fill-white/35 text-[15px] font-semibold tracking-[0.5em]"
       >
-        BLACK SEA
+        {t("blackSea").toLocaleUpperCase(locale)}
       </text>
 
       {countries
         ? COUNTRY_LABELS.map((c) => (
             <text
-              key={c.name}
+              key={c.code}
               x={c.x}
               y={c.y}
               textAnchor="middle"
               className="hidden fill-white/25 text-[15px] font-semibold tracking-[0.45em] sm:block"
             >
-              {c.name}
+              {t(`country.${c.code}`).toLocaleUpperCase(locale)}
             </text>
           ))
         : null}

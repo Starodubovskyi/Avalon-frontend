@@ -4,9 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import useSWR, { unstable_serialize, useSWRConfig } from "swr";
 import useSWRInfinite, { type SWRInfiniteKeyedMutator } from "swr/infinite";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
 import {
   isNotFound,
+  LIMITS,
   NetworkApi,
   networkError,
   type ChatMessage,
@@ -156,8 +158,33 @@ function bumpConversation(list: Conversation[] | undefined, msg: ChatMessage): C
 
 let pendingSeq = 0;
 
+/** networkError() in the active interface language */
+function useNetworkErrorText() {
+  const t = useTranslations("network");
+  return useCallback(
+    (e: unknown) =>
+      networkError(e, {
+        sessionExpired: t("errors.sessionExpired"),
+        forbidden: t("errors.forbidden"),
+        notFound: t("errors.notFound"),
+        offline: t("errors.offline"),
+        generic: t("errors.generic"),
+        validation: {
+          bodyEmpty: t("errors.validation.bodyEmpty"),
+          bodyTooLong: t("errors.validation.bodyTooLong"),
+          userIdsNotAllowed: t("errors.validation.userIdsNotAllowed"),
+          userIdsNotFound: t("errors.validation.userIdsNotFound"),
+          titleRequired: t("errors.validation.titleRequired"),
+          titleTooLong: t("errors.validation.titleTooLong", { max: LIMITS.groupTitle }),
+        },
+      }),
+    [t],
+  );
+}
+
 export function useChatActions() {
   const { mutate } = useSWRConfig();
+  const errorText = useNetworkErrorText();
 
   const createConversation = useCallback(
     async (input: CreateConversationInput) => {
@@ -174,11 +201,11 @@ export function useChatActions() {
         );
         return conv;
       } catch (e) {
-        toast.error(networkError(e));
+        toast.error(errorText(e));
         throw e;
       }
     },
-    [mutate],
+    [mutate, errorText],
   );
 
   /** Optimistic send; resolves false (and rolls back) when the server rejects it */
@@ -206,11 +233,11 @@ export function useChatActions() {
         return true;
       } catch (e) {
         await mutate(key, (list?: ChatMessageView[]) => list?.filter((m) => m.id !== temp.id), { revalidate: false });
-        toast.error(networkError(e));
+        toast.error(errorText(e));
         return false;
       }
     },
-    [mutate],
+    [mutate, errorText],
   );
 
   const markRead = useCallback(
@@ -239,7 +266,7 @@ export function useChatActions() {
       }
       void mutate(UNREAD_KEY);
     },
-    [mutate],
+    [mutate, errorText],
   );
 
   return { createConversation, sendMessage, markRead };
@@ -278,6 +305,8 @@ function patchPost(mutate: FeedMutate, id: string, patch: (p: Post) => Post) {
 }
 
 export function useFeedActions(mutate: FeedMutate) {
+  const errorText = useNetworkErrorText();
+  const t = useTranslations("network");
   const createPost = useCallback(
     async (body: string): Promise<boolean> => {
       try {
@@ -285,11 +314,11 @@ export function useFeedActions(mutate: FeedMutate) {
         await mutate((pages) => (pages?.length ? [[post, ...pages[0]], ...pages.slice(1)] : [[post]]), { revalidate: false });
         return true;
       } catch (e) {
-        toast.error(networkError(e));
+        toast.error(errorText(e));
         return false;
       }
     },
-    [mutate],
+    [mutate, errorText, t],
   );
 
   const toggleLike = useCallback(
@@ -302,34 +331,34 @@ export function useFeedActions(mutate: FeedMutate) {
         await patchPost(mutate, post.id, (p) => ({ ...p, likedByMe: res.likedByMe, likeCount: res.likeCount }));
       } catch (e) {
         await patchPost(mutate, post.id, (p) => ({ ...p, ...before }));
-        toast.error(networkError(e));
+        toast.error(errorText(e));
       }
     },
-    [mutate],
+    [mutate, errorText, t],
   );
 
   const removePost = useCallback(
     async (post: Post): Promise<boolean> => {
       try {
         await NetworkApi.deletePost(post.id);
-        toast.success("Post deleted");
+        toast.success(t("toasts.postDeleted"));
       } catch (e) {
         if (!isNotFound(e)) {
-          toast.error(networkError(e));
+          toast.error(errorText(e));
           return false;
         }
-        toast.info("That post had already been deleted");
+        toast.info(t("toasts.postGone"));
       }
       await mutate((pages) => pages?.map((page) => page.filter((p) => p.id !== post.id)), { revalidate: false });
       return true;
     },
-    [mutate],
+    [mutate, errorText, t],
   );
 
   const adjustComments = useCallback(
     (postId: string, delta: number) =>
       patchPost(mutate, postId, (p) => ({ ...p, commentCount: Math.max(0, p.commentCount + delta) })),
-    [mutate],
+    [mutate, errorText, t],
   );
 
   return useMemo(
@@ -348,6 +377,8 @@ export function useComments(postId: string, enabled: boolean) {
 
 export function useCommentActions(postId: string, onCountChange: (delta: number) => void) {
   const { mutate } = useSWRConfig();
+  const errorText = useNetworkErrorText();
+  const t = useTranslations("network");
   const key: CommentsKey = useMemo(() => ["post-comments", postId], [postId]);
 
   const addComment = useCallback(
@@ -358,11 +389,11 @@ export function useCommentActions(postId: string, onCountChange: (delta: number)
         onCountChange(1);
         return true;
       } catch (e) {
-        toast.error(networkError(e));
+        toast.error(errorText(e));
         return false;
       }
     },
-    [key, mutate, onCountChange, postId],
+    [key, mutate, onCountChange, postId, errorText, t],
   );
 
   const removeComment = useCallback(
@@ -371,15 +402,15 @@ export function useCommentActions(postId: string, onCountChange: (delta: number)
         await NetworkApi.deleteComment(comment.id);
       } catch (e) {
         if (!isNotFound(e)) {
-          toast.error(networkError(e));
+          toast.error(errorText(e));
           return;
         }
-        toast.info("That comment had already been deleted");
+        toast.info(t("toasts.commentGone"));
       }
       await mutate(key, (list?: PostComment[]) => list?.filter((c) => c.id !== comment.id), { revalidate: false });
       onCountChange(-1);
     },
-    [key, mutate, onCountChange],
+    [key, mutate, onCountChange, errorText, t],
   );
 
   return { addComment, removeComment };
@@ -401,11 +432,12 @@ export function usePeople(search: string, filter: PeopleFilter) {
 
 export function usePeopleActions() {
   const { mutate } = useSWRConfig();
+  const errorText = useNetworkErrorText();
 
   const patchPerson = useCallback(
     (id: number, patch: (p: Person) => Person) =>
       mutate(isPeopleKey, (list?: Person[]) => list?.map((p) => (p.id === id ? patch(p) : p)), { revalidate: false }),
-    [mutate],
+    [mutate, errorText],
   );
 
   /** Optimistic follow/unfollow; filtered lists (friends, following) refresh after the server answers */
@@ -420,10 +452,10 @@ export function usePeopleActions() {
         void mutate(isPeopleKey);
       } catch (e) {
         await patchPerson(person.id, (p) => ({ ...p, ...before }));
-        toast.error(networkError(e));
+        toast.error(errorText(e));
       }
     },
-    [mutate, patchPerson],
+    [mutate, patchPerson, errorText],
   );
 
   return { toggleFollow };

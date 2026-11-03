@@ -1,0 +1,11 @@
+{
+  "title": "Date demo",
+  "subtitle": "modificările rămân în acest browser",
+  "asRole": "ca {role}",
+  "reset": "Resetați",
+  "resetHint": "Restabilește datele demo inițiale",
+  "exit": "Ieșiți",
+  "exitDemo": "Ieșiți din demo",
+  "resetConfirm": "Resetezi demo-ul? Toate modificările făcute în acest browser vor fi șterse.",
+  "resetFailed": "Demo-ul nu a putut fi resetat — reîncărcați pagina și încercați din nou."
+}

@@ -13,6 +13,15 @@ export interface MapPoint {
   isFavorite: boolean;
   createdAt: string;
   updatedAt: string;
+  /** Stage 2 fields; the full view the fleet map uses is TeamPoint (lib/points/team-points.ts) */
+  visibility?: "public" | "team";
+  description?: string | null;
+  website?: string | null;
+  parentId?: string | null;
+  activitySlots?: number;
+  emailVerified?: boolean;
+  canEdit?: boolean;
+  memberCount?: number;
 }
 
 export interface CreateMapPointDto {
@@ -37,6 +46,8 @@ export interface AuthUser {
   firstName: string | null;
   lastName: string | null;
   role: { id: number; name: string | null } | null;
+  /** Saved interface language (en | ru | ro); older backends omit it */
+  locale?: string | null;
 }
 
 export interface LoginResponse {

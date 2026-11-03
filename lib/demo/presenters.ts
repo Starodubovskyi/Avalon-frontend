@@ -37,10 +37,27 @@ export function cardById(state: DemoState, id: number): UserCard {
   return u ? toUserCard(u) : { id, firstName: null, lastName: null, email: null, role: "viewer" };
 }
 
-/** Admin/staff see everyone; viewers only the team (users-directory/user-visibility.ts) */
-export function canSeeUser(viewer: DemoUserRow, target: DemoUserRow): boolean {
-  const team = viewer.roleId === ROLE.admin || viewer.roleId === ROLE.staff;
-  return team || target.roleId === ROLE.admin || target.roleId === ROLE.staff;
+export function isTeamUser(u: Pick<DemoUserRow, "roleId">): boolean {
+  return u.roleId === ROLE.admin || u.roleId === ROLE.staff;
+}
+
+/** Owners and active members of public points have a public profile (stage 2) */
+export function hasPublicProfile(state: DemoState, userId: number): boolean {
+  const publicPoints = state.mapPoints.filter((p) => !p.deletedAt && p.visibility === "public");
+  if (publicPoints.some((p) => p.userId === userId)) return true;
+  const ids = new Set(publicPoints.map((p) => p.id));
+  return state.companyMembers.some((m) => m.userId === userId && m.status === "active" && ids.has(m.pointId));
+}
+
+/** Admin/staff see everyone; viewers the team, themselves and public profiles (users-directory/user-visibility.ts) */
+export function canSeeUser(state: DemoState, viewer: DemoUserRow, target: DemoUserRow): boolean {
+  return isTeamUser(viewer) || isTeamUser(target) || viewer.id === target.id || hasPublicProfile(state, target.id);
+}
+
+/** UserCard as a given viewer gets it: clients never see another client's email */
+export function cardFor(viewer: DemoUserRow, u: DemoUserRow): UserCard {
+  const card = toUserCard(u);
+  return isTeamUser(viewer) || isTeamUser(u) || viewer.id === u.id ? card : { ...card, email: null };
 }
 
 export function canDeleteContent(viewer: DemoUserRow, authorId: number): boolean {
@@ -49,7 +66,8 @@ export function canDeleteContent(viewer: DemoUserRow, authorId: number): boolean
 
 /**
  * Rank of a user, as the backend counts it on read:
- * 10 × points on the map + 5 × points with a logo + 3 × posts + 1 × comments + 5 × agency requests; deleted rows do not count.
+ * 10 × points on the map + 5 × points with a logo + 3 × posts + 1 × comments + 5 × agency requests
+ * + active RANK boosts; deleted rows do not count.
  */
 export function userRank(state: DemoState, userId: number | null | undefined): number {
   if (userId == null) return 0;
@@ -60,7 +78,9 @@ export function userRank(state: DemoState, userId: number | null | undefined): n
   const livePosts = new Set(state.posts.filter((p) => !p.deletedAt).map((p) => p.id));
   const comments = state.comments.filter((c) => c.authorId === userId && !c.deletedAt && livePosts.has(c.postId)).length;
   const requests = state.agencyRequests.filter((r) => r.createdById === userId).length;
-  return 10 * points.length + 5 * logos + 3 * posts + comments + 5 * requests;
+  const now = Date.now();
+  const boosts = state.rankBoosts.filter((b) => b.userId === userId && Date.parse(b.expiresAt) > now).reduce((sum, b) => sum + b.points, 0);
+  return 10 * points.length + 5 * logos + 3 * posts + comments + 5 * requests + boosts;
 }
 
 /** firstName, lastName, email, id — ascending, nulls last */
@@ -84,6 +104,7 @@ export function toUserDto(u: DemoUserRow) {
     lastName: u.lastName,
     photo: null,
     role: { id: u.roleId, name: ROLE_NAME[u.roleId] ?? null },
+    locale: u.locale,
     status: { id: u.statusId, name: STATUS_NAME[u.statusId] ?? null },
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,

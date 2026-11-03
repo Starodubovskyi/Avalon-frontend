@@ -1,72 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { MapPin } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  POINT_KINDS,
-  POINT_KIND_HINT,
-  POINT_KIND_SHORT,
-  pointTitle,
-  useTeamPointMutations,
-  type PointKind,
-  type TeamPoint,
-  type TeamPointInput,
-} from "@/lib/points/team-points";
-import type { ActivityCode } from "@/lib/points/activities";
+import { POINT_KINDS, type PointKind, type TeamPoint } from "@/lib/points/team-points";
+import { usePointQuota, useTeamPointMutations, useTeamPoints } from "@/lib/points/hooks";
+import { usePointLabels } from "@/lib/points/labels";
 import { TITLE_MAX } from "@/lib/points/limits";
 import { usePointLogoUrl } from "@/lib/points/logo-cache";
 import { Field, Spinner, TextInput, btn } from "../ui/primitives";
 import { POINT_KIND_CLASS, POINT_KIND_ICON } from "./PointKindIcon";
 import { LogoUploader } from "./LogoUploader";
 import { ActivityPicker } from "./ActivityPicker";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const TITLE_PLACEHOLDER: Record<PointKind, string> = {
-  head_office: "e.g. Danube Grain Trading SRL",
-  branch: "e.g. Izmail office · Berth 7",
-  self_employed: "e.g. Viorel Stan, Sulina pilot",
-  for_sale: "e.g. Tug “Sulina Star”",
-  authority: "e.g. Sulina Harbour Master",
-  private_person: "Full name",
-};
-
-interface FormState {
-  kind: PointKind;
-  title: string;
-  activities: ActivityCode[];
-  /** undefined keeps the stored logo, a data URL replaces it, null removes it */
-  newLogo: string | null | undefined;
-  phone: string;
-  email: string;
-  address: string;
-}
-
-function initial(point: TeamPoint | null | undefined, kind: PointKind): FormState {
-  return {
-    kind: point?.kind ?? kind,
-    title: point ? pointTitle(point) : "",
-    activities: point?.activities ?? [],
-    newLogo: undefined,
-    phone: point?.phone ?? "",
-    email: point?.email ?? "",
-    address: point?.address ?? "",
-  };
-}
-
-/** Best-effort street address for a new pin (Mapbox reverse geocoding, public token) */
-async function reverseGeocode([lng, lat]: [number, number], signal: AbortSignal): Promise<string | null> {
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
-  if (!token) return null;
-  const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${lng}&latitude=${lat}&limit=1&access_token=${encodeURIComponent(token)}`;
-  const res = await fetch(url, { signal });
-  if (!res.ok) return null;
-  const body: unknown = await res.json();
-  const feature = (body as { features?: { properties?: { full_address?: string; place_formatted?: string } }[] }).features?.[0];
-  return feature?.properties?.full_address ?? feature?.properties?.place_formatted ?? null;
-}
+import { ActivitySlotUnlock } from "./ActivitySlotUnlock";
+import { PointEmailField } from "./PointEmailField";
+import { PointProfileFields } from "./PointProfileFields";
+import { defaultVisibility, initialPointForm, pointFormInput, reverseGeocode, validatePointForm, type PointFormState } from "./pointForm";
 
 export function PointFormDialog({
   open,
@@ -83,8 +34,17 @@ export function PointFormDialog({
   defaultKind: PointKind;
   onSaved?: (p: TeamPoint) => void;
 }) {
+  const t = useTranslations("points");
+  const locale = useLocale();
+  const labels = usePointLabels();
   const { create, update } = useTeamPointMutations();
-  const [form, setForm] = useState<FormState>(() => initial(point, defaultKind));
+  const { data: allPoints } = useTeamPoints();
+  const quota = usePointQuota(allPoints);
+  // the live copy: a bought slot or a confirmed email shows up while the dialog is open
+  const live = useMemo(() => (point ? allPoints?.find((p) => p.id === point.id) ?? point : null), [allPoints, point]);
+  // a branch may only hang under a head office the caller can edit (else 422 parentId notFound)
+  const headOffices = useMemo(() => (allPoints ?? []).filter((p) => p.kind === "head_office" && p.canEdit && p.id !== point?.id), [allPoints, point?.id]);
+  const [form, setForm] = useState<PointFormState>(() => initialPointForm(point, defaultKind));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const wasOpen = useRef(false);
@@ -92,44 +52,43 @@ export function PointFormDialog({
 
   useEffect(() => {
     if (open && !wasOpen.current) {
-      setForm(initial(point, defaultKind));
+      setForm(initialPointForm(point, defaultKind));
       setError(null);
     }
     wasOpen.current = open;
   }, [open, point, defaultKind]);
 
+  // a stored parent that is not among the choices is shown as "none" and kept unless the user picks one
+  useEffect(() => {
+    if (!open || !allPoints) return;
+    setForm((f) => (f.parentId && !f.parentTouched && !headOffices.some((h) => h.id === f.parentId) ? { ...f, parentId: "" } : f));
+  }, [open, allPoints, headOffices]);
+
   useEffect(() => {
     if (!open || point || !at) return;
     const ctrl = new AbortController();
-    reverseGeocode(at, ctrl.signal)
+    reverseGeocode(at, ctrl.signal, locale)
       .then((addr) => addr && setForm((f) => (f.address ? f : { ...f, address: addr })))
       .catch(() => undefined);
     return () => ctrl.abort();
-  }, [open, point, at]);
+  }, [open, point, at, locale]);
 
-  const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm((f) => ({ ...f, [k]: v }));
+  const set = <K extends keyof PointFormState>(k: K, v: PointFormState[K]) => setForm((f) => ({ ...f, [k]: v }));
+  // backend default: private_person → team, other kinds → public; the user can still override it
+  const setKind = (kind: PointKind) => setForm((f) => (f.visibilityTouched ? { ...f, kind } : { ...f, kind, visibility: defaultVisibility(kind) }));
+  const setField: typeof set = (k, v) => {
+    if (k === "visibility") setForm((f) => ({ ...f, visibility: v as PointFormState["visibility"], visibilityTouched: true }));
+    else if (k === "parentId") setForm((f) => ({ ...f, parentId: v as string, parentTouched: true }));
+    else set(k, v);
+  };
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const title = form.title.trim();
-    if (!title) return setError("Enter the title");
-    if (form.email && !EMAIL_RE.test(form.email.trim())) return setError("Invalid email");
+    const problem = validatePointForm(form);
+    if (problem) return setError(t(problem));
     setBusy(true);
     setError(null);
-    const input: TeamPointInput = {
-      kind: form.kind,
-      firstName: title,
-      // codes replace the legacy free-text activity for good once the point is saved from this form
-      activity: "",
-      activities: form.activities,
-      phone: form.phone.trim() || null,
-      email: form.email.trim() || null,
-      address: form.address.trim() || null,
-    };
-    // the title now holds the full name of legacy people; their separate last name is cleared
-    if (point?.lastName) input.lastName = "";
-    // the logo travels only when it changed (it can be up to 150 KB)
-    if (typeof form.newLogo === "string" || (form.newLogo === null && point?.hasLogo)) input.logo = form.newLogo;
+    const input = pointFormInput(form, point);
     try {
       const saved = point ? await update(point.id, input) : at ? await create({ ...input, lat: at[1], lng: at[0] }) : null;
       if (saved) onSaved?.(saved);
@@ -142,23 +101,22 @@ export function PointFormDialog({
   }
 
   const coords = point ? [point.lng, point.lat] : at;
+  const slots = live?.activitySlots ?? 1;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92svh] max-w-lg overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl">{point ? "Edit point" : "New point on the map"}</DialogTitle>
-          <DialogDescription>Visible to Avalon staff on the fleet map and in Companies.</DialogDescription>
+          <DialogTitle className="font-display text-xl">{point ? t("form.editTitle") : t("form.newTitle")}</DialogTitle>
+          <DialogDescription>
+            {!point && quota.limited ? t("form.quota", { remaining: quota.remaining ?? 0, limit: quota.limit }) : t("form.subtitle")}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          <LogoUploader
-            value={form.newLogo === undefined ? storedLogo : form.newLogo}
-            kind={form.kind}
-            onChange={(logo) => set("newLogo", logo)}
-          />
+          <LogoUploader value={form.newLogo === undefined ? storedLogo : form.newLogo} kind={form.kind} onChange={(logo) => set("newLogo", logo)} />
 
           <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-foreground/80">Geoposition</span>
+            <span className="text-xs font-semibold text-foreground/80">{t("form.geoposition")}</span>
             <div className="flex items-center gap-2 rounded-xl bg-muted/70 px-3 py-2 text-xs font-medium tabular-nums text-muted-foreground">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
               {coords ? `${coords[1].toFixed(5)}°, ${coords[0].toFixed(5)}°` : "—"}
@@ -167,18 +125,18 @@ export function PointFormDialog({
               value={form.address}
               onChange={(e) => set("address", e.target.value)}
               maxLength={500}
-              placeholder={point ? "Address" : "Address — filled from the map when available"}
-              aria-label="Address"
+              placeholder={point ? t("form.address") : t("form.addressAuto")}
+              aria-label={t("form.address")}
             />
           </div>
 
-          <Field label="Title *">
-            <TextInput value={form.title} onChange={(e) => set("title", e.target.value)} maxLength={TITLE_MAX} placeholder={TITLE_PLACEHOLDER[form.kind]} autoFocus />
+          <Field label={t("form.title")}>
+            <TextInput value={form.title} onChange={(e) => set("title", e.target.value)} maxLength={TITLE_MAX} placeholder={t(`form.titlePlaceholder.${form.kind}`)} autoFocus />
           </Field>
 
           <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-foreground/80">Point type</span>
-            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Point type">
+            <span className="text-xs font-semibold text-foreground/80">{t("form.kind")}</span>
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t("form.kind")}>
               {POINT_KINDS.map((k) => {
                 const Icon = POINT_KIND_ICON[k];
                 const active = form.kind === k;
@@ -188,43 +146,52 @@ export function PointFormDialog({
                     type="button"
                     role="radio"
                     aria-checked={active}
-                    onClick={() => set("kind", k)}
-                    title={POINT_KIND_HINT[k]}
+                    onClick={() => setKind(k)}
+                    title={labels.kindHint(k)}
                     className={cn(
                       "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-xl border p-2 text-center text-[11px] font-semibold leading-tight transition",
                       active ? cn("ring-2", POINT_KIND_CLASS[k].ring, POINT_KIND_CLASS[k].tile, "border-transparent") : "hover:bg-accent",
                     )}
                   >
                     <Icon className={cn("h-5 w-5", active ? "" : "text-muted-foreground")} />
-                    {POINT_KIND_SHORT[k]}
+                    {labels.kindShort(k)}
                   </button>
                 );
               })}
             </div>
-            <p className="text-xs text-muted-foreground">{POINT_KIND_HINT[form.kind]}</p>
+            <p className="text-xs text-muted-foreground">{labels.kindHint(form.kind)}</p>
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-foreground/80">Business Activity</span>
-            <ActivityPicker value={form.activities} onChange={(next) => set("activities", next)} />
+            <span className="text-xs font-semibold text-foreground/80">{t("form.activity")}</span>
+            <ActivityPicker
+              value={form.activities}
+              onChange={(next) => set("activities", next)}
+              slots={slots}
+              unlock={live?.canEdit ? <ActivitySlotUnlock point={live} /> : undefined}
+            />
+            {live?.canEdit && form.activities.length >= slots ? <ActivitySlotUnlock point={live} /> : null}
+            {!point ? <p className="text-xs text-muted-foreground">{t("form.activityNewHint")}</p> : null}
           </div>
 
+          <PointProfileFields form={form} set={setField} pointId={point?.id ?? null} headOffices={headOffices} />
+
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Phone / WhatsApp">
-              <TextInput value={form.phone} onChange={(e) => set("phone", e.target.value)} inputMode="tel" maxLength={50} />
+            <Field label={t("form.phone")}>
+              <TextInput value={form.phone} onChange={(e) => set("phone", e.target.value)} inputMode="tel" maxLength={50} autoComplete="tel" />
             </Field>
-            <Field label="Email">
-              <TextInput type="email" value={form.email} onChange={(e) => set("email", e.target.value)} maxLength={255} />
-            </Field>
+            <PointEmailField value={form.email} onChange={(v) => set("email", v)} point={live} />
           </div>
 
           {error ? <p role="alert" className="rounded-xl border border-bad/30 bg-bad/5 px-3 py-2 text-sm text-bad">{error}</p> : null}
 
-          <div className="flex justify-end gap-2 pt-1">
-            <button type="button" onClick={() => onOpenChange(false)} className={btn.secondary}>Cancel</button>
-            <button type="submit" disabled={busy} className={btn.primary}>
+          <div className="sticky bottom-0 -mx-6 -mb-6 flex justify-end gap-2 border-t bg-background/95 px-6 py-3 backdrop-blur">
+            <button type="button" onClick={() => onOpenChange(false)} className={btn.secondary}>
+              {t("form.cancel")}
+            </button>
+            <button type="submit" disabled={busy || (!point && quota.remaining === 0)} className={btn.primary}>
               {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : null}
-              {point ? "Save" : "Add to map"}
+              {point ? t("form.save") : t("form.add")}
             </button>
           </div>
         </form>

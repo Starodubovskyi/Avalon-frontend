@@ -1,0 +1,54 @@
+{
+  "shellTitle": "E-mail",
+  "eyebrow": "Spațiu de lucru",
+  "title": "E-mail",
+  "subtitle": "Emailuri de agenție precompletate din fișa navei — alegeți nava și șablonul, ajustați textul și trimiteți-l din propria căsuță de email.",
+  "loading": "Se încarcă navele…",
+  "emptyTitle": "Încă nu există nave",
+  "emptyText": "Adăugați o navă pe panou pentru a-i pregăti emailurile aici.",
+  "vesselPanel": "Navă",
+  "onBoard": "{count} pe panou",
+  "searchPlaceholder": "Navă sau IMO",
+  "searchAria": "Căutați nava",
+  "templateAria": "Șablon",
+  "suggested": "Recomandat pentru această etapă",
+  "templates": {
+    "prearrival": {
+      "label": "Cerere pre-sosire",
+      "hint": "Cereți comandantului documentele de sosire"
+    },
+    "pda": {
+      "label": "PDA către armatori",
+      "hint": "Contul proforma de cheltuieli"
+    },
+    "arrival": {
+      "label": "Aviz de sosire",
+      "hint": "Nava a sosit în rada Sulina"
+    },
+    "berthing": {
+      "label": "Raport de acostare",
+      "hint": "Nava a acostat în port"
+    },
+    "sailing": {
+      "label": "Raport de plecare",
+      "hint": "Nava a plecat"
+    },
+    "payment": {
+      "label": "Memento de plată",
+      "hint": "Cheltuielile sunt încă neplătite"
+    }
+  },
+  "panelDescription": "{hint} — către {to, select, master {comandant} other {armatori / birou}}",
+  "englishNote": "Emailurile sunt generate în engleză: le citesc comandanții și agenții din străinătate.",
+  "noEmail": "Fișa navei nu are emailul {to, select, master {comandantului} other {biroului}}. <link>Adăugați-l în fișa navei</link> sau introduceți adresa mai jos.",
+  "to": "Către",
+  "subject": "Subiect",
+  "message": "Mesaj",
+  "reset": "Resetați textul",
+  "copy": "Copiați",
+  "openMail": "Deschideți în aplicația de email",
+  "copied": "Emailul a fost copiat",
+  "clipboardUnavailable": "Clipboardul nu este disponibil în acest browser",
+  "noMatchTitle": "Nicio navă găsită",
+  "noMatchText": "Ștergeți căutarea pentru a vedea toate navele."
+}

@@ -2,28 +2,32 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Download, FileText, Ship, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DocumentsApi } from "@/lib/api/documents";
-import { extractAuthError } from "@/lib/api/auth";
-import { fmtBytes, fmtFull, fmtRelative } from "@/lib/vessels/format";
-import { CATEGORY_LABEL, userName, type DocumentView } from "@/lib/vessels/types";
+import { useErrorText } from "@/lib/api/errorText";
+import { useNow } from "@/lib/network/hooks";
+import { userName, type DocumentView } from "@/lib/vessels/types";
 import { Avatar, btn, EmptyState, Spinner } from "../ui/primitives";
 import { CATEGORY_ICON, fileKind } from "./docMeta";
 import { useRefreshDocuments } from "./useDocuments";
+import { useTimeFormat } from "../network/useTimeFormat";
 
 function FileTile({ mime, fileName }: { mime: string; fileName: string }) {
+  const t = useTranslations("documents.kinds");
   const kind = fileKind(mime, fileName);
+  const name = t(kind.kind);
   const Icon = kind.icon;
   return (
     <span
       className={cn("relative flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl ring-1 ring-inset", kind.tile)}
-      title={kind.name}
+      title={name}
     >
       <Icon className="h-5 w-5" aria-hidden />
       <span className="mt-0.5 text-[9px] font-bold leading-none tracking-wide">{kind.label}</span>
-      <span className="sr-only">{kind.name}</span>
+      <span className="sr-only">{name}</span>
     </span>
   );
 }
@@ -31,12 +35,16 @@ function FileTile({ mime, fileName }: { mime: string; fileName: string }) {
 export function DocumentList({
   documents,
   showVessel = true,
-  emptyText = "Upload PDAs, crew lists, certificates, customs papers and templates.",
+  emptyText,
 }: {
   documents: DocumentView[];
   showVessel?: boolean;
   emptyText?: string;
 }) {
+  const t = useTranslations("documents");
+  const errorText = useErrorText();
+  const time = useTimeFormat();
+  const now = useNow();
   const refresh = useRefreshDocuments();
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -45,28 +53,28 @@ export function DocumentList({
     try {
       await DocumentsApi.download(doc);
     } catch (e) {
-      toast.error(extractAuthError(e));
+      toast.error(errorText(e));
     } finally {
       setBusy(null);
     }
   }
 
   async function remove(doc: DocumentView) {
-    if (!window.confirm(`Delete “${doc.title}”? This cannot be undone from the portal.`)) return;
+    if (!window.confirm(t("list.confirmDelete", { title: doc.title }))) return;
     setBusy(doc.id);
     try {
       await DocumentsApi.remove(doc.id);
       await refresh();
-      toast.success("Document deleted");
+      toast.success(t("list.deleted"));
     } catch (e) {
-      toast.error(extractAuthError(e));
+      toast.error(errorText(e));
     } finally {
       setBusy(null);
     }
   }
 
   if (!documents.length) {
-    return <EmptyState icon={<FileText className="h-7 w-7" />} title="No documents yet" text={emptyText} />;
+    return <EmptyState icon={<FileText className="h-7 w-7" />} title={t("list.emptyTitle")} text={emptyText ?? t("list.emptyText")} />;
   }
 
   return (
@@ -74,7 +82,7 @@ export function DocumentList({
       {documents.map((doc) => {
         const CatIcon = CATEGORY_ICON[doc.category];
         const isBusy = busy === doc.id;
-        const uploader = userName(doc.uploadedBy);
+        const uploader = doc.uploadedBy ? userName(doc.uploadedBy) : t("list.system");
         return (
           <li key={doc.id} className="group flex items-center gap-3.5 rounded-xl px-2 py-3 transition-colors hover:bg-accent/40">
             <FileTile mime={doc.mimeType} fileName={doc.originalName} />
@@ -82,12 +90,12 @@ export function DocumentList({
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold" title={doc.title}>{doc.title}</p>
               <p className="truncate text-xs text-muted-foreground" title={doc.originalName}>
-                {doc.originalName} · <span className="tabular">{fmtBytes(doc.size)}</span>
+                {doc.originalName} · <span className="tabular">{time.bytes(doc.size)}</span>
               </p>
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1 rounded-md border bg-muted/60 px-1.5 py-0.5 font-medium text-foreground/80">
                   <CatIcon className="h-3 w-3" aria-hidden />
-                  {CATEGORY_LABEL[doc.category]}
+                  {t(`categories.${doc.category}`)}
                 </span>
                 {showVessel && doc.vesselId ? (
                   <Link
@@ -102,7 +110,7 @@ export function DocumentList({
                   <Avatar name={uploader} className="h-5 w-5 text-[8px]" />
                   <span className="truncate">{uploader}</span>
                 </span>
-                <time dateTime={doc.createdAt} title={fmtFull(doc.createdAt)}>{fmtRelative(doc.createdAt)}</time>
+                <time dateTime={doc.createdAt} title={time.full(doc.createdAt)}>{time.relative(doc.createdAt, now)}</time>
               </div>
             </div>
 
@@ -118,8 +126,8 @@ export function DocumentList({
                 onClick={() => void download(doc)}
                 disabled={isBusy}
                 className={cn(btn.icon, "hover:text-primary")}
-                aria-label={`Download ${doc.title}`}
-                title="Download"
+                aria-label={t("list.downloadAria", { title: doc.title })}
+                title={t("list.download")}
               >
                 <Download className="h-4 w-4" />
               </button>
@@ -128,8 +136,8 @@ export function DocumentList({
                 onClick={() => void remove(doc)}
                 disabled={isBusy}
                 className={cn(btn.icon, "hover:bg-bad/10 hover:text-bad")}
-                aria-label={`Delete ${doc.title}`}
-                title="Delete"
+                aria-label={t("list.deleteAria", { title: doc.title })}
+                title={t("list.delete")}
               >
                 <Trash2 className="h-4 w-4" />
               </button>

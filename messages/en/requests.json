@@ -1,0 +1,161 @@
+{
+  "pageTitleRequest": "Request agency",
+  "pageTitleInbox": "Agency requests",
+  "eyebrow": "Clients",
+  "status": {
+    "new": "New",
+    "quoted": "Quoted",
+    "accepted": "Accepted",
+    "declined": "Declined"
+  },
+  "statusHint": {
+    "new": "Received — an agent will reply shortly",
+    "quoted": "The agent has sent terms or a PDA",
+    "accepted": "On the Avalon board — we are handling the call",
+    "declined": "Not taken this time — see the agent's note"
+  },
+  "vesselType": {
+    "general_cargo": "General cargo",
+    "tanker": "Tanker",
+    "livestock": "Livestock"
+  },
+  "condition": {
+    "ballast": "ballast",
+    "loaded": "loaded"
+  },
+  "estimate": {
+    "facts": "GT {gt, number}, LOA {loa, number} m, {days, plural, one {# day} other {# days}} alongside, {condition}",
+    "request": "Please send a firm PDA: {facts}.",
+    "total": "Online estimate: {total}."
+  },
+  "view": {
+    "title": "Request agency",
+    "subtitle": "Nominate Avalon for your next Danube call. The agent's reply and every status change appear under Your requests.",
+    "allRequests": "All requests",
+    "pdaEstimate": "PDA estimate",
+    "prefilled": "Prefilled from your PDA estimate — add the vessel name and send.",
+    "nextTitle": "What happens next",
+    "steps": {
+      "review": {
+        "title": "We review",
+        "text": "An Avalon agent checks the vessel, ETA and berth availability."
+      },
+      "terms": {
+        "title": "You get terms",
+        "text": "The status turns Quoted and the agent's note appears below."
+      },
+      "board": {
+        "title": "On the board",
+        "text": "Once accepted, the vessel is added to the live board you can follow."
+      }
+    }
+  },
+  "sent": {
+    "title": "Request sent",
+    "text": "{vessel} → {port}. An agent will reply here — the status changes as we work on it.",
+    "seeIt": "See it in your requests",
+    "another": "Send another request"
+  },
+  "form": {
+    "companyGroup": "Your company",
+    "vesselGroup": "Vessel & call",
+    "company": "Company *",
+    "contactName": "Contact name *",
+    "email": "Email *",
+    "phone": "Phone / WhatsApp",
+    "vesselName": "Vessel name *",
+    "imoHint": "7 digits",
+    "vesselType": "Vessel type *",
+    "port": "Port of call *",
+    "eta": "ETA Sulina",
+    "etaHint": "Your local time",
+    "cargo": "Cargo",
+    "cargoPlaceholder": "e.g. 4,500 t wheat",
+    "notes": "Notes for the agent",
+    "notesPlaceholder": "Laycan, charterer, special requirements, husbandry needs…",
+    "requiredNote": "* Required. Only Avalon staff see your request.",
+    "sending": "Sending…",
+    "send": "Send request"
+  },
+  "errors": {
+    "required": "Required",
+    "email": "Enter a valid email address — no ?, &, %, # or spaces",
+    "imo": "IMO is exactly 7 digits",
+    "imoExists": "This IMO is already on the board",
+    "imoExistsOpen": "This IMO is already on the board — open the existing vessel",
+    "tooLong": "Too long — shorten it",
+    "maxChars": "Up to {max, number} characters",
+    "dateTime": "Pick a valid date and time",
+    "notFound": "Not found — it may have been removed",
+    "invalid": "Check this value",
+    "attention": "Some fields need attention",
+    "offline": "Can't reach the server — check your connection",
+    "sessionExpired": "Your session has expired — please sign in again",
+    "forbidden": "You don't have permission to do that",
+    "gone": "Not found — it may have been deleted or you no longer have access",
+    "boardLink": "{vessel} is on the board, but the request was not updated: {reason}",
+    "generic": "Something went wrong — please try again"
+  },
+  "mine": {
+    "title": "Your requests",
+    "subtitle": "Status and the agent's replies, newest first.",
+    "loading": "Loading your requests…",
+    "emptyTitle": "No requests yet",
+    "emptyText": "Requests you send appear here with the agent's reply.",
+    "sent": "Sent",
+    "follow": "Follow {vessel} on the board"
+  },
+  "summary": {
+    "noImo": "No IMO",
+    "eta": "ETA Sulina",
+    "cargo": "Cargo"
+  },
+  "agentNote": "Agent's note",
+  "card": {
+    "received": "Received",
+    "sentBy": "Sent by {name} · {date}",
+    "system": "System",
+    "mailSubject": "Agency request — {vessel}"
+  },
+  "actions": {
+    "status": "Status",
+    "statusOf": "Status of {vessel}",
+    "statusToast": "{vessel}: {status}",
+    "noteLabel": "Note for the client",
+    "notePlaceholder": "Terms, PDA total, berth window… The client sees this note.",
+    "noteSaved": "Note saved — the client can see it",
+    "saveNote": "Save note",
+    "openVessel": "Open vessel",
+    "addToBoard": "Add to board",
+    "linkExisting": "Link existing",
+    "retryLink": "Retry link",
+    "declinedTitle": "Declined requests can't be added — change the status first",
+    "onBoard": "On the board — the client can follow the vessel.",
+    "duplicate": "This IMO is already on the board — <link>open {vessel}</link>, or link the request to it.",
+    "orphan": "{vessel} was added to the board; linking the request failed. Retry links it without a duplicate.",
+    "duplicateUnknown": "This IMO is already on the board — open the existing vessel from the Vessels board.",
+    "addHint": "Add to board creates the vessel from this request and marks it accepted.",
+    "acceptedToast": "Request accepted — {vessel} is on the board"
+  },
+  "inbox": {
+    "title": "Agency requests",
+    "subtitle": "Reply to clients, send terms, and put accepted calls on the board in one click.",
+    "newRequest": "New request",
+    "filterLabel": "Filter by status",
+    "tabs": {
+      "new": "New",
+      "quoted": "Quoted",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "all": "All"
+    },
+    "searchPlaceholder": "Vessel, IMO, company…",
+    "searchLabel": "Search requests",
+    "loading": "Loading requests…",
+    "emptyTab": "Nothing in this tab",
+    "emptyNone": "No requests yet",
+    "noMatch": "No request matches the search.",
+    "tryTab": "Try another status tab.",
+    "landHere": "Client requests from the Request agency form will land here."
+  }
+}

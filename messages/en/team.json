@@ -1,0 +1,52 @@
+{
+  "pageTitle": "Team",
+  "eyebrow": "Admin",
+  "title": "Team",
+  "subtitle": "Every employee has a personal login, so the log shows who changed what.",
+  "add": "Add member",
+  "roles": {
+    "admin": "Admin",
+    "staff": "Staff",
+    "viewer": "Client",
+    "user": "User"
+  },
+  "roleHelp": {
+    "admin": "Everything, including team and deleting vessels",
+    "staff": "Edits vessels, checklist, documents; sees the log",
+    "viewer": "Vessel status, dates and position; own company points, agency requests and chat. No checklist, contacts or payments"
+  },
+  "memberCount": "{count, plural, one {# member} other {# members}}",
+  "members": "Members",
+  "accounts": "{count, plural, one {# account} other {# accounts}}",
+  "loading": "Loading…",
+  "loadingTeam": "Loading team…",
+  "emptyTitle": "No accounts yet",
+  "emptyText": "Add the first colleague so changes are signed with their name.",
+  "you": "You",
+  "noEmail": "no email",
+  "since": "since {date}",
+  "roleOf": "Role of {name}",
+  "cantDeleteSelf": "You cannot delete your own account",
+  "deleteAria": "Delete {name}",
+  "deleteTitle": "Delete account",
+  "roleChanged": "{name} is now {role}. Applies at their next sign-in or within 15 min.",
+  "confirmDelete": "Delete the account of {name}? Their changes stay in the log.",
+  "deleted": "Account deleted",
+  "create": {
+    "title": "Add team member",
+    "description": "The person signs in with this email and password and can change the password in Account.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "password": "Temporary password",
+    "passwordHint": "At least 6 characters — share it privately",
+    "generate": "Generate",
+    "generateTitle": "Generate a strong password",
+    "role": "Role",
+    "cancel": "Cancel",
+    "submit": "Create account",
+    "passwordShort": "Password must be at least 6 characters",
+    "created": "Account created for {name}. Send them the email and password.",
+    "emailExists": "This email already has an account — change its role in the list instead."
+  }
+}

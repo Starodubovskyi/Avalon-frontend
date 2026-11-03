@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Check, Loader2, Minus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ export function CheckPill({
   size = "sm",
   onToggle,
 }: CheckPillProps) {
+  const t = useTranslations("common");
   const Icon = busy ? Loader2 : done === null ? Minus : done ? Check : X;
   const state = done === null ? "hidden" : done ? "done" : "pending";
   const classes = cn(
@@ -47,7 +49,7 @@ export function CheckPill({
       <span className="whitespace-nowrap">{label}</span>
     </>
   );
-  const title = `${hint ?? label}: ${state === "done" ? "done" : state === "pending" ? "not done" : "hidden"}`;
+  const title = `${hint ?? label}: ${t(`check.${state}`)}`;
 
   if (!editable) {
     return (
@@ -60,7 +62,7 @@ export function CheckPill({
     <button
       type="button"
       className={classes}
-      title={`${title} — click to change`}
+      title={`${title} — ${t("check.clickToChange")}`}
       aria-pressed={done === true}
       disabled={busy}
       onClick={(e) => {

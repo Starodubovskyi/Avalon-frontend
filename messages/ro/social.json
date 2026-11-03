@@ -1,0 +1,49 @@
+{
+  "pageTitle": "Flux",
+  "eyebrow": "Rețea",
+  "title": "Flux",
+  "subtitle": "Noutăți de la echipa Avalon și parteneri — situația din porturi, sosiri, reușite.",
+  "tabs": {
+    "label": "Filtru flux",
+    "all": "Toate",
+    "following": "Urmăriți"
+  },
+  "loading": "Se încarcă fluxul…",
+  "emptyFollowingTitle": "Încă nimic de la persoanele pe care le urmăriți",
+  "emptyFollowingText": "Urmăriți colegi și parteneri ca să le vedeți postările aici. Apar și postările dvs.",
+  "findPeople": "Găsiți persoane",
+  "emptyTitle": "Nicio postare încă",
+  "emptyText": "Fiți primul care împărtășește o noutate cu echipa.",
+  "posts": "Postări",
+  "loadingMore": "Se încarcă…",
+  "loadMore": "Încărcați mai multe",
+  "caughtUp": "Ați văzut tot",
+  "composer": {
+    "label": "Scrieți o postare",
+    "placeholder": "Ce mai e nou pe apă, {name}?",
+    "hint": "Ctrl + Enter pentru a publica",
+    "submit": "Publicați"
+  },
+  "post": {
+    "by": "Postare de {name}",
+    "delete": "Ștergeți postarea",
+    "confirmDelete": "Ștergeți această postare? Aprecierile și comentariile se șterg odată cu ea.",
+    "like": "Apreciez",
+    "liked": "Apreciat",
+    "likeAria": "{liked, select, true {Retrageți aprecierea} other {Apreciați postarea}}, {count, plural, one {# apreciere} few {# aprecieri} other {# de aprecieri}}",
+    "comments": "{count, plural, one {Comentariu} few {Comentarii} other {Comentarii}}",
+    "commentsAria": "{open, select, true {Ascundeți} other {Afișați}} comentariile: {count}"
+  },
+  "comments": {
+    "empty": "Niciun comentariu încă — răspundeți primul.",
+    "label": "Comentarii",
+    "deleteAria": "Ștergeți comentariul lui {name}",
+    "deleting": "Se șterge…",
+    "delete": "Ștergeți",
+    "confirmDelete": "Ștergeți acest comentariu?",
+    "you": "Dvs.",
+    "placeholder": "Scrieți un comentariu…",
+    "writeLabel": "Scrieți un comentariu",
+    "send": "Publicați comentariul"
+  }
+}

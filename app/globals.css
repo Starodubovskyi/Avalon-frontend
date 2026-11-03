@@ -5,40 +5,49 @@
 @tailwind utilities;
 
 @layer base {
-  /* Avalon Shipping brand: logo blue #2B5DB0 on deep navy */
+  /* Avalon Shipping brand: logo blue #2B5DB0 on deep navy. Neutrals are cool and quiet, colour is reserved for status. */
   :root {
-    --background: 220 33% 97%;
-    --foreground: 224 45% 11%;
+    --background: 222 24% 97%;
+    --foreground: 225 38% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 224 45% 11%;
+    --card-foreground: 225 38% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 45% 11%;
-    --primary: 219 66% 45%;
+    --popover-foreground: 225 38% 10%;
+    --primary: 219 68% 45%;
+    --primary-strong: 222 72% 36%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 30% 95%;
-    --secondary-foreground: 224 45% 15%;
-    --muted: 220 28% 95.5%;
-    --muted-foreground: 220 13% 45%;
-    --accent: 219 60% 96%;
-    --accent-foreground: 219 66% 32%;
+    --secondary: 222 26% 95%;
+    --secondary-foreground: 225 38% 14%;
+    --muted: 222 22% 95%;
+    --muted-foreground: 222 11% 43%;
+    --accent: 220 44% 95.5%;
+    --accent-foreground: 219 68% 32%;
     --destructive: 350 75% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 22% 90%;
-    --input: 220 20% 86%;
-    --ring: 219 66% 45%;
+    --border: 222 18% 90%;
+    --border-strong: 222 15% 83%;
+    --input: 222 16% 85%;
+    --ring: 219 68% 50%;
+    --surface: 222 30% 98.6%;
     --radius: 0.75rem;
     --grain-opacity: 0.06;
 
-    --sidebar: 224 64% 12%;
-    --sidebar-2: 219 64% 20%;
-    --sidebar-foreground: 216 40% 90%;
-    --sidebar-muted: 218 26% 66%;
-    --sidebar-accent: 219 50% 24%;
+    --sidebar: 226 62% 9%;
+    --sidebar-2: 222 58% 15%;
+    --sidebar-foreground: 218 40% 92%;
+    --sidebar-muted: 219 22% 66%;
+    --sidebar-accent: 220 48% 22%;
 
-    --shadow-color: 222 45% 20%;
+    --shadow-color: 224 44% 18%;
+    /* elevation scale: 1 resting card, 2 raised (hover, sticky), 3 floating (popover, dialog) */
+    --elev-1: 0 0 0 0.5px hsl(var(--shadow-color) / 0.02), 0 1px 2px hsl(var(--shadow-color) / 0.05),
+      0 1px 3px -1px hsl(var(--shadow-color) / 0.06);
+    --elev-2: 0 1px 2px hsl(var(--shadow-color) / 0.05), 0 6px 16px -6px hsl(var(--shadow-color) / 0.14);
+    --elev-3: 0 2px 4px hsl(var(--shadow-color) / 0.04), 0 16px 40px -12px hsl(var(--shadow-color) / 0.24);
+    --highlight: inset 0 1px 0 hsl(0 0% 100% / 0.7);
 
     --st-expected: 38 92% 46%;
-    --st-roads: 188 82% 38%;
+    --st-roads: 188 82% 36%;
     --st-port: 218 75% 52%;
     --st-departed: 215 14% 52%;
     --st-unpaid: 326 78% 48%;
@@ -59,33 +68,40 @@
 
   .dark {
     color-scheme: dark;
-    --background: 223 47% 6%;
-    --foreground: 214 32% 93%;
-    --card: 222 42% 9%;
-    --card-foreground: 214 32% 93%;
-    --popover: 222 42% 10%;
-    --popover-foreground: 214 32% 93%;
-    --primary: 216 85% 60%;
-    --primary-foreground: 223 47% 8%;
-    --secondary: 221 35% 15%;
-    --secondary-foreground: 214 32% 93%;
-    --muted: 221 35% 13%;
-    --muted-foreground: 217 18% 64%;
-    --accent: 221 35% 16%;
-    --accent-foreground: 214 32% 93%;
+    --background: 226 38% 5%;
+    --foreground: 220 28% 94%;
+    --card: 225 32% 8%;
+    --card-foreground: 220 28% 94%;
+    --popover: 225 30% 10%;
+    --popover-foreground: 220 28% 94%;
+    --primary: 216 88% 62%;
+    --primary-strong: 220 80% 52%;
+    --primary-foreground: 226 50% 7%;
+    --secondary: 224 28% 13%;
+    --secondary-foreground: 220 28% 94%;
+    --muted: 224 26% 11.5%;
+    --muted-foreground: 220 14% 63%;
+    --accent: 224 28% 14%;
+    --accent-foreground: 220 28% 94%;
     --destructive: 350 75% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 221 30% 17%;
-    --input: 221 30% 20%;
-    --ring: 216 85% 60%;
+    --border: 224 24% 14.5%;
+    --border-strong: 224 20% 21%;
+    --input: 224 22% 19%;
+    --ring: 216 88% 62%;
+    --surface: 225 30% 9.5%;
 
-    --sidebar: 225 55% 5%;
-    --sidebar-2: 221 50% 10%;
-    --sidebar-foreground: 214 32% 88%;
-    --sidebar-muted: 217 18% 60%;
-    --sidebar-accent: 221 40% 15%;
+    --sidebar: 228 48% 4%;
+    --sidebar-2: 224 46% 8.5%;
+    --sidebar-foreground: 220 30% 90%;
+    --sidebar-muted: 220 16% 60%;
+    --sidebar-accent: 224 36% 13%;
 
-    --shadow-color: 225 60% 2%;
+    --shadow-color: 228 60% 2%;
+    --elev-1: 0 0 0 0.5px hsl(0 0% 0% / 0.3), 0 1px 2px hsl(0 0% 0% / 0.35);
+    --elev-2: 0 1px 2px hsl(0 0% 0% / 0.4), 0 8px 20px -8px hsl(0 0% 0% / 0.6);
+    --elev-3: 0 2px 6px hsl(0 0% 0% / 0.4), 0 20px 48px -12px hsl(0 0% 0% / 0.7);
+    --highlight: inset 0 1px 0 hsl(0 0% 100% / 0.045);
 
     --st-expected: 38 92% 56%;
     --st-roads: 186 75% 50%;
@@ -101,19 +117,27 @@
 
   * {
     @apply border-border;
-    box-sizing: border-box; /* Гарантирует правильный расчет размеров */
+    box-sizing: border-box;
   }
 
-  html, body {
+  html,
+  body {
     height: 100%;
     font-family: var(--font-sans), "Inter", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased; /* Делает скругления визуально чище */
+    /* Inter alternates: open digits and a straight-sided l read better in dense tables */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3,
+  .font-display {
     font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
+    font-feature-settings: normal;
   }
 
   body {
@@ -123,6 +147,19 @@
 
   html {
     scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.18);
+  }
+
+  /* quiet scrollbars inside the app panes (Windows shows chunky ones otherwise) */
+  main,
+  nav,
+  aside,
+  [data-scroll] {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border-strong)) transparent;
   }
 }
 
@@ -140,50 +177,162 @@
   }
 }
 
-/* Rounded-corner clipping for legacy modals only; a global .overflow-hidden mask also hit <html> and the map canvas */
-.modal-wrapper {
-  mask-image: -webkit-radial-gradient(white, black);
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
+@layer utilities {
+  /* one focus treatment for every custom control: a ring offset from the surface */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* Elevation used by ops surfaces: soft, layered, tinted to the brand navy */
+/* drawn chevron for native selects (appearance: none), same on every OS */
+.select-chevron {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238891a5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+}
+
+/* Elevation used by ops surfaces: soft, layered, tinted to the brand navy; a hairline top light in dark mode */
 .shadow-card {
-  box-shadow:
-    0 1px 2px hsl(var(--shadow-color) / 0.05),
-    0 1px 3px hsl(var(--shadow-color) / 0.06);
+  box-shadow: var(--highlight), var(--elev-1);
+}
+.shadow-raised {
+  box-shadow: var(--highlight), var(--elev-2);
 }
 .shadow-elevated {
-  box-shadow:
-    0 2px 4px hsl(var(--shadow-color) / 0.04),
-    0 12px 32px -8px hsl(var(--shadow-color) / 0.18);
+  box-shadow: var(--highlight), var(--elev-3);
 }
 .glass {
-  background: hsl(var(--card) / 0.82);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  background: hsl(var(--card) / 0.78);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+}
+.dark .glass {
+  background: hsl(var(--background) / 0.72);
 }
 .bg-sidebar-gradient {
   background:
-    radial-gradient(120% 60% at 0% 0%, hsl(var(--primary) / 0.28), transparent 60%),
+    radial-gradient(90% 40% at 0% 0%, hsl(var(--primary) / 0.26), transparent 70%),
+    radial-gradient(70% 30% at 100% 100%, hsl(var(--brand-accent) / 0.06), transparent 70%),
     linear-gradient(180deg, hsl(var(--sidebar)) 0%, hsl(var(--sidebar-2)) 100%);
 }
+/* hairline that separates the sidebar from the content without a hard border */
+.sidebar-edge {
+  box-shadow: inset -1px 0 0 hsl(0 0% 100% / 0.06);
+}
 .hero-overlay {
+  background: linear-gradient(
+    100deg,
+    hsl(224 64% 10% / 0.92) 0%,
+    hsl(222 60% 14% / 0.78) 45%,
+    hsl(222 60% 14% / 0.25) 100%
+  );
+}
+/* soft wash behind page content: a faint brand light from the top */
+.app-canvas {
   background:
-    linear-gradient(100deg, hsl(224 64% 10% / 0.92) 0%, hsl(222 60% 14% / 0.78) 45%, hsl(222 60% 14% / 0.25) 100%);
+    radial-gradient(1200px 380px at 50% -120px, hsl(var(--primary) / 0.06), transparent 70%),
+    hsl(var(--background));
+}
+.dark .app-canvas {
+  background:
+    radial-gradient(1200px 420px at 50% -140px, hsl(var(--primary) / 0.09), transparent 70%),
+    hsl(var(--background));
+}
+/* the primary button: brand gradient with a top light; pressed state comes from utilities */
+.btn-primary-surface {
+  background-image: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary-strong)) 100%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.18),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.12),
+    0 1px 2px hsl(var(--primary-strong) / 0.3),
+    0 6px 16px -6px hsl(var(--primary) / 0.55);
+}
+.dark .btn-primary-surface {
+  background-image: linear-gradient(180deg, hsl(216 92% 68%) 0%, hsl(var(--primary)) 100%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.3),
+    0 1px 2px hsl(0 0% 0% / 0.4),
+    0 6px 18px -6px hsl(var(--primary) / 0.5);
 }
 @keyframes ops-fade-up {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-in-up {
-  animation: ops-fade-up 0.35s ease-out both;
+  animation: ops-fade-up 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+/* staggered entrance for tiles in a grid */
+.stagger > * {
+  animation: ops-fade-up 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.stagger > *:nth-child(2) {
+  animation-delay: 40ms;
+}
+.stagger > *:nth-child(3) {
+  animation-delay: 80ms;
+}
+.stagger > *:nth-child(4) {
+  animation-delay: 120ms;
+}
+.stagger > *:nth-child(5) {
+  animation-delay: 160ms;
+}
+.stagger > *:nth-child(6) {
+  animation-delay: 200ms;
+}
+@keyframes ops-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-pop {
+  animation: ops-pop 0.16s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  transform-origin: top right;
+}
+@keyframes ops-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--muted));
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, hsl(var(--card) / 0.6), transparent);
+  animation: ops-shimmer 1.4s infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-in-up { animation: none; }
+  .animate-in-up,
+  .stagger > *,
+  .animate-pop,
+  .skeleton::after {
+    animation: none;
+  }
 }
 
 /* ---------- Brand surfaces & motion: public site and sign-in ---------- */
@@ -226,8 +375,12 @@
   animation-direction: alternate-reverse;
 }
 @keyframes brand-drift {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(9%, -7%, 0) scale(1.15); }
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(9%, -7%, 0) scale(1.15);
+  }
 }
 /* hairline grid fading out from the top */
 .brand-grid {
@@ -277,8 +430,12 @@
   animation: route-flow 9s linear infinite;
 }
 @keyframes route-flow {
-  from { stroke-dashoffset: 1000; }
-  to { stroke-dashoffset: 0; }
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 .route-pulse {
   transform-box: fill-box;
@@ -286,8 +443,15 @@
   animation: route-pulse 2.8s ease-out infinite;
 }
 @keyframes route-pulse {
-  0% { transform: scale(0.6); opacity: 0.7; }
-  80%, 100% { transform: scale(2.4); opacity: 0; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  80%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
 }
 .marquee-mask {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
@@ -299,14 +463,22 @@
   animation: marquee 48s linear infinite;
 }
 @keyframes marquee {
-  to { transform: translateX(-50%); }
+  to {
+    transform: translateX(-50%);
+  }
 }
 .hero-rise {
   animation: brand-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 @keyframes brand-rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 /* checklist chip turning from red to green, staggered with animation-delay */
 .chip-flip {
@@ -314,12 +486,14 @@
 }
 /* --flip-ok / --flip-bad let navy surfaces use brighter tones than the theme's --ok / --bad */
 @keyframes chip-flip {
-  0%, 12% {
+  0%,
+  12% {
     color: hsl(var(--flip-bad, var(--bad)));
     background-color: hsl(var(--flip-bad, var(--bad)) / 0.12);
     border-color: hsl(var(--flip-bad, var(--bad)) / 0.3);
   }
-  22%, 88% {
+  22%,
+  88% {
     color: hsl(var(--flip-ok, var(--ok)));
     background-color: hsl(var(--flip-ok, var(--ok)) / 0.14);
     border-color: hsl(var(--flip-ok, var(--ok)) / 0.32);
@@ -387,7 +561,7 @@
   z-index: 0 !important;
 }
 
-/* Шумовой эффект */
+/* grain on brand surfaces */
 .noise-overlay {
   pointer-events: none;
   position: absolute;
@@ -399,7 +573,8 @@
 }
 
 /* Lenis smooth scroll */
-html.lenis, html.lenis body {
+html.lenis,
+html.lenis body {
   height: auto;
 }
 .lenis.lenis-smooth {
@@ -409,16 +584,19 @@ html.lenis, html.lenis body {
   overscroll-behavior: contain;
 }
 
-/* Анимации */
 @keyframes showRay {
-  0% { transform: scale(0); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
+/* Rounded-corner clipping for legacy modals only; a global .overflow-hidden mask also hit <html> and the map canvas */
 .modal-wrapper {
-  /* Ваши существующие стили */
-  border-radius: 20px; /* Пример вашего скругления */
-  
-  /* ДОБАВИТЬ ВОТ ЭТО: */
-  overflow: hidden; 
+  mask-image: -webkit-radial-gradient(white, black);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  border-radius: 20px;
+  overflow: hidden;
 }

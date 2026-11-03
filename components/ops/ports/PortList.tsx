@@ -1,6 +1,7 @@
 "use client";
 
 import { Anchor, Clock, MapPin, Pencil, Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { btn, Spinner } from "../ui/primitives";
 import { PortStatusBadge } from "./PortStatusBadge";
@@ -39,16 +40,18 @@ function Locode({ code }: { code: string }) {
 }
 
 function Country({ code }: { code: string }) {
+  const locale = useLocale();
   if (!code) return <span className="text-muted-foreground">—</span>;
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5">
-      <span className="truncate">{countryName(code)}</span>
+      <span className="truncate">{countryName(code, locale)}</span>
       {code.length === 2 ? <span className="text-xs text-muted-foreground">{code.toUpperCase()}</span> : null}
     </span>
   );
 }
 
 function LocalTime({ tz, now }: { tz: string; now: number }) {
+  const tr = useTranslations("ports.list");
   const t = localTime(tz, now);
   return (
     <span className="flex min-w-0 items-center gap-2">
@@ -59,7 +62,7 @@ function LocalTime({ tz, now }: { tz: string; now: number }) {
           {t ? <span className="ml-1.5 text-xs font-medium text-muted-foreground">{t.offset}</span> : null}
         </span>
         <span className="block truncate text-xs text-muted-foreground" title={tz}>
-          {t ? tz : `Unknown zone “${tz}”`}
+          {t ? tz : tr("unknownZone", { tz })}
         </span>
       </span>
     </span>
@@ -67,8 +70,9 @@ function LocalTime({ tz, now }: { tz: string; now: number }) {
 }
 
 function Coords({ row }: { row: PortRow }) {
+  const t = useTranslations("ports.list");
   if (row.lat === null || row.lng === null) {
-    return <span className="text-xs text-muted-foreground">No coordinates</span>;
+    return <span className="text-xs text-muted-foreground">{t("noCoords")}</span>;
   }
   return (
     <span className="tabular inline-flex items-center gap-1.5 text-xs text-foreground/80">
@@ -79,6 +83,7 @@ function Coords({ row }: { row: PortRow }) {
 }
 
 function RowActions({ row, busy, onEdit, onDelete, reveal }: { row: PortRow; busy: boolean; onEdit: () => void; onDelete: () => void; reveal?: boolean }) {
+  const t = useTranslations("ports.list");
   return (
     <div
       className={cn(
@@ -87,7 +92,7 @@ function RowActions({ row, busy, onEdit, onDelete, reveal }: { row: PortRow; bus
       )}
     >
       {busy ? <Spinner className="h-4 w-4" /> : null}
-      <button type="button" onClick={onEdit} disabled={busy} className={btn.icon} aria-label={`Edit ${row.name}`}>
+      <button type="button" onClick={onEdit} disabled={busy} className={btn.icon} aria-label={t("edit", { name: row.name })} title={t("edit", { name: row.name })}>
         <Pencil className="h-4 w-4" />
       </button>
       <button
@@ -95,7 +100,8 @@ function RowActions({ row, busy, onEdit, onDelete, reveal }: { row: PortRow; bus
         onClick={onDelete}
         disabled={busy}
         className={cn(btn.icon, "hover:bg-bad/10 hover:text-bad")}
-        aria-label={`Delete ${row.name}`}
+        aria-label={t("delete", { name: row.name })}
+        title={t("delete", { name: row.name })}
       >
         <Trash2 className="h-4 w-4" />
       </button>
@@ -104,6 +110,7 @@ function RowActions({ row, busy, onEdit, onDelete, reveal }: { row: PortRow; bus
 }
 
 export function PortList({ rows, now, admin, busyId, onEdit, onDelete }: PortListProps) {
+  const t = useTranslations("ports.list");
   return (
     <>
       {/* ≥ md: table */}
@@ -111,12 +118,12 @@ export function PortList({ rows, now, admin, busyId, onEdit, onDelete }: PortLis
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <th scope="col" className="py-3 pl-5 pr-3 font-semibold">Port</th>
-              <th scope="col" className="px-3 py-3 font-semibold">Country</th>
-              <th scope="col" className="px-3 py-3 font-semibold">Status</th>
-              <th scope="col" className="px-3 py-3 font-semibold">Local time</th>
-              <th scope="col" className="hidden px-3 py-3 font-semibold xl:table-cell">Coordinates</th>
-              {admin ? <th scope="col" className="py-3 pl-3 pr-5"><span className="sr-only">Actions</span></th> : null}
+              <th scope="col" className="whitespace-nowrap py-3 pl-5 pr-3 font-semibold">{t("port")}</th>
+              <th scope="col" className="whitespace-nowrap px-3 py-3 font-semibold">{t("country")}</th>
+              <th scope="col" className="whitespace-nowrap px-3 py-3 font-semibold">{t("status")}</th>
+              <th scope="col" className="whitespace-nowrap px-3 py-3 font-semibold">{t("localTime")}</th>
+              <th scope="col" className="hidden whitespace-nowrap px-3 py-3 font-semibold xl:table-cell">{t("coordinates")}</th>
+              {admin ? <th scope="col" className="py-3 pl-3 pr-5"><span className="sr-only">{t("actions")}</span></th> : null}
             </tr>
           </thead>
           <tbody className="divide-y">

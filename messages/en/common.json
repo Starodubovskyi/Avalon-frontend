@@ -1,0 +1,86 @@
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "retry": "Retry",
+  "loading": "Loading…",
+  "close": "Close",
+  "somethingWrong": "Something went wrong",
+  "preview": "Preview.",
+  "language": "Language",
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  },
+  "credits": "{amount} cr",
+  "stage": {
+    "expected": "Expected",
+    "at_roads": "At Sulina roads",
+    "in_port": "In port",
+    "departed": "Departed"
+  },
+  "stageShort": {
+    "expected": "ETA",
+    "at_roads": "Roads",
+    "in_port": "Port",
+    "departed": "Sailed"
+  },
+  "unpaid": "Unpaid",
+  "unpaidDays": "Unpaid · {days}d",
+  "check": {
+    "done": "done",
+    "pending": "not done",
+    "hidden": "hidden",
+    "clickToChange": "click to change"
+  },
+  "vesselType": {
+    "general_cargo": "General cargo",
+    "tanker": "Tanker",
+    "livestock": "Livestock"
+  },
+  "vesselTypeShort": {
+    "general_cargo": "Cargo",
+    "tanker": "Tanker",
+    "livestock": "Livestock"
+  },
+  "condition": {
+    "ballast": "Ballast",
+    "loaded": "Loaded"
+  },
+  "country": {
+    "RO": "Romania",
+    "UA": "Ukraine",
+    "MD": "Moldova"
+  },
+  "role": {
+    "admin": "Admin",
+    "staff": "Staff",
+    "viewer": "Client",
+    "user": "User"
+  },
+  "blackSea": "Black Sea",
+  "errors": {
+    "offline": "Can't reach the server — check your connection",
+    "sessionExpired": "Your session has expired — please sign in again",
+    "forbidden": "You don't have permission to do that",
+    "notFound": "Not found — it may have been deleted or you no longer have access",
+    "tooLarge": "The file or request is too large for the server",
+    "validation": "Some fields need attention — check them and try again",
+    "server": "The server ran into a problem — try again in a minute",
+    "generic": "Something went wrong — please try again"
+  },
+  "meta": {
+    "title": "Avalon Shipping — Operations",
+    "description": "Vessel operations board for Avalon Shipping SRL: vessels in work, Sulina channel, checklist, documents and audit log.",
+    "appleTitle": "Avalon Ops"
+  },
+  "notifications": "Notifications",
+  "closeNotification": "Close notification",
+  "names": {
+    "unknown": "Unknown",
+    "user": "User",
+    "userId": "User #{id}",
+    "system": "System"
+  }
+}

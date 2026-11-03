@@ -1,0 +1,11 @@
+{
+  "title": "Demo data",
+  "subtitle": "changes stay in this browser",
+  "asRole": "as {role}",
+  "reset": "Reset",
+  "resetHint": "Restore the original demo data",
+  "exit": "Exit",
+  "exitDemo": "Exit demo",
+  "resetConfirm": "Reset the demo? Every change you made in this browser is discarded.",
+  "resetFailed": "Could not reset the demo — reload the page and try again."
+}

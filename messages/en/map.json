@@ -1,0 +1,85 @@
+{
+  "vessels": {
+    "search": "Find vessel or IMO",
+    "empty": "No vessels to show",
+    "open": "{count} open",
+    "openTitle": "{count, plural, one {# open checklist item} other {# open checklist items}}",
+    "estimated": "≈ estimated position",
+    "manual": "manual",
+    "stale": "stale",
+    "noContacts": "No contacts yet",
+    "eta": "ETA Sulina",
+    "arrival": "Arrival",
+    "inPort": "In port",
+    "departure": "Departure",
+    "master": "Master",
+    "office": "Office",
+    "openCard": "Open card"
+  },
+  "controls": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "resetBearing": "Reset bearing to north",
+    "toggleAttribution": "Toggle attribution",
+    "feedback": "Improve this map",
+    "map": "Map",
+    "nauticalMiles": "nm"
+  },
+  "errors": {
+    "noToken": "The map is not configured (no Mapbox token).",
+    "rejected": "Mapbox rejected the map token — the map can’t be shown."
+  },
+  "pageTitle": "Fleet map",
+  "listButton": "List",
+  "placeHint": "Click on the map to place the {kind}",
+  "confirmDelete": "Remove “{title}” from the map?",
+  "deepLink": {
+    "limit": "You have used all your points — delete one to add another.",
+    "notFound": "This point no longer exists or isn’t visible to you."
+  },
+  "sidebar": {
+    "title": "Fleet & contacts",
+    "summary": "{vessels, plural, one {# vessel} other {# vessels}} in work · {points, plural, one {# point} other {# points}}",
+    "close": "Close list",
+    "vesselsTab": "Vessels ({count})",
+    "pointsTab": "Contacts ({count})"
+  },
+  "list": {
+    "search": "Find company or person",
+    "show": "Show",
+    "all": "All",
+    "favorites": "Favorites ({count})",
+    "favoriteAria": "Favorite",
+    "empty": "No points here yet. Use Add point and click on the map.",
+    "emptyFavorites": "No favorites yet. Open a point and tap ★ Favorite."
+  },
+  "layers": {
+    "vessels": "Vessels",
+    "favorites": "Favorites",
+    "favoritesHint": "Only my favorite points",
+    "seamarks": "Sea marks"
+  },
+  "legend": {
+    "title": "Legend",
+    "unpaid": "Sailed unpaid",
+    "symbols": "▲ under way · ● stopped · ◇ estimated (≈)",
+    "kinds": "Point types",
+    "departed": "Show departed vessels"
+  },
+  "add": {
+    "button": "Add point",
+    "cancel": "Cancel",
+    "cancelAria": "Cancel adding a point",
+    "remaining": "{remaining, plural, one {You can add # more point} other {You can add # more points}} · limit {limit}",
+    "limitReached": "You have used all {limit} points. Delete one to add another."
+  },
+  "card": {
+    "close": "Close",
+    "openProfile": "Open profile",
+    "activity": "Business Activity",
+    "notSet": "Not set",
+    "addedBy": "Added by {name} · {when}",
+    "edit": "Edit",
+    "delete": "Delete point"
+  }
+}

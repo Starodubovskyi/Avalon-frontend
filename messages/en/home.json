@@ -1,0 +1,224 @@
+{
+  "meta": {
+    "title": "Avalon Shipping — Danube port agency",
+    "description": "Port agency from the Sulina roads to the berth: Izmail, Reni, Orlivka, Giurgiulești, Galați, Brăila and Tulcea. Request agency or estimate a PDA online."
+  },
+  "hero": {
+    "eyebrow": "Port agency · Sulina → Danube",
+    "title": "Your agent from the Sulina roads",
+    "titleAccent": "to the berth.",
+    "lead": "Port calls at Izmail, Reni, Orlivka, Giurgiulești, Galați, Brăila and Tulcea — with a live vessel board your team and owners can follow from anywhere.",
+    "borders": "Romania · Ukraine · Moldova — one agent across three borders"
+  },
+  "cta": {
+    "request": "Request agency",
+    "estimate": "Estimate PDA",
+    "demo": "Explore the demo",
+    "login": "Client login",
+    "title": "Next call on the Danube?",
+    "text": "Send the nomination in two minutes, check the indicative costs first — or sign in and follow your vessel live."
+  },
+  "trust": {
+    "label": "Coverage in numbers",
+    "stats": {
+      "ports": {
+        "label": "Sulina channel + river ports",
+        "sub": "From the roads to Brăila"
+      },
+      "countries": {
+        "label": "Countries, one agent",
+        "sub": "Romania · Ukraine · Moldova"
+      },
+      "draught": {
+        "label": "Sulina max draught",
+        "value": "7.32 m",
+        "sub": "Indicative, 24 ft"
+      },
+      "channel": {
+        "label": "Sulina channel",
+        "value": "≈ 64 km",
+        "sub": "Sulina → Tulcea fork"
+      }
+    }
+  },
+  "services": {
+    "eyebrow": "Services",
+    "title": "Everything a Danube call needs",
+    "subtitle": "One agency team from the first nomination email to the final account — on the river every day.",
+    "items": {
+      "agency": {
+        "title": "Port agency",
+        "text": "Full agency for loading and discharge calls: nominations, berth planning, authorities and terminals."
+      },
+      "husbandry": {
+        "title": "Husbandry",
+        "text": "Owners' matters handled alongside: spares, provisions, bunkers, surveys, repairs and cash to master."
+      },
+      "customs": {
+        "title": "Customs & T1",
+        "text": "Transit documents, MSW declarations and border formalities in Romania, Ukraine and Moldova."
+      },
+      "crew": {
+        "title": "Crew change",
+        "text": "Visas, sign-on and sign-off, transport, hotels and medical assistance for crew members."
+      },
+      "pilotage": {
+        "title": "Sulina pilotage",
+        "text": "Pilot orders, channel dues and transit slots arranged before the vessel reaches the roads."
+      },
+      "supervision": {
+        "title": "Cargo supervision",
+        "text": "Tally, draft surveys and loading supervision with daily reports to owners and charterers."
+      }
+    }
+  },
+  "process": {
+    "eyebrow": "How we work",
+    "title": "Four steps, no surprises",
+    "subtitle": "The same checklist our team uses on the board — you see each step turn from red to green.",
+    "received": "Nomination received",
+    "settled": "Settled against PDA",
+    "steps": {
+      "nominate": {
+        "title": "Nominate",
+        "text": "Send the vessel, ETA and cargo. We confirm and send the proforma (PDA)."
+      },
+      "prearrival": {
+        "title": "Pre-arrival",
+        "text": "Prearrivals, MSW, T1 and pilot orders — every item red until done."
+      },
+      "portCall": {
+        "title": "Port call",
+        "text": "Sulina transit, berthing, cargo operations and sailing, live on your board."
+      },
+      "fda": {
+        "title": "FDA",
+        "text": "Final disbursement account with vouchers, settled against the PDA."
+      }
+    }
+  },
+  "bento": {
+    "eyebrow": "The portal",
+    "title": "One live board for the whole call",
+    "subtitle": "The Avalon team runs every call on it. Owners and charterers follow the same board, read-only — no chasing emails.",
+    "estimateLink": "Estimate",
+    "requestLink": "Request",
+    "cards": {
+      "board": {
+        "title": "Live vessel board",
+        "text": "Expected, at the Sulina roads, in port, departed — and every checklist item red until it is done."
+      },
+      "map": {
+        "title": "Fleet map with company geopoints",
+        "text": "Vessels on the river next to agents, terminals, authorities and suppliers."
+      },
+      "lineup": {
+        "title": "Line-up",
+        "text": "Arrivals and berth windows across the week, port by port."
+      },
+      "pda": {
+        "title": "PDA estimate",
+        "text": "Indicative disbursements in seconds, then a firm PDA from the team."
+      },
+      "requests": {
+        "title": "Agency requests",
+        "text": "Nominate online; follow the request from received to confirmed."
+      },
+      "chat": {
+        "title": "Team chat",
+        "text": "Talk to the people handling your vessel, with documents attached — instead of long email threads."
+      },
+      "points": {
+        "title": "Company cards and Rank",
+        "text": "Logo, Business Activity and Rank on every point — chat, share or save it to your favourites."
+      }
+    }
+  },
+  "coverage": {
+    "eyebrow": "Coverage",
+    "title": "Sulina channel and seven river ports",
+    "subtitle": "Romania, Ukraine and Moldova — one agent across three borders on the Lower Danube.",
+    "open": "Open the port guide",
+    "mapTitle": "Schematic map of the Lower Danube from Brăila to the Sulina roads with the ports Avalon covers",
+    "channel": "Channel · {code}"
+  },
+  "visuals": {
+    "board": {
+      "seaGlory": "→ Reni · ETA 04:30",
+      "keremcan": "→ Reni · anchored",
+      "bmi": "→ Izmail · berth 2"
+    },
+    "pointTypes": {
+      "headOffice": "Head office",
+      "branch": "Branch",
+      "selfEmployed": "Self-employed",
+      "forSale": "For sale",
+      "authority": "Authority",
+      "private": "Private person"
+    },
+    "saved": {
+      "izmail": {
+        "name": "Izmail branch office",
+        "meta": "Company branch · Ship supply"
+      },
+      "reni": {
+        "name": "Reni ship chandler",
+        "meta": "Self-employed · Ship supply"
+      }
+    },
+    "inFavourites": "In favourites",
+    "request": {
+      "label": "Agency request",
+      "cargo": "Grain, 4,800 t · ETA Sulina Thu",
+      "new": "New",
+      "steps": {
+        "received": "Received",
+        "quoted": "PDA quoted",
+        "confirmed": "Confirmed"
+      }
+    },
+    "chat": {
+      "ops": "Irina · Avalon ops",
+      "owner": "Owner's office",
+      "m1": "KEREMCAN anchored at the Sulina roads. Pilot ordered for 05:00.",
+      "m2": "Great, thanks. Can you share the updated PDA?",
+      "m3": "Sent — it's also on the board under Documents.",
+      "placeholder": "Write to the Avalon team…"
+    }
+  },
+  "shot": {
+    "label": "Preview of the Avalon operations portal: vessels board and fleet map",
+    "boardTitle": "Vessels board",
+    "boardSub": "Operations · Lower Danube",
+    "search": "Search vessel or IMO…",
+    "unpaid": "1 sailed unpaid",
+    "ais": "AIS live",
+    "arrivals": "Arriving in 72 h",
+    "lineup": "Line-up",
+    "inHours": "in {count} h",
+    "inDays": "in {count, plural, one {# day} other {# days}}",
+    "tabs": {
+      "work": "In work",
+      "expected": "Expected",
+      "roads": "At roads",
+      "port": "In port",
+      "unpaid": "Sailed unpaid"
+    },
+    "searchBoard": "Search name or IMO",
+    "colVessel": "Vessel",
+    "colStatus": "Status · destination",
+    "colEta": "ETA Sulina",
+    "colChecklist": "Checklist"
+  },
+  "map": {
+    "vessels": "Vessels",
+    "companies": "Companies",
+    "favorites": "Favorites",
+    "headOffice": "Company head office",
+    "activity": "Business Activity",
+    "shipAgency": "Ship agency",
+    "chat": "Chat",
+    "share": "Share",
+    "saved": "Saved"
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowLeftRight, Search, UserCheck, UserRoundCheck, UsersRound, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PeopleFilter } from "@/lib/network/api";
@@ -9,34 +10,16 @@ import { EmptyState, ErrorBlock, LoadingBlock, PageHeader, Spinner, TextInput } 
 import { focusRing } from "../network/bits";
 import { PersonCard } from "./PersonCard";
 
-const FILTERS: { id: PeopleFilter; label: string; icon: LucideIcon; empty: { title: string; text: string } }[] = [
-  {
-    id: "all",
-    label: "All",
-    icon: UsersRound,
-    empty: { title: "No people yet", text: "Colleagues and partners appear here once they have an account." },
-  },
-  {
-    id: "friends",
-    label: "Friends",
-    icon: ArrowLeftRight,
-    empty: { title: "No friends yet", text: "Friends are people you follow who follow you back." },
-  },
-  {
-    id: "following",
-    label: "Following",
-    icon: UserCheck,
-    empty: { title: "You don't follow anyone yet", text: "Follow people to see their posts in your Following feed." },
-  },
-  {
-    id: "followers",
-    label: "Followers",
-    icon: UserRoundCheck,
-    empty: { title: "No followers yet", text: "When someone follows you, they show up here." },
-  },
+/** Labels and empty states live in messages/<locale>/people.json under filters.<id> */
+const FILTERS: { id: PeopleFilter; icon: LucideIcon }[] = [
+  { id: "all", icon: UsersRound },
+  { id: "friends", icon: ArrowLeftRight },
+  { id: "following", icon: UserCheck },
+  { id: "followers", icon: UserRoundCheck },
 ];
 
 export function PeopleView() {
+  const t = useTranslations("people");
   const [filter, setFilter] = useState<PeopleFilter>("all");
   const [search, setSearch] = useState("");
   const debounced = useDebounced(search, 300);
@@ -49,13 +32,13 @@ export function PeopleView() {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Network"
-        title="People"
-        subtitle="The Avalon team and partners. Follow people to see their posts in your feed, or message them directly."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
       />
 
       <div className="flex flex-col gap-2 rounded-2xl border bg-card p-2 shadow-card xl:flex-row xl:items-center xl:justify-between">
-        <div className="no-scrollbar flex gap-1 overflow-x-auto" role="group" aria-label="Filter people">
+        <div className="no-scrollbar flex gap-1 overflow-x-auto" role="group" aria-label={t("filterLabel")}>
           {FILTERS.map((f) => {
             const Icon = f.icon;
             const active = filter === f.id;
@@ -73,7 +56,7 @@ export function PeopleView() {
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
-                <Icon className="h-4 w-4" aria-hidden /> {f.label}
+                <Icon className="h-4 w-4" aria-hidden /> {t(`filters.${f.id}.label`)}
               </button>
             );
           })}
@@ -84,8 +67,8 @@ export function PeopleView() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name or email"
-            aria-label="Search people"
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchLabel")}
             className="pl-9 text-base sm:text-sm"
           />
           {isValidating && data ? <Spinner className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 xl:right-3" /> : null}
@@ -93,14 +76,18 @@ export function PeopleView() {
       </div>
 
       {error && !data ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
-      {isLoading && !data ? <LoadingBlock label="Loading people…" /> : null}
+      {isLoading && !data ? <LoadingBlock label={t("loading")} /> : null}
 
       {data && !people.length ? (
         <div className="rounded-2xl border bg-card shadow-card">
           {searching ? (
-            <EmptyState icon={<Search className="h-7 w-7" />} title="Nobody matches that search" text="Try a different name or email." />
+            <EmptyState icon={<Search className="h-7 w-7" />} title={t("noMatchTitle")} text={t("noMatchText")} />
           ) : (
-            <EmptyState icon={<current.icon className="h-7 w-7" />} title={current.empty.title} text={current.empty.text} />
+            <EmptyState
+              icon={<current.icon className="h-7 w-7" />}
+              title={t(`filters.${current.id}.emptyTitle`)}
+              text={t(`filters.${current.id}.emptyText`)}
+            />
           )}
         </div>
       ) : null}
@@ -108,7 +95,7 @@ export function PeopleView() {
       {people.length ? (
         <>
           <p className="tabular text-xs text-muted-foreground" aria-live="polite">
-            {people.length} {people.length === 1 ? "person" : "people"}
+            {t("count", { count: people.length })}
           </p>
           <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {people.map((p) => (

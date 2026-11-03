@@ -2,19 +2,24 @@
 
 import { useMemo, useState } from "react";
 import useSWR from "swr";
+import { useTranslations } from "next-intl";
 import { CalendarDays, Mail, Trash2, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { TeamApi, type TeamMember } from "@/lib/api/team";
-import { extractAuthError } from "@/lib/api/auth";
+import { useErrorText } from "@/lib/api/errorText";
 import { useAuth } from "@/lib/auth/useAuth";
-import { ROLE, ROLE_LABEL } from "@/lib/auth/roles";
-import { fmtDate } from "@/lib/vessels/format";
+import { ROLE } from "@/lib/auth/roles";
 import { Avatar, btn, EmptyState, ErrorBlock, LoadingBlock, PageHeader, Panel, SelectInput, Spinner } from "../ui/primitives";
 import { CreateMemberDialog } from "./CreateMemberDialog";
-import { memberName, ROLE_HELP, ROLE_META, ROLE_OPTIONS, RoleBadge } from "./teamMeta";
+import { memberName, ROLE_META, ROLE_OPTIONS, RoleBadge, useRoleText } from "./teamMeta";
+import { useTimeFormat } from "../network/useTimeFormat";
 
 export function TeamView() {
+  const t = useTranslations("team");
+  const errorText = useErrorText();
+  const role = useRoleText();
+  const time = useTimeFormat();
   const { user } = useAuth();
   const { data, error, isLoading, mutate } = useSWR("team", () => TeamApi.list());
   const [open, setOpen] = useState(false);
@@ -34,23 +39,23 @@ export function TeamView() {
     try {
       await TeamApi.setRole(m.id, roleId);
       await mutate();
-      toast.success(`${memberName(m)} is now ${ROLE_LABEL[roleId]}. Applies at their next sign-in or within 15 min.`);
+      toast.success(t("roleChanged", { name: memberName(m), role: role.label(roleId) }));
     } catch (e) {
-      toast.error(extractAuthError(e));
+      toast.error(errorText(e));
     } finally {
       setBusyId(null);
     }
   }
 
   async function removeMember(m: TeamMember) {
-    if (!window.confirm(`Delete the account of ${memberName(m)}? Their changes stay in the log.`)) return;
+    if (!window.confirm(t("confirmDelete", { name: memberName(m) }))) return;
     setBusyId(m.id);
     try {
       await TeamApi.remove(m.id);
       await mutate();
-      toast.success("Account deleted");
+      toast.success(t("deleted"));
     } catch (e) {
-      toast.error(extractAuthError(e));
+      toast.error(errorText(e));
     } finally {
       setBusyId(null);
     }
@@ -61,12 +66,12 @@ export function TeamView() {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Admin"
-        title="Team"
-        subtitle="Every employee has a personal login, so the log shows who changed what."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <button type="button" onClick={() => setOpen(true)} className={btn.primary}>
-            <UserPlus className="h-4 w-4" /> Add member
+            <UserPlus className="h-4 w-4" aria-hidden /> {t("add")}
           </button>
         }
       />
@@ -81,13 +86,11 @@ export function TeamView() {
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="font-semibold">{ROLE_LABEL[r]}</p>
-                  <p className="tabular text-xs text-muted-foreground">
-                    {data ? `${counts[r] ?? 0} ${(counts[r] ?? 0) === 1 ? "member" : "members"}` : "—"}
-                  </p>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                  <p className="min-w-0 font-semibold">{role.label(r)}</p>
+                  <p className="tabular text-xs text-muted-foreground">{data ? t("memberCount", { count: counts[r] ?? 0 }) : "—"}</p>
                 </div>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{ROLE_HELP[r]}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{role.help(r)}</p>
               </div>
             </div>
           );
@@ -97,21 +100,21 @@ export function TeamView() {
       {error ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
 
       <Panel
-        title="Members"
-        description={data ? `${members.length} ${members.length === 1 ? "account" : "accounts"}` : "Loading…"}
+        title={t("members")}
+        description={data ? t("accounts", { count: members.length }) : t("loading")}
         icon={<Users className="h-4 w-4" />}
         bodyClassName="p-0 pt-2"
       >
         {isLoading && !data ? (
-          <LoadingBlock label="Loading team…" />
+          <LoadingBlock label={t("loadingTeam")} />
         ) : members.length === 0 ? (
-          <EmptyState icon={<Users className="h-7 w-7" />} title="No accounts yet" text="Add the first colleague so changes are signed with their name." />
+          <EmptyState icon={<Users className="h-7 w-7" />} title={t("emptyTitle")} text={t("emptyText")} />
         ) : (
           <ul className="divide-y border-t">
             {members.map((m) => {
               const self = String(m.id) === String(user?.id);
               const name = memberName(m);
-              const role = m.role?.id ?? ROLE.viewer;
+              const roleId = m.role?.id ?? ROLE.viewer;
               const busy = busyId === m.id;
               return (
                 <li key={m.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-3.5 transition-colors hover:bg-accent/30">
@@ -121,17 +124,17 @@ export function TeamView() {
                       <p className="flex items-center gap-2 truncate text-sm font-semibold">
                         <span className="truncate">{name}</span>
                         {self ? (
-                          <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">You</span>
+                          <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">{t("you")}</span>
                         ) : null}
                       </p>
                       <p className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                         <span className="inline-flex min-w-0 items-center gap-1">
                           <Mail className="h-3 w-3 shrink-0" aria-hidden />
-                          <span className="truncate">{m.email ?? "no email"}</span>
+                          <span className="truncate">{m.email ?? t("noEmail")}</span>
                         </span>
                         <span className="inline-flex items-center gap-1 whitespace-nowrap">
                           <CalendarDays className="h-3 w-3 shrink-0" aria-hidden />
-                          since {fmtDate(m.createdAt)}
+                          {t("since", { date: time.dateYear(m.createdAt) })}
                         </span>
                       </p>
                     </div>
@@ -140,19 +143,19 @@ export function TeamView() {
                   <div className="ml-auto flex items-center gap-2">
                     {busy ? <Spinner className="h-4 w-4" /> : null}
                     {self ? (
-                      <RoleBadge roleId={role} />
+                      <RoleBadge roleId={roleId} />
                     ) : (
                       <>
-                        <RoleBadge roleId={role} className="hidden lg:inline-flex" />
+                        <RoleBadge roleId={roleId} className="hidden lg:inline-flex" />
                         <SelectInput
-                          value={role}
+                          value={roleId}
                           disabled={busy}
                           onChange={(e) => void changeRole(m, Number(e.target.value))}
-                          className="h-9 w-32"
-                          aria-label={`Role of ${name}`}
+                          className="h-9 w-auto min-w-[8rem]"
+                          aria-label={t("roleOf", { name })}
                         >
                           {ROLE_OPTIONS.map((r) => (
-                            <option key={r} value={r}>{ROLE_LABEL[r]}</option>
+                            <option key={r} value={r}>{role.label(r)}</option>
                           ))}
                         </SelectInput>
                       </>
@@ -162,8 +165,8 @@ export function TeamView() {
                       disabled={self || busy}
                       onClick={() => void removeMember(m)}
                       className={cn(btn.icon, "hover:bg-bad/10 hover:text-bad disabled:hover:bg-transparent")}
-                      aria-label={self ? "You cannot delete your own account" : `Delete ${name}`}
-                      title={self ? "You cannot delete your own account" : "Delete account"}
+                      aria-label={self ? t("cantDeleteSelf") : t("deleteAria", { name })}
+                      title={self ? t("cantDeleteSelf") : t("deleteTitle")}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

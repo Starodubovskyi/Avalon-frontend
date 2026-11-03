@@ -1,0 +1,73 @@
+{
+  "pageTitle": "Cont",
+  "eyebrow": "Cont",
+  "title": "Profilul dumneavoastră",
+  "subtitle": "Cum vă văd partenerii, cum vă autentificați și limba interfeței.",
+  "signOut": "Deconectare",
+  "access": "Accesul dumneavoastră: {help}. Pentru alt rol, adresați-vă unui administrator.",
+  "roleHelp": {
+    "admin": "totul, inclusiv echipa și ștergerea navelor",
+    "staff": "editează nave, liste de verificare și documente; vede jurnalul",
+    "viewer": "starea, datele și pozițiile navelor; propriile puncte și companii"
+  },
+  "details": {
+    "title": "Profil public",
+    "hint": "Apare pe pagina personală și în echipele companiilor",
+    "view": "Vedeți pagina",
+    "headline": "Titlu",
+    "headlineHint": "Funcția și compania, într-un rând",
+    "headlinePlaceholder": "ex. Manager navlosire, Danube Grain Trading",
+    "phone": "Telefon",
+    "phoneHint": "Îl vedeți doar dumneavoastră și echipa Avalon",
+    "language": "Limbă",
+    "languageHint": "Se aplică imediat și se salvează în profil",
+    "bio": "Despre",
+    "bioPlaceholder": "Ce faceți, cu ce porturi și mărfuri lucrați…",
+    "save": "Salvați profilul",
+    "saved": "Profil salvat",
+    "loadError": "Profilul public nu a putut fi încărcat."
+  },
+  "name": {
+    "title": "Nume",
+    "hint": "Apare lângă fiecare modificare pe care o faceți",
+    "first": "Prenume",
+    "last": "Nume",
+    "email": "Email",
+    "emailHint": "Emailul este datele de autentificare și nu poate fi schimbat aici",
+    "save": "Salvați numele",
+    "saved": "Numele a fost salvat"
+  },
+  "password": {
+    "title": "Parolă",
+    "hint": "Cel puțin 6 caractere",
+    "current": "Parola actuală",
+    "new": "Parola nouă",
+    "save": "Schimbați parola",
+    "changed": "Parola a fost schimbată",
+    "tooShort": "Parola nouă trebuie să aibă cel puțin 6 caractere",
+    "wrong": "Parola actuală este greșită",
+    "missing": "Introduceți parola actuală",
+    "invalid": "Această parolă nu poate fi folosită — alegeți alta"
+  },
+  "errors": {
+    "headline": {
+      "tooLong": "Titlul este prea lung (maximum 120 de caractere).",
+      "invalid": "Titlul conține caractere care nu pot fi salvate."
+    },
+    "bio": {
+      "tooLong": "Textul „Despre” este prea lung (maximum 1.000 de caractere).",
+      "invalid": "Textul „Despre” conține caractere care nu pot fi salvate."
+    },
+    "phone": {
+      "tooLong": "Numărul de telefon este prea lung.",
+      "invalid": "Introduceți un număr de forma +40 744 000 000."
+    },
+    "locale": {
+      "invalid": "Această limbă nu este disponibilă."
+    },
+    "forbidden": "Nu puteți modifica acest profil.",
+    "notFound": "Profilul nu este disponibil.",
+    "offline": "Serverul nu răspunde — verificați conexiunea.",
+    "generic": "Ceva nu a mers. Încercați din nou."
+  }
+}

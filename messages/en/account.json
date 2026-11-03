@@ -1,0 +1,73 @@
+{
+  "pageTitle": "Account",
+  "eyebrow": "Account",
+  "title": "Your profile",
+  "subtitle": "How partners see you, how you sign in, and the interface language.",
+  "signOut": "Sign out",
+  "access": "Your access: {help}. Ask an administrator to change your role.",
+  "roleHelp": {
+    "admin": "everything, including the team and deleting vessels",
+    "staff": "edits vessels, checklists and documents; sees the log",
+    "viewer": "status, dates and positions of vessels; your own points and companies"
+  },
+  "details": {
+    "title": "Public profile",
+    "hint": "Shown on your personal page and in company teams",
+    "view": "View page",
+    "headline": "Headline",
+    "headlineHint": "Your position and company, in one line",
+    "headlinePlaceholder": "e.g. Chartering manager, Danube Grain Trading",
+    "phone": "Phone",
+    "phoneHint": "Only you and the Avalon team see it",
+    "language": "Language",
+    "languageHint": "Applies at once and is saved to your profile",
+    "bio": "About",
+    "bioPlaceholder": "What you do, which ports and cargoes you work with…",
+    "save": "Save profile",
+    "saved": "Profile saved",
+    "loadError": "Could not load your public profile."
+  },
+  "name": {
+    "title": "Name",
+    "hint": "Shown next to every change you make",
+    "first": "First name",
+    "last": "Last name",
+    "email": "Email",
+    "emailHint": "Email is your login and cannot be changed here",
+    "save": "Save name",
+    "saved": "Name saved"
+  },
+  "password": {
+    "title": "Password",
+    "hint": "At least 6 characters",
+    "current": "Current password",
+    "new": "New password",
+    "save": "Change password",
+    "changed": "Password changed",
+    "tooShort": "The new password must be at least 6 characters",
+    "wrong": "The current password is wrong",
+    "missing": "Enter your current password",
+    "invalid": "The new password can’t be used — choose another one"
+  },
+  "errors": {
+    "headline": {
+      "tooLong": "The headline is too long (120 characters max).",
+      "invalid": "The headline contains characters that can’t be saved."
+    },
+    "bio": {
+      "tooLong": "“About” is too long (1,000 characters max).",
+      "invalid": "“About” contains characters that can’t be saved."
+    },
+    "phone": {
+      "tooLong": "The phone number is too long.",
+      "invalid": "Enter a phone number like +40 744 000 000."
+    },
+    "locale": {
+      "invalid": "This language is not available."
+    },
+    "forbidden": "You can’t change this profile.",
+    "notFound": "This profile isn’t available.",
+    "offline": "Can’t reach the server — check your connection.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

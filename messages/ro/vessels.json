@@ -1,0 +1,304 @@
+{
+  "shell": {
+    "board": "Panoul navelor",
+    "card": "Fișa navei"
+  },
+  "labels": {
+    "type": {
+      "general_cargo": "Mărfuri generale",
+      "tanker": "Navă-cisternă",
+      "livestock": "Animale vii"
+    },
+    "condition": {
+      "ballast": "Balast",
+      "loaded": "Încărcată"
+    },
+    "t1": {
+      "yes": "Da",
+      "no": "Nu",
+      "not_needed": "Nu e necesar"
+    },
+    "phase": {
+      "arrival": "Sosire",
+      "finance": "Finanțe",
+      "departure": "Plecare"
+    },
+    "urgency": {
+      "overdue": "Întârziate",
+      "now": "De făcut acum",
+      "upcoming": "Următoare"
+    }
+  },
+  "checklist": {
+    "prearrivalsIn": {
+      "label": "Documente sosire",
+      "short": "DOC SOS",
+      "hint": "Documentele de sosire sunt în regulă"
+    },
+    "mswIn": {
+      "label": "MSW sosire",
+      "short": "MSW SOS",
+      "hint": "Ghișeul unic completat pentru sosire"
+    },
+    "pdaSent": {
+      "label": "PDA",
+      "short": "PDA",
+      "hint": "Proforma de cheltuieli (PDA) trimisă"
+    },
+    "t1": {
+      "label": "T1",
+      "short": "T1",
+      "hint": "Tranzit vamal: da / nu e necesar"
+    },
+    "pilotageArranged": {
+      "label": "Pilotaj Sulina",
+      "short": "PILOT",
+      "hint": "Pilot comandat pentru canalul Sulina"
+    },
+    "paid": {
+      "label": "Plată",
+      "short": "PLATĂ",
+      "hint": "Plata a fost primită"
+    },
+    "prearrivalsOut": {
+      "label": "Documente plecare",
+      "short": "DOC PLEC",
+      "hint": "Documentele de plecare sunt în regulă"
+    },
+    "mswOut": {
+      "label": "MSW plecare",
+      "short": "MSW PLEC",
+      "hint": "Ghișeul unic completat pentru plecare"
+    }
+  },
+  "checklistState": {
+    "hidden": "Ascuns",
+    "ok": "OK",
+    "notOk": "NU E OK",
+    "sent": "Trimis",
+    "notSent": "Netrimis",
+    "paid": "Plătit",
+    "notPaid": "Neplătit",
+    "done": "Gata",
+    "pending": "În așteptare",
+    "notSet": "Nesetat",
+    "clickToChange": "{hint} — clic pentru a schimba",
+    "t1Now": "{hint} — acum: {value}"
+  },
+  "time": {
+    "never": "niciodată",
+    "justNow": "chiar acum"
+  },
+  "toast": {
+    "added": "{name} a fost adăugată",
+    "removed": "{name} a fost eliminată"
+  },
+  "board": {
+    "eyebrow": "Operațiuni",
+    "title": "Nave",
+    "subtitleStaff": "Faceți clic pe un punct roșu pentru a-l marca drept gata. Fiecare modificare este înregistrată cu numele dvs.",
+    "subtitleViewer": "Vizualizare (doar citire) a navelor gestionate de Avalon Shipping.",
+    "add": "Adăugați navă",
+    "filterAria": "Filtrați după stare",
+    "views": {
+      "work": "În lucru",
+      "expected": "Așteptate",
+      "at_roads": "În radă",
+      "in_port": "În port",
+      "attention": "Puncte deschise",
+      "unpaid": "Plecate neplătite",
+      "departed": "Plecate",
+      "all": "Toate"
+    },
+    "searchPlaceholder": "Căutați după nume sau IMO",
+    "searchAria": "Căutați nave",
+    "destinationAria": "Destinație",
+    "allPorts": "Toate porturile",
+    "loading": "Se încarcă navele…",
+    "emptyFilteredTitle": "Nicio navă pentru acest filtru",
+    "emptyTitle": "Încă nu există nave",
+    "emptyFilteredText": "Alegeți altă stare sau ștergeți căutarea.",
+    "emptyTextStaff": "Adăugați prima navă gestionată de agenție.",
+    "emptyTextViewer": "Navele vor apărea aici după ce personalul Avalon le adaugă."
+  },
+  "table": {
+    "progressTitle": "{done} din {total} puncte gata",
+    "vessel": "Navă",
+    "statusDestination": "Stare · Destinație",
+    "etaSulina": "ETA Sulina",
+    "arrival": "Sosire",
+    "inPort": "În port",
+    "departure": "Plecare",
+    "checklist": "Verificări",
+    "done": "Gata",
+    "lastChange": "Ultima modificare",
+    "lastChangeTitle": "Ultima modificare {when}, de {name}",
+    "noImo": "Fără IMO"
+  },
+  "contacts": {
+    "notFilled": "Necompletat",
+    "master": "Comandant",
+    "office": "Armator / birou",
+    "portAgent": "Agent în portul de destinație"
+  },
+  "history": {
+    "empty": "Încă nu există modificări",
+    "system": "Sistem",
+    "actions": {
+      "created": "a adăugat nava",
+      "updated": "a modificat",
+      "deleted": "a eliminat nava"
+    },
+    "values": {
+      "pdaSentTrue": "trimis",
+      "pdaSentFalse": "netrimis",
+      "paidTrue": "plătit",
+      "paidFalse": "neplătit",
+      "checkTrue": "gata",
+      "checkFalse": "nefăcut",
+      "ok": "OK",
+      "notOk": "NU E OK",
+      "sourceManual": "Manual"
+    },
+    "fields": {
+      "name": "Nume",
+      "imo": "IMO",
+      "mmsi": "MMSI",
+      "type": "Tip",
+      "destination": "Destinație",
+      "condition": "Stare încărcare",
+      "etaSulina": "ETA Sulina",
+      "arrivedAt": "Sosire (rada Sulina)",
+      "inPortAt": "Intrare în port",
+      "departedAt": "Plecare",
+      "prearrivalsIn": "Documente sosire",
+      "prearrivalsOut": "Documente plecare",
+      "mswIn": "MSW sosire",
+      "mswOut": "MSW plecare",
+      "pdaSent": "PDA",
+      "paid": "Plată",
+      "t1": "T1",
+      "pilotageArranged": "Pilotaj Sulina",
+      "pilot": "Pilot",
+      "masterName": "Comandant",
+      "masterPhone": "Telefon comandant",
+      "masterEmail": "Email comandant",
+      "officeName": "Birou",
+      "officePhone": "Telefon birou",
+      "officeEmail": "Email birou",
+      "portAgent": "Agent portuar",
+      "notes": "Note",
+      "lat": "Latitudine",
+      "lng": "Longitudine",
+      "positionSource": "Sursa poziției",
+      "positionAt": "Ora poziției",
+      "other": "Alt câmp"
+    }
+  },
+  "position": {
+    "invalid": "Latitudine −90…90, longitudine −180…180, în grade zecimale (de ex. 45.155, 29.79)",
+    "saved": "Poziția a fost salvată",
+    "openMarineTraffic": "Deschideți în MarineTraffic",
+    "mapAlt": "Hartă în jurul navei {name}",
+    "estimatedBadge": "estimat",
+    "estimated": "Poziție estimată",
+    "noFixPort": "Încă nu există semnal AIS — afișată în portul de destinație.",
+    "noFixRoads": "Încă nu există semnal AIS — afișată în rada Sulina.",
+    "manual": "Setată manual",
+    "knots": "{value} Nd",
+    "stale": "Poziție mai veche de 6 h ({at})",
+    "set": "Setează poziția",
+    "latitude": "Latitudine",
+    "longitude": "Longitudine",
+    "save": "Salvați poziția",
+    "cancel": "Anulați",
+    "tip": "Sfat: copiați coordonatele din MarineTraffic. AIS le va suprascrie când sosește un semnal nou."
+  },
+  "detail": {
+    "loading": "Se încarcă nava…",
+    "notFound": "Nava nu a fost găsită",
+    "confirmRemove": "Eliminați {name} de pe panou? Istoricul se păstrează.",
+    "back": "Toate navele",
+    "noImo": "IMO nesetat",
+    "updated": "Actualizat {when}",
+    "updatedBy": "Actualizat {when} de {name}",
+    "callMaster": "Sunați comandantul",
+    "edit": "Editați",
+    "remove": "Eliminați nava",
+    "restricted": "Doar citire: contactele, plățile și lista internă de verificare sunt vizibile doar personalului Avalon.",
+    "checklistTitle": "Lista de pregătire",
+    "checklistProgress": "{done} din {total} gata",
+    "checklistProgressEditable": "{done} din {total} gata · clic pentru a comuta",
+    "voyageTitle": "Voiaj",
+    "voyageDescription": "ETA → rada Sulina → port → mare deschisă",
+    "contactsTitle": "Contacte",
+    "pilot": "Pilot:",
+    "documentsTitle": "Documente",
+    "upload": "Încărcați",
+    "documentsEmpty": "Atașați PDA, lista echipajului, certificatele sau actele vamale ale acestei nave.",
+    "positionTitle": "Poziție",
+    "historyTitle": "Istoric",
+    "historyDescription": "Fiecare modificare, semnată",
+    "historyLoading": "Se încarcă istoricul…"
+  },
+  "timeline": {
+    "steps": {
+      "etaSulina": {
+        "label": "ETA Sulina",
+        "hint": "Așteptată la Sulina"
+      },
+      "arrivedAt": {
+        "label": "Sosită în rada Sulina",
+        "hint": "Ancorată în radă"
+      },
+      "inPortAt": {
+        "label": "În port",
+        "hint": "A intrat în portul de destinație"
+      },
+      "departedAt": {
+        "label": "Plecată",
+        "hint": "A ieșit din canal spre mare deschisă"
+      }
+    },
+    "saved": "{label}: salvat",
+    "edit": "Editați",
+    "set": "Setează",
+    "save": "Salvați",
+    "now": "Acum",
+    "clear": "Ștergeți",
+    "cancel": "Anulați"
+  },
+  "form": {
+    "errors": {
+      "name": "Introduceți numele navei",
+      "imo": "IMO are 7 cifre",
+      "mmsi": "MMSI are 9 cifre",
+      "email": "Email invalid",
+      "imoExists": "O navă cu acest IMO există deja pe panou."
+    },
+    "saved": "Salvat",
+    "editTitle": "Editați {name}",
+    "addTitle": "Adăugați navă",
+    "description": "Punctele de verificare și datele voiajului se actualizează în fișa navei. Fiecare modificare este înregistrată cu numele dvs.",
+    "name": "Nume *",
+    "namePlaceholder": "de ex. PRINCESS ABIR",
+    "mmsiHint": "Opțional — îl completează AIS",
+    "etaSulina": "ETA Sulina",
+    "type": "Tip",
+    "destination": "Destinație",
+    "condition": "Stare încărcare",
+    "master": "Comandant",
+    "contactName": "Nume",
+    "phoneWhatsapp": "Telefon / WhatsApp",
+    "email": "Email",
+    "office": "Biroul armatorului / operatorului",
+    "company": "Companie",
+    "phone": "Telefon",
+    "portAgent": "Agent în portul de destinație",
+    "portAgentPlaceholder": "Agenție, persoană de contact, telefon",
+    "notes": "Note",
+    "cancel": "Anulați",
+    "saveChanges": "Salvați modificările",
+    "addSubmit": "Adăugați navă"
+  }
+}

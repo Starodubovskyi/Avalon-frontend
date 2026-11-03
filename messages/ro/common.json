@@ -1,0 +1,86 @@
+{
+  "save": "Salvați",
+  "cancel": "Anulați",
+  "retry": "Reîncercați",
+  "loading": "Se încarcă…",
+  "close": "Închideți",
+  "somethingWrong": "Ceva nu a funcționat",
+  "preview": "Previzualizare.",
+  "language": "Limbă",
+  "theme": {
+    "light": "Luminoasă",
+    "dark": "Întunecată",
+    "toLight": "Treceți la tema luminoasă",
+    "toDark": "Treceți la tema întunecată"
+  },
+  "credits": "{amount} cr",
+  "stage": {
+    "expected": "Așteptată",
+    "at_roads": "În rada Sulina",
+    "in_port": "În port",
+    "departed": "Plecată"
+  },
+  "stageShort": {
+    "expected": "ETA",
+    "at_roads": "Radă",
+    "in_port": "Port",
+    "departed": "Plecată"
+  },
+  "unpaid": "Neplătită",
+  "unpaidDays": "Neplătită · {days} z",
+  "check": {
+    "done": "finalizat",
+    "pending": "nefinalizat",
+    "hidden": "ascuns",
+    "clickToChange": "apăsați pentru a schimba"
+  },
+  "vesselType": {
+    "general_cargo": "Mărfuri generale",
+    "tanker": "Tanc petrolier",
+    "livestock": "Transport animale"
+  },
+  "vesselTypeShort": {
+    "general_cargo": "Mărfuri",
+    "tanker": "Tanc",
+    "livestock": "Animale"
+  },
+  "condition": {
+    "ballast": "În balast",
+    "loaded": "Încărcată"
+  },
+  "country": {
+    "RO": "România",
+    "UA": "Ucraina",
+    "MD": "Moldova"
+  },
+  "role": {
+    "admin": "Administrator",
+    "staff": "Angajat",
+    "viewer": "Client",
+    "user": "Utilizator"
+  },
+  "blackSea": "Marea Neagră",
+  "errors": {
+    "offline": "Serverul nu răspunde — verificați conexiunea",
+    "sessionExpired": "Sesiunea a expirat — autentificați-vă din nou",
+    "forbidden": "Nu aveți permisiunea pentru această acțiune",
+    "notFound": "Negăsit — a fost șters sau nu mai aveți acces",
+    "tooLarge": "Fișierul sau cererea este prea mare pentru server",
+    "validation": "Unele câmpuri necesită atenție — verificați-le și încercați din nou",
+    "server": "Serverul a întâmpinat o problemă — încercați din nou peste un minut",
+    "generic": "Ceva nu a mers — încercați din nou"
+  },
+  "meta": {
+    "title": "Avalon Shipping — Operațiuni",
+    "description": "Panoul operațional Avalon Shipping SRL: nave în lucru, canalul Sulina, listă de verificare, documente și jurnal de modificări.",
+    "appleTitle": "Avalon Ops"
+  },
+  "notifications": "Notificări",
+  "closeNotification": "Închideți notificarea",
+  "names": {
+    "unknown": "Necunoscut",
+    "user": "Utilizator",
+    "userId": "Utilizator #{id}",
+    "system": "Sistem"
+  }
+}

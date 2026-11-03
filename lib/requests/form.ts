@@ -1,10 +1,9 @@
 import type { AuthUser } from "@/lib/domain/map-point";
 import { fmtEur, normalizePdaInput } from "@/lib/public/pdaTariffs";
 import { fromLocalInput } from "@/lib/vessels/format";
-import { EMAIL_HINT, type FieldErrors } from "./api";
+import type { FieldErrors, RequestsT } from "./api";
 import { REQUEST_LIMITS, type CreateAgencyRequestDto } from "./types";
 import {
-  CONDITION_LABEL,
   DESTINATIONS,
   VESSEL_TYPES,
   type Destination,
@@ -49,8 +48,8 @@ function oneOf<T extends string>(value: string | null, allowed: readonly T[]): T
   return allowed.find((a) => a === value);
 }
 
-/** Sentence for the notes field when the client arrives from the PDA estimator */
-export function estimateNote(params: QueryLike): string {
+/** Sentence for the notes field when the client arrives from the PDA estimator, in the interface language */
+export function estimateNote(params: QueryLike, t: RequestsT): string {
   if (!params.get("gt") && !params.get("estimate")) return "";
   const input = normalizePdaInput({
     port: params.get("destination"),
@@ -61,21 +60,21 @@ export function estimateNote(params: QueryLike): string {
     condition: params.get("condition"),
   });
   const total = Number(params.get("estimate"));
-  const parts = [
-    `GT ${input.gt.toLocaleString("en-GB")}`,
-    `LOA ${input.loa} m`,
-    `${input.days} ${input.days === 1 ? "day" : "days"} alongside`,
-    CONDITION_LABEL[input.condition].toLowerCase(),
-  ];
-  const totalText = Number.isFinite(total) && total > 0 ? ` Online estimate: ${fmtEur(total)}.` : "";
-  return `Please send a firm PDA: ${parts.join(", ")}.${totalText}`;
+  const facts = t("estimate.facts", {
+    gt: input.gt,
+    loa: input.loa,
+    days: input.days,
+    condition: t(`condition.${input.condition}`),
+  });
+  const request = t("estimate.request", { facts });
+  return Number.isFinite(total) && total > 0 ? `${request} ${t("estimate.total", { total: fmtEur(total) })}` : request;
 }
 
 /**
  * Contact details come only from the signed-in profile — a crafted link must not be able to
  * plant someone else's email or company. The query may carry vessel and estimate fields.
  */
-export function initialRequestForm(params: QueryLike | null, user: AuthUser | null): RequestFormState {
+export function initialRequestForm(params: QueryLike | null, user: AuthUser | null, t: RequestsT): RequestFormState {
   const q = params ?? { get: () => null };
   return {
     ...EMPTY_REQUEST_FORM,
@@ -85,7 +84,7 @@ export function initialRequestForm(params: QueryLike | null, user: AuthUser | nu
     imo: (q.get("imo") ?? "").replace(/\D/g, "").slice(0, 7),
     vesselType: oneOf(q.get("vesselType"), VESSEL_TYPES) ?? EMPTY_REQUEST_FORM.vesselType,
     destination: oneOf(q.get("destination"), DESTINATIONS) ?? EMPTY_REQUEST_FORM.destination,
-    notes: estimateNote(q),
+    notes: estimateNote(q, t),
   };
 }
 
@@ -97,15 +96,15 @@ const REQUIRED = ["company", "contactName", "email", "vesselName"] as const;
 const LIMITED = ["company", "contactName", "email", "phone", "vesselName", "cargo", "notes"] as const;
 
 /** Same rules as the backend DTO, so most mistakes never reach the server */
-export function validateRequestForm(f: RequestFormState): FieldErrors {
+export function validateRequestForm(f: RequestFormState, t: RequestsT): FieldErrors {
   const errors: FieldErrors = {};
-  for (const key of REQUIRED) if (!f[key].trim()) errors[key] = "Required";
+  for (const key of REQUIRED) if (!f[key].trim()) errors[key] = t("errors.required");
   const email = f.email.trim();
-  if (email && (!EMAIL_RE.test(email) || MAILTO_UNSAFE.test(email))) errors.email = EMAIL_HINT;
-  if (f.imo.trim() && !IMO_RE.test(f.imo.trim())) errors.imo = "IMO is exactly 7 digits";
-  if (f.eta && !fromLocalInput(f.eta)) errors.eta = "Pick a valid date and time";
+  if (email && (!EMAIL_RE.test(email) || MAILTO_UNSAFE.test(email))) errors.email = t("errors.email");
+  if (f.imo.trim() && !IMO_RE.test(f.imo.trim())) errors.imo = t("errors.imo");
+  if (f.eta && !fromLocalInput(f.eta)) errors.eta = t("errors.dateTime");
   for (const key of LIMITED) {
-    if (f[key].trim().length > REQUEST_LIMITS[key]) errors[key] = `Up to ${REQUEST_LIMITS[key]} characters`;
+    if (f[key].trim().length > REQUEST_LIMITS[key]) errors[key] = t("errors.maxChars", { max: REQUEST_LIMITS[key] });
   }
   return errors;
 }

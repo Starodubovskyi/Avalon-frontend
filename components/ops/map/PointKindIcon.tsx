@@ -94,6 +94,7 @@ const AVATAR_SIZE = {
   sm: { box: "h-9 w-9 rounded-xl", icon: "h-4 w-4", px: 36 },
   md: { box: "h-11 w-11 rounded-xl", icon: "h-5 w-5", px: 44 },
   lg: { box: "h-16 w-16 rounded-2xl", icon: "h-7 w-7", px: 64 },
+  xl: { box: "h-24 w-24 rounded-3xl", icon: "h-10 w-10", px: 96 },
 } as const;
 
 /** Logo on a white plate when the point has one, otherwise the kind glyph on its gradient */

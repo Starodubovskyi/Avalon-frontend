@@ -1,0 +1,51 @@
+{
+  "eyebrow": "Rețea",
+  "title": "Persoane",
+  "subtitle": "Echipa Avalon și partenerii. Urmăriți persoane ca să le vedeți postările în flux sau scrieți-le direct.",
+  "filterLabel": "Filtrați persoanele",
+  "filters": {
+    "all": {
+      "label": "Toate",
+      "emptyTitle": "Nicio persoană încă",
+      "emptyText": "Colegii și partenerii apar aici după ce își fac cont."
+    },
+    "friends": {
+      "label": "Prieteni",
+      "emptyTitle": "Niciun prieten încă",
+      "emptyText": "Prietenii sunt persoanele pe care le urmăriți și care vă urmăresc la rândul lor."
+    },
+    "following": {
+      "label": "Urmăriți",
+      "emptyTitle": "Nu urmăriți încă pe nimeni",
+      "emptyText": "Urmăriți persoane ca să le vedeți postările în fila Urmăriți din flux."
+    },
+    "followers": {
+      "label": "Urmăritori",
+      "emptyTitle": "Niciun urmăritor încă",
+      "emptyText": "Când cineva vă urmărește, apare aici."
+    }
+  },
+  "searchPlaceholder": "Căutați după nume sau email",
+  "searchLabel": "Căutați persoane",
+  "loading": "Se încarcă persoanele…",
+  "noMatchTitle": "Nimeni nu corespunde căutării",
+  "noMatchText": "Încercați alt nume sau alt email.",
+  "count": "{count, plural, one {# persoană} few {# persoane} other {# de persoane}}",
+  "relation": {
+    "friends": "Prieteni",
+    "following": "Urmăriți",
+    "followsYou": "Vă urmărește"
+  },
+  "card": {
+    "followers": "Urmăritori",
+    "following": "Urmăriți",
+    "posts": "Postări",
+    "follow": "Urmăriți",
+    "followBack": "Urmăriți-l și dvs.",
+    "unfollow": "Nu mai urmăriți",
+    "followAria": "Urmăriți pe {name}",
+    "unfollowAria": "Nu mai urmăriți pe {name}",
+    "message": "Mesaj",
+    "messageAria": "Trimiteți un mesaj lui {name}"
+  }
+}

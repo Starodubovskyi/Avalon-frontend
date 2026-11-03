@@ -5,7 +5,7 @@ import api from "@/lib/api/client";
 
 /**
  * Point logos are not part of the list payload: GET /map-points/:id/logo?v=<logoVersion> returns the image
- * (staff only, so it goes through the shared client with its auth header). One request per id:version,
+ * (signed-in users who can see the point, so it goes through the shared client with its auth header). One request per id:version,
  * shared by the map markers and every <img>; a failed request is forgotten so it can be retried.
  */
 

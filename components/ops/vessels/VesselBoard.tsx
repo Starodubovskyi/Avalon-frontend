@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Search, Ship } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { canEdit } from "@/lib/auth/roles";
@@ -16,15 +17,16 @@ import { VesselFormDialog } from "./VesselFormDialog";
 
 type View = "work" | "expected" | "at_roads" | "in_port" | "attention" | "unpaid" | "departed" | "all";
 
-const VIEWS: { id: View; label: string; staffOnly?: boolean; test: (v: VesselView) => boolean }[] = [
-  { id: "work", label: "In work", test: (v) => v.stage !== "departed" || isUnpaidAfterDeparture(v) },
-  { id: "expected", label: "Expected", test: (v) => v.stage === "expected" },
-  { id: "at_roads", label: "At roads", test: (v) => v.stage === "at_roads" },
-  { id: "in_port", label: "In port", test: (v) => v.stage === "in_port" },
-  { id: "attention", label: "Open items", staffOnly: true, test: (v) => v.stage !== "departed" && pendingCount(v) > 0 },
-  { id: "unpaid", label: "Sailed unpaid", staffOnly: true, test: isUnpaidAfterDeparture },
-  { id: "departed", label: "Departed", test: (v) => v.stage === "departed" },
-  { id: "all", label: "All", test: () => true },
+/** Tab labels live in messages: vessels.board.views.<id> */
+const VIEWS: { id: View; staffOnly?: boolean; test: (v: VesselView) => boolean }[] = [
+  { id: "work", test: (v) => v.stage !== "departed" || isUnpaidAfterDeparture(v) },
+  { id: "expected", test: (v) => v.stage === "expected" },
+  { id: "at_roads", test: (v) => v.stage === "at_roads" },
+  { id: "in_port", test: (v) => v.stage === "in_port" },
+  { id: "attention", staffOnly: true, test: (v) => v.stage !== "departed" && pendingCount(v) > 0 },
+  { id: "unpaid", staffOnly: true, test: isUnpaidAfterDeparture },
+  { id: "departed", test: (v) => v.stage === "departed" },
+  { id: "all", test: () => true },
 ];
 
 function isView(value: string | null): value is View {
@@ -32,6 +34,7 @@ function isView(value: string | null): value is View {
 }
 
 export function VesselBoard() {
+  const t = useTranslations("vessels.board");
   const params = useSearchParams();
   const requestedView = params?.get("view") ?? null;
   const { user } = useAuth();
@@ -72,20 +75,20 @@ export function VesselBoard() {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Operations"
-        title="Vessels"
-        subtitle={staff ? "Click a red item to mark it done. Everything you change is logged with your name." : "Read-only view of vessels handled by Avalon Shipping."}
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={staff ? t("subtitleStaff") : t("subtitleViewer")}
         actions={
           staff ? (
             <button type="button" onClick={() => setFormOpen(true)} className={btn.primary}>
-              <Plus className="h-4 w-4" /> Add vessel
+              <Plus className="h-4 w-4" /> {t("add")}
             </button>
           ) : null
         }
       />
 
       <div className="flex flex-col gap-3 rounded-2xl border bg-card p-2 shadow-card xl:flex-row xl:items-center xl:justify-between">
-        <div className="no-scrollbar flex gap-1 overflow-x-auto lg:flex-wrap" role="tablist" aria-label="Filter by status">
+        <div className="no-scrollbar flex gap-1 overflow-x-auto lg:flex-wrap" role="tablist" aria-label={t("filterAria")}>
           {views.map((v) => (
             <button
               key={v.id}
@@ -99,7 +102,7 @@ export function VesselBoard() {
                 v.id === "unpaid" && counts.unpaid > 0 && view !== v.id && "text-stage-unpaid",
               )}
             >
-              {v.label}
+              {t(`views.${v.id}`)}
               <span
                 className={cn(
                   "tabular min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-[10px] font-bold",
@@ -114,10 +117,10 @@ export function VesselBoard() {
         <div className="flex flex-col gap-2 p-1 sm:flex-row xl:p-0">
           <div className="relative min-w-0 flex-1 xl:w-64">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <TextInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name or IMO" className="pl-9" aria-label="Search vessels" />
+            <TextInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("searchPlaceholder")} className="pl-9" aria-label={t("searchAria")} />
           </div>
-          <SelectInput value={destination} onChange={(e) => setDestination(e.target.value)} className="w-full sm:w-40" aria-label="Destination">
-            <option value="">All ports</option>
+          <SelectInput value={destination} onChange={(e) => setDestination(e.target.value)} className="w-full sm:w-40" aria-label={t("destinationAria")}>
+            <option value="">{t("allPorts")}</option>
             {DESTINATIONS.map((d) => (
               <option key={d} value={d}>{DESTINATION_LABEL[d]}</option>
             ))}
@@ -126,14 +129,14 @@ export function VesselBoard() {
       </div>
 
       {error ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
-      {isLoading && !data ? <LoadingBlock label="Loading vessels…" /> : null}
+      {isLoading && !data ? <LoadingBlock label={t("loading")} /> : null}
 
       {data && rows.length === 0 ? (
         <div className="rounded-2xl border bg-card shadow-card">
           <EmptyState
             icon={<Ship className="h-8 w-8" />}
-            title={all.length ? "No vessels match this filter" : "No vessels yet"}
-            text={all.length ? "Try another status tab or clear the search." : staff ? "Add the first vessel the agency is handling." : "Vessels will appear here once Avalon staff add them."}
+            title={all.length ? t("emptyFilteredTitle") : t("emptyTitle")}
+            text={all.length ? t("emptyFilteredText") : staff ? t("emptyTextStaff") : t("emptyTextViewer")}
           />
         </div>
       ) : null}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, Mail, Sparkles, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthApi, extractAuthError } from "@/lib/api/auth";
@@ -10,6 +11,7 @@ import { useAuth } from "@/lib/auth/useAuth";
 import { demoEnvMode, setDemoFlag, type DemoRole } from "@/lib/demo/mode";
 import { enterDemo, isServerUnavailable } from "@/lib/demo/session";
 import { PublicThemeToggle } from "@/components/public/PublicThemeToggle";
+import { LanguageSwitcher } from "../ui/LanguageSwitcher";
 import { Spinner, btn } from "../ui/primitives";
 import { AuthInput, FormAlert, PasswordInput } from "./AuthFields";
 import { AuthBrandPanel, AuthMobileHero } from "./AuthBrandPanel";
@@ -38,16 +40,18 @@ function enterApp(raw: string | null) {
   window.location.assign(safeNext(raw));
 }
 
-const COPY: Record<Mode | "demo", { title: string; subtitle: string }> = {
-  signin: { title: "Welcome back", subtitle: "Sign in with the account your administrator gave you." },
-  register: {
-    title: "Create a viewer account",
-    subtitle: "Owners and partners get read-only access to vessel status. Staff accounts are issued by the administrator.",
-  },
-  demo: { title: "Explore the portal", subtitle: "This build runs on demo data. Pick a role and look around." },
-};
+/** Backend validation codes → dictionary keys; anything unknown is shown as the server sent it */
+function errorKey(message: string): string | null {
+  if (/email: notFound/i.test(message)) return "errors.notFound";
+  if (/password: incorrectPassword/i.test(message)) return "errors.wrongPassword";
+  if (/email: emailAlreadyExists/i.test(message)) return "errors.exists";
+  if (/password: .*(min|short)/i.test(message)) return "errors.short";
+  if (/Network Error|timeout/i.test(message)) return "errors.network";
+  return null;
+}
 
 export function LoginView() {
+  const t = useTranslations("auth");
   const params = useSearchParams();
   const next = params?.get("next") ?? null;
   const { user, loading } = useAuth();
@@ -60,24 +64,26 @@ export function LoginView() {
   // which action is in flight: the other one is disabled but shows no spinner
   const [pending, setPending] = useState<"signin" | "demo" | null>(null);
   const busy = pending !== null;
+  // kept as a key, so a language switch after a failed attempt re-renders the message in the new language
+  /** message key under auth.*; the raw server text is never shown */
   const [error, setError] = useState<string | null>(null);
   const [demoRole, setDemoRole] = useState<DemoRole>("admin");
   const [serverDown, setServerDown] = useState(false);
-  const [demoError, setDemoError] = useState<string | null>(null);
+  const [demoError, setDemoError] = useState(false);
 
   useEffect(() => {
     if (!loading && user && !busy) enterApp(next);
   }, [loading, user, next, busy]);
 
   async function openDemo() {
-    setDemoError(null);
+    setDemoError(false);
     setPending("demo");
     try {
       await enterDemo(demoRole);
       window.location.assign("/dashboard");
     } catch {
       // shown under the demo entry: with NEXT_PUBLIC_DEMO_MODE=only the sign-in form is hidden
-      setDemoError("The demo could not start in this browser. Allow site storage and try again.");
+      setDemoError(true);
       setPending(null);
     }
   }
@@ -102,13 +108,13 @@ export function LoginView() {
       }
       enterApp(next);
     } catch (err) {
-      setError(friendly(extractAuthError(err)));
+      setError(errorKey(extractAuthError(err)) ?? "errors.generic");
       setServerDown(DEMO_MODE === "fallback" && isServerUnavailable(err));
       setPending(null);
     }
   }
 
-  const copy = COPY[DEMO_MODE === "only" ? "demo" : mode];
+  const copyKey = DEMO_MODE === "only" ? "demo" : mode;
   const canSubmit = !!email && !!password && (mode === "signin" || (!!firstName && !!lastName));
 
   return (
@@ -123,19 +129,23 @@ export function LoginView() {
             href="/"
             className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            <ArrowLeft className="h-4 w-4" aria-hidden /> Avalon Shipping website
+            <ArrowLeft className="h-4 w-4" aria-hidden /> {t("backToSite")}
           </Link>
-          <PublicThemeToggle />
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher variant="segmented" />
+            <PublicThemeToggle />
+          </div>
         </header>
 
         <div className="relative z-10 -mt-12 flex flex-1 items-start justify-center px-3 pb-8 sm:px-6 lg:mt-0 lg:items-center lg:px-0 lg:py-10">
-          <div className="w-full max-w-[460px] rounded-[28px] border bg-card p-6 shadow-elevated sm:p-9">
-            <h2 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[32px]">{copy.title}</h2>
-            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{copy.subtitle}</p>
+          <div className="hero-rise relative w-full max-w-[460px] rounded-[28px] border bg-card p-6 shadow-elevated sm:p-9">
+            <span aria-hidden className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+            <h2 className="text-balance font-display text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[32px]">{t(`copy.${copyKey}.title`)}</h2>
+            <p className="mt-2.5 text-[15px] leading-relaxed text-muted-foreground">{t(`copy.${copyKey}.subtitle`)}</p>
 
             {DEMO_MODE === "only" ? null : (
               <>
-                <div className="mt-7 grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold" role="tablist" aria-label="Account">
+                <div className="mt-7 grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold" role="tablist" aria-label={t("tabsLabel")}>
                   {(["signin", "register"] as const).map((m) => (
                     <button
                       key={m}
@@ -151,7 +161,7 @@ export function LoginView() {
                         mode === m ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
                       )}
                     >
-                      {m === "signin" ? "Sign in" : "Register"}
+                      {m === "signin" ? t("signIn") : t("register")}
                     </button>
                   ))}
                 </div>
@@ -160,7 +170,7 @@ export function LoginView() {
                   {mode === "register" ? (
                     <div className="grid gap-4 sm:grid-cols-2">
                       <AuthInput
-                        label="First name"
+                        label={t("firstName")}
                         icon={UserRound}
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
@@ -168,7 +178,7 @@ export function LoginView() {
                         required
                       />
                       <AuthInput
-                        label="Last name"
+                        label={t("lastName")}
                         icon={UserRound}
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
@@ -178,20 +188,20 @@ export function LoginView() {
                     </div>
                   ) : null}
                   <AuthInput
-                    label="Email"
+                    label={t("email")}
                     icon={Mail}
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
                     inputMode="email"
-                    placeholder="name@company.com"
+                    placeholder={t("emailPlaceholder")}
                     invalid={!!error}
                     required
                   />
                   <PasswordInput
-                    label="Password"
-                    hint={mode === "register" ? "At least 6 characters" : undefined}
+                    label={t("password")}
+                    hint={mode === "register" ? t("passwordHint") : undefined}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete={mode === "signin" ? "current-password" : "new-password"}
@@ -199,20 +209,20 @@ export function LoginView() {
                     required
                   />
 
-                  {error ? <FormAlert>{error}</FormAlert> : null}
+                  {error ? <FormAlert>{t(error)}</FormAlert> : null}
                   {serverDown ? (
                     <button
                       type="button"
                       onClick={() => void openDemo()}
                       className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-3 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
-                      <Sparkles className="h-4 w-4" aria-hidden /> Server unavailable — open the demo instead
+                      <Sparkles className="h-4 w-4" aria-hidden /> {t("serverDown")}
                     </button>
                   ) : null}
 
                   <button type="submit" disabled={busy || !canSubmit} className={cn(btn.primary, "group h-12 w-full text-[15px]")}>
                     {pending === "signin" ? <Spinner className="h-4 w-4 text-primary-foreground" /> : null}
-                    {mode === "signin" ? "Sign in" : "Create account"}
+                    {mode === "signin" ? t("signIn") : t("createAccount")}
                     {pending === "signin" ? null : <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />}
                   </button>
                 </form>
@@ -224,7 +234,7 @@ export function LoginView() {
                 {DEMO_MODE === "only" ? null : (
                   <div className="my-6 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     <span className="h-px flex-1 bg-border" aria-hidden />
-                    or
+                    {t("or")}
                     <span className="h-px flex-1 bg-border" aria-hidden />
                   </div>
                 )}
@@ -234,7 +244,7 @@ export function LoginView() {
                   busy={busy}
                   starting={pending === "demo"}
                   primary={DEMO_MODE === "only"}
-                  error={demoError}
+                  error={demoError ? t("errors.demo") : null}
                   onEnter={() => void openDemo()}
                 />
               </>
@@ -244,24 +254,15 @@ export function LoginView() {
 
         <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 pb-6 text-xs text-muted-foreground lg:pb-8">
           {/* static on purpose: a clock read during render would differ between server and client at the year boundary */}
-          <span>© Avalon Shipping SRL · Sulina channel</span>
+          <span>{t("footer")}</span>
           <Link href="/port-guide" className="hover:text-foreground">
-            Port guide
+            {t("portGuide")}
           </Link>
           <Link href="/request" className="hover:text-foreground">
-            Request agency
+            {t("requestAgency")}
           </Link>
         </footer>
       </section>
     </div>
   );
-}
-
-function friendly(message: string): string {
-  if (/email: notFound/i.test(message)) return "No account with this email.";
-  if (/password: incorrectPassword/i.test(message)) return "Wrong password.";
-  if (/email: emailAlreadyExists/i.test(message)) return "An account with this email already exists — sign in instead.";
-  if (/password: .*(min|short)/i.test(message)) return "Password must be at least 6 characters.";
-  if (/Network Error|timeout/i.test(message)) return "Server is not reachable. Check your connection and try again.";
-  return message;
 }

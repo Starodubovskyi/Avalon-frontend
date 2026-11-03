@@ -1,0 +1,21 @@
+{
+  "eyebrow": "Spațiu de lucru",
+  "title": "Jurnal de activitate",
+  "subtitle": "Fiecare modificare la o navă, semnată cu numele angajatului.",
+  "filterLabel": "Filtrați după angajat",
+  "allEmployees": "Toți angajații",
+  "summary": "{changes, plural, one {# modificare} few {# modificări} other {# de modificări}} în {days, plural, one {# zi} few {# zile} other {# de zile}}",
+  "byAuthor": "de {name}",
+  "employees": "{count, plural, one {# angajat} few {# angajați} other {# de angajați}}",
+  "loading": "Se încarcă activitatea…",
+  "emptyAuthorTitle": "Nicio modificare a acestui angajat",
+  "emptyTitle": "Încă nu există modificări",
+  "emptyAuthorText": "Alegeți alt angajat sau încărcați modificări mai vechi.",
+  "emptyText": "Modificările navelor vor apărea aici, cele mai noi primele.",
+  "today": "Azi",
+  "yesterday": "Ieri",
+  "changes": "{count, plural, one {# modificare} few {# modificări} other {# de modificări}}",
+  "changesBy": "Modificări de {names}",
+  "loadOlder": "Încărcați modificări mai vechi",
+  "beginning": "Ați ajuns la începutul jurnalului."
+}

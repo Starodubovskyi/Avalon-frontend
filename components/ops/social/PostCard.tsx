@@ -1,16 +1,20 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Heart, MessageSquare, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Post } from "@/lib/network/api";
 import type { FeedActions } from "@/lib/network/hooks";
-import { feedTime, fullTime, personName } from "@/lib/network/format";
+import { personName } from "@/lib/network/format";
 import { Avatar, btn, Spinner } from "../ui/primitives";
 import { PersonRoleBadge } from "../network/bits";
 import { PostComments } from "./PostComments";
+import { useTimeFormat } from "../network/useTimeFormat";
 
 export function PostCard({ post, now, actions }: { post: Post; now: number; actions: FeedActions }) {
+  const t = useTranslations("social.post");
+  const time = useTimeFormat();
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const liking = useRef(false);
@@ -28,14 +32,14 @@ export function PostCard({ post, now, actions }: { post: Post; now: number; acti
   }
 
   async function remove() {
-    if (!window.confirm("Delete this post? Its likes and comments go with it.")) return;
+    if (!window.confirm(t("confirmDelete"))) return;
     setDeleting(true);
     const ok = await removePost(post);
     if (!ok) setDeleting(false);
   }
 
   return (
-    <article className="rounded-2xl border bg-card shadow-card transition hover:shadow-elevated" aria-label={`Post by ${name}`}>
+    <article className="rounded-2xl border bg-card shadow-card transition hover:shadow-elevated" aria-label={t("by", { name })}>
       <header className="flex items-start gap-3 px-4 pt-4 sm:px-5 sm:pt-5">
         <Avatar name={name} className="h-10 w-10 text-sm" />
         <div className="min-w-0 flex-1">
@@ -43,8 +47,8 @@ export function PostCard({ post, now, actions }: { post: Post; now: number; acti
             <span className="truncate text-sm font-semibold">{name}</span>
             <PersonRoleBadge role={post.author.role} compact />
           </div>
-          <time dateTime={post.createdAt} title={fullTime(post.createdAt)} className="text-xs text-muted-foreground">
-            {feedTime(post.createdAt, now)}
+          <time dateTime={post.createdAt} title={time.full(post.createdAt)} className="text-xs text-muted-foreground">
+            {time.feedTime(post.createdAt, now)}
           </time>
         </div>
         {post.canDelete ? (
@@ -53,8 +57,8 @@ export function PostCard({ post, now, actions }: { post: Post; now: number; acti
             onClick={() => void remove()}
             disabled={deleting}
             className={cn(btn.icon, "-mr-1.5 -mt-1 hover:bg-bad/10 hover:text-bad")}
-            aria-label="Delete post"
-            title="Delete post"
+            aria-label={t("delete")}
+            title={t("delete")}
           >
             {deleting ? <Spinner className="h-4 w-4" /> : <Trash2 className="h-4 w-4" aria-hidden />}
           </button>
@@ -68,24 +72,24 @@ export function PostCard({ post, now, actions }: { post: Post; now: number; acti
           type="button"
           onClick={() => void like()}
           aria-pressed={post.likedByMe}
-          aria-label={`${post.likedByMe ? "Unlike" : "Like"} post, ${post.likeCount} ${post.likeCount === 1 ? "like" : "likes"}`}
+          aria-label={t("likeAria", { liked: String(post.likedByMe), count: post.likeCount })}
           className={cn(btn.ghost, post.likedByMe && "text-bad hover:text-bad")}
         >
           <Heart className={cn("h-4 w-4 transition-transform", post.likedByMe && "scale-110 fill-current")} aria-hidden />
           <span className="tabular">{post.likeCount}</span>
-          <span className="hidden sm:inline">{post.likedByMe ? "Liked" : "Like"}</span>
+          <span className="hidden sm:inline">{post.likedByMe ? t("liked") : t("like")}</span>
         </button>
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-controls={commentsId}
-          aria-label={`${open ? "Hide" : "Show"} comments, ${post.commentCount}`}
+          aria-label={t("commentsAria", { open: String(open), count: post.commentCount })}
           className={cn(btn.ghost, open && "bg-accent text-accent-foreground")}
         >
           <MessageSquare className="h-4 w-4" aria-hidden />
           <span className="tabular">{post.commentCount}</span>
-          <span className="hidden sm:inline">{post.commentCount === 1 ? "Comment" : "Comments"}</span>
+          <span className="hidden sm:inline">{t("comments", { count: post.commentCount })}</span>
         </button>
       </footer>
 

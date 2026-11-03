@@ -4,7 +4,14 @@ import { LOGO_MAX_CHARS, LOGO_MAX_PX } from "@/lib/points/limits";
 
 const SOURCE_MAX_BYTES = 15 * 1024 * 1024;
 
-export class LogoError extends Error {}
+/** code → points dictionary logo.errors.<code> */
+export type LogoErrorCode = "unreadable" | "notImage" | "tooBig" | "noCanvas" | "tooDetailed";
+
+export class LogoError extends Error {
+  constructor(readonly code: LogoErrorCode) {
+    super(code);
+  }
+}
 
 function decode(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -16,7 +23,7 @@ function decode(file: File): Promise<HTMLImageElement> {
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new LogoError("This file is not an image we can read"));
+      reject(new LogoError("unreadable"));
     };
     img.src = url;
   });
@@ -48,8 +55,8 @@ function encode(canvas: HTMLCanvasElement): string | null {
 
 /** Keeps the whole logo (no crop): the longest side becomes at most 256 px */
 export async function prepareLogo(file: File): Promise<string> {
-  if (!file.type.startsWith("image/")) throw new LogoError("Choose an image: PNG, JPEG, WebP or SVG");
-  if (file.size > SOURCE_MAX_BYTES) throw new LogoError("The image is larger than 15 MB");
+  if (!file.type.startsWith("image/")) throw new LogoError("notImage");
+  if (file.size > SOURCE_MAX_BYTES) throw new LogoError("tooBig");
   const img = await decode(file);
   const w = img.naturalWidth || LOGO_MAX_PX;
   const h = img.naturalHeight || LOGO_MAX_PX;
@@ -60,10 +67,10 @@ export async function prepareLogo(file: File): Promise<string> {
   canvas.width = Math.max(1, Math.round(w * k));
   canvas.height = Math.max(1, Math.round(h * k));
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new LogoError("Your browser cannot resize images");
+  if (!ctx) throw new LogoError("noCanvas");
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   const url = encode(canvas);
-  if (!url) throw new LogoError("The logo is too detailed to store — try a simpler image");
+  if (!url) throw new LogoError("tooDetailed");
   return url;
 }

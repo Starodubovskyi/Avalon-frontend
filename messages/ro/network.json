@@ -1,0 +1,22 @@
+{
+  "errors": {
+    "sessionExpired": "Sesiunea a expirat — conectați-vă din nou",
+    "forbidden": "Nu aveți permisiunea pentru această acțiune",
+    "notFound": "Nu a fost găsit — poate a fost șters sau nu mai aveți acces",
+    "offline": "Serverul nu poate fi accesat — verificați conexiunea",
+    "generic": "Ceva nu a mers — încercați din nou",
+    "validation": {
+      "bodyEmpty": "Scrieți mai întâi ceva",
+      "bodyTooLong": "Este prea lung — scurtați textul și încercați din nou",
+      "userIdsNotAllowed": "Nu puteți începe un chat cu această persoană",
+      "userIdsNotFound": "Această persoană nu mai are cont",
+      "titleRequired": "Dați un nume grupului",
+      "titleTooLong": "{max, plural, one {Numele grupului are maximum # caracter} few {Numele grupului are maximum # caractere} other {Numele grupului are maximum # de caractere}}"
+    }
+  },
+  "toasts": {
+    "postDeleted": "Postare ștearsă",
+    "postGone": "Această postare a fost deja ștearsă",
+    "commentGone": "Acest comentariu a fost deja șters"
+  }
+}

@@ -1,41 +1,43 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import { CalendarDays, History, Users } from "lucide-react";
 import { toast } from "sonner";
 import { VesselsApi } from "@/lib/api/vessels";
-import { extractAuthError } from "@/lib/api/auth";
+import { useErrorText } from "@/lib/api/errorText";
+import { useNames } from "../network/useNames";
 import { useEventFeed } from "@/lib/vessels/hooks";
-import { userName, type VesselEventView } from "@/lib/vessels/types";
+import { type VesselEventView } from "@/lib/vessels/types";
 import { Avatar, btn, EmptyState, ErrorBlock, LoadingBlock, PageHeader, Panel, SelectInput, Spinner } from "../ui/primitives";
 import { HistoryList } from "../vessels/HistoryList";
 
 const PAGE = 200;
-const DAY_FMT = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "2-digit", month: "long" });
-const DAY_FMT_YEAR = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
 function dayKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-function dayLabel(d: Date, now: Date): { title: string; subtitle: string } {
+type Relative = "today" | "yesterday" | null;
+
+function dayRelation(d: Date, now: Date): Relative {
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
-  const full = (d.getFullYear() === now.getFullYear() ? DAY_FMT : DAY_FMT_YEAR).format(d);
-  if (dayKey(d) === dayKey(now)) return { title: "Today", subtitle: full };
-  if (dayKey(d) === dayKey(yesterday)) return { title: "Yesterday", subtitle: full };
-  return { title: full, subtitle: "" };
+  if (dayKey(d) === dayKey(now)) return "today";
+  if (dayKey(d) === dayKey(yesterday)) return "yesterday";
+  return null;
 }
 
 interface DayGroup {
   key: string;
-  title: string;
-  subtitle: string;
+  date: Date;
+  relation: Relative;
   events: VesselEventView[];
   authors: string[];
 }
 
 function AuthorStack({ names }: { names: string[] }) {
+  const t = useTranslations("activity");
   const shown = names.slice(0, 3);
   const extra = names.length - shown.length;
   return (
@@ -48,12 +50,16 @@ function AuthorStack({ names }: { names: string[] }) {
           +{extra}
         </span>
       ) : null}
-      <span className="sr-only">Changes by {names.join(", ")}</span>
+      <span className="sr-only">{t("changesBy", { names: names.join(", ") })}</span>
     </div>
   );
 }
 
 export function ActivityView() {
+  const t = useTranslations("activity");
+  const errorText = useErrorText();
+  const names = useNames();
+  const format = useFormatter();
   const { data, error, isLoading, mutate } = useEventFeed(PAGE);
   const [older, setOlder] = useState<VesselEventView[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -67,9 +73,9 @@ export function ActivityView() {
 
   const authors = useMemo(() => {
     const map = new Map<string, string>();
-    for (const ev of events) if (ev.user) map.set(String(ev.user.id), userName(ev.user));
+    for (const ev of events) if (ev.user) map.set(String(ev.user.id), names.user(ev.user));
     return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1]));
-  }, [events]);
+  }, [events, names]);
 
   const groups = useMemo<DayGroup[]>(() => {
     const now = new Date();
@@ -80,15 +86,15 @@ export function ActivityView() {
       const key = dayKey(d);
       let group = byDay.get(key);
       if (!group) {
-        group = { key, ...dayLabel(d, now), events: [], authors: [] };
+        group = { key, date: d, relation: dayRelation(d, now), events: [], authors: [] };
         byDay.set(key, group);
       }
       group.events.push(ev);
-      const name = userName(ev.user);
+      const name = names.user(ev.user);
       if (!group.authors.includes(name)) group.authors.push(name);
     }
     return Array.from(byDay.values());
-  }, [events, author]);
+  }, [events, author, names]);
 
   async function loadOlder() {
     const last = events[events.length - 1];
@@ -99,11 +105,15 @@ export function ActivityView() {
       setOlder((prev) => [...prev, ...page]);
       if (page.length < PAGE) setHasMore(false);
     } catch (e) {
-      toast.error(extractAuthError(e));
+      toast.error(errorText(e));
     } finally {
       setLoadingMore(false);
     }
   }
+
+  const thisYear = new Date().getFullYear();
+  const dayTitle = (d: Date) =>
+    format.dateTime(d, { weekday: "long", day: "2-digit", month: "long", ...(d.getFullYear() === thisYear ? {} : { year: "numeric" }) });
 
   const canLoadMore = hasMore && (data?.length ?? 0) >= PAGE;
   const authorName = authors.find(([id]) => id === author)?.[1];
@@ -111,14 +121,14 @@ export function ActivityView() {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Workspace"
-        title="Activity log"
-        subtitle="Every change to a vessel, signed with the employee's name."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <div className="relative w-full sm:w-60">
             <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-            <SelectInput value={author} onChange={(e) => setAuthor(e.target.value)} className="pl-9" aria-label="Filter by employee">
-              <option value="">All employees</option>
+            <SelectInput value={author} onChange={(e) => setAuthor(e.target.value)} className="pl-9" aria-label={t("filterLabel")}>
+              <option value="">{t("allEmployees")}</option>
               {authors.map(([id, name]) => (
                 <option key={id} value={id}>{name}</option>
               ))}
@@ -129,20 +139,20 @@ export function ActivityView() {
 
       {data ? (
         <p className="tabular text-xs text-muted-foreground">
-          {groups.reduce((n, g) => n + g.events.length, 0)} changes across {groups.length} {groups.length === 1 ? "day" : "days"}
-          {authorName ? ` by ${authorName}` : ` · ${authors.length} ${authors.length === 1 ? "employee" : "employees"}`}
+          {t("summary", { changes: groups.reduce((n, g) => n + g.events.length, 0), days: groups.length })}
+          {authorName ? ` · ${t("byAuthor", { name: authorName })}` : ` · ${t("employees", { count: authors.length })}`}
         </p>
       ) : null}
 
       {error && !data ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
-      {isLoading && !data ? <LoadingBlock label="Loading activity…" /> : null}
+      {isLoading && !data ? <LoadingBlock label={t("loading")} /> : null}
 
       {data && groups.length === 0 ? (
         <Panel>
           <EmptyState
             icon={<History className="h-7 w-7" />}
-            title={author ? "No changes by this employee" : "No changes yet"}
-            text={author ? "Pick another employee or load older changes." : "Edits to vessels will appear here, newest first."}
+            title={author ? t("emptyAuthorTitle") : t("emptyTitle")}
+            text={author ? t("emptyAuthorText") : t("emptyText")}
           />
         </Panel>
       ) : null}
@@ -151,8 +161,8 @@ export function ActivityView() {
         {groups.map((g) => (
           <Panel
             key={g.key}
-            title={g.title}
-            description={`${g.subtitle ? `${g.subtitle} · ` : ""}${g.events.length} ${g.events.length === 1 ? "change" : "changes"}`}
+            title={g.relation ? t(g.relation) : dayTitle(g.date)}
+            description={`${g.relation ? `${dayTitle(g.date)} · ` : ""}${t("changes", { count: g.events.length })}`}
             icon={<CalendarDays className="h-4 w-4" />}
             action={<AuthorStack names={g.authors} />}
           >
@@ -167,11 +177,11 @@ export function ActivityView() {
         <div className="flex justify-center pt-1">
           <button type="button" onClick={() => void loadOlder()} disabled={loadingMore} className={btn.secondary}>
             {loadingMore ? <Spinner className="h-4 w-4" /> : <History className="h-4 w-4" />}
-            Load older changes
+            {t("loadOlder")}
           </button>
         </div>
       ) : data && events.length > 0 ? (
-        <p className="text-center text-xs text-muted-foreground">You have reached the beginning of the log.</p>
+        <p className="text-center text-xs text-muted-foreground">{t("beginning")}</p>
       ) : null}
     </div>
   );

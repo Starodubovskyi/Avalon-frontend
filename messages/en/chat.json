@@ -1,0 +1,82 @@
+{
+  "pageTitle": "Chat",
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "justNow": "just now"
+  },
+  "counter": {
+    "over": "{count, plural, one {# character over the limit} other {# characters over the limit}}"
+  },
+  "list": {
+    "title": "Chats",
+    "unread": "{count, plural, one {# unread} other {# unread}}",
+    "caughtUp": "All caught up",
+    "subtitle": "Direct and group chats",
+    "newGroup": "New group",
+    "newChat": "New chat",
+    "searchPlaceholder": "Search chats",
+    "loading": "Loading chats…",
+    "emptyTitle": "No conversations yet",
+    "emptyText": "Message a colleague or start a group for a vessel call.",
+    "noMatch": "No chats match “{query}”.",
+    "groupCreated": "Group created — no messages yet",
+    "noMessages": "No messages yet",
+    "fromMe": "You: {body}",
+    "unreadLabel": "unread"
+  },
+  "view": {
+    "opening": "Opening conversation…",
+    "notFoundTitle": "Conversation not found",
+    "notFoundText": "It may have been removed, or you are not a member of it.",
+    "back": "Back to chats",
+    "pickTitle": "Pick a conversation",
+    "pickText": "Choose a chat on the left, or start a new one with a colleague.",
+    "conversations": "Conversations",
+    "conversation": "Conversation"
+  },
+  "pane": {
+    "back": "Back to conversations",
+    "members": "{count, plural, one {# member} other {# members}}",
+    "namesAndYou": "{names}, you",
+    "emptyTitle": "No messages yet",
+    "emptyGroup": "Say hello to the group — everyone here will see it.",
+    "emptyDirect": "Start the conversation with {name}.",
+    "messageTo": "Message {name}"
+  },
+  "composer": {
+    "placeholder": "Write a message…",
+    "label": "Message",
+    "send": "Send message",
+    "sendTitle": "Send (Enter)",
+    "hint": "Enter to send · Shift + Enter for a new line"
+  },
+  "messages": {
+    "loading": "Loading messages…",
+    "label": "Messages",
+    "newMessages": "New messages",
+    "you": "You",
+    "sending": "Sending…"
+  },
+  "dialog": {
+    "newGroup": "New group",
+    "newChat": "New chat",
+    "groupDescription": "Name the group and pick at least two people.",
+    "directDescription": "Pick a person to message. An existing chat opens if you already have one.",
+    "typeLabel": "Conversation type",
+    "direct": "Direct",
+    "group": "Group",
+    "groupName": "Group name",
+    "groupPlaceholder": "e.g. MV Delta Star — Sulina call",
+    "selectedPeople": "Selected people",
+    "remove": "Remove {name}",
+    "searchPlaceholder": "Search by name or email",
+    "searchLabel": "Search people",
+    "noMatch": "Nobody matches that search.",
+    "noOne": "No one to message yet.",
+    "people": "People",
+    "selectedCount": "{count, plural, =0 {Nobody selected · pick at least 2} =1 {1 selected · pick at least 2} other {# selected}}",
+    "cancel": "Cancel",
+    "create": "Create group"
+  }
+}

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Building2, Send, Ship } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { requestError, requestFieldErrors, type FieldErrors } from "@/lib/requests/api";
 import { useRequestMutations } from "@/lib/requests/hooks";
 import { toCreateDto, validateRequestForm, type RequestFormState } from "@/lib/requests/form";
 import { REQUEST_LIMITS, type AgencyRequest } from "@/lib/requests/types";
-import { DESTINATIONS, DESTINATION_LABEL, TYPE_LABEL, VESSEL_TYPES, type Destination, type VesselType } from "@/lib/vessels/types";
+import { DESTINATIONS, DESTINATION_LABEL, VESSEL_TYPES, type Destination, type VesselType } from "@/lib/vessels/types";
 import { Field, SelectInput, Spinner, TextArea, TextInput, btn } from "../ui/primitives";
 
 function Group({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
@@ -23,6 +24,7 @@ function Group({ icon, title, children }: { icon: ReactNode; title: string; chil
 }
 
 export function RequestForm({ initial, onSubmitted }: { initial: RequestFormState; onSubmitted: (saved: AgencyRequest) => void }) {
+  const t = useTranslations("requests");
   const { create } = useRequestMutations();
   const [form, setForm] = useState<RequestFormState>(initial);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -37,10 +39,10 @@ export function RequestForm({ initial, onSubmitted }: { initial: RequestFormStat
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setFormError(null);
-    const found = validateRequestForm(form);
+    const found = validateRequestForm(form, t);
     setErrors(found);
     if (Object.values(found).some(Boolean)) {
-      setFormError("Some fields need attention");
+      setFormError(t("errors.attention"));
       return;
     }
     setBusy(true);
@@ -48,32 +50,32 @@ export function RequestForm({ initial, onSubmitted }: { initial: RequestFormStat
       const saved = await create(toCreateDto(form));
       onSubmitted(saved);
     } catch (err) {
-      const fields = requestFieldErrors(err);
+      const fields = requestFieldErrors(err, t);
       if (fields) setErrors(fields);
-      setFormError(requestError(err));
+      setFormError(requestError(err, t));
       setBusy(false);
     }
   }
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-8">
-      <Group icon={<Building2 className="h-4 w-4" aria-hidden />} title="Your company">
-        <Field label="Company *" error={errors.company}>
+      <Group icon={<Building2 className="h-4 w-4" aria-hidden />} title={t("form.companyGroup")}>
+        <Field label={t("form.company")} error={errors.company}>
           <TextInput value={form.company} onChange={(e) => set("company", e.target.value)} maxLength={REQUEST_LIMITS.company} autoComplete="organization" required />
         </Field>
-        <Field label="Contact name *" error={errors.contactName}>
+        <Field label={t("form.contactName")} error={errors.contactName}>
           <TextInput value={form.contactName} onChange={(e) => set("contactName", e.target.value)} maxLength={REQUEST_LIMITS.contactName} autoComplete="name" required />
         </Field>
-        <Field label="Email *" error={errors.email}>
+        <Field label={t("form.email")} error={errors.email}>
           <TextInput type="email" inputMode="email" value={form.email} onChange={(e) => set("email", e.target.value)} maxLength={REQUEST_LIMITS.email} autoComplete="email" required />
         </Field>
-        <Field label="Phone / WhatsApp" error={errors.phone}>
+        <Field label={t("form.phone")} error={errors.phone}>
           <TextInput type="tel" inputMode="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} maxLength={REQUEST_LIMITS.phone} autoComplete="tel" />
         </Field>
       </Group>
 
-      <Group icon={<Ship className="h-4 w-4" aria-hidden />} title="Vessel & call">
-        <Field label="Vessel name *" error={errors.vesselName}>
+      <Group icon={<Ship className="h-4 w-4" aria-hidden />} title={t("form.vesselGroup")}>
+        <Field label={t("form.vesselName")} error={errors.vesselName}>
           <TextInput
             value={form.vesselName}
             onChange={(e) => set("vesselName", e.target.value.toUpperCase())}
@@ -83,7 +85,7 @@ export function RequestForm({ initial, onSubmitted }: { initial: RequestFormStat
             required
           />
         </Field>
-        <Field label="IMO" error={errors.imo} hint="7 digits">
+        <Field label="IMO" error={errors.imo} hint={t("form.imoHint")}>
           <TextInput
             value={form.imo}
             onChange={(e) => set("imo", e.target.value.replace(/\D/g, "").slice(0, 7))}
@@ -92,16 +94,16 @@ export function RequestForm({ initial, onSubmitted }: { initial: RequestFormStat
             className="tabular"
           />
         </Field>
-        <Field label="Vessel type *" error={errors.vesselType}>
+        <Field label={t("form.vesselType")} error={errors.vesselType}>
           <SelectInput value={form.vesselType} onChange={(e) => set("vesselType", e.target.value as VesselType)}>
-            {VESSEL_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {TYPE_LABEL[t]}
+            {VESSEL_TYPES.map((v) => (
+              <option key={v} value={v}>
+                {t(`vesselType.${v}`)}
               </option>
             ))}
           </SelectInput>
         </Field>
-        <Field label="Port of call *" error={errors.destination}>
+        <Field label={t("form.port")} error={errors.destination}>
           <SelectInput value={form.destination} onChange={(e) => set("destination", e.target.value as Destination)}>
             {DESTINATIONS.map((d) => (
               <option key={d} value={d}>
@@ -110,21 +112,21 @@ export function RequestForm({ initial, onSubmitted }: { initial: RequestFormStat
             ))}
           </SelectInput>
         </Field>
-        <Field label="ETA Sulina" error={errors.eta} hint="Your local time">
+        <Field label={t("form.eta")} error={errors.eta} hint={t("form.etaHint")}>
           <TextInput type="datetime-local" value={form.eta} onChange={(e) => set("eta", e.target.value)} />
         </Field>
-        <Field label="Cargo" error={errors.cargo}>
-          <TextInput value={form.cargo} onChange={(e) => set("cargo", e.target.value)} maxLength={REQUEST_LIMITS.cargo} placeholder="e.g. 4,500 t wheat" />
+        <Field label={t("form.cargo")} error={errors.cargo}>
+          <TextInput value={form.cargo} onChange={(e) => set("cargo", e.target.value)} maxLength={REQUEST_LIMITS.cargo} placeholder={t("form.cargoPlaceholder")} />
         </Field>
       </Group>
 
-      <Field label="Notes for the agent" error={errors.notes} hint={`${form.notes.length} / ${REQUEST_LIMITS.notes}`}>
+      <Field label={t("form.notes")} error={errors.notes} hint={`${form.notes.length} / ${REQUEST_LIMITS.notes}`}>
         <TextArea
           value={form.notes}
           onChange={(e) => set("notes", e.target.value)}
           maxLength={REQUEST_LIMITS.notes}
           rows={4}
-          placeholder="Laycan, charterer, special requirements, husbandry needs…"
+          placeholder={t("form.notesPlaceholder")}
         />
       </Field>
 
@@ -135,10 +137,10 @@ export function RequestForm({ initial, onSubmitted }: { initial: RequestFormStat
       ) : null}
 
       <div className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground">* Required. Only Avalon staff see your request.</p>
-        <button type="submit" disabled={busy} className={cn(btn.primary, "h-11 w-full px-6 sm:w-auto")}>
+        <p className="text-xs text-muted-foreground">{t("form.requiredNote")}</p>
+        <button type="submit" disabled={busy} className={cn(btn.primary, "h-11 w-full shrink-0 px-6 sm:w-auto")}>
           {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : <Send className="h-4 w-4" aria-hidden />}
-          {busy ? "Sending…" : "Send request"}
+          {busy ? t("form.sending") : t("form.send")}
         </button>
       </div>
     </form>

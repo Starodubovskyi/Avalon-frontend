@@ -24,11 +24,13 @@ export const CATEGORY_ICON: Record<DocumentCategory, LucideIcon> = {
   other: Folder,
 };
 
+/** Message key under documents.kinds — the human name for screen readers and tooltips */
+export type FileKindId = "pdf" | "word" | "sheet" | "image" | "text" | "file";
+
 export interface FileKind {
   /** short badge text, e.g. PDF / XLSX */
   label: string;
-  /** human name for screen readers and tooltips */
-  name: string;
+  kind: FileKindId;
   icon: LucideIcon;
   tile: string;
 }
@@ -43,19 +45,19 @@ export function fileKind(mime: string, fileName: string): FileKind {
   const ext = extOf(fileName);
   const label = (ext || "file").slice(0, 4).toUpperCase();
   if (mime === "application/pdf" || ext === "pdf") {
-    return { label: "PDF", name: "PDF document", icon: FileText, tile: "bg-bad/10 text-bad ring-bad/20" };
+    return { label: "PDF", kind: "pdf", icon: FileText, tile: "bg-bad/10 text-bad ring-bad/20" };
   }
   if (/word|msword/.test(mime) || ext === "doc" || ext === "docx") {
-    return { label, name: "Word document", icon: FileText, tile: "bg-primary/10 text-primary ring-primary/20" };
+    return { label, kind: "word", icon: FileText, tile: "bg-primary/10 text-primary ring-primary/20" };
   }
   if (/sheet|excel|csv/.test(mime) || ["xls", "xlsx", "csv"].includes(ext)) {
-    return { label, name: "Spreadsheet", icon: FileSpreadsheet, tile: "bg-ok/10 text-ok ring-ok/20" };
+    return { label, kind: "sheet", icon: FileSpreadsheet, tile: "bg-ok/10 text-ok ring-ok/20" };
   }
   if (mime.startsWith("image/")) {
-    return { label, name: "Image", icon: FileImage, tile: "bg-stage-roads/10 text-stage-roads ring-stage-roads/20" };
+    return { label, kind: "image", icon: FileImage, tile: "bg-stage-roads/10 text-stage-roads ring-stage-roads/20" };
   }
   if (mime.startsWith("text/") || ext === "txt") {
-    return { label, name: "Text file", icon: FileType, tile: "bg-muted text-muted-foreground ring-border" };
+    return { label, kind: "text", icon: FileType, tile: "bg-muted text-muted-foreground ring-border" };
   }
-  return { label, name: "File", icon: FileText, tile: "bg-muted text-muted-foreground ring-border" };
+  return { label, kind: "file", icon: FileText, tile: "bg-muted text-muted-foreground ring-border" };
 }

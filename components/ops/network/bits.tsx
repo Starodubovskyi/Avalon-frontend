@@ -1,3 +1,6 @@
+"use client";
+
+import { useFormatter, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { roleIdOf } from "@/lib/network/format";
 import { RoleBadge } from "../team/teamMeta";
@@ -16,6 +19,8 @@ export function PersonRoleBadge({ role, compact = false, className }: { role: st
 
 /** Length counter; the over-limit state says so in words, not only in red */
 export function CharCounter({ length, max, showFrom = 0, className }: { length: number; max: number; showFrom?: number; className?: string }) {
+  const t = useTranslations("chat.counter");
+  const format = useFormatter();
   if (length < showFrom) return null;
   const over = length > max;
   return (
@@ -27,7 +32,7 @@ export function CharCounter({ length, max, showFrom = 0, className }: { length: 
       )}
       aria-live="polite"
     >
-      {over ? `${(length - max).toLocaleString("en-GB")} characters over the limit` : `${length.toLocaleString("en-GB")} / ${max.toLocaleString("en-GB")}`}
+      {over ? t("over", { count: length - max }) : `${format.number(length)} / ${format.number(max)}`}
     </span>
   );
 }

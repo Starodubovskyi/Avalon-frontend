@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { ArrowRight, ExternalLink, Mail, MessageCircle, Phone, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { daysSince, isUnpaidAfterDeparture } from "@/lib/vessels/status";
 import { marineTrafficUrl } from "@/lib/vessels/geo";
-import { fmtDateTime } from "@/lib/vessels/format";
-import { DESTINATION_LABEL, TYPE_LABEL, type VesselView } from "@/lib/vessels/types";
+import { useVesselFormat, useVesselLabels } from "@/lib/vessels/i18n";
+import type { VesselView } from "@/lib/vessels/types";
 import { StageBadge, UnpaidBadge } from "../ui/StageBadge";
 import { ChecklistRow } from "../vessels/ChecklistRow";
 
@@ -20,6 +21,7 @@ function QuickContact({
   phone: string | null;
   email: string | null;
 }) {
+  const t = useTranslations("map");
   const wa = phone ? phone.replace(/[^\d]/g, "") : "";
   return (
     <div className="min-w-0 text-sm">
@@ -27,7 +29,7 @@ function QuickContact({
         {role}
         {name ? <span className="ml-1.5 normal-case tracking-normal text-foreground">{name}</span> : null}
       </p>
-      {!phone && !email ? <p className="text-xs text-muted-foreground">No contacts yet</p> : null}
+      {!phone && !email ? <p className="text-xs text-muted-foreground">{t("vessels.noContacts")}</p> : null}
       <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
         {phone ? (
           <a href={`tel:${phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-1.5 text-primary hover:underline">
@@ -58,17 +60,26 @@ export function MapVesselCard({
   editable: boolean;
   onClose: () => void;
 }) {
+  const t = useTranslations("map");
+  const labels = useVesselLabels();
+  const fmt = useVesselFormat();
   const unpaid = isUnpaidAfterDeparture(vessel);
+  const dates: [string, string | null][] = [
+    [t("vessels.eta"), vessel.etaSulina],
+    [t("vessels.arrival"), vessel.arrivedAt],
+    [t("vessels.inPort"), vessel.inPortAt],
+    [t("vessels.departure"), vessel.departedAt],
+  ];
   return (
     <div className="space-y-4 p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-lg font-semibold">{vessel.name}</p>
           <p className="text-xs text-muted-foreground">
-            {vessel.imo ? `IMO ${vessel.imo}` : "IMO —"} · {TYPE_LABEL[vessel.type]} → {DESTINATION_LABEL[vessel.destination]}
+            {vessel.imo ? `IMO ${vessel.imo}` : "IMO —"} · {labels.type(vessel.type)} → {labels.destination(vessel.destination)}
           </p>
         </div>
-        <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent" aria-label="Close">
+        <button type="button" onClick={onClose} className="-mr-1 -mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent" aria-label={t("card.close")}>
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -79,27 +90,29 @@ export function MapVesselCard({
       </div>
 
       <dl className="tabular grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-        <div><dt className="text-muted-foreground">ETA Sulina</dt><dd>{fmtDateTime(vessel.etaSulina)}</dd></div>
-        <div><dt className="text-muted-foreground">Arrival</dt><dd>{fmtDateTime(vessel.arrivedAt)}</dd></div>
-        <div><dt className="text-muted-foreground">In port</dt><dd>{fmtDateTime(vessel.inPortAt)}</dd></div>
-        <div><dt className="text-muted-foreground">Departure</dt><dd>{fmtDateTime(vessel.departedAt)}</dd></div>
+        {dates.map(([label, iso]) => (
+          <div key={label}>
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd>{fmt.dateTime(iso)}</dd>
+          </div>
+        ))}
       </dl>
 
       {!vessel.restricted ? (
         <>
           <ChecklistRow vessel={vessel} editable={editable} wrap />
           <div className="space-y-2.5">
-            <QuickContact role="Master" name={vessel.masterName} phone={vessel.masterPhone} email={vessel.masterEmail} />
-            <QuickContact role="Office" name={vessel.officeName} phone={vessel.officePhone} email={vessel.officeEmail} />
+            <QuickContact role={t("vessels.master")} name={vessel.masterName} phone={vessel.masterPhone} email={vessel.masterEmail} />
+            <QuickContact role={t("vessels.office")} name={vessel.officeName} phone={vessel.officePhone} email={vessel.officeEmail} />
           </div>
         </>
       ) : null}
 
       <div className="flex flex-wrap gap-2">
-        <Link href={`/vessels/${vessel.id}`} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:brightness-110">
-          Open card <ArrowRight className="h-3.5 w-3.5" />
+        <Link href={`/vessels/${vessel.id}`} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:brightness-110">
+          {t("vessels.openCard")} <ArrowRight className="h-3.5 w-3.5" />
         </Link>
-        <a href={marineTrafficUrl(vessel)} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium hover:bg-accent">
+        <a href={marineTrafficUrl(vessel)} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium hover:bg-accent">
           <ExternalLink className="h-3.5 w-3.5" /> MarineTraffic
         </a>
       </div>

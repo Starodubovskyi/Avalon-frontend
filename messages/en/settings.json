@@ -1,0 +1,35 @@
+{
+  "eyebrow": "Account",
+  "title": "Settings",
+  "subtitle": "Language and appearance of the portal, your account and this session.",
+  "language": {
+    "title": "Language",
+    "text": "Interface language for menus, screens and messages.",
+    "saved": "Saved to your profile — it follows you to every device you sign in on.",
+    "native": {
+      "en": "English",
+      "ru": "Russian",
+      "ro": "Romanian"
+    },
+    "current": "Current language"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "text": "Light for the office, dark for the night watch. Stored in this browser.",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "account": {
+    "title": "Account",
+    "text": "Name, contact details and password live on your profile.",
+    "profile": "Profile & security",
+    "profileText": "Name, email, password",
+    "balance": "Balance",
+    "balanceText": "Credits, top-ups and history"
+  },
+  "session": {
+    "title": "Session",
+    "text": "You are signed in on this device.",
+    "signOut": "Sign out"
+  }
+}

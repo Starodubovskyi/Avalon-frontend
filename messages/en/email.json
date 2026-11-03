@@ -1,0 +1,54 @@
+{
+  "shellTitle": "Email",
+  "eyebrow": "Workspace",
+  "title": "Email",
+  "subtitle": "Agency emails pre-filled from the vessel card — pick a vessel and a template, adjust the text and send it from your own mailbox.",
+  "loading": "Loading vessels…",
+  "emptyTitle": "No vessels yet",
+  "emptyText": "Add a vessel to the board to prepare its emails here.",
+  "vesselPanel": "Vessel",
+  "onBoard": "{count} on the board",
+  "searchPlaceholder": "Vessel or IMO",
+  "searchAria": "Find vessel",
+  "templateAria": "Template",
+  "suggested": "Suggested for this stage",
+  "templates": {
+    "prearrival": {
+      "label": "Pre-arrival request",
+      "hint": "Ask the master for arrival documents"
+    },
+    "pda": {
+      "label": "PDA to owners",
+      "hint": "Proforma disbursement account"
+    },
+    "arrival": {
+      "label": "Arrival notice",
+      "hint": "Vessel arrived at Sulina roads"
+    },
+    "berthing": {
+      "label": "Berthing report",
+      "hint": "Vessel berthed at the port"
+    },
+    "sailing": {
+      "label": "Sailing report",
+      "hint": "Vessel departed"
+    },
+    "payment": {
+      "label": "Payment reminder",
+      "hint": "Disbursements still unpaid"
+    }
+  },
+  "panelDescription": "{hint} — to the {to, select, master {master} other {owners / office}}",
+  "englishNote": "Emails are generated in English: masters and agents abroad read them.",
+  "noEmail": "No {to, select, master {master} other {office}} email on the vessel card. <link>Add it on the vessel</link> or type the address below.",
+  "to": "To",
+  "subject": "Subject",
+  "message": "Message",
+  "reset": "Reset text",
+  "copy": "Copy",
+  "openMail": "Open in mail app",
+  "copied": "Email copied",
+  "clipboardUnavailable": "Clipboard is not available in this browser",
+  "noMatchTitle": "No vessel matches",
+  "noMatchText": "Clear the search to see all vessels."
+}

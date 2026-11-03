@@ -1,0 +1,35 @@
+{
+  "eyebrow": "Cont",
+  "title": "Setări",
+  "subtitle": "Limba și aspectul portalului, contul dvs. și sesiunea curentă.",
+  "language": {
+    "title": "Limbă",
+    "text": "Limba interfeței pentru meniuri, ecrane și mesaje.",
+    "saved": "Se salvează în profil și vă urmează pe orice dispozitiv pe care vă conectați.",
+    "native": {
+      "en": "Engleză",
+      "ru": "Rusă",
+      "ro": "Română"
+    },
+    "current": "Limba curentă"
+  },
+  "appearance": {
+    "title": "Aspect",
+    "text": "Luminos pentru birou, întunecat pentru cartul de noapte. Se păstrează în acest browser.",
+    "light": "Luminos",
+    "dark": "Întunecat"
+  },
+  "account": {
+    "title": "Cont",
+    "text": "Numele, datele de contact și parola se schimbă în profil.",
+    "profile": "Profil și securitate",
+    "profileText": "Nume, e-mail, parolă",
+    "balance": "Sold",
+    "balanceText": "Credite, alimentări și istoric"
+  },
+  "session": {
+    "title": "Sesiune",
+    "text": "Sunteți conectat pe acest dispozitiv.",
+    "signOut": "Deconectare"
+  }
+}

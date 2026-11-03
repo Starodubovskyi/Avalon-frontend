@@ -1,6 +1,6 @@
 import { DEMO_DB_KEY } from "./mode";
 import { seedDemoState } from "./seed";
-import type { DemoState } from "./types";
+import { DEMO_STATE_VERSION, type DemoState } from "./types";
 
 /** In-memory demo database, persisted to localStorage after every change */
 
@@ -12,11 +12,15 @@ function isDemoState(value: unknown): value is DemoState {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Partial<DemoState>;
   return (
-    v.version === 1 &&
+    v.version === DEMO_STATE_VERSION &&
     Array.isArray(v.users) &&
     Array.isArray(v.vessels) &&
     Array.isArray(v.agencyRequests) &&
-    Array.isArray(v.pendingReplies)
+    Array.isArray(v.pendingReplies) &&
+    Array.isArray(v.companyMembers) &&
+    Array.isArray(v.walletTransactions) &&
+    Array.isArray(v.topUpRequests) &&
+    Array.isArray(v.rankBoosts)
   );
 }
 

@@ -1,0 +1,222 @@
+{
+  "shell": {
+    "homeLabel": "Avalon Shipping — home",
+    "openDashboard": "Open dashboard",
+    "clientLogin": "Client login",
+    "navMain": "Main",
+    "navMobile": "Mobile",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "nav": {
+      "services": "Services",
+      "portGuide": "Port guide",
+      "estimate": "PDA estimate",
+      "request": "Request agency"
+    }
+  },
+  "footer": {
+    "about": "Port agency on the Lower Danube: Sulina channel, Romanian, Ukrainian and Moldovan river ports.",
+    "clients": "Clients",
+    "company": "Company",
+    "ports": "Ports",
+    "links": {
+      "request": "Request agency",
+      "estimate": "PDA estimate",
+      "login": "Client login",
+      "services": "Services",
+      "process": "How we work",
+      "portGuide": "Port guide"
+    },
+    "disclaimer": "Port data and PDA figures on this site are indicative and for planning only."
+  },
+  "guide": {
+    "metaTitle": "Port guide — Sulina channel & Danube ports · Avalon Shipping",
+    "metaDescription": "Indicative draught, pilotage, local time and cargoes for the Sulina channel, Izmail, Reni, Orlivka, Giurgiulești, Galați, Brăila and Tulcea.",
+    "eyebrow": "Port guide",
+    "title": "Danube ports and the Sulina channel",
+    "subtitle": "Draught, pilotage, local time and main cargoes for every port Avalon covers — a quick brief before you nominate.",
+    "noteTitle": "Indicative — check current notices to mariners.",
+    "noteText": "Depths, limits and hours change with the river level and the harbour master's orders.",
+    "local": "local",
+    "localShort": "Local",
+    "draught": "Draught",
+    "metres": "{value} m",
+    "riverPorts": "River ports",
+    "draughtNote": "* Draught alongside, indicative; berths differ by terminal.",
+    "filterLabel": "Filter by country",
+    "allPorts": "All ports",
+    "cargoes": "Main cargoes",
+    "noLocode": "LOCODE not confirmed — we use the terminal name in nominations.",
+    "estimate": "Estimate",
+    "request": "Request"
+  },
+  "sulina": {
+    "name": "Sulina channel",
+    "summary": "The canalised Sulina arm is the seagoing gateway to the Maritime Danube: every call at Tulcea, Galați, Brăila, Reni, Giurgiulești and most calls at Izmail and Orlivka start at the Sulina roads.",
+    "rulesTitle": "Transit rules of thumb",
+    "facts": {
+      "draught": {
+        "label": "Max draught",
+        "value": "7.32 m (24 ft)"
+      },
+      "length": {
+        "label": "Length",
+        "value": "≈ 64 km, Sulina → Tulcea fork"
+      },
+      "pilotage": {
+        "label": "Pilotage",
+        "value": "Compulsory, Romanian pilots"
+      },
+      "hours": {
+        "label": "Operating hours",
+        "value": "24 h, size-dependent limits"
+      }
+    },
+    "rules": {
+      "pilot": "Pilot boards at the Sulina roads; the master's ETA and draught must be with the agent at least 24 h ahead.",
+      "daylight": "Deep-draught and long vessels may be restricted to daylight transits and one-way passages.",
+      "convoys": "Inbound traffic can be grouped into convoys by the harbour master when the roads are busy — allow waiting time.",
+      "dues": "Channel dues are levied per passage by the Lower Danube River Administration (AFDJ Galați)."
+    }
+  },
+  "ports": {
+    "TULCEA": {
+      "position": "Head of the Sulina arm, gateway to the Danube Delta",
+      "notes": {
+        "n1": "Shipyard calls and repairs",
+        "n2": "Short river leg from Sulina — quick turnarounds"
+      }
+    },
+    "IZMAIL": {
+      "position": "Kiliya arm, the largest Ukrainian Danube port",
+      "notes": {
+        "n1": "Reached via Sulina or the Ukrainian Bystre route",
+        "n2": "Ukrainian border and customs formalities on arrival"
+      }
+    },
+    "ORLIVKA": {
+      "position": "Main Danube, opposite Isaccea (RO)",
+      "notes": {
+        "n1": "River terminals with limited berth length",
+        "n2": "Confirm berth and draught with the terminal before nomination"
+      }
+    },
+    "RENI": {
+      "position": "Main Danube, near the Prut confluence",
+      "notes": {
+        "n1": "Busy grain season July–November",
+        "n2": "Ukrainian border and customs formalities on arrival"
+      }
+    },
+    "GIURGIULESTI": {
+      "position": "Moldova's only seagoing port, free port zone",
+      "notes": {
+        "n1": "Free-zone status simplifies transit cargo",
+        "n2": "Separate oil, grain and cargo terminals"
+      }
+    },
+    "GALATI": {
+      "position": "Maritime Danube, Romania's largest river port",
+      "notes": {
+        "n1": "Steelworks and shipyard berths",
+        "n2": "Seat of the Lower Danube River Administration"
+      }
+    },
+    "BRAILA": {
+      "position": "Upper limit of the Maritime Danube",
+      "notes": {
+        "n1": "Last port reachable by seagoing vessels",
+        "n2": "Longer river passage — plan pilotage time"
+      }
+    }
+  },
+  "cargo": {
+    "alumina": "Alumina & bauxite",
+    "generalCargo": "General cargo",
+    "project": "Project cargo",
+    "grain": "Grain",
+    "ironOre": "Iron ore & coal",
+    "steel": "Steel",
+    "roro": "Ro-Ro & ferry cargo",
+    "vegOil": "Vegetable oil",
+    "fertilisers": "Fertilisers",
+    "oilProducts": "Oil products",
+    "containers": "Containers",
+    "steelProducts": "Steel products",
+    "timber": "Timber",
+    "bulk": "Bulk"
+  },
+  "estimate": {
+    "metaTitle": "PDA estimate — Danube port call costs · Avalon Shipping",
+    "metaDescription": "Indicative proforma disbursement account for a Danube call via Sulina: channel dues, pilotage, port and berth dues, towage and agency fee in EUR.",
+    "loading": "Loading estimator…",
+    "eyebrow": "PDA estimate",
+    "title": "Proforma disbursement estimate",
+    "subtitle": "Indicative EUR costs for a call via the Sulina channel. Change the vessel or the stay and the total updates instantly.",
+    "noteTitle": "Indicative only.",
+    "noteText": "A simplified tariff model for planning — the firm PDA comes from your Avalon agent with current port tariffs.",
+    "formTitle": "Vessel & call",
+    "formHint": "Values outside the model range are capped.",
+    "guideLink": "Port draughts and rules in the guide",
+    "formLabel": "Vessel and call details",
+    "port": "Port of call",
+    "vesselType": "Vessel type",
+    "gt": "Gross tonnage",
+    "loa": "Length overall",
+    "metreUnit": "m",
+    "days": "Days alongside",
+    "dayLess": "One day less",
+    "dayMore": "One day more",
+    "condition": "Condition",
+    "between": "Between {min, number} and {max, number} {unit}",
+    "slider": "{label} slider",
+    "requestFirm": "Request a firm PDA",
+    "agentReplies": "An agent replies with current tariffs.",
+    "itemised": "Itemised estimate",
+    "eurIndicative": "EUR · indicative",
+    "total": "Total",
+    "excludes": "Excludes cargo-related charges, stevedoring, shifting, overtime, bunkers and VAT where applicable. Rates change with port tariffs and exchange rates."
+  },
+  "pda": {
+    "indicativeTotal": "Indicative total",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "groups": {
+      "channel": "Sulina channel",
+      "port": "Port charges",
+      "services": "Marine services",
+      "agency": "Agency & clearance"
+    },
+    "lines": {
+      "channelDues": "Sulina channel dues",
+      "sulinaPilotage": "Sulina pilotage, in & out",
+      "riverPilotage": "River pilotage Sulina ↔ berth",
+      "portDues": "Port dues",
+      "berthDues": "Berth dues, {days, plural, one {# day} other {# days}}",
+      "mooring": "Mooring & unmooring",
+      "towage": "Towage, in & out",
+      "waste": "Ship-generated waste fee",
+      "tankerInspection": "Tanker safety & gas-free inspection",
+      "vetInspection": "Veterinary inspection & certificates",
+      "clearance": "Customs, border & sanitary clearance",
+      "agencyFee": "Agency fee",
+      "comms": "Communication, transport & bank charges"
+    },
+    "basis": {
+      "channelDues": "{gt, number} GT × €{rate, number, ::.00} × 2 passages",
+      "channelDuesBallast": "{gt, number} GT × €{rate, number, ::.00} × 2 passages (ballast rate)",
+      "sulinaPilotage": "€{base, number} + {loa, number} m LOA × €{perM, number}, × 2",
+      "riverPilotage": "€{base, number} + {gt, number} GT × €{perGt, number}, × 2",
+      "portDues": "{gt, number} GT × €{rate, number}",
+      "portDuesBallast": "{gt, number} GT × €{rate, number} × 0.9 ballast",
+      "berthDues": "{gt, number} GT × €{rate, number} × {days}",
+      "mooring": "2 operations × €{rate, number}",
+      "towage": "(€{perMove, number} + {gt, number} GT × €{perGt, number}) × 2 — compulsory from {from, number} GT",
+      "waste": "€180 + {gt, number} GT × €0.015",
+      "wasteTanker": "€180 + {gt, number} GT × €0.015 × 1.5 slops",
+      "flat": "Flat, per call",
+      "agencyBand": "By GT band",
+      "agencyBandExtra": "GT band + {extra, plural, one {# extra day} other {# extra days}} × €60",
+      "comms": "€150 + {days} × €25"
+    }
+  }
+}

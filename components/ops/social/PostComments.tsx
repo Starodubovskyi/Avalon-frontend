@@ -1,16 +1,18 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/useAuth";
 import { LIMITS, type PostComment } from "@/lib/network/api";
 import { useCommentActions, useComments } from "@/lib/network/hooks";
-import { feedTime, fullTime, personName } from "@/lib/network/format";
+import { personName } from "@/lib/network/format";
 import { displayName } from "@/lib/auth/roles";
 import { Avatar, btn, ErrorBlock, Spinner } from "../ui/primitives";
 import { CharCounter, focusRing } from "../network/bits";
 import { useAutosize } from "../network/useAutosize";
+import { useTimeFormat } from "../network/useTimeFormat";
 
 export function PostComments({
   id,
@@ -23,6 +25,8 @@ export function PostComments({
   now: number;
   onCountChange: (delta: number) => void;
 }) {
+  const t = useTranslations("social.comments");
+  const time = useTimeFormat();
   const { user } = useAuth();
   const { data, error, isLoading, mutate } = useComments(postId, true);
   const { addComment, removeComment } = useCommentActions(postId, onCountChange);
@@ -53,7 +57,7 @@ export function PostComments({
   }
 
   async function remove(comment: PostComment) {
-    if (!window.confirm("Delete this comment?")) return;
+    if (!window.confirm(t("confirmDelete"))) return;
     setRemoving(comment.id);
     await removeComment(comment);
     setRemoving(null);
@@ -69,10 +73,10 @@ export function PostComments({
         </div>
       ) : null}
       {error && !data ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
-      {data && !comments.length ? <p className="text-sm text-muted-foreground">No comments yet — be the first to reply.</p> : null}
+      {data && !comments.length ? <p className="text-sm text-muted-foreground">{t("empty")}</p> : null}
 
       {comments.length ? (
-        <ul className="space-y-3" aria-label="Comments">
+        <ul className="space-y-3" aria-label={t("label")}>
           {comments.map((c) => {
             const name = personName(c.author);
             return (
@@ -82,8 +86,8 @@ export function PostComments({
                   <div className="rounded-2xl rounded-tl-md border bg-card px-3.5 py-2 shadow-card">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="truncate text-[13px] font-semibold">{name}</span>
-                      <time dateTime={c.createdAt} title={fullTime(c.createdAt)} className="shrink-0 text-[11px] text-muted-foreground">
-                        {feedTime(c.createdAt, now)}
+                      <time dateTime={c.createdAt} title={time.full(c.createdAt)} className="shrink-0 text-[11px] text-muted-foreground">
+                        {time.feedTime(c.createdAt, now)}
                       </time>
                     </div>
                     <p className="whitespace-pre-wrap break-words text-sm leading-relaxed [overflow-wrap:anywhere]">{c.body}</p>
@@ -94,9 +98,9 @@ export function PostComments({
                       onClick={() => void remove(c)}
                       disabled={removing === c.id}
                       className={cn("ml-2 mt-1 rounded text-[11px] font-medium text-muted-foreground transition hover:text-bad disabled:opacity-50", focusRing)}
-                      aria-label={`Delete comment by ${name}`}
+                      aria-label={t("deleteAria", { name })}
                     >
-                      {removing === c.id ? "Deleting…" : "Delete"}
+                      {removing === c.id ? t("deleting") : t("delete")}
                     </button>
                   ) : null}
                 </div>
@@ -107,7 +111,7 @@ export function PostComments({
       ) : null}
 
       <form onSubmit={submit} className="flex items-end gap-2.5">
-        <Avatar name={displayName(user) || "You"} className="mb-0.5 h-8 w-8 text-[11px]" />
+        <Avatar name={displayName(user) || t("you")} className="mb-0.5 h-8 w-8 text-[11px]" />
         <div className="min-w-0 flex-1">
           <div className="flex items-end gap-1.5 rounded-2xl border border-input bg-card p-1 pl-3 transition focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/15">
             <textarea
@@ -116,12 +120,12 @@ export function PostComments({
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Write a comment…"
-              aria-label="Write a comment"
+              placeholder={t("placeholder")}
+              aria-label={t("writeLabel")}
               aria-invalid={over || undefined}
               className="min-h-[32px] flex-1 resize-none bg-transparent py-1.5 text-base leading-5 text-foreground outline-none placeholder:text-muted-foreground/80 sm:text-sm"
             />
-            <button type="submit" disabled={!canSend} className={cn(btn.primary, "h-8 w-8 shrink-0 rounded-xl px-0")} aria-label="Post comment">
+            <button type="submit" disabled={!canSend} className={cn(btn.primary, "h-8 w-8 shrink-0 rounded-xl px-0")} aria-label={t("send")}>
               {busy ? <Spinner className="h-3.5 w-3.5 text-primary-foreground" /> : <Send className="h-3.5 w-3.5" aria-hidden />}
             </button>
           </div>

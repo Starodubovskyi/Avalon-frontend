@@ -1,8 +1,10 @@
+import { useTranslations } from "next-intl";
 import { FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Marks screens that are design previews, so nobody mistakes them for live billing or settings */
 export function PreviewNotice({ children, className }: { children: React.ReactNode; className?: string }) {
+  const t = useTranslations("common");
   return (
     <div
       role="note"
@@ -13,7 +15,7 @@ export function PreviewNotice({ children, className }: { children: React.ReactNo
     >
       <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-stage-expected" aria-hidden />
       <span>
-        <span className="font-semibold">Preview.</span> {children}
+        <span className="font-semibold">{t("preview")}</span> {children}
       </span>
     </div>
   );

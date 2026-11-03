@@ -1,0 +1,52 @@
+{
+  "pageTitle": "Echipă",
+  "eyebrow": "Administrare",
+  "title": "Echipă",
+  "subtitle": "Fiecare angajat are un cont personal, așa că jurnalul arată cine ce a modificat.",
+  "add": "Adăugați membru",
+  "roles": {
+    "admin": "Administrator",
+    "staff": "Angajat",
+    "viewer": "Client",
+    "user": "Utilizator"
+  },
+  "roleHelp": {
+    "admin": "Acces complet, inclusiv echipa și ștergerea navelor",
+    "staff": "Editează nave, lista de verificare, documente; vede jurnalul",
+    "viewer": "Status, date și poziția navelor; punctele proprii ale companiei, cereri și chat. Fără listă de verificare, contacte sau plăți"
+  },
+  "memberCount": "{count, plural, one {# membru} few {# membri} other {# de membri}}",
+  "members": "Membrii echipei",
+  "accounts": "{count, plural, one {# cont} few {# conturi} other {# de conturi}}",
+  "loading": "Se încarcă…",
+  "loadingTeam": "Se încarcă echipa…",
+  "emptyTitle": "Niciun cont încă",
+  "emptyText": "Adăugați primul coleg, ca modificările să fie semnate cu numele lui.",
+  "you": "Dvs.",
+  "noEmail": "fără email",
+  "since": "din {date}",
+  "roleOf": "Rolul lui {name}",
+  "cantDeleteSelf": "Nu vă puteți șterge propriul cont",
+  "deleteAria": "Ștergeți {name}",
+  "deleteTitle": "Ștergeți contul",
+  "roleChanged": "{name} are acum rolul {role}. Se aplică la următoarea autentificare sau în cel mult 15 min.",
+  "confirmDelete": "Ștergeți contul lui {name}? Modificările sale rămân în jurnal.",
+  "deleted": "Cont șters",
+  "create": {
+    "title": "Adăugați un membru",
+    "description": "Persoana se autentifică cu acest email și parolă și își poate schimba parola din Cont.",
+    "firstName": "Prenume",
+    "lastName": "Nume",
+    "email": "Email",
+    "password": "Parolă temporară",
+    "passwordHint": "Cel puțin 6 caractere — transmiteți-o în privat",
+    "generate": "Generați",
+    "generateTitle": "Generați o parolă puternică",
+    "role": "Rol",
+    "cancel": "Anulați",
+    "submit": "Creați contul",
+    "passwordShort": "Parola trebuie să aibă cel puțin 6 caractere",
+    "created": "Cont creat pentru {name}. Trimiteți-i emailul și parola.",
+    "emailExists": "Există deja un cont cu acest email — schimbați-i rolul din listă."
+  }
+}

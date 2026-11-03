@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Check, ChevronRight, MessageCirclePlus, Search, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -45,6 +46,7 @@ function NewConversationForm({
   onCancel: () => void;
   onCreated: (conversation: Conversation) => void;
 }) {
+  const t = useTranslations("chat.dialog");
   const [mode, setMode] = useState<NewChatMode>(initialMode);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<UserCard[]>([]);
@@ -79,13 +81,13 @@ function NewConversationForm({
           {group ? <Users className="h-5 w-5" aria-hidden /> : <MessageCirclePlus className="h-5 w-5" aria-hidden />}
         </span>
         <DialogHeader className="min-w-0 space-y-1 pr-6 text-left">
-          <DialogTitle className="font-display text-lg font-bold">{group ? "New group" : "New chat"}</DialogTitle>
-          <DialogDescription>{group ? "Name the group and pick at least two people." : "Pick a person to message. An existing chat opens if you already have one."}</DialogDescription>
+          <DialogTitle className="font-display text-lg font-bold">{group ? t("newGroup") : t("newChat")}</DialogTitle>
+          <DialogDescription>{group ? t("groupDescription") : t("directDescription")}</DialogDescription>
         </DialogHeader>
       </div>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5">
-        <div className="grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold" role="tablist" aria-label="Conversation type">
+        <div className="grid grid-cols-2 rounded-xl bg-muted p-1 text-sm font-semibold" role="tablist" aria-label={t("typeLabel")}>
           {(["direct", "group"] as const).map((m) => (
             <button
               key={m}
@@ -95,22 +97,22 @@ function NewConversationForm({
               onClick={() => setMode(m)}
               className={cn("rounded-lg py-2 transition-all", focusRing, mode === m ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground")}
             >
-              {m === "direct" ? "Direct" : "Group"}
+              {m === "direct" ? t("direct") : t("group")}
             </button>
           ))}
         </div>
 
         {group ? (
-          <Field label="Group name" hint={`${title.trim().length} / ${LIMITS.groupTitle}`}>
-            <TextInput value={title} onChange={(e) => setTitle(e.target.value)} maxLength={LIMITS.groupTitle} placeholder="e.g. MV Delta Star — Sulina call" className="text-base sm:text-sm" />
+          <Field label={t("groupName")} hint={`${title.trim().length} / ${LIMITS.groupTitle}`}>
+            <TextInput value={title} onChange={(e) => setTitle(e.target.value)} maxLength={LIMITS.groupTitle} placeholder={t("groupPlaceholder")} className="text-base sm:text-sm" />
           </Field>
         ) : null}
 
         {group && selected.length ? (
-          <ul className="flex flex-wrap gap-1.5" aria-label="Selected people">
+          <ul className="flex flex-wrap gap-1.5" aria-label={t("selectedPeople")}>
             {selected.map((u) => (
               <li key={u.id}>
-                <button type="button" onClick={() => toggle(u)} className={cn("inline-flex items-center gap-1.5 rounded-full border bg-primary/[0.06] py-1 pl-1 pr-2 text-xs font-medium transition hover:border-bad/40", focusRing)} aria-label={`Remove ${personName(u)}`}>
+                <button type="button" onClick={() => toggle(u)} className={cn("inline-flex items-center gap-1.5 rounded-full border bg-primary/[0.06] py-1 pl-1 pr-2 text-xs font-medium transition hover:border-bad/40", focusRing)} aria-label={t("remove", { name: personName(u) })}>
                   <Avatar name={personName(u)} className="h-5 w-5 text-[9px]" />
                   {personName(u)}
                   <X className="h-3 w-3 text-muted-foreground" aria-hidden />
@@ -122,16 +124,16 @@ function NewConversationForm({
 
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <TextInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email" aria-label="Search people" className="pl-9 text-base sm:text-sm" autoFocus />
+          <TextInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("searchPlaceholder")} aria-label={t("searchLabel")} className="pl-9 text-base sm:text-sm" autoFocus />
         </div>
 
         {error ? <ErrorBlock error={error} onRetry={() => void mutate()} /> : null}
         {isLoading && !data ? (
           <div className="flex justify-center py-8"><Spinner /></div>
         ) : !people.length && data ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">{search.trim() ? "Nobody matches that search." : "No one to message yet."}</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{search.trim() ? t("noMatch") : t("noOne")}</p>
         ) : (
-          <ul className="-mx-2 space-y-0.5" aria-label="People">
+          <ul className="-mx-2 space-y-0.5" aria-label={t("people")}>
             {people.map((u) => {
               const name = personName(u);
               const checked = selected.some((s) => s.id === u.id);
@@ -172,11 +174,11 @@ function NewConversationForm({
 
       {group ? (
         <div className="flex flex-col-reverse gap-2 border-t bg-muted/40 px-6 py-4 sm:flex-row sm:items-center sm:justify-end">
-          <span className="text-xs text-muted-foreground sm:mr-auto">{selected.length} selected{selected.length < 2 ? " · pick at least 2" : ""}</span>
-          <button type="button" onClick={onCancel} className={btn.secondary}>Cancel</button>
+          <span className="text-xs text-muted-foreground sm:mr-auto">{t("selectedCount", { count: selected.length })}</span>
+          <button type="button" onClick={onCancel} className={btn.secondary}>{t("cancel")}</button>
           <button type="submit" disabled={!groupReady || busy !== null} className={btn.primary}>
             {busy === "group" ? <Spinner className="h-4 w-4 text-primary-foreground" /> : <Users className="h-4 w-4" aria-hidden />}
-            Create group
+            {t("create")}
           </button>
         </div>
       ) : null}

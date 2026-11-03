@@ -1,0 +1,222 @@
+{
+  "shell": {
+    "homeLabel": "Avalon Shipping — acasă",
+    "openDashboard": "Deschide panoul",
+    "clientLogin": "Autentificare clienți",
+    "navMain": "Meniu principal",
+    "navMobile": "Meniu mobil",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul",
+    "nav": {
+      "services": "Servicii",
+      "portGuide": "Ghidul porturilor",
+      "estimate": "Estimare PDA",
+      "request": "Cerere de agenturare"
+    }
+  },
+  "footer": {
+    "about": "Agenturare portuară pe Dunărea de Jos: canalul Sulina, porturile fluviale din România, Ucraina și Moldova.",
+    "clients": "Clienți",
+    "company": "Companie",
+    "ports": "Porturi",
+    "links": {
+      "request": "Cerere de agenturare",
+      "estimate": "Estimare PDA",
+      "login": "Autentificare clienți",
+      "services": "Servicii",
+      "process": "Cum lucrăm",
+      "portGuide": "Ghidul porturilor"
+    },
+    "disclaimer": "Datele despre porturi și estimările PDA de pe acest site sunt orientative și servesc doar planificării."
+  },
+  "guide": {
+    "metaTitle": "Ghidul porturilor — canalul Sulina și porturile Dunării · Avalon Shipping",
+    "metaDescription": "Pescaj orientativ, pilotaj, ora locală și mărfuri pentru canalul Sulina, Izmail, Reni, Orlivka, Giurgiulești, Galați, Brăila și Tulcea.",
+    "eyebrow": "Ghidul porturilor",
+    "title": "Porturile Dunării și canalul Sulina",
+    "subtitle": "Pescaj, pilotaj, ora locală și principalele mărfuri pentru fiecare port acoperit de Avalon — un rezumat rapid înainte de nominalizare.",
+    "noteTitle": "Orientativ — verifică avizele curente pentru navigatori.",
+    "noteText": "Adâncimile, limitele și programul se schimbă odată cu nivelul fluviului și cu dispozițiile căpităniei.",
+    "local": "ora locală",
+    "localShort": "Local",
+    "draught": "Pescaj",
+    "metres": "{value} m",
+    "riverPorts": "Porturi fluviale",
+    "draughtNote": "* Pescaj la dană, orientativ; danele diferă de la un terminal la altul.",
+    "filterLabel": "Filtrează după țară",
+    "allPorts": "Toate porturile",
+    "cargoes": "Mărfuri principale",
+    "noLocode": "LOCODE neconfirmat — în nominalizări folosim numele terminalului.",
+    "estimate": "Estimare",
+    "request": "Cerere"
+  },
+  "sulina": {
+    "name": "Canalul Sulina",
+    "summary": "Brațul Sulina canalizat este poarta maritimă a Dunării maritime: toate escalele la Tulcea, Galați, Brăila, Reni, Giurgiulești și majoritatea celor la Izmail și Orlivka încep în rada Sulina.",
+    "rulesTitle": "Reguli practice de tranzit",
+    "facts": {
+      "draught": {
+        "label": "Pescaj maxim",
+        "value": "7,32 m (24 ft)"
+      },
+      "length": {
+        "label": "Lungime",
+        "value": "≈ 64 km, Sulina → bifurcația Tulcea"
+      },
+      "pilotage": {
+        "label": "Pilotaj",
+        "value": "Obligatoriu, piloți români"
+      },
+      "hours": {
+        "label": "Program",
+        "value": "Non-stop, limite în funcție de dimensiuni"
+      }
+    },
+    "rules": {
+      "pilot": "Pilotul urcă la bord în rada Sulina; ETA și pescajul comunicate de comandant trebuie să ajungă la agent cu cel puțin 24 h înainte.",
+      "daylight": "Navele cu pescaj mare și cele lungi pot fi limitate la tranzit pe timp de zi și în sens unic.",
+      "convoys": "Când rada este aglomerată, căpitănia poate grupa navele care intră în convoaie — ia în calcul timp de așteptare.",
+      "dues": "Taxele de canal se percep pentru fiecare trecere de Administrația Fluvială a Dunării de Jos (AFDJ Galați)."
+    }
+  },
+  "ports": {
+    "TULCEA": {
+      "position": "Capătul brațului Sulina, poarta Deltei Dunării",
+      "notes": {
+        "n1": "Escale la șantierul naval și reparații",
+        "n2": "Tronson fluvial scurt de la Sulina — operare rapidă"
+      }
+    },
+    "IZMAIL": {
+      "position": "Brațul Chilia, cel mai mare port ucrainean la Dunăre",
+      "notes": {
+        "n1": "Acces prin Sulina sau prin ruta ucraineană Bâstroe",
+        "n2": "Formalități de frontieră și vamale ucrainene la sosire"
+      }
+    },
+    "ORLIVKA": {
+      "position": "Dunărea principală, vizavi de Isaccea (RO)",
+      "notes": {
+        "n1": "Terminale fluviale cu lungime de dană limitată",
+        "n2": "Confirmă dana și pescajul cu terminalul înainte de nominalizare"
+      }
+    },
+    "RENI": {
+      "position": "Dunărea principală, lângă confluența cu Prutul",
+      "notes": {
+        "n1": "Sezon intens la cereale, iulie–noiembrie",
+        "n2": "Formalități de frontieră și vamale ucrainene la sosire"
+      }
+    },
+    "GIURGIULESTI": {
+      "position": "Singurul port maritim al Moldovei, zonă liberă",
+      "notes": {
+        "n1": "Statutul de zonă liberă simplifică tranzitul",
+        "n2": "Terminale separate pentru petrol, cereale și mărfuri"
+      }
+    },
+    "GALATI": {
+      "position": "Dunărea maritimă, cel mai mare port fluvial al României",
+      "notes": {
+        "n1": "Dane ale combinatului siderurgic și ale șantierului naval",
+        "n2": "Sediul Administrației Fluviale a Dunării de Jos (AFDJ)"
+      }
+    },
+    "BRAILA": {
+      "position": "Limita superioară a Dunării maritime",
+      "notes": {
+        "n1": "Ultimul port accesibil navelor maritime",
+        "n2": "Pasaj fluvial mai lung — planifică timpul de pilotaj"
+      }
+    }
+  },
+  "cargo": {
+    "alumina": "Alumină și bauxită",
+    "generalCargo": "Mărfuri generale",
+    "project": "Mărfuri agabaritice",
+    "grain": "Cereale",
+    "ironOre": "Minereu de fier și cărbune",
+    "steel": "Oțel",
+    "roro": "Ro-Ro și feribot",
+    "vegOil": "Ulei vegetal",
+    "fertilisers": "Îngrășăminte",
+    "oilProducts": "Produse petroliere",
+    "containers": "Containere",
+    "steelProducts": "Produse siderurgice",
+    "timber": "Cherestea",
+    "bulk": "Mărfuri în vrac"
+  },
+  "estimate": {
+    "metaTitle": "Estimare PDA — costurile unei escale pe Dunăre · Avalon Shipping",
+    "metaDescription": "Cont proforma de cheltuieli (PDA) orientativ pentru o escală pe Dunăre prin Sulina: taxe de canal, pilotaj, taxe portuare și de dană, remorcaj și comision de agenturare în EUR.",
+    "loading": "Se încarcă calculatorul…",
+    "eyebrow": "Estimare PDA",
+    "title": "Estimare cont proforma de cheltuieli",
+    "subtitle": "Costuri orientative în EUR pentru o escală prin canalul Sulina. Schimbă nava sau durata staționării și totalul se actualizează imediat.",
+    "noteTitle": "Doar orientativ.",
+    "noteText": "Un model tarifar simplificat pentru planificare — PDA-ul ferm vine de la agentul tău Avalon, cu tarifele portuare în vigoare.",
+    "formTitle": "Navă și escală",
+    "formHint": "Valorile din afara intervalului modelului sunt limitate.",
+    "guideLink": "Pescajele și regulile porturilor în ghid",
+    "formLabel": "Detaliile navei și ale escalei",
+    "port": "Port de escală",
+    "vesselType": "Tip navă",
+    "gt": "Tonaj brut",
+    "loa": "Lungime maximă",
+    "metreUnit": "m",
+    "days": "Zile la dană",
+    "dayLess": "O zi mai puțin",
+    "dayMore": "O zi în plus",
+    "condition": "Stare",
+    "between": "Între {min, number} și {max, number} {unit}",
+    "slider": "Glisor: {label}",
+    "requestFirm": "Cere un PDA ferm",
+    "agentReplies": "Un agent răspunde cu tarifele în vigoare.",
+    "itemised": "Estimare detaliată",
+    "eurIndicative": "EUR · orientativ",
+    "total": "Total",
+    "excludes": "Nu include taxele legate de marfă, stivuirea, mutările, orele suplimentare, buncherajul și TVA, unde este cazul. Tarifele se schimbă odată cu tarifele portuare și cursul valutar."
+  },
+  "pda": {
+    "indicativeTotal": "Total orientativ",
+    "days": "{count, plural, one {# zi} few {# zile} other {# de zile}}",
+    "groups": {
+      "channel": "Canalul Sulina",
+      "port": "Taxe portuare",
+      "services": "Servicii maritime",
+      "agency": "Agenturare și formalități"
+    },
+    "lines": {
+      "channelDues": "Taxe canal Sulina",
+      "sulinaPilotage": "Pilotaj Sulina, intrare și ieșire",
+      "riverPilotage": "Pilotaj fluvial Sulina ↔ dană",
+      "portDues": "Taxe portuare",
+      "berthDues": "Taxă de dană, {days, plural, one {# zi} few {# zile} other {# de zile}}",
+      "mooring": "Legare și dezlegare",
+      "towage": "Remorcaj, intrare și ieșire",
+      "waste": "Taxă deșeuri generate de navă",
+      "tankerInspection": "Inspecție de siguranță și degazare tanc",
+      "vetInspection": "Inspecție veterinară și certificate",
+      "clearance": "Formalități vamale, de frontieră și sanitare",
+      "agencyFee": "Comision de agenturare",
+      "comms": "Comunicații, transport și comisioane bancare"
+    },
+    "basis": {
+      "channelDues": "{gt, number} GT × €{rate, number, ::.00} × 2 treceri",
+      "channelDuesBallast": "{gt, number} GT × €{rate, number, ::.00} × 2 treceri (tarif balast)",
+      "sulinaPilotage": "€{base, number} + {loa, number} m LOA × €{perM, number}, × 2",
+      "riverPilotage": "€{base, number} + {gt, number} GT × €{perGt, number}, × 2",
+      "portDues": "{gt, number} GT × €{rate, number}",
+      "portDuesBallast": "{gt, number} GT × €{rate, number} × 0,9 balast",
+      "berthDues": "{gt, number} GT × €{rate, number} × {days}",
+      "mooring": "2 operațiuni × €{rate, number}",
+      "towage": "(€{perMove, number} + {gt, number} GT × €{perGt, number}) × 2 — obligatoriu de la {from, number} GT",
+      "waste": "€180 + {gt, number} GT × €0,015",
+      "wasteTanker": "€180 + {gt, number} GT × €0,015 × 1,5 slops",
+      "flat": "Fix, pe escală",
+      "agencyBand": "După tranșa de GT",
+      "agencyBandExtra": "Tranșa de GT + {extra, plural, one {# zi suplimentară} few {# zile suplimentare} other {# de zile suplimentare}} × €60",
+      "comms": "€150 + {days} × €25"
+    }
+  }
+}

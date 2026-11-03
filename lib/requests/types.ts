@@ -60,8 +60,9 @@ export const REQUEST_LIMITS = {
 } as const;
 
 export interface StatusMeta {
+  /** English fallback — the interface shows requests.status.<status> */
   label: string;
-  /** one line for the client */
+  /** one line for the client; the interface shows requests.statusHint.<status> */
   hint: string;
   text: string;
   soft: string;

@@ -1,0 +1,30 @@
+{
+  "shellTitle": "Line-up",
+  "eyebrow": "Operations",
+  "title": "Line-up",
+  "subtitle": "Vessels in the Sulina channel queue for each Danube port, from the live vessels board.",
+  "col": {
+    "vessel": "Vessel",
+    "condition": "Condition",
+    "status": "Status",
+    "etaSulina": "ETA Sulina",
+    "arrived": "Arrived",
+    "inPort": "In port",
+    "waiting": "Waiting"
+  },
+  "days": "{days} d",
+  "portSummary": "{inPort} in port · {roads} at Sulina roads · {expected} expected",
+  "kpi": {
+    "inLineup": "In line-up",
+    "ports": "{count, plural, one {# port} other {# ports}}",
+    "atRoads": "At Sulina roads",
+    "avgWait": "Avg wait at roads",
+    "avgWaitHint": "days since arrival",
+    "loadedBallast": "Loaded / ballast"
+  },
+  "portTabsAria": "Port",
+  "allPorts": "All ports",
+  "loading": "Loading line-up…",
+  "emptyTitle": "No vessels in the line-up",
+  "emptyText": "Vessels appear here as soon as they are added to the board with a destination."
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -10,14 +11,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { extractAuthError } from "@/lib/api/auth";
+import { useErrorText } from "@/lib/api/errorText";
 import { useVesselMutations } from "@/lib/vessels/hooks";
 import { fromLocalInput, toLocalInput } from "@/lib/vessels/format";
+import { useVesselLabels } from "@/lib/vessels/i18n";
 import {
   CONDITIONS,
-  CONDITION_LABEL,
   DESTINATIONS,
-  DESTINATION_LABEL,
-  TYPE_LABEL,
   VESSEL_TYPES,
   type Destination,
   type VesselCondition,
@@ -65,16 +65,17 @@ function initial(v?: VesselView | null): FormState {
   };
 }
 
-type Errors = Partial<Record<keyof FormState, string>>;
+/** Values are message keys under vessels.form.errors */
+type Errors = Partial<Record<keyof FormState, "name" | "imo" | "mmsi" | "email">>;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validate(f: FormState): Errors {
   const e: Errors = {};
-  if (f.name.trim().length < 2) e.name = "Enter the vessel name";
-  if (f.imo && !/^\d{7}$/.test(f.imo.trim())) e.imo = "IMO is 7 digits";
-  if (f.mmsi && !/^\d{9}$/.test(f.mmsi.trim())) e.mmsi = "MMSI is 9 digits";
-  if (f.masterEmail && !EMAIL_RE.test(f.masterEmail.trim())) e.masterEmail = "Invalid email";
-  if (f.officeEmail && !EMAIL_RE.test(f.officeEmail.trim())) e.officeEmail = "Invalid email";
+  if (f.name.trim().length < 2) e.name = "name";
+  if (f.imo && !/^\d{7}$/.test(f.imo.trim())) e.imo = "imo";
+  if (f.mmsi && !/^\d{9}$/.test(f.mmsi.trim())) e.mmsi = "mmsi";
+  if (f.masterEmail && !EMAIL_RE.test(f.masterEmail.trim())) e.masterEmail = "email";
+  if (f.officeEmail && !EMAIL_RE.test(f.officeEmail.trim())) e.officeEmail = "email";
   return e;
 }
 
@@ -118,6 +119,9 @@ export function VesselFormDialog({
   onOpenChange: (open: boolean) => void;
   vessel?: VesselView | null;
 }) {
+  const t = useTranslations("vessels.form");
+  const errorText = useErrorText();
+  const labels = useVesselLabels();
   const router = useRouter();
   const { create, update } = useVesselMutations();
   const [form, setForm] = useState<FormState>(() => initial(vessel));
@@ -142,6 +146,7 @@ export function VesselFormDialog({
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
+  const err = (key: keyof FormState) => (errors[key] ? t(`errors.${errors[key]}`) : undefined);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -153,7 +158,7 @@ export function VesselFormDialog({
     try {
       if (vessel) {
         const patch = changedFields(snapshot.current, toInput(form));
-        if (Object.keys(patch).length) await update(vessel.id, patch, "Saved");
+        if (Object.keys(patch).length) await update(vessel.id, patch, t("saved"));
         onOpenChange(false);
       } else {
         const saved = await create(toInput(form));
@@ -162,7 +167,7 @@ export function VesselFormDialog({
       }
     } catch (err) {
       const msg = extractAuthError(err);
-      setServerError(/imoAlreadyExists/.test(msg) ? "A vessel with this IMO is already on the board." : msg);
+      setServerError(/imoAlreadyExists/.test(msg) ? t("errors.imoExists") : errorText(err));
     } finally {
       setBusy(false);
     }
@@ -172,66 +177,64 @@ export function VesselFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92svh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? `Edit ${vessel?.name}` : "Add vessel"}</DialogTitle>
-          <DialogDescription>
-            Checklist items and voyage dates are updated on the vessel card. Every change is logged with your name.
-          </DialogDescription>
+          <DialogTitle>{editing ? t("editTitle", { name: vessel?.name ?? "" }) : t("addTitle")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-5" noValidate>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Field label="Name *" error={errors.name} className="sm:col-span-3">
-              <TextInput value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. PRINCESS ABIR" autoFocus />
+            <Field label={t("name")} error={err("name")} className="sm:col-span-3">
+              <TextInput value={form.name} onChange={(e) => set("name", e.target.value)} placeholder={t("namePlaceholder")} autoFocus />
             </Field>
-            <Field label="IMO" error={errors.imo}>
+            <Field label="IMO" error={err("imo")}>
               <TextInput value={form.imo} onChange={(e) => set("imo", e.target.value)} inputMode="numeric" maxLength={7} />
             </Field>
-            <Field label="MMSI" error={errors.mmsi} hint="Optional — AIS fills it">
+            <Field label="MMSI" error={err("mmsi")} hint={t("mmsiHint")}>
               <TextInput value={form.mmsi} onChange={(e) => set("mmsi", e.target.value)} inputMode="numeric" maxLength={9} />
             </Field>
-            <Field label="ETA Sulina">
+            <Field label={t("etaSulina")}>
               <TextInput type="datetime-local" value={form.etaSulina} onChange={(e) => set("etaSulina", e.target.value)} />
             </Field>
-            <Field label="Type">
+            <Field label={t("type")}>
               <SelectInput value={form.type} onChange={(e) => set("type", e.target.value as VesselType)}>
-                {VESSEL_TYPES.map((t) => (
-                  <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+                {VESSEL_TYPES.map((vt) => (
+                  <option key={vt} value={vt}>{labels.type(vt)}</option>
                 ))}
               </SelectInput>
             </Field>
-            <Field label="Destination">
+            <Field label={t("destination")}>
               <SelectInput value={form.destination} onChange={(e) => set("destination", e.target.value as Destination)}>
                 {DESTINATIONS.map((d) => (
-                  <option key={d} value={d}>{DESTINATION_LABEL[d]}</option>
+                  <option key={d} value={d}>{labels.destination(d)}</option>
                 ))}
               </SelectInput>
             </Field>
-            <Field label="Condition">
+            <Field label={t("condition")}>
               <SelectInput value={form.condition} onChange={(e) => set("condition", e.target.value as VesselCondition | "")}>
                 <option value="">—</option>
                 {CONDITIONS.map((c) => (
-                  <option key={c} value={c}>{CONDITION_LABEL[c]}</option>
+                  <option key={c} value={c}>{labels.condition(c)}</option>
                 ))}
               </SelectInput>
             </Field>
           </div>
 
           <fieldset className="grid gap-3 rounded-lg border p-3 sm:grid-cols-3">
-            <legend className="px-1 text-xs font-semibold text-muted-foreground">Master</legend>
-            <Field label="Name"><TextInput value={form.masterName} onChange={(e) => set("masterName", e.target.value)} /></Field>
-            <Field label="Phone / WhatsApp"><TextInput value={form.masterPhone} onChange={(e) => set("masterPhone", e.target.value)} inputMode="tel" /></Field>
-            <Field label="Email" error={errors.masterEmail}><TextInput type="email" value={form.masterEmail} onChange={(e) => set("masterEmail", e.target.value)} /></Field>
+            <legend className="px-1 text-xs font-semibold text-muted-foreground">{t("master")}</legend>
+            <Field label={t("contactName")}><TextInput value={form.masterName} onChange={(e) => set("masterName", e.target.value)} /></Field>
+            <Field label={t("phoneWhatsapp")}><TextInput value={form.masterPhone} onChange={(e) => set("masterPhone", e.target.value)} inputMode="tel" /></Field>
+            <Field label={t("email")} error={err("masterEmail")}><TextInput type="email" value={form.masterEmail} onChange={(e) => set("masterEmail", e.target.value)} /></Field>
           </fieldset>
 
           <fieldset className="grid gap-3 rounded-lg border p-3 sm:grid-cols-3">
-            <legend className="px-1 text-xs font-semibold text-muted-foreground">Owner / operator office</legend>
-            <Field label="Company"><TextInput value={form.officeName} onChange={(e) => set("officeName", e.target.value)} /></Field>
-            <Field label="Phone"><TextInput value={form.officePhone} onChange={(e) => set("officePhone", e.target.value)} inputMode="tel" /></Field>
-            <Field label="Email" error={errors.officeEmail}><TextInput type="email" value={form.officeEmail} onChange={(e) => set("officeEmail", e.target.value)} /></Field>
+            <legend className="px-1 text-xs font-semibold text-muted-foreground">{t("office")}</legend>
+            <Field label={t("company")}><TextInput value={form.officeName} onChange={(e) => set("officeName", e.target.value)} /></Field>
+            <Field label={t("phone")}><TextInput value={form.officePhone} onChange={(e) => set("officePhone", e.target.value)} inputMode="tel" /></Field>
+            <Field label={t("email")} error={err("officeEmail")}><TextInput type="email" value={form.officeEmail} onChange={(e) => set("officeEmail", e.target.value)} /></Field>
           </fieldset>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Port agent at destination"><TextInput value={form.portAgent} onChange={(e) => set("portAgent", e.target.value)} placeholder="Agency, contact person, phone" /></Field>
-            <Field label="Notes"><TextArea value={form.notes} onChange={(e) => set("notes", e.target.value)} maxLength={4000} className="min-h-[40px]" /></Field>
+            <Field label={t("portAgent")}><TextInput value={form.portAgent} onChange={(e) => set("portAgent", e.target.value)} placeholder={t("portAgentPlaceholder")} /></Field>
+            <Field label={t("notes")}><TextArea value={form.notes} onChange={(e) => set("notes", e.target.value)} maxLength={4000} className="min-h-[40px]" /></Field>
           </div>
 
           {serverError ? (
@@ -240,11 +243,11 @@ export function VesselFormDialog({
 
           <div className="flex justify-end gap-2">
             <button type="button" onClick={() => onOpenChange(false)} className="h-10 rounded-lg border px-4 text-sm font-medium hover:bg-accent">
-              Cancel
+              {t("cancel")}
             </button>
             <button type="submit" disabled={busy} className="flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50">
               {busy ? <Spinner className="h-4 w-4 text-primary-foreground" /> : null}
-              {editing ? "Save changes" : "Add vessel"}
+              {editing ? t("saveChanges") : t("addSubmit")}
             </button>
           </div>
         </form>

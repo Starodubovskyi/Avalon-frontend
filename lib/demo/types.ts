@@ -9,6 +9,9 @@ import type {
 import type { PointKind } from "@/lib/points/team-points";
 import type { ActivityCode } from "@/lib/points/activities";
 import type { AgencyRequest } from "@/lib/requests/types";
+import type { PointVisibility } from "@/lib/points/team-points";
+import type { TopUpStatus, WalletTransactionKind } from "@/lib/wallet/types";
+import type { AppLocale } from "@/i18n/config";
 
 /** Rows of the in-browser demo database; dates are ISO strings, soft deletes keep the row */
 
@@ -21,6 +24,11 @@ export interface DemoUserRow {
   lastName: string;
   roleId: RoleIdValue;
   statusId: number;
+  /** Public profile (stage 2): short position line, about text, phone (only self and the team see it) */
+  headline: string | null;
+  bio: string | null;
+  phone: string | null;
+  locale: AppLocale;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -118,9 +126,60 @@ export interface MapPointRow {
   notes: string | null;
   /** map_point_favorite rows of this point (user ids) */
   favoritedBy: number[];
+  /** public: everyone; team: the Avalon team and the owner */
+  visibility: PointVisibility;
+  description: string | null;
+  website: string | null;
+  /** Head office of a branch */
+  parentId: string | null;
+  /** Paid Business Activity slots, 1–14 */
+  activitySlots: number;
+  emailVerifiedAt: string | null;
+  emailVerificationSentAt: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+}
+
+/** company_member: someone who said "I work here"; the owner (point author) has no row */
+export interface CompanyMemberRow {
+  pointId: string;
+  userId: number;
+  position: string | null;
+  status: "pending" | "active";
+  createdAt: string;
+}
+
+/** wallet_transaction: insert-only ledger, the balance is the sum */
+export interface WalletTransactionRow {
+  id: string;
+  userId: number;
+  amount: number;
+  kind: WalletTransactionKind;
+  note: string | null;
+  pointId: string | null;
+  createdById: number | null;
+  createdAt: string;
+}
+
+export interface TopUpRequestRow {
+  id: string;
+  userId: number;
+  amount: number;
+  note: string | null;
+  status: TopUpStatus;
+  handledById: number | null;
+  handledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RankBoostRow {
+  id: string;
+  userId: number;
+  points: number;
+  expiresAt: string;
+  createdAt: string;
 }
 
 export interface ConversationMemberRow {
@@ -202,8 +261,11 @@ export interface PendingReply {
   dueAt: string;
 }
 
+/** Bumped whenever the stored shape changes: an older saved demo is dropped and re-seeded */
+export const DEMO_STATE_VERSION = 2;
+
 export interface DemoState {
-  version: 1;
+  version: typeof DEMO_STATE_VERSION;
   seededAt: string;
   users: DemoUserRow[];
   vessels: VesselRow[];
@@ -219,4 +281,8 @@ export interface DemoState {
   ports: PortRow[];
   agencyRequests: AgencyRequestRow[];
   pendingReplies: PendingReply[];
+  companyMembers: CompanyMemberRow[];
+  walletTransactions: WalletTransactionRow[];
+  topUpRequests: TopUpRequestRow[];
+  rankBoosts: RankBoostRow[];
 }

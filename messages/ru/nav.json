@@ -1,0 +1,50 @@
+{
+  "aria": "Главное меню",
+  "tabsAria": "Быстрая навигация",
+  "groups": {
+    "operations": "Операции",
+    "clients": "Клиенты",
+    "network": "Сеть",
+    "workspace": "Рабочее место",
+    "account": "Аккаунт",
+    "admin": "Администрирование"
+  },
+  "items": {
+    "overview": "Обзор",
+    "fleetMap": "Карта флота",
+    "vessels": "Суда",
+    "lineup": "Лайн-ап",
+    "ports": "Порты",
+    "requestAgency": "Заявка на агентирование",
+    "requests": "Заявки",
+    "pdaEstimate": "Расчёт PDA",
+    "portGuide": "Справочник портов",
+    "chat": "Чат",
+    "feed": "Лента",
+    "people": "Люди",
+    "companies": "Компании",
+    "documents": "Документы",
+    "tasks": "Задачи",
+    "email": "Почта",
+    "activityLog": "Журнал изменений",
+    "profile": "Профиль",
+    "balance": "Баланс",
+    "settings": "Настройки",
+    "support": "Поддержка",
+    "team": "Команда"
+  },
+  "detail": {
+    "vesselCard": "Карточка судна",
+    "companyProfile": "Профиль компании",
+    "personProfile": "Профиль",
+    "portCard": "Порт",
+    "portLineup": "Лайн-ап порта"
+  },
+  "tabs": {
+    "overview": "Обзор",
+    "map": "Карта",
+    "vessels": "Суда",
+    "chat": "Чат",
+    "more": "Ещё"
+  }
+}

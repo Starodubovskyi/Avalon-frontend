@@ -1,0 +1,149 @@
+{
+  "hero": {
+    "title": "Advice and answers from the Avalon Shipping team",
+    "language": "Interface language",
+    "brand": "Avalon Shipping"
+  },
+  "search": {
+    "placeholder": "Search for articles...",
+    "label": "Search articles"
+  },
+  "articles": "{count, plural, one {# article} other {# articles}}",
+  "categories": {
+    "recent-updates": {
+      "title": "Recent Updates",
+      "description": "Check out the latest features of Avalon Shipping."
+    },
+    "previous-updates": {
+      "title": "Previous Updates",
+      "description": "Review previous feature updates of Avalon Shipping."
+    },
+    "getting-started": {
+      "title": "Getting Started",
+      "description": "New to Avalon Shipping? Start here and become a pro in no time."
+    },
+    "using-avalon": {
+      "title": "Using Avalon Shipping",
+      "description": "Learn the basics of using Avalon Shipping day to day."
+    },
+    "mobile-apps": {
+      "title": "Using our Mobile Apps",
+      "description": "Everything you need to get started with our mobile apps."
+    },
+    "apis": {
+      "title": "Using APIs",
+      "description": "All about using and troubleshooting our APIs."
+    },
+    "data-quality": {
+      "title": "Data Quality & Methodology",
+      "description": "Understand our data sources, validation and accuracy."
+    },
+    "ais-network": {
+      "title": "AIS Network for Station Owners",
+      "description": "Complete documentation guides for AIS station owners."
+    },
+    "faq-troubleshooting": {
+      "title": "FAQ and Troubleshooting",
+      "description": "Find answers to common questions and quick fixes."
+    }
+  },
+  "bot": {
+    "name": "Avalon Assistant",
+    "online": "Online",
+    "open": "Open the assistant",
+    "close": "Close the assistant",
+    "placeholder": "Ask anything…",
+    "send": "Send",
+    "you": "You",
+    "userInitial": "U",
+    "poweredBy": "Avalon Shipping assistant",
+    "welcome": "👋 Hello, I'm the Avalon Shipping virtual assistant. How can I help you make the most of the portal today?",
+    "fallback": "🤖 Sorry, I didn't quite understand that. Try asking about the fleet, the map, agency requests or payments.",
+    "buttons": {
+      "about": "About us",
+      "offer": "What we offer",
+      "agency": "Agency request",
+      "fleet": "Fleet",
+      "map": "Live map",
+      "notifications": "Notifications",
+      "reports": "Reports",
+      "search": "Search",
+      "security": "Security",
+      "team": "Team",
+      "history": "History",
+      "automation": "Automation",
+      "pricing": "Pricing",
+      "payment": "Payment",
+      "support": "Support",
+      "greeting": "Hello",
+      "bye": "Goodbye"
+    },
+    "answers": {
+      "about": "🚢 Avalon Shipping is a ship agency on the Danube. In the portal you follow vessels on the map, see which ports they call at and what cargo they carry, and open a detailed card for every ship.",
+      "offer": "📌 You can plan calls, keep notes, work with partner companies, run day-to-day operations — and talk to your team and partners in the built-in chat and feed.",
+      "agency": "⚓ To nominate Avalon for a Danube call, send an [agency request](/request). An agent replies right in the portal and the status changes as we work on it.",
+      "fleet": "🛳️ The vessel board shows the whole fleet: add vessels, update their details and see the status and checklist of every call.",
+      "map": "🗺️ The live map shows vessels in real time — current positions, routes and ports of call.",
+      "notifications": "🔔 Badges in the menu show what needs attention: unread chats, new agency requests and vessels that sailed unpaid.",
+      "reports": "📈 The dashboard sums up arrivals, open checklist items and unpaid calls, and documents are always at hand in the shared library.",
+      "search": "🔎 Use search and filters to quickly find vessels, companies, cargo or ports.",
+      "security": "🛡️ Your data is stored securely, and access depends on your role: admins, staff and clients each see only what they need.",
+      "team": "👥 Admins add team members, assign roles and permissions, and every change in the log carries the author's name.",
+      "history": "📜 The change log keeps the full history of vessel updates, movements and user actions.",
+      "automation": "🤖 Routine steps are handled for you: checklist progress and ETA countdowns update automatically.",
+      "pricing": "💸 Port costs depend on the vessel and the call. Get an instant [PDA estimate](/estimate), then send an agency request for a firm quote.",
+      "payment": "💳 Agency calls are paid against the agent's invoice, and portal services are paid from your credit balance — see **Balance** in the menu.",
+      "support": "🛟 I can help with agency requests and payments. What do you need help with?",
+      "greeting": "👋 Hello! How can I help you today?",
+      "bye": "👋 Goodbye! Have a great day!"
+    }
+  },
+  "page": {
+    "eyebrow": "Help",
+    "title": "Support",
+    "subtitle": "Questions about a call, a document or your account — the Avalon team answers in the chat.",
+    "contact": {
+      "eyebrow": "Avalon team",
+      "title": "Talk to a person",
+      "text": "Agents in Sulina, Galați and Izmail read the chat during operations. For a new call, send an agency request — it reaches the whole team at once.",
+      "chat": "Open the chat",
+      "request": "Request agency",
+      "assistant": "Quick answers: the assistant in the lower right corner"
+    },
+    "guides": {
+      "title": "How it works",
+      "overview": {
+        "title": "Overview",
+        "text": "Vessels by stage, what needs attention, arrivals in 72 hours."
+      },
+      "vessels": {
+        "title": "Vessels",
+        "text": "The board and each vessel's checklist: red until done, then green."
+      },
+      "map": {
+        "title": "Fleet map",
+        "text": "Vessels and companies on the Danube; add your company's point."
+      },
+      "companies": {
+        "title": "Companies",
+        "text": "Profiles with activities, RANK, team and branches."
+      },
+      "request": {
+        "title": "Agency request",
+        "text": "Send a call to Avalon and follow the reply and status."
+      },
+      "estimate": {
+        "title": "PDA estimate",
+        "text": "An indicative port disbursement for your vessel in a minute."
+      },
+      "balance": {
+        "title": "Balance",
+        "text": "Credits for extra activities and RANK boosts; top-ups confirmed by the team."
+      },
+      "portGuide": {
+        "title": "Port guide",
+        "text": "Sulina channel and the river ports: codes, local time, notes."
+      }
+    }
+  }
+}

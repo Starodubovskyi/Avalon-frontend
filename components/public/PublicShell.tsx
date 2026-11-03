@@ -40,7 +40,7 @@ export function PublicSectionHeader({
       </p>
       <h2
         className={cn(
-          "mt-3 font-display text-[30px] font-extrabold leading-[1.08] tracking-[-0.025em] sm:text-[44px]",
+          "mt-3 text-balance font-display text-[30px] font-extrabold leading-[1.06] tracking-[-0.035em] sm:text-[46px]",
           inverted && "text-white",
         )}
       >
@@ -63,7 +63,7 @@ export function PublicPageIntro({ eyebrow, title, subtitle, children }: { eyebro
       <div aria-hidden className="pointer-events-none absolute -left-16 bottom-0 h-48 w-48 rounded-full bg-stage-roads/10 blur-3xl" />
       <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{eyebrow}</p>
-        <h1 className="mt-2 max-w-3xl font-display text-[32px] font-extrabold leading-[1.1] tracking-tight sm:text-5xl">{title}</h1>
+        <h1 className="mt-2 max-w-3xl text-balance font-display text-[32px] font-extrabold leading-[1.06] tracking-[-0.035em] sm:text-[52px]">{title}</h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">{subtitle}</p>
         {children}
       </div>

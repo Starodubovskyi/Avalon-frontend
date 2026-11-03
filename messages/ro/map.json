@@ -1,0 +1,85 @@
+{
+  "vessels": {
+    "search": "Căutați o navă sau IMO",
+    "empty": "Nicio navă de afișat",
+    "open": "{count} deschise",
+    "openTitle": "{count, plural, one {# punct deschis în lista de verificare} few {# puncte deschise în lista de verificare} other {# de puncte deschise în lista de verificare}}",
+    "estimated": "≈ poziție estimată",
+    "manual": "manual",
+    "stale": "veche",
+    "noContacts": "Încă nu există contacte",
+    "eta": "ETA Sulina",
+    "arrival": "Sosire",
+    "inPort": "În port",
+    "departure": "Plecare",
+    "master": "Comandant",
+    "office": "Birou",
+    "openCard": "Deschideți fișa"
+  },
+  "controls": {
+    "zoomIn": "Mărire",
+    "zoomOut": "Micșorare",
+    "resetBearing": "Orientare spre nord",
+    "toggleAttribution": "Afișați atribuirea",
+    "feedback": "Îmbunătățiți această hartă",
+    "map": "Hartă",
+    "nauticalMiles": "Mm"
+  },
+  "errors": {
+    "noToken": "Harta nu este configurată (lipsește tokenul Mapbox).",
+    "rejected": "Mapbox a respins tokenul hărții — harta nu poate fi afișată."
+  },
+  "pageTitle": "Harta flotei",
+  "listButton": "Listă",
+  "placeHint": "Faceți clic pe hartă pentru a plasa punctul: {kind}",
+  "confirmDelete": "Ștergeți „{title}” de pe hartă?",
+  "deepLink": {
+    "limit": "Ați folosit toate punctele — ștergeți unul pentru a adăuga altul.",
+    "notFound": "Acest punct nu mai există sau nu vă este vizibil."
+  },
+  "sidebar": {
+    "title": "Flotă și contacte",
+    "summary": "{vessels, plural, one {# navă} few {# nave} other {# de nave}} în lucru · {points, plural, one {# punct} few {# puncte} other {# de puncte}}",
+    "close": "Închideți lista",
+    "vesselsTab": "Nave ({count})",
+    "pointsTab": "Contacte ({count})"
+  },
+  "list": {
+    "search": "Căutați o companie sau o persoană",
+    "show": "Afișați",
+    "all": "Toate",
+    "favorites": "Favorite ({count})",
+    "favoriteAria": "Favorit",
+    "empty": "Încă nu există puncte. Apăsați „Adăugați un punct” și faceți clic pe hartă.",
+    "emptyFavorites": "Încă nu aveți favorite. Deschideți un punct și apăsați ★ Favorit."
+  },
+  "layers": {
+    "vessels": "Nave",
+    "favorites": "Favorite",
+    "favoritesHint": "Doar punctele mele favorite",
+    "seamarks": "Semnalizare maritimă"
+  },
+  "legend": {
+    "title": "Legendă",
+    "unpaid": "Plecate neplătite",
+    "symbols": "▲ în marș · ● oprită · ◇ poziție estimată (≈)",
+    "kinds": "Tipuri de puncte",
+    "departed": "Afișați navele plecate"
+  },
+  "add": {
+    "button": "Adăugați un punct",
+    "cancel": "Anulați",
+    "cancelAria": "Anulați adăugarea punctului",
+    "remaining": "{remaining, plural, one {Mai puteți adăuga # punct} few {Mai puteți adăuga # puncte} other {Mai puteți adăuga # de puncte}} · limită {limit}",
+    "limitReached": "Ați folosit toate cele {limit} puncte. Ștergeți unul pentru a adăuga altul."
+  },
+  "card": {
+    "close": "Închideți",
+    "openProfile": "Deschideți profilul",
+    "activity": "Domeniu de activitate",
+    "notSet": "Nespecificat",
+    "addedBy": "Adăugat de {name} · {when}",
+    "edit": "Editați",
+    "delete": "Ștergeți punctul"
+  }
+}

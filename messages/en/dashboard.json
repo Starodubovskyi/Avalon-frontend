@@ -1,0 +1,67 @@
+{
+  "loading": "Loading overview…",
+  "hero": {
+    "eyebrow": "Avalon Shipping · Operations",
+    "greetingDay": "Good day, {name}",
+    "greeting": {
+      "morning": "Good morning, {name}",
+      "afternoon": "Good afternoon, {name}",
+      "evening": "Good evening, {name}",
+      "night": "Working late, {name}"
+    },
+    "summary": "{active, plural, one {# vessel} other {# vessels}} in work · {arriving} arriving in 72 h",
+    "unpaid": "{count} sailed without payment",
+    "fleetBar": "Vessels in work by stage: {count}",
+    "danubeTime": "Time on the Danube",
+    "ports": "Sulina · Tulcea · Galați · Izmail · Reni"
+  },
+  "kpi": {
+    "within72": "{count} within 72 h",
+    "roadsHint": "Waiting for pilot or berth",
+    "portHint": "Alongside, cargo operations",
+    "sailed30": "Sailed (30 days)",
+    "sailedHint": "Departed in the last 30 days",
+    "unpaid": "Sailed unpaid",
+    "pdaMissing": "PDA not sent: {count}"
+  },
+  "actions": {
+    "title": "Quick actions",
+    "addVessel": "Add vessel",
+    "addVesselText": "New call on the board",
+    "estimate": "PDA estimate",
+    "estimateText": "Indicative call costs",
+    "request": "Request agency",
+    "requestText": "Nominate Avalon",
+    "map": "Open map",
+    "mapText": "Fleet and companies",
+    "balance": "Balance",
+    "balanceText": "Credits and history"
+  },
+  "attention": {
+    "title": "Needs attention",
+    "description": "{count, plural, one {# vessel} other {# vessels}} with open items",
+    "openBoard": "Open board",
+    "progress": "{done}/{total}",
+    "emptyTitle": "All clear",
+    "emptyText": "Every vessel in work has its checklist done and nothing sailed unpaid."
+  },
+  "arrivals": {
+    "title": "Arriving in 72 h",
+    "lineup": "Line-up",
+    "emptyTitle": "No arrivals expected",
+    "emptyText": "Vessels due at the Sulina roads in the next three days show up here."
+  },
+  "byPort": {
+    "title": "Vessels in work by port",
+    "emptyTitle": "No vessels in work"
+  },
+  "inWork": {
+    "title": "Vessels in work",
+    "open": "Open board",
+    "emptyTitle": "No vessels in work"
+  },
+  "activity": {
+    "title": "Recent activity",
+    "fullLog": "Full log"
+  }
+}

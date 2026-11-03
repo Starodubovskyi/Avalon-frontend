@@ -2,7 +2,6 @@
 
 import axios from "axios";
 import api from "@/lib/api/client";
-import { networkError } from "@/lib/network/api";
 import type {
   AgencyRequest,
   CreateAgencyRequestDto,
@@ -52,21 +51,22 @@ const FIELD_KEYS = [
 export type FieldKey = (typeof FIELD_KEYS)[number];
 export type FieldErrors = Partial<Record<FieldKey, string>>;
 
-export const EMAIL_HINT = "Enter a valid email address — no ?, &, %, # or spaces";
+/** Translator of the "requests" namespace — pass `useTranslations("requests")` */
+export type RequestsT = (key: string, values?: Record<string, string | number>) => string;
 
-/** 422 codes from the boilerplate ({ errors: { field: code } }) in plain words */
-const CODE_TEXT: Record<string, string> = {
-  empty: "Required",
-  invalidEmail: EMAIL_HINT,
-  imoInvalid: "IMO is exactly 7 digits",
-  imoAlreadyExists: "This IMO is already on the board",
-  tooLong: "Too long — shorten it",
-  invalidDateTime: "Pick a valid date and time",
-  notFound: "Not found — it may have been removed",
-  invalid: "Check this value",
+/** 422 codes from the boilerplate ({ errors: { field: code } }) → message keys under requests.errors */
+const CODE_KEY: Record<string, string> = {
+  empty: "errors.required",
+  invalidEmail: "errors.email",
+  imoInvalid: "errors.imo",
+  imoAlreadyExists: "errors.imoExists",
+  tooLong: "errors.tooLong",
+  invalidDateTime: "errors.dateTime",
+  notFound: "errors.notFound",
+  invalid: "errors.invalid",
 };
 
-const FALLBACK_TEXT = "Check this value";
+const FALLBACK_KEY = "errors.invalid";
 
 /** Raw `{ field: code }` of a 422 response, or null for any other failure */
 export function validationCodes(error: unknown): Record<string, string> | null {
@@ -79,13 +79,13 @@ export function validationCodes(error: unknown): Record<string, string> | null {
 }
 
 /** Per-field messages (known fields only) from a 422 response, or null when it is not a validation error */
-export function requestFieldErrors(error: unknown): FieldErrors | null {
+export function requestFieldErrors(error: unknown, t: RequestsT): FieldErrors | null {
   const codes = validationCodes(error);
   if (!codes) return null;
   const out: FieldErrors = {};
   for (const key of FIELD_KEYS) {
     const code = codes[key];
-    if (code !== undefined) out[key] = CODE_TEXT[code] ?? FALLBACK_TEXT;
+    if (code !== undefined) out[key] = t(CODE_KEY[code] ?? FALLBACK_KEY);
   }
   return out;
 }
@@ -95,9 +95,16 @@ export function isDuplicateImo(error: unknown): boolean {
   return validationCodes(error)?.imo === "imoAlreadyExists";
 }
 
-/** Human message for a failed request call */
-export function requestError(error: unknown): string {
-  if (isDuplicateImo(error)) return "This IMO is already on the board — open the existing vessel";
-  if (requestFieldErrors(error)) return "Some fields need attention";
-  return networkError(error);
+/** Human message for a failed request call, in the interface language */
+export function requestError(error: unknown, t: RequestsT): string {
+  if (isDuplicateImo(error)) return t("errors.imoExistsOpen");
+  if (validationCodes(error)) return t("errors.attention");
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    if (!error.response) return t("errors.offline");
+    if (status === 401) return t("errors.sessionExpired");
+    if (status === 403) return t("errors.forbidden");
+    if (status === 404) return t("errors.gone");
+  }
+  return t("errors.generic");
 }

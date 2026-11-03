@@ -1,5 +1,6 @@
 import { Building2, Mail, MessageCircle, Phone, UserRound, Users } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { VesselView } from "@/lib/vessels/types";
 
 function digits(phone: string): string {
@@ -19,6 +20,7 @@ function ContactBlock({
   phone: string | null;
   email: string | null;
 }) {
+  const t = useTranslations("vessels.contacts");
   const empty = !name && !phone && !email;
   return (
     <div className="rounded-xl border bg-muted/30 p-4">
@@ -27,7 +29,7 @@ function ContactBlock({
         {title}
       </div>
       {empty ? (
-        <p className="mt-2 text-sm text-muted-foreground">Not filled in</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("notFilled")}</p>
       ) : (
         <div className="mt-2 space-y-1.5 text-sm">
           {name ? <p className="font-medium">{name}</p> : null}
@@ -60,15 +62,16 @@ function ContactBlock({
 }
 
 export function ContactsPanel({ vessel }: { vessel: VesselView }) {
+  const t = useTranslations("vessels.contacts");
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      <ContactBlock icon={<UserRound className="h-3.5 w-3.5" />} title="Master" name={vessel.masterName} phone={vessel.masterPhone} email={vessel.masterEmail} />
-      <ContactBlock icon={<Building2 className="h-3.5 w-3.5" />} title="Owner / office" name={vessel.officeName} phone={vessel.officePhone} email={vessel.officeEmail} />
+      <ContactBlock icon={<UserRound className="h-3.5 w-3.5" />} title={t("master")} name={vessel.masterName} phone={vessel.masterPhone} email={vessel.masterEmail} />
+      <ContactBlock icon={<Building2 className="h-3.5 w-3.5" />} title={t("office")} name={vessel.officeName} phone={vessel.officePhone} email={vessel.officeEmail} />
       <div className="rounded-xl border bg-muted/30 p-4 sm:col-span-2">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <Users className="h-3.5 w-3.5" /> Port agent at destination
+          <Users className="h-3.5 w-3.5" /> {t("portAgent")}
         </div>
-        <p className="mt-2 whitespace-pre-wrap text-sm">{vessel.portAgent || <span className="text-muted-foreground">Not filled in</span>}</p>
+        <p className="mt-2 whitespace-pre-wrap text-sm">{vessel.portAgent || <span className="text-muted-foreground">{t("notFilled")}</span>}</p>
       </div>
     </div>
   );

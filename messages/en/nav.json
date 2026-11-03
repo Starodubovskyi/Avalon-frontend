@@ -1,0 +1,50 @@
+{
+  "aria": "Main",
+  "tabsAria": "Quick navigation",
+  "groups": {
+    "operations": "Operations",
+    "clients": "Clients",
+    "network": "Network",
+    "workspace": "Workspace",
+    "account": "Account",
+    "admin": "Admin"
+  },
+  "items": {
+    "overview": "Overview",
+    "fleetMap": "Fleet map",
+    "vessels": "Vessels",
+    "lineup": "Line-up",
+    "ports": "Ports",
+    "requestAgency": "Request agency",
+    "requests": "Requests",
+    "pdaEstimate": "PDA estimate",
+    "portGuide": "Port guide",
+    "chat": "Chat",
+    "feed": "Feed",
+    "people": "People",
+    "companies": "Companies",
+    "documents": "Documents",
+    "tasks": "Tasks",
+    "email": "Email",
+    "activityLog": "Activity log",
+    "profile": "Profile",
+    "balance": "Balance",
+    "settings": "Settings",
+    "support": "Support",
+    "team": "Team"
+  },
+  "detail": {
+    "vesselCard": "Vessel card",
+    "companyProfile": "Company profile",
+    "personProfile": "Profile",
+    "portCard": "Port",
+    "portLineup": "Port line-up"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "map": "Map",
+    "vessels": "Vessels",
+    "chat": "Chat",
+    "more": "More"
+  }
+}

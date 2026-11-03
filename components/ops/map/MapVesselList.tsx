@@ -1,11 +1,12 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { STAGE_META, isPositionStale, isUnpaidAfterDeparture, pendingCount } from "@/lib/vessels/status";
 import { resolvePosition } from "@/lib/vessels/geo";
-import { fmtRelative } from "@/lib/vessels/format";
-import { DESTINATION_LABEL, type VesselView } from "@/lib/vessels/types";
+import { useVesselFormat, useVesselLabels } from "@/lib/vessels/i18n";
+import type { VesselView } from "@/lib/vessels/types";
 import { TextInput } from "../ui/primitives";
 
 export function MapVesselList({
@@ -21,16 +22,19 @@ export function MapVesselList({
   query: string;
   onQuery: (q: string) => void;
 }) {
+  const t = useTranslations("map");
+  const labels = useVesselLabels();
+  const fmt = useVesselFormat();
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="border-b p-3">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <TextInput value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Find vessel or IMO" className="h-9 pl-9" aria-label="Find vessel" />
+          <TextInput value={query} onChange={(e) => onQuery(e.target.value)} placeholder={t("vessels.search")} className="h-10 pl-9" aria-label={t("vessels.search")} />
         </div>
       </div>
       <ul className="min-h-0 flex-1 overflow-y-auto p-2">
-        {vessels.length === 0 ? <li className="px-3 py-8 text-center text-sm text-muted-foreground">No vessels to show</li> : null}
+        {vessels.length === 0 ? <li className="px-3 py-8 text-center text-sm text-muted-foreground">{t("vessels.empty")}</li> : null}
         {vessels.map((v) => {
           const pos = resolvePosition(v);
           const unpaid = isUnpaidAfterDeparture(v);
@@ -50,17 +54,19 @@ export function MapVesselList({
                   <span className="flex items-center justify-between gap-2">
                     <span className="truncate text-sm font-semibold">{v.name}</span>
                     {!v.restricted && open > 0 && v.stage !== "departed" ? (
-                      <span className="shrink-0 rounded-full bg-bad/10 px-1.5 text-[10px] font-semibold text-bad" title={`${open} open checklist items`}>
-                        {open} open
+                      <span className="shrink-0 rounded-full bg-bad/10 px-1.5 text-[10px] font-semibold text-bad" title={t("vessels.openTitle", { count: open })}>
+                        {t("vessels.open", { count: open })}
                       </span>
                     ) : null}
-                    {unpaid ? <span className="shrink-0 rounded-full bg-stage-unpaid/15 px-1.5 text-[10px] font-semibold text-stage-unpaid">unpaid</span> : null}
+                    {unpaid ? <span className="shrink-0 rounded-full bg-stage-unpaid/15 px-1.5 text-[10px] font-semibold text-stage-unpaid">{labels.unpaid(null)}</span> : null}
                   </span>
                   <span className="block truncate text-xs text-muted-foreground">
-                    {STAGE_META[v.stage].label} → {DESTINATION_LABEL[v.destination]}
+                    {labels.stage(v.stage)} → {labels.destination(v.destination)}
                   </span>
                   <span className="block text-[11px] text-muted-foreground">
-                    {pos.estimated ? "≈ estimated position" : `${v.positionSource === "ais" ? "AIS" : "manual"} · ${fmtRelative(v.positionAt)}${isPositionStale(v) ? " · stale" : ""}`}
+                    {pos.estimated
+                      ? t("vessels.estimated")
+                      : `${v.positionSource === "ais" ? "AIS" : t("vessels.manual")} · ${fmt.relative(v.positionAt)}${isPositionStale(v) ? ` · ${t("vessels.stale")}` : ""}`}
                   </span>
                 </span>
               </button>

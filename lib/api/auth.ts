@@ -56,6 +56,8 @@ function parseAuthUser(raw: unknown): AuthUser | null {
     firstName: typeof src.firstName === "string" ? src.firstName : null,
     lastName: typeof src.lastName === "string" ? src.lastName : null,
     role: parseRole(src.role),
+    // saved interface language: LocaleSync adopts it after sign-in
+    locale: typeof src.locale === "string" ? src.locale : null,
   };
 }
 

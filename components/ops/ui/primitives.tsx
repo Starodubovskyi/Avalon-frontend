@@ -1,20 +1,14 @@
-import { forwardRef, type ReactNode } from "react";
-import { Loader2 } from "lucide-react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** Shared button looks — plain class strings so links and buttons stay native elements */
-export const btn = {
-  primary:
-    "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_6px_16px_-6px_hsl(var(--primary)/0.6)] transition hover:brightness-110 active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
-  secondary:
-    "inline-flex h-10 items-center justify-center gap-2 rounded-xl border bg-card px-4 text-sm font-medium text-foreground shadow-card transition hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50",
-  ghost:
-    "inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground disabled:opacity-50",
-  danger:
-    "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-bad/30 bg-card px-4 text-sm font-medium text-bad transition hover:bg-bad/5 disabled:opacity-50",
-  icon:
-    "inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-accent hover:text-accent-foreground disabled:opacity-40",
-};
+/*
+ * Ops design primitives. Split by concern (buttons, feedback, fields, KPI tile) and re-exported here,
+ * so every screen keeps importing from "components/ops/ui/primitives".
+ */
+export { btn } from "./buttons";
+export { EmptyState, ErrorBlock, LoadingBlock, Spinner } from "./feedback";
+export { Field, SelectInput, TextArea, TextInput } from "./fields";
+export { KpiTile, type KpiTone, type KpiTrend } from "./KpiTile";
 
 export function PageHeader({
   title,
@@ -31,10 +25,13 @@ export function PageHeader({
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">{eyebrow}</p>
+          <p className="mb-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-eyebrow text-primary">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]" />
+            {eyebrow}
+          </p>
         ) : null}
-        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">{title}</h1>
-        {subtitle ? <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{subtitle}</p> : null}
+        <h1 className="text-balance font-display text-[26px] font-extrabold leading-[1.15] tracking-[-0.028em] sm:text-[30px]">{title}</h1>
+        {subtitle ? <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">{subtitle}</p> : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
@@ -64,10 +61,12 @@ export function Panel({
         <header className="flex items-center justify-between gap-3 px-5 pb-1 pt-4">
           <div className="flex min-w-0 items-center gap-2.5">
             {icon ? (
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">{icon}</span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/15 [&>svg]:h-4 [&>svg]:w-4">
+                {icon}
+              </span>
             ) : null}
             <div className="min-w-0">
-              <h2 className="truncate text-[15px] font-semibold">{title}</h2>
+              <h2 className="truncate font-display text-[15px] font-bold tracking-[-0.01em]">{title}</h2>
               {description ? <p className="truncate text-xs text-muted-foreground">{description}</p> : null}
             </div>
           </div>
@@ -79,138 +78,43 @@ export function Panel({
   );
 }
 
-export function EmptyState({
-  icon,
-  title,
-  text,
-  action,
-}: {
-  icon?: ReactNode;
-  title: string;
-  text?: string;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
-      {icon ? (
-        <div className="mb-1 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary">
-          {icon}
-        </div>
-      ) : null}
-      <p className="font-semibold">{title}</p>
-      {text ? <p className="max-w-sm text-sm text-muted-foreground">{text}</p> : null}
-      {action ? <div className="mt-3">{action}</div> : null}
-    </div>
-  );
-}
+export type BadgeTone = "neutral" | "primary" | "ok" | "bad" | "expected" | "roads" | "port" | "departed" | "unpaid";
 
-export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn("h-5 w-5 animate-spin text-muted-foreground", className)} aria-label="Loading" />;
-}
+const BADGE_TONE: Record<BadgeTone, string> = {
+  neutral: "border-border bg-muted text-muted-foreground",
+  primary: "border-primary/20 bg-primary/10 text-primary",
+  ok: "border-ok/25 bg-ok/10 text-ok",
+  bad: "border-bad/25 bg-bad/10 text-bad",
+  expected: "border-stage-expected/25 bg-stage-expected/10 text-stage-expected",
+  roads: "border-stage-roads/25 bg-stage-roads/10 text-stage-roads",
+  port: "border-stage-port/25 bg-stage-port/10 text-stage-port",
+  departed: "border-stage-departed/25 bg-stage-departed/10 text-stage-departed",
+  unpaid: "border-stage-unpaid/25 bg-stage-unpaid/10 text-stage-unpaid",
+};
 
-export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
-  return (
-    <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-      <Spinner /> {label}
-    </div>
-  );
-}
-
-export function ErrorBlock({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
-  const message = error instanceof Error ? error.message : "Something went wrong";
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-bad/25 bg-bad/5 px-4 py-3 text-sm text-bad">
-      <span>{message}</span>
-      {onRetry ? (
-        <button type="button" onClick={onRetry} className="shrink-0 font-semibold underline underline-offset-2">
-          Retry
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-const fieldBase =
-  "w-full rounded-xl border border-input bg-card px-3.5 text-sm text-foreground shadow-[0_1px_2px_hsl(var(--shadow-color)/0.04)] transition placeholder:text-muted-foreground/80 hover:border-primary/40 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60";
-
-export const TextInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  function TextInput({ className, ...props }, ref) {
-    return <input ref={ref} className={cn(fieldBase, "h-10", className)} {...props} />;
-  },
-);
-
-export const SelectInput = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
-  function SelectInput({ className, children, ...props }, ref) {
-    return (
-      <select ref={ref} className={cn(fieldBase, "h-10 cursor-pointer pr-8", className)} {...props}>
-        {children}
-      </select>
-    );
-  },
-);
-
-export const TextArea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  function TextArea({ className, ...props }, ref) {
-    return <textarea ref={ref} className={cn(fieldBase, "min-h-[88px] py-2.5", className)} {...props} />;
-  },
-);
-
-export function Field({
-  label,
-  error,
-  hint,
+/** Small status pill; pass `dot` for a leading status dot */
+export function Badge({
+  tone = "neutral",
+  dot = false,
   children,
   className,
 }: {
-  label: string;
-  error?: string;
-  hint?: string;
+  tone?: BadgeTone;
+  dot?: boolean;
   children: ReactNode;
   className?: string;
 }) {
   return (
-    <label className={cn("flex flex-col gap-1.5", className)}>
-      <span className="text-xs font-semibold text-foreground/80">{label}</span>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold",
+        BADGE_TONE[tone],
+        className,
+      )}
+    >
+      {dot ? <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden /> : null}
       {children}
-      {error ? <span className="text-xs text-bad">{error}</span> : hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
-    </label>
-  );
-}
-
-type Tone = "default" | "expected" | "roads" | "port" | "departed" | "unpaid";
-
-const TONE: Record<Tone, { text: string; chip: string }> = {
-  default: { text: "text-foreground", chip: "bg-primary/10 text-primary" },
-  expected: { text: "text-foreground", chip: "bg-stage-expected/10 text-stage-expected" },
-  roads: { text: "text-foreground", chip: "bg-stage-roads/10 text-stage-roads" },
-  port: { text: "text-foreground", chip: "bg-stage-port/10 text-stage-port" },
-  departed: { text: "text-foreground", chip: "bg-stage-departed/15 text-stage-departed" },
-  unpaid: { text: "text-stage-unpaid", chip: "bg-stage-unpaid/10 text-stage-unpaid" },
-};
-
-export function KpiTile({
-  label,
-  value,
-  tone = "default",
-  icon,
-  hint,
-}: {
-  label: string;
-  value: ReactNode;
-  tone?: Tone;
-  icon?: ReactNode;
-  hint?: string;
-}) {
-  const t = TONE[tone];
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated">
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-[13px] font-medium text-muted-foreground">{label}</span>
-        <span className={cn("flex h-9 w-9 items-center justify-center rounded-xl", t.chip)}>{icon}</span>
-      </div>
-      <div className={cn("tabular mt-1 font-display text-[34px] font-bold leading-none", t.text)}>{value}</div>
-      {hint ? <div className="mt-2 text-xs text-muted-foreground">{hint}</div> : <div className="mt-2 h-4" />}
-    </div>
+    </span>
   );
 }
 
@@ -231,7 +135,7 @@ export function Avatar({ name, className }: { name: string; className?: string }
   return (
     <span
       className={cn(
-        "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+        "inline-flex h-9 w-9 shrink-0 select-none items-center justify-center rounded-full text-xs font-bold tracking-wide ring-1 ring-inset ring-black/[0.04] dark:ring-white/[0.06]",
         AVATAR_TINTS[Math.abs(h) % AVATAR_TINTS.length],
         className,
       )}
